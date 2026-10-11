@@ -1,95 +1,360 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import type {Theme} from '../contract';
-import {clamp, easeInOut, easeOut, fit} from '../shared/motion';
-import {MONO_FONT, SANS_FONT, loadTemplateFonts} from '../shared/fonts';
-import {SceneTrack, type SceneProps} from '../shared/scenes';
+import {ArrowIcon, clamp, easeInOut, easeOut, fit, wrapFit} from '../shared/motion';
+import {DISPLAY, MONO_FONT, loadTemplateFonts} from '../shared/fonts';
 import {lowerthirdMeta} from './meta';
 import type {LowerthirdProps} from './schema';
 
 loadTemplateFonts();
 
-const W = 1920;
-const H = 1080;
-const LEFT = 140;
-const BOTTOM = 150;
-type P = SceneProps<LowerthirdProps>;
+const W = lowerthirdMeta.width;
+const H = lowerthirdMeta.height;
+const [SC1, SC2, SC3] = lowerthirdMeta.scenes;
+const A = SC1.from;
+const B = SC2.from;
+const C = SC3.from;
+const END = lowerthirdMeta.durationInFrames - 1;
 
-// A soft interview frame stands in for footage, so the overlays read in context.
-const Footage: React.FC<{theme: Theme}> = ({theme}) => {
-  const frame = useCurrentFrame();
-  const drift = Math.sin(frame / 60) * 12;
-  return (
-    <AbsoluteFill style={{background: `linear-gradient(120deg, ${theme.background}, ${theme.surface})`}}>
-      <div style={{position: 'absolute', left: 1180 + drift, top: 250, width: 300, height: 340, borderRadius: '50%', background: `${theme.foreground}1c`}} />
-      <div style={{position: 'absolute', left: 980 + drift, top: 600, width: 700, height: 600, borderRadius: '48% 48% 0 0', background: `${theme.foreground}14`}} />
-      <div style={{position: 'absolute', left: 120, top: 120, width: 520, height: 680, borderRadius: 8, background: `${theme.foreground}08`}} />
-      <AbsoluteFill style={{background: `linear-gradient(0deg, ${theme.background}cc, transparent 46%)`}} />
-    </AbsoluteFill>
-  );
+// Grid: 120 px left margin. Every strap lives between y=800 and y=960 and ends before x=1040.
+const X = 120;
+const TOP = 800;
+const BASE = 960;
+const SPINE_W = 16;
+const SPINE_H = BASE - TOP;
+const RULE_W = 880;
+const RULE_H = 6;
+const BLOCK = 140;
+const NAME_H = 104;
+const METER_H = 6;
+
+const ramp = (f: number, a: number, b: number, ease = easeOut) =>
+  interpolate(f, [a, b], [0, 1], {...clamp, easing: ease});
+const mix = (a: number, b: number, t: number) => a + (b - a) * t;
+
+const MASK: React.CSSProperties = {
+  display: 'inline-block',
+  overflow: 'hidden',
+  verticalAlign: 'top',
+  paddingBottom: '0.12em',
+  marginBottom: '-0.12em',
 };
 
-const SceneName: React.FC<P> = ({texts, theme, duration}) => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const bar = spring({frame, fps, config: {damping: 18, stiffness: 120}});
-  const title = spring({frame: frame - 9, fps, config: {damping: 18, stiffness: 120}});
-  const out = interpolate(frame, [duration - 14, duration], [0, 1], {...clamp, easing: easeInOut});
-  const nameSize = fit(texts.brand, 76, 860, 0.6);
-  return (
-    <AbsoluteFill style={{transform: `translateX(${out * -900}px)`}}>
-      <div style={{position: 'absolute', left: LEFT, bottom: BOTTOM + 70, display: 'flex', alignItems: 'stretch', clipPath: `inset(0 ${(1 - bar) * 100}% 0 0)`}}>
-        <div style={{width: 18, background: theme.accent}} />
-        <div style={{padding: '18px 40px 18px 30px', background: theme.foreground, color: theme.background, fontSize: nameSize, lineHeight: 1.05, fontWeight: 820, whiteSpace: 'nowrap'}}>
-          <span data-text-role="brand" style={{display: 'contents'}}>{texts.brand}</span>
-        </div>
-      </div>
-      <div style={{position: 'absolute', left: LEFT + 18, bottom: BOTTOM, padding: '14px 30px', background: theme.accent, color: theme.foreground, fontSize: fit(texts.headline, 38, 800, 0.58), fontWeight: 650, whiteSpace: 'nowrap', clipPath: `inset(0 ${(1 - title) * 100}% 0 0)`}}>
-        <span data-text-role="headline" style={{display: 'contents'}}>{texts.headline}</span>
-      </div>
-    </AbsoluteFill>
-  );
-};
-
-const SceneTopic: React.FC<P> = ({texts, theme}) => {
-  const frame = useCurrentFrame();
-  const line = interpolate(frame, [0, 24], [0, 1], {...clamp, easing: easeInOut});
-  const tag = interpolate(frame, [8, 26], [0, 1], {...clamp, easing: easeOut});
-  const copy = interpolate(frame, [16, 36], [0, 1], {...clamp, easing: easeOut});
-  return (
-    <AbsoluteFill>
-      <div style={{position: 'absolute', left: LEFT, bottom: BOTTOM + 132, height: 4, width: 1100 * line, background: theme.accent2}} />
-      <div style={{position: 'absolute', left: LEFT, bottom: BOTTOM + 160, fontFamily: MONO_FONT, fontSize: 30, fontWeight: 700, color: theme.accent2, textTransform: 'uppercase', opacity: tag, transform: `translateY(${(1 - tag) * 18}px)`}}>
-        <span data-text-role="point1" style={{display: 'contents'}}>{texts.point1}</span>
-      </div>
-      <div style={{position: 'absolute', left: LEFT, bottom: BOTTOM + 20, width: 1200, fontSize: fit(texts.subhead, 58, 1200, 0.55), lineHeight: 1.12, fontWeight: 760, color: theme.foreground, opacity: copy, transform: `translateY(${(1 - copy) * 30}px)`}}>
-        <span data-text-role="subhead" style={{display: 'contents'}}>{texts.subhead}</span>
-      </div>
-    </AbsoluteFill>
-  );
-};
-
-const SceneSocial: React.FC<P> = ({texts, theme}) => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const pop = spring({frame, fps, config: {damping: 13, stiffness: 150}});
-  const text = interpolate(frame, [10, 28], [0, 1], {...clamp, easing: easeOut});
-  return (
-    <AbsoluteFill>
-      <div style={{position: 'absolute', right: LEFT, bottom: BOTTOM, height: 112, display: 'flex', alignItems: 'center', gap: 26, padding: '0 46px 0 18px', borderRadius: 56, background: `${theme.background}e6`, border: `3px solid ${theme.accent}`, transform: `scale(${pop})`, transformOrigin: '100% 50%'}}>
-        <div style={{width: 78, height: 78, borderRadius: '50%', background: theme.accent, display: 'grid', placeItems: 'center', color: theme.foreground, fontSize: 40, fontWeight: 850}}>{texts.brand.slice(0, 1).toUpperCase()}</div>
-        <div style={{display: 'flex', flexDirection: 'column', opacity: text}}>
-          <span style={{fontSize: 26, fontWeight: 600, color: `${theme.foreground}aa`, whiteSpace: 'nowrap'}}><span data-text-role="brand" style={{display: 'contents'}}>{texts.brand}</span></span>
-          <span style={{fontSize: fit(texts.cta, 42, 600, 0.58), fontWeight: 800, color: theme.foreground, whiteSpace: 'nowrap'}}><span data-text-role="cta" style={{display: 'contents'}}>{texts.cta}</span></span>
-        </div>
-      </div>
-    </AbsoluteFill>
-  );
-};
-
-export const Lowerthird: React.FC<LowerthirdProps> = (props) => (
-  <AbsoluteFill style={{width: W, height: H, overflow: 'hidden', fontFamily: SANS_FONT}}>
-    <Footage theme={props.theme} />
-    <SceneTrack meta={lowerthirdMeta} scenes={[SceneName, SceneTopic, SceneSocial]} props={props} />
-  </AbsoluteFill>
+// Characters rise out of a single mask line.
+const Chars: React.FC<{text: string; role: string; frame: number; start: number; stagger: number; dur: number}> = ({
+  text,
+  role,
+  frame,
+  start,
+  stagger,
+  dur,
+}) => (
+  <span data-text-role={role} style={{...MASK, whiteSpace: 'pre'}}>
+    {[...text].map((ch, i) => {
+      const p = ramp(frame, start + i * stagger, start + i * stagger + dur);
+      return (
+        <span key={i} style={{display: 'inline-block', transform: `translateY(${(1 - p) * 110}%)`}}>
+          {ch === ' ' ? '\u00a0' : ch}
+        </span>
+      );
+    })}
+  </span>
 );
+
+// Words rise out of their own masks (so wrapping stays natural) and can drop back out.
+const Words: React.FC<{
+  text: string;
+  role: string;
+  frame: number;
+  start: number;
+  stagger: number;
+  dur: number;
+  out?: number;
+}> = ({text, role, frame, start, stagger, dur, out}) => {
+  const words = text.trim().split(/\s+/);
+  return (
+    <span data-text-role={role}>
+      {words.map((word, i) => {
+        const p = ramp(frame, start + i * stagger, start + i * stagger + dur);
+        const q = out === undefined ? 0 : ramp(frame, out + i * 0.6, out + i * 0.6 + 8, easeInOut);
+        return (
+          <React.Fragment key={i}>
+            {i > 0 ? ' ' : null}
+            <span style={MASK}>
+              <span style={{display: 'inline-block', transform: `translateY(${(1 - p) * 110 + q * 110}%)`}}>{word}</span>
+            </span>
+          </React.Fragment>
+        );
+      })}
+    </span>
+  );
+};
+
+// Flat stand-in for interview footage: back wall panel, guest silhouette, podcast mic.
+const Footage: React.FC<{theme: Theme; frame: number}> = ({theme, frame}) => {
+  const sway = Math.sin((frame / lowerthirdMeta.durationInFrames) * Math.PI * 2) * 6;
+  return (
+    <AbsoluteFill style={{background: theme.background}}>
+      <div style={{position: 'absolute', left: 1040, top: 0, width: 880, height: H, background: `${theme.surface}59`}} />
+      <div style={{position: 'absolute', left: 1040, top: 0, width: 10, height: H, background: `${theme.surface}99`}} />
+      <div
+        style={{
+          position: 'absolute',
+          left: 1150 + sway * 0.6,
+          top: 600,
+          width: 640,
+          height: 520,
+          borderRadius: '320px 320px 0 0',
+          background: `${theme.foreground}12`,
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          left: 1345 + sway,
+          top: 262,
+          width: 250,
+          height: 290,
+          borderRadius: '50%',
+          background: `${theme.foreground}17`,
+        }}
+      />
+      <div style={{position: 'absolute', left: 1232, top: 700, width: 14, height: 380, background: theme.surface}} />
+      <div style={{position: 'absolute', left: 1200, top: 560, width: 78, height: 170, borderRadius: 39, background: theme.surface}} />
+    </AbsoluteFill>
+  );
+};
+
+export const Lowerthird: React.FC<LowerthirdProps> = ({texts, theme}) => {
+  const f = useCurrentFrame();
+  const {fps} = useVideoConfig();
+
+  // On-air meter: steps forward one third on each beat, critically damped.
+  const meter = (beats: number[]) =>
+    beats.reduce(
+      (acc, at) => acc + (f < at ? 0 : spring({frame: f - at, fps, config: {damping: 200}, durationInFrames: 10})) / beats.length,
+      0,
+    );
+
+  // ---------- The spine: bar -> rule -> block -> bar ----------
+  const hA = ramp(f, A + 86, A + 94, easeInOut);
+  const wA = ramp(f, A + 88, A + 100);
+  const mB = ramp(f, B + 84, B + 96);
+  const mC = ramp(f, C + 80, END, easeInOut);
+  let sw = mix(SPINE_W, RULE_W, wA);
+  let sh = mix(SPINE_H, RULE_H, hA);
+  let st = TOP;
+  if (f >= B + 84) {
+    sw = mix(RULE_W, BLOCK, mB);
+    sh = mix(RULE_H, BLOCK, mB);
+    st = mix(TOP, BASE - BLOCK, mB);
+  }
+  if (f >= C + 80) {
+    sw = mix(BLOCK, SPINE_W, mC);
+    sh = mix(BLOCK, SPINE_H, mC);
+    st = mix(BASE - BLOCK, TOP, mC);
+  }
+
+  // ---------- Scene 1: name strap ----------
+  const nameVis = Math.min(ramp(f, A, A + 14), 1 - ramp(f, A + 75, A + 86, easeInOut));
+  const headVis = Math.min(ramp(f, A + 14, A + 26), 1 - ramp(f, A + 73, A + 84, easeInOut));
+  // Plate width is 72 px of padding plus the text; keep it inside the left two thirds of the frame.
+  const brandSize = fit(texts.brand, 72, 760, 0.66);
+  const headSize = fit(texts.headline, 38, 800, 0.56);
+  const meter1 = meter([A + 45, A + 60, A + 75]);
+
+  // ---------- Scene 2: topic strap ----------
+  const tagVis = Math.min(ramp(f, B + 12, B + 24), 1 - ramp(f, B + 78, B + 86, easeInOut));
+  const subSize = wrapFit(texts.subhead, 56, RULE_W, 2, 0.55, 32);
+  const meter2 = meter([B + 45, B + 60, B + 75]) * (1 - ramp(f, B + 78, B + 84, easeInOut));
+
+  // ---------- Scene 3: handle strap ----------
+  const plateVis = Math.min(ramp(f, C + 8, C + 20), 1 - ramp(f, C + 72, C + 80, easeInOut));
+  const tabFill = Math.min(ramp(f, C + 45, C + 53), 1 - ramp(f, C + 70, C + 78, easeInOut));
+  const arrowX = (ramp(f, C + 48, C + 58) - 1) * BLOCK + ramp(f, C + 68, C + 74, easeInOut) * BLOCK;
+  // The handle tab starts at X + BLOCK and pads 70 px, so its text must stay within the clear left side.
+  const ctaSize = fit(texts.cta, 72, 640, 0.68);
+  const meter3 = meter([C + 30, C + 45, C + 60]);
+
+  return (
+    <AbsoluteFill style={{width: W, height: H, overflow: 'hidden', fontFamily: DISPLAY}}>
+      <Footage theme={theme} frame={f} />
+
+      {/* Scene 1 plates grow out of the spine */}
+      {f < B ? (
+        <>
+          <div
+            style={{
+              position: 'absolute',
+              left: X + SPINE_W,
+              top: TOP,
+              height: NAME_H,
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 40px 0 32px',
+              background: theme.foreground,
+              color: theme.background,
+              fontSize: brandSize,
+              fontWeight: 800,
+              lineHeight: 1.1,
+              letterSpacing: '-0.015em',
+              whiteSpace: 'nowrap',
+              clipPath: `inset(0 ${(1 - nameVis) * 100}% 0 0)`,
+            }}
+          >
+            <Chars text={texts.brand} role="brand" frame={f} start={A + 6} stagger={0.7} dur={11} />
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              left: X + SPINE_W,
+              top: TOP + NAME_H,
+              height: SPINE_H - NAME_H,
+              display: 'flex',
+              alignItems: 'center',
+              padding: `0 32px ${METER_H}px 32px`,
+              background: theme.surface,
+              color: theme.foreground,
+              fontSize: headSize,
+              fontWeight: 500,
+              lineHeight: 1.1,
+              whiteSpace: 'nowrap',
+              clipPath: `inset(0 ${(1 - headVis) * 100}% 0 0)`,
+            }}
+          >
+            <Words text={texts.headline} role="headline" frame={f} start={A + 19} stagger={2} dur={11} />
+            <div style={{position: 'absolute', left: 0, bottom: 0, width: `${meter1 * 100}%`, height: METER_H, background: theme.accent2}} />
+          </div>
+        </>
+      ) : null}
+
+      {/* Scene 2: tag rises out of the rule, subhead hangs beneath it */}
+      {f >= B && f < C + 10 ? (
+        <>
+          <div
+            style={{
+              position: 'absolute',
+              left: X,
+              top: TOP - 52,
+              height: 52,
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 20px',
+              background: theme.accent2,
+              color: theme.background,
+              fontFamily: MONO_FONT,
+              fontSize: 26,
+              fontWeight: 700,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              whiteSpace: 'nowrap',
+              clipPath: `inset(${(1 - tagVis) * 100}% 0 0 0)`,
+            }}
+          >
+            <Chars text={texts.point1} role="point1" frame={f} start={B + 15} stagger={0.8} dur={10} />
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              left: X,
+              top: TOP + RULE_H + 20,
+              width: RULE_W,
+              color: theme.foreground,
+              fontSize: subSize,
+              fontWeight: 700,
+              lineHeight: 1.1,
+              letterSpacing: '-0.015em',
+            }}
+          >
+            <Words text={texts.subhead} role="subhead" frame={f} start={B + 20} stagger={1.2} dur={11} out={B + 78} />
+          </div>
+        </>
+      ) : null}
+
+      {/* Scene 3: the block tears open into the handle plate */}
+      {f >= C ? (
+        <div
+          style={{
+            position: 'absolute',
+            left: X + BLOCK,
+            top: BASE - BLOCK,
+            height: BLOCK,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            gap: 6,
+            padding: `0 56px ${METER_H}px 14px`,
+            background: theme.accent,
+            color: theme.foreground,
+            whiteSpace: 'nowrap',
+            clipPath: `inset(0 ${(1 - plateVis) * 100}% 0 0)`,
+          }}
+        >
+          <div
+            style={{
+              fontFamily: MONO_FONT,
+              fontSize: 24,
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              lineHeight: 1.1,
+            }}
+          >
+            <Chars text={texts.brand} role="brand" frame={f} start={C + 14} stagger={0.5} dur={9} />
+          </div>
+          <div style={{fontSize: ctaSize, fontWeight: 800, lineHeight: 1.05, letterSpacing: '-0.015em'}}>
+            <Chars text={texts.cta} role="cta" frame={f} start={C + 11} stagger={0.5} dur={9} />
+          </div>
+          <div style={{position: 'absolute', left: 0, bottom: 0, width: `${meter3 * 100}%`, height: METER_H, background: theme.accent2}} />
+        </div>
+      ) : null}
+
+      {/* The spine itself, drawn last so every strap is born from it */}
+      <div
+        style={{
+          position: 'absolute',
+          left: X,
+          top: st,
+          width: sw,
+          height: sh,
+          background: theme.accent,
+          overflow: 'hidden',
+        }}
+      >
+        {f >= B && f < B + 86 ? (
+          <div style={{position: 'absolute', left: 0, top: 0, width: `${meter2 * 100}%`, height: '100%', background: theme.accent2}} />
+        ) : null}
+        {f >= C ? (
+          <>
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                bottom: 0,
+                width: '100%',
+                height: BLOCK * tabFill,
+                background: theme.foreground,
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: BLOCK,
+                height: BLOCK,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: theme.accent,
+                transform: `translateX(${arrowX}px)`,
+              }}
+            >
+              <ArrowIcon size={64} />
+            </div>
+          </>
+        ) : null}
+      </div>
+    </AbsoluteFill>
+  );
+};

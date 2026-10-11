@@ -52,24 +52,39 @@ import {prismSchema as prismV1Schema} from '../legacy/prism/v1/prism/schema';
 import {Lowerthird as lowerthirdV1} from '../legacy/lowerthird/v1/lowerthird/Lowerthird';
 import {lowerthirdMeta as lowerthirdV1Meta} from '../legacy/lowerthird/v1/lowerthird/meta';
 import {lowerthirdSchema as lowerthirdV1Schema} from '../legacy/lowerthird/v1/lowerthird/schema';
+import {Lowerthird as lowerthirdV2} from '../legacy/lowerthird/v2/lowerthird/Lowerthird';
+import {lowerthirdMeta as lowerthirdV2Meta} from '../legacy/lowerthird/v2/lowerthird/meta';
+import {lowerthirdSchema as lowerthirdV2Schema} from '../legacy/lowerthird/v2/lowerthird/schema';
 import {Kinetic as kineticV1} from '../legacy/kinetic/v1/kinetic/Kinetic';
 import {kineticMeta as kineticV1Meta} from '../legacy/kinetic/v1/kinetic/meta';
 import {kineticSchema as kineticV1Schema} from '../legacy/kinetic/v1/kinetic/schema';
+import {Kinetic as kineticV2} from '../legacy/kinetic/v2/kinetic/Kinetic';
+import {kineticMeta as kineticV2Meta} from '../legacy/kinetic/v2/kinetic/meta';
+import {kineticSchema as kineticV2Schema} from '../legacy/kinetic/v2/kinetic/schema';
 import {Endscreen as endscreenV1} from '../legacy/endscreen/v1/endscreen/Endscreen';
 import {endscreenMeta as endscreenV1Meta} from '../legacy/endscreen/v1/endscreen/meta';
 import {endscreenSchema as endscreenV1Schema} from '../legacy/endscreen/v1/endscreen/schema';
+import {Endscreen as endscreenV2} from '../legacy/endscreen/v2/endscreen/Endscreen';
+import {endscreenMeta as endscreenV2Meta} from '../legacy/endscreen/v2/endscreen/meta';
+import {endscreenSchema as endscreenV2Schema} from '../legacy/endscreen/v2/endscreen/schema';
 import {Blackfriday as blackfridayV1} from '../legacy/blackfriday/v1/blackfriday/Blackfriday';
 import {blackfridayMeta as blackfridayV1Meta} from '../legacy/blackfriday/v1/blackfriday/meta';
 import {blackfridaySchema as blackfridayV1Schema} from '../legacy/blackfriday/v1/blackfriday/schema';
 import {Wordmark as wordmarkV1} from '../legacy/wordmark/v1/wordmark/Wordmark';
 import {wordmarkMeta as wordmarkV1Meta} from '../legacy/wordmark/v1/wordmark/meta';
 import {wordmarkSchema as wordmarkV1Schema} from '../legacy/wordmark/v1/wordmark/schema';
+import {Wordmark as wordmarkV2} from '../legacy/wordmark/v2/wordmark/Wordmark';
+import {wordmarkMeta as wordmarkV2Meta} from '../legacy/wordmark/v2/wordmark/meta';
+import {wordmarkSchema as wordmarkV2Schema} from '../legacy/wordmark/v2/wordmark/schema';
 import {Testimonial as testimonialV1} from '../legacy/testimonial/v1/testimonial/Testimonial';
 import {testimonialMeta as testimonialV1Meta} from '../legacy/testimonial/v1/testimonial/meta';
 import {testimonialSchema as testimonialV1Schema} from '../legacy/testimonial/v1/testimonial/schema';
 import {Ytintro as ytintroV1} from '../legacy/ytintro/v1/ytintro/Ytintro';
 import {ytintroMeta as ytintroV1Meta} from '../legacy/ytintro/v1/ytintro/meta';
 import {ytintroSchema as ytintroV1Schema} from '../legacy/ytintro/v1/ytintro/schema';
+import {Ytintro as ytintroV2} from '../legacy/ytintro/v2/ytintro/Ytintro';
+import {ytintroMeta as ytintroV2Meta} from '../legacy/ytintro/v2/ytintro/meta';
+import {ytintroSchema as ytintroV2Schema} from '../legacy/ytintro/v2/ytintro/schema';
 import {Wrapped as wrappedV1} from '../legacy/wrapped/v1/wrapped/Wrapped';
 import {wrappedMeta as wrappedV1Meta} from '../legacy/wrapped/v1/wrapped/meta';
 import {wrappedSchema as wrappedV1Schema} from '../legacy/wrapped/v1/wrapped/schema';
@@ -98,13 +113,13 @@ export const legacy: Record<string, Record<number, LegacyDef>> = {
   slice: {1: {...sliceV1Meta, component: sliceV1, schema: sliceV1Schema as unknown as VideoSchema}},
   swiss: {1: {...swissV1Meta, component: swissV1, schema: swissV1Schema as unknown as VideoSchema}},
   prism: {1: {...prismV1Meta, component: prismV1, schema: prismV1Schema as unknown as VideoSchema}},
-  lowerthird: {1: {...lowerthirdV1Meta, component: lowerthirdV1, schema: lowerthirdV1Schema as unknown as VideoSchema}},
-  kinetic: {1: {...kineticV1Meta, component: kineticV1, schema: kineticV1Schema as unknown as VideoSchema}},
-  endscreen: {1: {...endscreenV1Meta, component: endscreenV1, schema: endscreenV1Schema as unknown as VideoSchema}},
+  lowerthird: {1: {...lowerthirdV1Meta, component: lowerthirdV1, schema: lowerthirdV1Schema as unknown as VideoSchema}, 2: {...lowerthirdV2Meta, component: lowerthirdV2, schema: lowerthirdV2Schema as unknown as VideoSchema}},
+  kinetic: {1: {...kineticV1Meta, component: kineticV1, schema: kineticV1Schema as unknown as VideoSchema}, 2: {...kineticV2Meta, component: kineticV2, schema: kineticV2Schema as unknown as VideoSchema}},
+  endscreen: {1: {...endscreenV1Meta, component: endscreenV1, schema: endscreenV1Schema as unknown as VideoSchema}, 2: {...endscreenV2Meta, component: endscreenV2, schema: endscreenV2Schema as unknown as VideoSchema}},
   blackfriday: {1: {...blackfridayV1Meta, component: blackfridayV1, schema: blackfridayV1Schema as unknown as VideoSchema}},
-  wordmark: {1: {...wordmarkV1Meta, component: wordmarkV1, schema: wordmarkV1Schema as unknown as VideoSchema}},
+  wordmark: {1: {...wordmarkV1Meta, component: wordmarkV1, schema: wordmarkV1Schema as unknown as VideoSchema}, 2: {...wordmarkV2Meta, component: wordmarkV2, schema: wordmarkV2Schema as unknown as VideoSchema}},
   testimonial: {1: {...testimonialV1Meta, component: testimonialV1, schema: testimonialV1Schema as unknown as VideoSchema}},
-  ytintro: {1: {...ytintroV1Meta, component: ytintroV1, schema: ytintroV1Schema as unknown as VideoSchema}},
+  ytintro: {1: {...ytintroV1Meta, component: ytintroV1, schema: ytintroV1Schema as unknown as VideoSchema}, 2: {...ytintroV2Meta, component: ytintroV2, schema: ytintroV2Schema as unknown as VideoSchema}},
   wrapped: {1: {...wrappedV1Meta, component: wrappedV1, schema: wrappedV1Schema as unknown as VideoSchema}},
   countdown: {1: {...countdownV1Meta, component: countdownV1, schema: countdownV1Schema as unknown as VideoSchema}},
   podcast: {1: {...podcastV1Meta, component: podcastV1, schema: podcastV1Schema as unknown as VideoSchema}},

@@ -17,12 +17,17 @@ import {sliceSchema as sliceV1Schema} from '../legacy/slice/v1/slice/schema';
 import {swissSchema as swissV1Schema} from '../legacy/swiss/v1/swiss/schema';
 import {prismSchema as prismV1Schema} from '../legacy/prism/v1/prism/schema';
 import {lowerthirdSchema as lowerthirdV1Schema} from '../legacy/lowerthird/v1/lowerthird/schema';
+import {lowerthirdSchema as lowerthirdV2Schema} from '../legacy/lowerthird/v2/lowerthird/schema';
 import {kineticSchema as kineticV1Schema} from '../legacy/kinetic/v1/kinetic/schema';
+import {kineticSchema as kineticV2Schema} from '../legacy/kinetic/v2/kinetic/schema';
 import {endscreenSchema as endscreenV1Schema} from '../legacy/endscreen/v1/endscreen/schema';
+import {endscreenSchema as endscreenV2Schema} from '../legacy/endscreen/v2/endscreen/schema';
 import {blackfridaySchema as blackfridayV1Schema} from '../legacy/blackfriday/v1/blackfriday/schema';
 import {wordmarkSchema as wordmarkV1Schema} from '../legacy/wordmark/v1/wordmark/schema';
+import {wordmarkSchema as wordmarkV2Schema} from '../legacy/wordmark/v2/wordmark/schema';
 import {testimonialSchema as testimonialV1Schema} from '../legacy/testimonial/v1/testimonial/schema';
 import {ytintroSchema as ytintroV1Schema} from '../legacy/ytintro/v1/ytintro/schema';
+import {ytintroSchema as ytintroV2Schema} from '../legacy/ytintro/v2/ytintro/schema';
 import {wrappedSchema as wrappedV1Schema} from '../legacy/wrapped/v1/wrapped/schema';
 import {countdownSchema as countdownV1Schema} from '../legacy/countdown/v1/countdown/schema';
 import {podcastSchema as podcastV1Schema} from '../legacy/podcast/v1/podcast/schema';
@@ -44,13 +49,13 @@ export const legacySchemas: Record<string, Record<number, VideoSchema>> = {
   slice: {1: sliceV1Schema as unknown as VideoSchema},
   swiss: {1: swissV1Schema as unknown as VideoSchema},
   prism: {1: prismV1Schema as unknown as VideoSchema},
-  lowerthird: {1: lowerthirdV1Schema as unknown as VideoSchema},
-  kinetic: {1: kineticV1Schema as unknown as VideoSchema},
-  endscreen: {1: endscreenV1Schema as unknown as VideoSchema},
+  lowerthird: {1: lowerthirdV1Schema as unknown as VideoSchema, 2: lowerthirdV2Schema as unknown as VideoSchema},
+  kinetic: {1: kineticV1Schema as unknown as VideoSchema, 2: kineticV2Schema as unknown as VideoSchema},
+  endscreen: {1: endscreenV1Schema as unknown as VideoSchema, 2: endscreenV2Schema as unknown as VideoSchema},
   blackfriday: {1: blackfridayV1Schema as unknown as VideoSchema},
-  wordmark: {1: wordmarkV1Schema as unknown as VideoSchema},
+  wordmark: {1: wordmarkV1Schema as unknown as VideoSchema, 2: wordmarkV2Schema as unknown as VideoSchema},
   testimonial: {1: testimonialV1Schema as unknown as VideoSchema},
-  ytintro: {1: ytintroV1Schema as unknown as VideoSchema},
+  ytintro: {1: ytintroV1Schema as unknown as VideoSchema, 2: ytintroV2Schema as unknown as VideoSchema},
   wrapped: {1: wrappedV1Schema as unknown as VideoSchema},
   countdown: {1: countdownV1Schema as unknown as VideoSchema},
   podcast: {1: podcastV1Schema as unknown as VideoSchema},

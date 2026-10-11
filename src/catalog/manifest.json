@@ -278,42 +278,42 @@
       "id": "lowerthird",
       "title": "Lower Thirds",
       "creator": "broadcast.kit",
-      "prompt": "A 9 second 16:9 lower thirds pack: a name and title bar, a topic strap, and a social handle bubble over an interview frame.",
+      "prompt": "A 9 second 16:9 lower thirds pack built from one accent spine: it wipes out the name strap, lies down into the topic rule, and folds into the social handle tab.",
       "createdAt": "2026-10-08",
       "license": "MIT-0",
       "generation": {
         "model": "Claude Opus 5.5",
         "modelId": "claude-opus-5-5",
         "provider": "Anthropic",
-        "effort": "medium"
+        "effort": "high"
       }
     },
     {
       "id": "kinetic",
       "title": "Kinetic",
       "creator": "type.motion",
-      "prompt": "A 9 second square kinetic typography piece with one word per line, full-screen word flashes, and a bold brand outro.",
+      "prompt": "A 9 second square kinetic typography piece where one square stretches into a bar, floods into three color bands for the words, and folds back into the brand.",
       "createdAt": "2026-10-08",
       "license": "MIT-0",
       "generation": {
         "model": "Claude Opus 5.5",
         "modelId": "claude-opus-5-5",
         "provider": "Anthropic",
-        "effort": "medium"
+        "effort": "high"
       }
     },
     {
       "id": "endscreen",
       "title": "End Screen",
       "creator": "channel.lab",
-      "prompt": "A 20 second 16:9 YouTube end screen and outro with two video placeholders and a subscribe circle.",
+      "prompt": "A 20 second 16:9 YouTube end screen where the progress bar reaches 100% and lifts into two video frames and a subscribe ring, then counts down.",
       "createdAt": "2026-10-08",
       "license": "MIT-0",
       "generation": {
         "model": "Claude Opus 5.5",
         "modelId": "claude-opus-5-5",
         "provider": "Anthropic",
-        "effort": "medium"
+        "effort": "high"
       }
     },
     {
@@ -334,14 +334,14 @@
       "id": "wordmark",
       "title": "Wordmark",
       "creator": "mark.studio",
-      "prompt": "A 6 second 16:9 wordmark logo reveal with a dot burst, letter mask reveal, gradient underline, and circle wipe.",
+      "prompt": "A 6 second 16:9 wordmark logo reveal where an accent field presses into one line and the line pours its weight into the letters.",
       "createdAt": "2026-10-08",
       "license": "MIT-0",
       "generation": {
         "model": "Claude Opus 5.5",
         "modelId": "claude-opus-5-5",
         "provider": "Anthropic",
-        "effort": "medium"
+        "effort": "high"
       }
     },
     {
@@ -362,14 +362,14 @@
       "id": "ytintro",
       "title": "Channel Intro",
       "creator": "channel.lab",
-      "prompt": "A 6 second 16:9 YouTube intro with color bar wipes, a glitch channel name, and a tagline.",
+      "prompt": "A 6 second 16:9 YouTube channel intro where the stage collapses into a scrubber, thickens into the name band, and floods back into the call to action.",
       "createdAt": "2026-10-08",
       "license": "MIT-0",
       "generation": {
         "model": "Claude Opus 5.5",
         "modelId": "claude-opus-5-5",
         "provider": "Anthropic",
-        "effort": "medium"
+        "effort": "high"
       }
     },
     {

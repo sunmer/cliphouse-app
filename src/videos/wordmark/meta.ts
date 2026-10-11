@@ -7,10 +7,11 @@ export const wordmarkMeta: TemplateMeta = {
   height: 1080,
   fps: 30,
   durationInFrames: 180,
-  posterFrame: 96,
-  motion: ['Line draw', 'Mask reveal', 'Circle reveal'],
+  posterFrame: 160,
+  motion: ['Line draw', 'Mask reveal', 'Variable type', 'Wipes'],
   scenes: [
-    {type: 'logo-lockup', from: 0, duration: 130, focus: 96, roles: ['brand', 'headline']},
-    {type: 'tagline', from: 130, duration: 50, focus: 30, roles: ['brand', 'cta']},
+    {type: 'logo-lockup', from: 0, duration: 60, focus: 44, roles: ['brand']},
+    {type: 'tagline', from: 60, duration: 60, focus: 30, roles: ['headline']},
+    {type: 'end-screen', from: 120, duration: 60, focus: 30, roles: ['brand', 'cta']},
   ],
 };

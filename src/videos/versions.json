@@ -235,6 +235,12 @@
       "hash": "84fc2c7066cb5f49",
       "sha256": "00c234a42bd1fc84920ef1fc1a953e1de054a45f6a1289635d4ee286064d8d20",
       "createdAt": "2026-10-08"
+    },
+    {
+      "version": 3,
+      "hash": "c22e568fb3bc13f1",
+      "sha256": "47d9ffcab5ce6f871c68b4ec5a28936bdb4a8dab8f688a1337ae2329b9d71dd3",
+      "createdAt": "2026-10-11"
     }
   ],
   "kinetic": [
@@ -249,6 +255,12 @@
       "hash": "4a8b69c1d069abc9",
       "sha256": "49d3b66f311f6a4f92469bce970db40157b4b04c00363a197312a84a493422f0",
       "createdAt": "2026-10-08"
+    },
+    {
+      "version": 3,
+      "hash": "d445e92fde097178",
+      "sha256": "607d00df792e5daaf2c6f8d7349f7cf0b468735c63a6b83f66101474ba760c07",
+      "createdAt": "2026-10-11"
     }
   ],
   "endscreen": [
@@ -263,6 +275,12 @@
       "hash": "7379a83f90c1b2ab",
       "sha256": "50067a7ee2b8bc283eea7464e20b69fdda801cd453b98027c242307dba0b618e",
       "createdAt": "2026-10-08"
+    },
+    {
+      "version": 3,
+      "hash": "5b699dc1d03935f9",
+      "sha256": "6771e339547b8393e2047218d27982dc539feadac3948926fc8a7579948a7f0f",
+      "createdAt": "2026-10-11"
     }
   ],
   "blackfriday": [
@@ -291,6 +309,12 @@
       "hash": "14f9cf224535bd78",
       "sha256": "78d3a52363cb574b3eae87517f7c692290377febf98070ab5ae389bb12b0ffe7",
       "createdAt": "2026-10-08"
+    },
+    {
+      "version": 3,
+      "hash": "a38ad3289601f8da",
+      "sha256": "74c4cb4432b040fd4fe05f3570abeda17652a9400e217fdb04eb8d0a85b35e11",
+      "createdAt": "2026-10-11"
     }
   ],
   "testimonial": [
@@ -319,6 +343,12 @@
       "hash": "17ef6017a06e4bfd",
       "sha256": "9e93da80d9e46797331e5ae1fe25fbe5efacf67df804e3dc994bb5665e1b0a2e",
       "createdAt": "2026-10-08"
+    },
+    {
+      "version": 3,
+      "hash": "3e3cf8d975d1bb3e",
+      "sha256": "ca7b7965f299b694b06b5bed57243a57eefd06c713faa6b4c801bd291edc217a",
+      "createdAt": "2026-10-11"
     }
   ],
   "wrapped": [

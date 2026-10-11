@@ -7,10 +7,10 @@ export const endscreenMeta: TemplateMeta = {
   height: 1080,
   fps: 30,
   durationInFrames: 600,
-  posterFrame: 150,
-  motion: ['Slide-in', 'Circle reveal', 'Kinetic type'],
+  posterFrame: 480,
+  motion: ['Progress bar', 'Line draw', 'Mask reveal', 'Wipes', 'Orbit'],
   scenes: [
-    {type: 'tagline', from: 0, duration: 90, focus: 50, roles: ['headline', 'subhead']},
-    {type: 'end-screen', from: 90, duration: 510, focus: 60, roles: ['brand', 'point1', 'point2', 'cta']},
+    {type: 'tagline', from: 0, duration: 105, focus: 70, roles: ['headline', 'subhead']},
+    {type: 'end-screen', from: 105, duration: 495, focus: 135, roles: ['brand', 'point1', 'point2', 'cta']},
   ],
 };
