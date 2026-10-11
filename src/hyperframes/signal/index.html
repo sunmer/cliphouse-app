@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; }
+    .grid { position:absolute; inset:-80px; background-image:linear-gradient(var(--theme-foreground) 1px, transparent 1px), linear-gradient(90deg, var(--theme-foreground) 1px, transparent 1px); background-size:96px 96px; opacity:.08; }
+    .beam { position:absolute; width:1500px; height:22px; left:-1500px; top:540px; background:var(--theme-accent); transform:rotate(-13deg); transform-origin:left center; }
+    .beam.two { top:680px; height:8px; background:var(--theme-accent2); }
+    .brand { position:absolute; left:132px; top:104px; display:flex; align-items:center; gap:18px; font-size:34px; font-weight:800; text-transform:uppercase; }
+    .brand-dot { width:28px; height:28px; border-radius:50%; background:var(--theme-accent); }
+    .headline { position:absolute; left:128px; top:236px; width:1240px; height:300px; color:var(--theme-foreground); font-size:132px; line-height:.93; }
+    .subhead { position:absolute; left:136px; top:620px; width:880px; height:110px; font-size:42px; line-height:1.18; color:var(--theme-foreground); opacity:.78; }
+    .scan { position:absolute; right:150px; top:150px; width:460px; height:460px; border:2px solid var(--theme-foreground); border-radius:50%; opacity:.25; }
+    .scan:before, .scan:after { content:""; position:absolute; inset:58px; border:2px solid var(--theme-accent); border-radius:50%; }
+    .scan:after { inset:154px; border-color:var(--theme-accent2); }
+    .points { position:absolute; left:132px; right:132px; top:300px; display:grid; grid-template-columns:repeat(3,1fr); gap:30px; }
+    .point { min-height:350px; border:2px solid var(--theme-foreground); background:var(--theme-surface); padding:42px; display:flex; flex-direction:column; justify-content:space-between; }
+    .point:nth-child(2) { border-color:var(--theme-accent); }
+    .num { font-size:28px; color:var(--theme-accent); }
+    .point strong { height:130px; font-size:58px; line-height:1; }
+    .end { display:grid; place-items:center; text-align:center; background:var(--theme-accent); color:var(--theme-background); }
+    .end-brand { font-size:42px; text-transform:uppercase; margin-bottom:34px; }
+    .cta { display:inline-flex; align-items:center; gap:28px; padding:34px 48px; background:var(--theme-background); color:var(--theme-foreground); font-size:64px; }
+    .cta .fit { display:block; width:640px; height:80px; }
+    .arrow { width:46px; height:46px; border-top:8px solid var(--theme-accent2); border-right:8px solid var(--theme-accent2); transform:rotate(45deg); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1920" data-height="1080">
+    <section id="signal-title" class="scene s1 clip" data-start="0" data-duration="3.4" data-track-index="0">
+      <div class="grid"></div><div class="scan"></div><div class="beam"></div><div class="beam two"></div>
+      <div class="brand display"><span class="brand-dot"></span><span data-text-role="brand" data-var-text="text_brand">Brand</span></div>
+      <h1 class="headline display fit" data-fit-max="132" data-fit-min="78" data-text-role="headline" data-var-text="text_headline">Headline</h1>
+      <p class="subhead fit" data-fit-max="42" data-fit-min="30" data-text-role="subhead" data-var-text="text_subhead">Subhead</p>
+    </section>
+    <section id="signal-points" class="scene s2 clip" data-start="3.4" data-duration="3" data-track-index="0">
+      <div class="grid"></div>
+      <div class="points">
+        <div class="point"><span class="num mono">01</span><strong class="display fit" data-fit-max="58" data-fit-min="38" data-text-role="point1" data-var-text="text_point1">Point 1</strong></div>
+        <div class="point"><span class="num mono">02</span><strong class="display fit" data-fit-max="58" data-fit-min="38" data-text-role="point2" data-var-text="text_point2">Point 2</strong></div>
+        <div class="point"><span class="num mono">03</span><strong class="display fit" data-fit-max="58" data-fit-min="38" data-text-role="point3" data-var-text="text_point3">Point 3</strong></div>
+      </div>
+    </section>
+    <section id="signal-end" class="scene s3 end clip" data-start="6.4" data-duration="2.6" data-track-index="0">
+      <div><div class="end-brand display" data-text-role="brand" data-var-text="text_brand">Brand</div><div class="cta display"><span class="fit" data-fit-max="64" data-fit-min="42" data-text-role="cta" data-var-text="text_cta">CTA</span><span class="arrow"></span></div></div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    tl.from('.s1 .grid', {scale: 1.12, opacity: 0, duration: 1.2, ease: 'power3.out'}, 0)
+      .to('.s1 .beam', {x: 2600, duration: 1.1, ease: 'expo.inOut', stagger: .12}, .1)
+      .from('.s1 .brand', {y: -40, opacity: 0, duration: .55, ease: 'power3.out'}, .25)
+      .from('.s1 .headline', {clipPath: 'inset(0 100% 0 0)', x: -80, duration: .9, ease: 'power4.out'}, .35)
+      .from('.s1 .subhead', {y: 40, opacity: 0, duration: .65, ease: 'power3.out'}, .85)
+      .fromTo('.s1 .scan', {rotate: -60, scale: .5, opacity: 0}, {rotate: 120, scale: 1, opacity: .25, duration: 3.2, ease: 'power2.out'}, .2)
+      .from('.s2 .point', {y: 160, rotateX: -55, opacity: 0, duration: .65, stagger: .14, ease: 'back.out(1.4)'}, 3.48)
+      .to('.s2 .point', {y: -18, duration: .4, stagger: .07, yoyo: true, repeat: 1, ease: 'sine.inOut'}, 4.65)
+      .from('.s3', {clipPath: 'circle(0% at 50% 50%)', duration: .75, ease: 'power4.inOut'}, 6.4)
+      .from('.s3 .end-brand', {y: -45, opacity: 0, duration: .45}, 6.82)
+      .from('.s3 .cta', {scale: .65, opacity: 0, duration: .55, ease: 'back.out(2)'}, 7.0);
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

@@ -13,9 +13,11 @@ Every cliphou.se video is deterministic code plus props. An agent can read it, e
 
 ## Heavy Path: Source Packages
 
-- `/source/<template>/v<version>.tar.gz` is a standalone Remotion project. It contains the component, schema, metadata, shared helpers, exact dependency versions, a lockfile, `props.json`, a README, and the MIT-0 license.
+- `/source/<template>/v<version>.tar.gz` is a standalone project for the template's locked engine. The spec's `engine` field is `remotion` or `hyperframes`.
+- Remotion packages contain the component, schema, metadata, shared helpers, exact dependency versions, a lockfile, `props.json`, a README, and the MIT-0 license.
+- HyperFrames packages contain `index.html`, declared variables, `variables.json`, local GSAP and fonts, a README, and the MIT-0 license. Render with `npx --yes hyperframes@0.8.146 render --variables-file variables.json --strict-variables -o out/video.mp4`.
 - Fonts install from pinned Fontsource packages. Templates use no network assets and no unseeded randomness.
-- Render with `npm ci && npx remotion render src/index.ts <template> out/video.mp4 --props=props.json`.
+- Use `source.renderCommand` from the spec. Remotion uses `props.json`; HyperFrames uses `variables.json`.
 - `npm run test:source-render -- <template>` extracts a package, installs it, and checks that its frame is byte-identical to the repository render.
 
 ## Versioning

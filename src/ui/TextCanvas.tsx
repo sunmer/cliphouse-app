@@ -1,19 +1,28 @@
-import type {PlayerRef} from '@remotion/player';
 import {Check, X} from 'lucide-react';
 import {useCallback, useEffect, useRef, useState, type ReactNode, type RefObject} from 'react';
 import {flushSync} from 'react-dom';
 import {ROLES, roleError, roleHint, type Role, type VideoProps} from '../videos/vocab';
+import type {VideoPlayerRef} from './VideoPlayer';
 
 type Target = {role: Role; left: number; top: number; width: number; height: number; fontFamily: string; fontWeight: string; rects: DOMRect[]};
 
+const offsetRect = (rect: DOMRect, x: number, y: number) => new DOMRect(rect.left + x, rect.top + y, rect.width, rect.height);
+
 // Read glyph bounds, not container bounds: animated text can span many nested elements.
-function targetsIn(root: HTMLElement): Target[] {
+function targetsIn(root: HTMLElement, source: HTMLElement | Document = root): Target[] {
   const origin = root.getBoundingClientRect();
+  const doc = source.nodeType === Node.DOCUMENT_NODE ? source as Document : (source as HTMLElement).ownerDocument;
+  const frame = doc.defaultView?.frameElement?.getBoundingClientRect();
+  const page = doc.documentElement;
+  if (!page) return [];
+  const scaleX = frame && page.clientWidth ? frame.width / page.clientWidth : 1;
+  const scaleY = frame && page.clientHeight ? frame.height / page.clientHeight : 1;
+  const place = (rect: DOMRect) => frame ? new DOMRect(frame.left + rect.left * scaleX, frame.top + rect.top * scaleY, rect.width * scaleX, rect.height * scaleY) : offsetRect(rect, 0, 0);
   const result: Target[] = [];
-  root.querySelectorAll<HTMLElement>('[data-text-role]').forEach((el) => {
+  source.querySelectorAll<HTMLElement>('[data-text-role]').forEach((el) => {
     const role = el.dataset.textRole as Role;
     if (!(role in ROLES)) return;
-    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const walker = doc.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     const rects: DOMRect[] = [];
     let fragmented = false;
     let style: CSSStyleDeclaration | undefined;
@@ -22,13 +31,13 @@ function targetsIn(root: HTMLElement): Target[] {
       if (!node.textContent?.trim()) continue;
       let parent = node.parentElement;
       let visible = true;
-      while (parent && parent !== root) {
-        const css = getComputedStyle(parent);
+      while (parent && parent !== root && parent !== doc.body) {
+        const css = doc.defaultView!.getComputedStyle(parent);
         if (css.visibility === 'hidden' || css.display === 'none' || Number(css.opacity) < 0.08) visible = false;
         parent = parent.parentElement;
       }
       if (!visible) continue;
-      const range = document.createRange();
+      const range = doc.createRange();
       // Long rotated marquees otherwise report a bounding box covering the whole canvas.
       const chunks = node.textContent.length > 80 ? [...node.textContent.matchAll(/\S+/g)] : null;
       fragmented ||= !!chunks;
@@ -37,12 +46,13 @@ function targetsIn(root: HTMLElement): Target[] {
           range.setStart(node, chunk.index!);
           range.setEnd(node, chunk.index! + chunk[0].length);
         } else range.selectNodeContents(node);
-        for (const rect of range.getClientRects()) {
+        for (const raw of range.getClientRects()) {
+          const rect = place(raw);
           if (rect.width > 1 && rect.height > 1 && rect.right > origin.left && rect.left < origin.right &&
             rect.bottom > origin.top && rect.top < origin.bottom) rects.push(rect);
         }
       }
-      style ??= getComputedStyle(node.parentElement!);
+      style ??= doc.defaultView!.getComputedStyle(node.parentElement!);
     }
     if (!rects.length) return;
     for (const group of fragmented ? rects.map((rect) => [rect]) : [rects]) {
@@ -60,7 +70,7 @@ function targetsIn(root: HTMLElement): Target[] {
 export function TextCanvas({ref, children, player, props, playing, onCommit, onEditing}: {
   ref?: RefObject<HTMLDivElement | null>;
   children: ReactNode;
-  player: RefObject<PlayerRef | null>;
+  player: RefObject<VideoPlayerRef | null>;
   props: VideoProps;
   playing: boolean;
   onCommit: (role: Role, value: string) => void;
@@ -79,7 +89,7 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
   const [viewport, setViewport] = useState({top: 0, bottom: Infinity});
   const measure = useCallback(() => {
     if (!root.current) return;
-    const next = targetsIn(root.current);
+    const next = targetsIn(root.current, player.current?.textRoot() ?? root.current);
     setTargets(next);
     setSize({width: root.current.clientWidth, height: root.current.clientHeight});
     const bounds = root.current.getBoundingClientRect();
@@ -87,7 +97,7 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
     setViewport({top: (view?.offsetTop ?? 0) - bounds.top, bottom: (view ? view.offsetTop + view.height : innerHeight) - bounds.top});
     setActive((a) => a ? next.filter((t) => t.role === a.role)
       .sort((x, y) => Math.abs(x.left - a.left) + Math.abs(x.top - a.top) - Math.abs(y.left - a.left) - Math.abs(y.top - a.top))[0] ?? a : null);
-  }, []);
+  }, [player]);
 
   useEffect(() => {
     let frame = 0;
@@ -103,6 +113,7 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
     const p = player.current;
     p?.addEventListener('seeked', schedule);
     p?.addEventListener('pause', schedule);
+    p?.addEventListener('ready', schedule);
     window.visualViewport?.addEventListener('resize', schedule);
     window.visualViewport?.addEventListener('scroll', schedule);
     return () => {
@@ -111,6 +122,7 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
       cancelAnimationFrame(frame);
       p?.removeEventListener('seeked', schedule);
       p?.removeEventListener('pause', schedule);
+      p?.removeEventListener('ready', schedule);
       window.visualViewport?.removeEventListener('resize', schedule);
       window.visualViewport?.removeEventListener('scroll', schedule);
     };
@@ -122,7 +134,7 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
     flushSync(() => {
       setActive(target);
       setDraft(props.texts[target.role] ?? '');
-      setSize({width: root.current!.clientWidth, height: root.current!.clientHeight});
+      if (root.current) setSize({width: root.current.clientWidth, height: root.current.clientHeight});
       onEditing(target.role);
     });
     input.current?.focus({preventScroll: true});
@@ -148,7 +160,7 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
       onClickCapture={(event) => {
         if ((event.target as Element).closest('.inline-editor, .text-hit')) return;
         if (active) { finish(true); return; }
-        const candidates = targetsIn(root.current!).filter((t) => t.rects.some((r) =>
+        const candidates = targetsIn(root.current!, player.current?.textRoot() ?? root.current!).filter((t) => t.rects.some((r) =>
           event.clientX >= r.left - 4 && event.clientX <= r.right + 4 && event.clientY >= r.top - 4 && event.clientY <= r.bottom + 4));
         const target = candidates.sort((a, b) => a.width * a.height - b.width * b.height)[0];
         if (target) {

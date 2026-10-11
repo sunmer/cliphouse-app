@@ -1281,6 +1281,76 @@
         "provider": "Anthropic",
         "effort": "medium"
       }
+    },
+    {
+      "id": "signal",
+      "title": "Signal Launch",
+      "creator": "hf.lab",
+      "prompt": "A 9 second 16:9 HyperFrames launch film with a sweeping signal line, three raised feature cards, and a circular reveal to the call to action.",
+      "createdAt": "2026-10-11",
+      "license": "MIT-0",
+      "generation": {
+        "model": "GPT-5",
+        "modelId": "gpt-5",
+        "provider": "OpenAI",
+        "effort": "medium"
+      }
+    },
+    {
+      "id": "ringstat",
+      "title": "Ring Stat",
+      "creator": "hf.lab",
+      "prompt": "An 8 second square HyperFrames stat recap: concentric rings draw around a key number, then a solid panel explains the result.",
+      "createdAt": "2026-10-11",
+      "license": "MIT-0",
+      "generation": {
+        "model": "GPT-5",
+        "modelId": "gpt-5",
+        "provider": "OpenAI",
+        "effort": "medium"
+      }
+    },
+    {
+      "id": "eventpass",
+      "title": "Event Pass",
+      "creator": "hf.lab",
+      "prompt": "A 10 second vertical HyperFrames event promo: a ticket drops into frame, then the program slides in as a staggered list.",
+      "createdAt": "2026-10-11",
+      "license": "MIT-0",
+      "generation": {
+        "model": "GPT-5",
+        "modelId": "gpt-5",
+        "provider": "OpenAI",
+        "effort": "medium"
+      }
+    },
+    {
+      "id": "pullquote",
+      "title": "Pull Quote",
+      "creator": "hf.lab",
+      "prompt": "A 9 second 4:5 HyperFrames quote card with a large quotation mark, masked quote reveal, author line, and a closing call to action.",
+      "createdAt": "2026-10-11",
+      "license": "MIT-0",
+      "generation": {
+        "model": "GPT-5",
+        "modelId": "gpt-5",
+        "provider": "OpenAI",
+        "effort": "medium"
+      }
+    },
+    {
+      "id": "pricedrop",
+      "title": "Price Drop",
+      "creator": "hf.lab",
+      "prompt": "An 8 second 16:9 HyperFrames sale promo where diagonal panels slide in and a swinging price tag lands before the offer screen.",
+      "createdAt": "2026-10-11",
+      "license": "MIT-0",
+      "generation": {
+        "model": "GPT-5",
+        "modelId": "gpt-5",
+        "provider": "OpenAI",
+        "effort": "medium"
+      }
     }
   ],
   "variants": [
@@ -6281,6 +6351,244 @@
         "speaker",
         "event-promo",
         "team-intro"
+      ]
+    },
+    {
+      "template": "signal",
+      "creator": "hf.lab",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-11",
+      "id": "signal-orbit",
+      "title": "Signal Product Launch",
+      "description": "A crisp product launch built from HTML, CSS, and GSAP with scan lines, feature cards, and a call to action.",
+      "purpose": "Product launch",
+      "style": [
+        "Tech",
+        "Bold"
+      ],
+      "energy": 4,
+      "keywords": [
+        "hyperframes template",
+        "product launch video",
+        "saas launch video",
+        "gsap video template",
+        "html video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "ORBIT",
+          "headline": "Launch with lift",
+          "subhead": "Turn every release into an editable short film.",
+          "point1": "Live editing",
+          "point2": "Agent ready",
+          "point3": "Free MP4",
+          "cta": "Start building"
+        },
+        "theme": {
+          "background": "#071311",
+          "surface": "#123029",
+          "foreground": "#effff7",
+          "accent": "#2ef0a1",
+          "accent2": "#ffcf5a"
+        }
+      },
+      "seoDescription": "A free HyperFrames product launch template with animated scan lines, three feature cards, and a call to action. Edit text and colors online.",
+      "useCases": [
+        "product-launch",
+        "saas",
+        "youtube-intro"
+      ]
+    },
+    {
+      "template": "ringstat",
+      "creator": "hf.lab",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-11",
+      "id": "ringstat-retention",
+      "title": "Ring Stat Recap",
+      "description": "A square KPI recap with drawn rings, a large number, and a short result panel.",
+      "purpose": "Data recap",
+      "style": [
+        "Minimal",
+        "Tech"
+      ],
+      "energy": 3,
+      "keywords": [
+        "hyperframes stat template",
+        "kpi video",
+        "metric recap",
+        "square video",
+        "animated stat"
+      ],
+      "props": {
+        "texts": {
+          "brand": "NORTHSTAR",
+          "stat": "94%",
+          "headline": "Retention",
+          "subhead": "Customers stayed after onboarding changed.",
+          "cta": "Read report"
+        },
+        "theme": {
+          "background": "#f7f8fb",
+          "surface": "#dde5f5",
+          "foreground": "#121722",
+          "accent": "#2563eb",
+          "accent2": "#f05d23"
+        }
+      },
+      "seoDescription": "A free square HyperFrames stat template with animated rings, a bold KPI, and a result panel for LinkedIn or Instagram feed posts.",
+      "useCases": [
+        "data-recap",
+        "counter",
+        "saas"
+      ]
+    },
+    {
+      "template": "eventpass",
+      "creator": "hf.lab",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-11",
+      "id": "eventpass-summit",
+      "title": "Summit Event Pass",
+      "description": "A vertical event pass with a ticket drop, date, register button, and three program highlights.",
+      "purpose": "Event promo",
+      "style": [
+        "Bold",
+        "Editorial"
+      ],
+      "energy": 4,
+      "keywords": [
+        "hyperframes event template",
+        "event promo video",
+        "ticket video",
+        "conference reel",
+        "vertical event invite"
+      ],
+      "props": {
+        "texts": {
+          "brand": "FIELDWORK",
+          "headline": "Design Summit",
+          "date": "Thu, Nov 19 at 9 AM",
+          "point1": "Keynotes",
+          "point2": "Workshops",
+          "point3": "Open studio",
+          "cta": "Get a pass"
+        },
+        "theme": {
+          "background": "#ffefe5",
+          "surface": "#ffd5bf",
+          "foreground": "#1b1414",
+          "accent": "#e83f25",
+          "accent2": "#3157d5"
+        }
+      },
+      "seoDescription": "A free vertical HyperFrames event template with a ticket pass, event date, register button, and a staggered program list.",
+      "useCases": [
+        "event-promo",
+        "instagram-reel",
+        "tickets"
+      ]
+    },
+    {
+      "template": "pullquote",
+      "creator": "hf.lab",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-11",
+      "id": "pullquote-editorial",
+      "title": "Editorial Pull Quote",
+      "description": "An editorial 4:5 testimonial with a masked quote reveal, author byline, and closing action.",
+      "purpose": "Testimonial",
+      "style": [
+        "Editorial",
+        "Minimal"
+      ],
+      "energy": 2,
+      "keywords": [
+        "hyperframes quote template",
+        "testimonial video",
+        "pull quote",
+        "customer quote",
+        "instagram feed video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "FIELD NOTES",
+          "quote": "The first draft finally looked like our brand, and the edits took minutes.",
+          "author": "Maya Chen, Lumen",
+          "headline": "Make proof move",
+          "cta": "See the story"
+        },
+        "theme": {
+          "background": "#e9e3d3",
+          "surface": "#fffaf0",
+          "foreground": "#16130f",
+          "accent": "#c43d2f",
+          "accent2": "#286b5d"
+        }
+      },
+      "seoDescription": "A free editorial HyperFrames pull quote template for testimonials, customer stories, and Instagram feed posts. Edit the quote online.",
+      "useCases": [
+        "testimonial",
+        "quote",
+        "social-ad"
+      ]
+    },
+    {
+      "template": "pricedrop",
+      "creator": "hf.lab",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-11",
+      "id": "pricedrop-weekend",
+      "title": "Weekend Price Drop",
+      "description": "A bold sale promo with diagonal panels, a swinging price tag, and a direct shop button.",
+      "purpose": "Holiday sale",
+      "style": [
+        "Bold"
+      ],
+      "energy": 5,
+      "keywords": [
+        "hyperframes sale template",
+        "price drop video",
+        "sale promo",
+        "flash sale video",
+        "ecommerce video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "MERIDIAN",
+          "headline": "Weekend price drop",
+          "priceNote": "Ends Sunday night",
+          "price": "$49",
+          "cta": "Shop now"
+        },
+        "theme": {
+          "background": "#fff8e8",
+          "surface": "#ffe45c",
+          "foreground": "#111111",
+          "accent": "#ff3d2e",
+          "accent2": "#ffe45c"
+        }
+      },
+      "seoDescription": "A free HyperFrames sale template with diagonal panels, a swinging price tag, and a shop button. Edit the price, offer, and colors online.",
+      "useCases": [
+        "sale",
+        "flash-sale",
+        "social-ad"
       ]
     }
   ]

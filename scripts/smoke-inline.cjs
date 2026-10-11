@@ -39,11 +39,14 @@ async function clickText(page, label, optional = false) {
       assert.equal(await page.locator('.desc, .prompt, .related, .panel, .field').count(), 0);
       const seen = new Set();
       for (let i = 0; i < meta.scenes.filter((s) => s.type !== 'transition').length; i++) {
+        const expected = meta.scenes.filter((s) => s.type !== 'transition')[i].roles.map((role) => `Edit ${ROLES[role].label}`);
         await page.locator('.scene').nth(i).click();
-        await page.waitForTimeout(250);
-        const labels = await page.locator('.text-hit').evaluateAll((els) => [...new Set(els.map((e) => e.getAttribute('aria-label')))]);
+        await page.waitForFunction((labels) => labels.every((label) => [...document.querySelectorAll('.text-hit')].some((el) => el.getAttribute('aria-label') === label)), expected, {timeout: 3000}).catch(() => {});
+        const labels = [...new Set([...expected, ...await page.locator('.text-hit').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')))])];
         for (const label of labels) {
-          if (seen.has(label) || !await clickText(page, label, true)) continue;
+          if (seen.has(label)) continue;
+          await page.waitForTimeout(80);
+          if (!await clickText(page, label, true)) { console.log(`${v.id}: could not click ${label}`); continue; }
           const role = Object.keys(v.props.texts).find((role) => `Edit ${ROLES[role].label}` === label);
           assert(role, `Unknown role ${label}`);
           const field = page.getByRole('textbox', {name: ROLES[role].label, exact: true});

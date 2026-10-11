@@ -115,6 +115,9 @@ h1, h2, h3 { margin: 0; }
 .tag { padding: 2px 7px; border-radius: 4px; background: var(--panel-2); color: var(--muted); font-size: 11.5px; }
 .tag.strong { color: var(--text); }
 .model-badge { color: var(--text); border: 1px solid #3a4d3f; background: #18231b; }
+.detail-badges { flex-direction: column; align-items: flex-start; }
+.engine-badge { color: var(--text); border: 1px solid #3c4659; background: #171d29; }
+.engine-badge.hyperframes { border-color: #5b4636; background: #2a1e18; }
 .benchmark-banner {
   position: relative; min-height: 48px; display: flex; align-items: center; justify-content: center;
   padding: 0 64px; border-bottom: 1px solid #22c55e; background: #4ade80; color: #062b14;

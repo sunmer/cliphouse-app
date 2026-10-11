@@ -1,6 +1,6 @@
 # cliphou.se
 
-cliphou.se is a gallery of AI-generated Remotion videos. Users can find videos with faceted filters, edit text and colors inline, and keep private starred collections through Google sign-in.
+cliphou.se is a gallery of AI-generated Remotion and HyperFrames videos. Users can find videos with faceted filters, edit text and colors inline, and keep private starred collections through Google sign-in. Each template is locked to one engine, while the editor, agent handoff, sharing, and export flows use the same contract.
 
 The Firebase-hosted site is at https://cliphouse-app.web.app/. The production domain is https://cliphou.se/ after the Loopia DNS cutover. Pushes to `main` deploy through keyless GitHub Actions. The previous https://sunmer.github.io/voodoo/ address is retained.
 
@@ -15,6 +15,7 @@ npm install
 npm run dev                 # http://localhost:5180/voodoo/
 npm run studio              # Remotion Studio
 node scripts/previews.mjs   # rebuild gallery posters and MP4 loops in public/previews
+npm run previews:hyperframes # rebuild HyperFrames posters and loops
 ```
 
 ## Accounts And Analytics
@@ -51,6 +52,8 @@ All templates use the text roles in `src/videos/vocab.ts`: `brand`, `headline`, 
 Content roles hold text that belongs to one video, so the brand kit never fills them. `quote` (140 characters) and `author` (40 characters) are content roles for testimonials. Countdown digits come from the timeline, not from a text role. Image logo upload is not part of the contract yet; Wordmark animates the brand name as text.
 
 ## Add A Template
+
+HyperFrames templates live in `src/hyperframes/<id>/index.html`. Use the shared `__BASE_CSS__`, `__BASE_JS__`, and `__ASSET_BASE__` placeholders, mark editable text with `data-text-role` and `data-var-text`, and register the template ID in `src/videos/engine.ts`. Their source packages are native HyperFrames projects with `variables.json`; run `npx hyperframes check` on an extracted package before publishing.
 
 1. Generate a composition that reads all text from `props.texts` with shared roles, and all color from `props.theme`.
 2. Add `meta.ts` with its scenes. Each scene has `from`, `duration`, `focus`, and `roles`. Map the components to scenes in the same order with `SceneTrack` from `src/videos/shared/scenes.tsx`. Each role must be visible at its scene's midpoint because inline tests seek there.

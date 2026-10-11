@@ -1,0 +1,17 @@
+import baseCss from '../hyperframes/shared/base.css?raw';
+import baseJs from '../hyperframes/shared/base.js?raw';
+import signal from '../hyperframes/signal/index.html?raw';
+import ringstat from '../hyperframes/ringstat/index.html?raw';
+import eventpass from '../hyperframes/eventpass/index.html?raw';
+import pullquote from '../hyperframes/pullquote/index.html?raw';
+import pricedrop from '../hyperframes/pricedrop/index.html?raw';
+
+const withShared = (html: string) => html.replace('__BASE_CSS__', baseCss).replace('__BASE_JS__', baseJs);
+
+export const hyperframesSources: Record<string, string> = {
+  signal: withShared(signal),
+  ringstat: withShared(ringstat),
+  eventpass: withShared(eventpass),
+  pullquote: withShared(pullquote),
+  pricedrop: withShared(pricedrop),
+};

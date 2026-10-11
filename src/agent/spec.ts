@@ -2,6 +2,7 @@ import {z} from 'zod';
 import manifest from '../catalog/manifest.json' with {type: 'json'};
 import {templateMeta} from '../videos/meta.ts';
 import {schemas} from '../videos/schemas.ts';
+import {ENGINE_LABELS, engineOf} from '../videos/engine.ts';
 import {ROLES, SCENE_TYPES, THEME_ROLES, roleHint, type Role, type VideoProps} from '../videos/vocab.ts';
 import {mediaOf, mediaSlots, slotOptions} from '../videos/media/catalog.ts';
 import {MAX_HANDOFF_CHARS, REPOSITORY, TEMPLATE_LICENSE, handoffPath, sourcePath, templateVersion} from './versions.ts';
@@ -19,13 +20,16 @@ type SpecInput = {
 };
 
 export function renderCommand(template: string) {
-  return `npm ci && npx remotion render src/index.ts ${template} out/video.mp4 --props=props.json`;
+  return engineOf(template) === 'hyperframes'
+    ? 'npx --yes hyperframes@0.8.146 render --variables-file variables.json --strict-variables -o out/video.mp4'
+    : `npm ci && npx remotion render src/index.ts ${template} out/video.mp4 --props=props.json`;
 }
 
 // One machine-readable contract for templates and published shares. Agents can read it without JavaScript.
 export function agentSpec({site, kind, id, url, title, variant, props, version, siteCommit}: SpecInput) {
   const meta = templateMeta[variant.template];
   const schema = schemas[variant.template];
+  const engine = engineOf(variant.template);
   const pinned = templateVersion(variant.template, version);
   const latest = templateVersion(variant.template);
   const ratio = meta.width / meta.height;
@@ -37,7 +41,7 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
   if (!generation) throw new Error(`Missing generation metadata for template ${variant.template}.`);
   const old = pinned.version !== latest.version ? `&v=${pinned.version}` : '';
   return {
-    schemaVersion: '1.2', kind, id, variantId: variant.id, template: variant.template, title, url,
+    schemaVersion: '1.3', kind, id, variantId: variant.id, template: variant.template, engine, engineLabel: ENGINE_LABELS[engine], title, url,
     editorUrl: `${site}/#/v/${variant.id}`,
     templateVersion: pinned.version, latestTemplateVersion: latest.version, sourceHash: pinned.hash,
     generation,
@@ -67,15 +71,21 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
     source: {
       package: pkg, packageSha256: pinned.sha256, templateVersion: pinned.version,
       renderCommand: renderCommand(variant.template),
-      repository: REPOSITORY, path: `src/videos/${variant.template}/`,
-      contents: 'Remotion component, schema, scene metadata, shared helpers, exact dependency versions, lockfile, example props, and MIT-0 license. Fonts install from pinned Fontsource packages.',
-      note: 'Rendering uses Remotion, which has separate license terms: https://remotion.dev/license',
+      repository: REPOSITORY, path: engine === 'hyperframes' ? `src/hyperframes/${variant.template}/` : `src/videos/${variant.template}/`,
+      contents: engine === 'hyperframes'
+        ? 'Native HyperFrames HTML composition, declared variables, local GSAP, local fonts, example variables, README, and MIT-0 license.'
+        : 'Remotion component, schema, scene metadata, shared helpers, exact dependency versions, lockfile, example props, and MIT-0 license. Fonts install from pinned Fontsource packages.',
+      note: engine === 'hyperframes'
+        ? 'Rendering uses HyperFrames 0.8.146. GSAP and fonts keep their own licenses.'
+        : 'Rendering uses Remotion, which has separate license terms: https://remotion.dev/license',
     },
     instructions: [
       'For text, color, and image edits, change only props.texts, props.theme, and props.media when present. Keep each text within maxLength, each color as #RRGGBB, and each image as one of its listed options.',
       'Return text and color edits as handoff.urlTemplate with the props JSON URL-encoded.',
       'For layout, motion, timing, or scene edits, download source.package, extract it, and edit the code.',
-      'Render the source package with source.renderCommand. Edit props.json to change text and colors.',
+      engine === 'hyperframes'
+        ? 'Render the source package with source.renderCommand. Edit variables.json to change text and colors.'
+        : 'Render the source package with source.renderCommand. Edit props.json to change text and colors.',
       'Never send code through the handoff URL. It accepts props only.',
     ],
   };

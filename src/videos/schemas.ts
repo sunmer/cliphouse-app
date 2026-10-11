@@ -87,6 +87,11 @@ import {title3dSchema} from './title3d/schema.ts';
 import {photoquoteSchema} from './photoquote/schema.ts';
 import {vhsintroSchema} from './vhsintro/schema.ts';
 import {logo3dSchema} from './logo3d/schema.ts';
+import {signalSchema} from './signal/schema.ts';
+import {ringstatSchema} from './ringstat/schema.ts';
+import {eventpassSchema} from './eventpass/schema.ts';
+import {pullquoteSchema} from './pullquote/schema.ts';
+import {pricedropSchema} from './pricedrop/schema.ts';
 
 // Schemas without React components, so build scripts and the share server can validate props.
 export const schemas = {
@@ -139,4 +144,9 @@ export const schemas = {
   photoquote: photoquoteSchema,
   vhsintro: vhsintroSchema,
   logo3d: logo3dSchema,
+  signal: signalSchema,
+  ringstat: ringstatSchema,
+  eventpass: eventpassSchema,
+  pullquote: pullquoteSchema,
+  pricedrop: pricedropSchema,
 } as unknown as Record<string, VideoSchema>;

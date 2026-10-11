@@ -87,6 +87,11 @@ import {title3dMeta} from './title3d/meta.ts';
 import {photoquoteMeta} from './photoquote/meta.ts';
 import {vhsintroMeta} from './vhsintro/meta.ts';
 import {logo3dMeta} from './logo3d/meta.ts';
+import {signalMeta} from './signal/meta.ts';
+import {ringstatMeta} from './ringstat/meta.ts';
+import {eventpassMeta} from './eventpass/meta.ts';
+import {pullquoteMeta} from './pullquote/meta.ts';
+import {pricedropMeta} from './pricedrop/meta.ts';
 
 export const templateMeta: Record<string, TemplateMeta> = {
   [showreelMeta.id]: showreelMeta,
@@ -177,4 +182,9 @@ export const templateMeta: Record<string, TemplateMeta> = {
   [photoquoteMeta.id]: photoquoteMeta,
   [vhsintroMeta.id]: vhsintroMeta,
   [logo3dMeta.id]: logo3dMeta,
+  [signalMeta.id]: signalMeta,
+  [ringstatMeta.id]: ringstatMeta,
+  [eventpassMeta.id]: eventpassMeta,
+  [pullquoteMeta.id]: pullquoteMeta,
+  [pricedropMeta.id]: pricedropMeta,
 };

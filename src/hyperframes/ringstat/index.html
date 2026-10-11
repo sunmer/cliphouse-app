@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1080px; }
+    .bg { position:absolute; inset:0; background:radial-gradient(circle at 50% 46%, var(--theme-surface) 0 32%, transparent 32.2%), var(--theme-background); }
+    .brand { position:absolute; top:72px; left:0; right:0; text-align:center; font-size:30px; color:var(--theme-accent); text-transform:uppercase; }
+    .ring { position:absolute; left:190px; top:170px; width:700px; height:700px; }
+    circle { fill:none; stroke-width:42; }
+    .track { stroke:var(--theme-surface); }
+    .meter { stroke:var(--theme-accent); stroke-linecap:round; stroke-dasharray:1950; stroke-dashoffset:1950; transform:rotate(-90deg); transform-origin:center; }
+    .meter2 { stroke:var(--theme-accent2); stroke-width:12; stroke-dasharray:1650; stroke-dashoffset:1650; transform:rotate(-90deg); transform-origin:center; }
+    .stat { position:absolute; left:250px; right:250px; top:390px; height:160px; text-align:center; font-size:154px; line-height:1; color:var(--theme-foreground); }
+    .headline { position:absolute; left:120px; right:120px; top:888px; height:80px; text-align:center; font-size:64px; line-height:1; }
+    .details { display:grid; align-content:center; padding:110px; gap:44px; background:var(--theme-accent); color:var(--theme-background); }
+    .details .label { font-size:32px; text-transform:uppercase; }
+    .details .copy { height:330px; font-size:76px; line-height:1.02; }
+    .badge { justify-self:start; padding:24px 34px; background:var(--theme-background); color:var(--theme-foreground); font-size:44px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1080" data-height="1080">
+    <section id="ringstat-metric" class="scene s1 clip" data-start="0" data-duration="5.2" data-track-index="0">
+      <div class="bg"></div><div class="brand display" data-text-role="brand" data-var-text="text_brand">Brand</div>
+      <svg class="ring" viewBox="0 0 700 700"><circle class="track" cx="350" cy="350" r="310"/><circle class="meter" cx="350" cy="350" r="310"/><circle class="meter2" cx="350" cy="350" r="262"/></svg>
+      <div class="stat display fit" data-fit-max="154" data-fit-min="88" data-text-role="stat" data-var-text="text_stat">98%</div>
+      <h1 class="headline display fit" data-fit-max="64" data-fit-min="44" data-text-role="headline" data-var-text="text_headline">Headline</h1>
+    </section>
+    <section id="ringstat-details" class="scene s2 details clip" data-start="5.2" data-duration="2.8" data-track-index="0">
+      <div class="label mono">Key result</div><p class="copy serif fit" data-fit-max="76" data-fit-min="50" data-text-role="subhead" data-var-text="text_subhead">Subhead</p><div class="badge display" data-text-role="cta" data-var-text="text_cta">CTA</div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    tl.from('.s1 .bg', {scale: .5, opacity: 0, duration: .8, ease: 'power3.out'}, 0)
+      .from('.s1 .brand', {y: -40, opacity: 0, duration: .45}, .2)
+      .to('.s1 .meter', {strokeDashoffset: 260, duration: 2.1, ease: 'power4.out'}, .35)
+      .to('.s1 .meter2', {strokeDashoffset: 520, duration: 1.8, ease: 'power3.out'}, .65)
+      .from('.s1 .stat', {scale: .4, opacity: 0, filter: 'blur(12px)', duration: .8, ease: 'back.out(1.7)'}, .9)
+      .from('.s1 .headline', {y: 70, opacity: 0, duration: .6}, 1.55)
+      .to('.s1 .ring', {rotate: 18, duration: 4, ease: 'sine.inOut'}, 1)
+      .from('.s2', {clipPath: 'inset(100% 0 0 0)', duration: .65, ease: 'power4.inOut'}, 5.2)
+      .from('.s2 > *', {x: -90, opacity: 0, duration: .5, stagger: .12, ease: 'power3.out'}, 5.55);
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

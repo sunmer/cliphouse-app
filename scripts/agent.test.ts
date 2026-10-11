@@ -11,6 +11,7 @@ import {agentSpec} from '../src/agent/spec.ts';
 import {MAX_HANDOFF_CHARS, handoffPath, versions} from '../src/agent/versions.ts';
 import {generationErrors} from '../src/catalog/generation.ts';
 import {schemas} from '../src/videos/schemas.ts';
+import {engineOf} from '../src/videos/engine.ts';
 import {ROLES} from '../src/videos/vocab.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -22,6 +23,8 @@ test('every template spec exports a JSON Schema that matches the zod schema', ()
     const s = spec(v);
     assert.deepEqual(s.generation, manifest.templates.find((t) => t.id === v.template)!.generation, v.id);
     assert.deepEqual(generationErrors(v.template, s.generation), [], v.id);
+    assert.equal(s.engine, engineOf(v.template), v.id);
+    assert.match(s.source.renderCommand, s.engine === 'hyperframes' ? /hyperframes@0\.8\.146 render/ : /remotion render/);
     const roles = Object.keys(schemas[v.template].shape.texts.shape);
     assert.deepEqual(s.jsonSchema.properties.texts.required, roles, v.id);
     assert.equal(s.jsonSchema.properties.texts.additionalProperties, false);
@@ -122,7 +125,7 @@ test('versions are immutable, sequential, and match their committed packages', (
 test('a template change creates a new version and keeps the old one renderable', () => {
   // Work on a copy so the real catalog is untouched.
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cliphouse-version-'));
-  for (const p of ['LICENSE', 'scripts/build-sources.mjs', 'scripts/source-template', 'src/catalog/manifest.json', 'src/videos', 'src/legacy', 'public/source']) {
+  for (const p of ['LICENSE', 'scripts/build-sources.mjs', 'scripts/source-template', 'src/catalog/manifest.json', 'src/videos', 'src/hyperframes', 'src/legacy', 'public/source', 'node_modules/gsap/dist/gsap.min.js', 'node_modules/@fontsource-variable']) {
     if (fs.existsSync(path.join(root, p))) fs.cpSync(path.join(root, p), path.join(dir, p), {recursive: true});
   }
   const tmpl = 'stack';

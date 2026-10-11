@@ -1,12 +1,12 @@
 import React from 'react';
 import {Composition} from 'remotion';
-import {compositions} from '../videos/registry';
+import {remotionCompositions} from '../videos/remotionRegistry';
 import {legacy} from '../videos/legacy';
 import manifest from '../catalog/manifest.json';
 
 export const RemotionRoot: React.FC = () => (
   <>
-    {Object.entries(compositions).map(([id, c]) => (
+    {Object.entries(remotionCompositions).map(([id, c]) => (
       <Composition
         key={id}
         id={id}

@@ -858,5 +858,45 @@
       "sha256": "1a2651c74d398bed50ee5b32f77c951d531646303207282f1f3c8e4ab81819a1",
       "createdAt": "2026-10-09"
     }
+  ],
+  "signal": [
+    {
+      "version": 1,
+      "hash": "8b4288779f14deea",
+      "sha256": "a8d2ebf9a7a87c78c268850e3ad3aefdca358fe31d6cde691f287c4ca8723b9d",
+      "createdAt": "2026-10-11"
+    }
+  ],
+  "ringstat": [
+    {
+      "version": 1,
+      "hash": "7f234587b18bde72",
+      "sha256": "40937705f3f916a650dc52f743c1c4aaef761eade85100adca1c1f0eff95ccd0",
+      "createdAt": "2026-10-11"
+    }
+  ],
+  "eventpass": [
+    {
+      "version": 1,
+      "hash": "139e3e798243161b",
+      "sha256": "479017711a7bb2489b8ac07df74675fecc730be12314dd1b5163976195038d5a",
+      "createdAt": "2026-10-11"
+    }
+  ],
+  "pullquote": [
+    {
+      "version": 1,
+      "hash": "e8de547ad21a8e69",
+      "sha256": "47494f2b275fbf5d6381332b8f6d6ae66e65fb214ac38e356e1e6f0af837d7ac",
+      "createdAt": "2026-10-11"
+    }
+  ],
+  "pricedrop": [
+    {
+      "version": 1,
+      "hash": "b005406c9c32d4c3",
+      "sha256": "324eb2952d35c9e6c0748acccb7268e17fca0af61c18ef0dab9d2ba33473445c",
+      "createdAt": "2026-10-11"
+    }
   ]
 }

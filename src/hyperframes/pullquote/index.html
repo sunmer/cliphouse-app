@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1350" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1350px; }
+    .paper { position:absolute; inset:58px; background:var(--theme-surface); }
+    .mark { position:absolute; right:118px; top:112px; z-index:1; width:250px; height:190px; opacity:.95; }
+    .mark span { position:absolute; top:0; width:94px; height:94px; border-radius:50%; background:var(--theme-accent); }
+    .mark span:after { content:""; position:absolute; left:18px; top:62px; width:48px; height:112px; border-radius:0 0 0 70px; background:var(--theme-accent); transform:rotate(18deg); }
+    .mark span:first-child { left:0; } .mark span:last-child { right:0; }
+    .brand, .quote, .author { z-index:2; }
+    .brand { position:absolute; left:116px; top:118px; font-size:30px; color:var(--theme-accent2); text-transform:uppercase; }
+    .quote { position:absolute; left:116px; right:116px; top:300px; height:620px; font-size:76px; line-height:1.08; font-style:italic; font-weight:560; }
+    .author { position:absolute; left:116px; right:116px; bottom:158px; display:flex; align-items:center; gap:28px; font-size:40px; }
+    .line { width:120px; height:8px; background:var(--theme-accent); }
+    .end { display:grid; place-items:center; text-align:center; background:var(--theme-foreground); color:var(--theme-background); padding:120px; }
+    .end .headline { width:840px; height:220px; font-size:104px; line-height:.95; }
+    .end .cta { margin-top:56px; display:inline-block; padding:26px 38px; background:var(--theme-accent); font-size:42px; color:var(--theme-background); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="9" data-width="1080" data-height="1350">
+    <section id="pullquote-quote" class="scene s1 clip" data-start="0" data-duration="6.2" data-track-index="0">
+      <div class="paper"></div><div class="mark" aria-hidden="true"><span></span><span></span></div><div class="brand display" data-text-role="brand" data-var-text="text_brand">Brand</div>
+      <blockquote class="quote serif fit" data-fit-max="76" data-fit-min="48" data-text-role="quote" data-var-text="text_quote">Quote</blockquote>
+      <div class="author display"><span class="line"></span><span data-text-role="author" data-var-text="text_author">Author</span></div>
+    </section>
+    <section id="pullquote-end" class="scene s2 end clip" data-start="6.2" data-duration="2.8" data-track-index="0">
+      <div><h1 class="headline display fit" data-fit-max="104" data-fit-min="64" data-text-role="headline" data-var-text="text_headline">Headline</h1><div class="cta display" data-text-role="cta" data-var-text="text_cta">CTA</div></div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    tl.from('.s1 .paper', {scaleY: 0, transformOrigin: 'bottom center', duration: .75, ease: 'power4.out'}, 0)
+      .from('.s1 .mark', {y: -180, rotate: -16, opacity: 0, duration: .9, ease: 'back.out(1.6)'}, .2)
+      .from('.s1 .brand', {x: -60, opacity: 0, duration: .45}, .45)
+      .from('.s1 .quote', {clipPath: 'inset(0 0 100% 0)', y: 50, duration: 1.15, ease: 'power3.out'}, .65)
+      .from('.s1 .line', {scaleX: 0, transformOrigin: 'left center', duration: .5}, 1.65)
+      .from('.s1 .author span:last-child', {x: 50, opacity: 0, duration: .5}, 1.8)
+      .to('.s1 .mark', {y: 18, rotate: 4, duration: 3.6, ease: 'sine.inOut'}, 1.4)
+      .from('.s2', {clipPath: 'inset(0 0 0 100%)', duration: .65, ease: 'power4.inOut'}, 6.2)
+      .from('.s2 .headline, .s2 .cta', {y: 70, opacity: 0, duration: .52, stagger: .14}, 6.62);
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

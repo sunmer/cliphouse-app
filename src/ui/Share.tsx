@@ -5,8 +5,8 @@ import type {VideoProps} from '../videos/contract';
 import {publishVideo, sharingConfigured, type SharedVideo} from '../services/sharing';
 import {track} from '../services/analytics';
 import {useAccount} from './Account';
-import {Thumbnail} from '@remotion/player';
 import {compositionFor} from '../videos/registry';
+import {VideoThumbnail} from './VideoPlayer';
 
 export function ShareButton({variant, props, templateVersion, disabled, beforeOpen, save, publishedVideo, initiallyOpen}: {
   variant: Variant; props: VideoProps; templateVersion: number; disabled: boolean; beforeOpen: () => void; save: () => Promise<string>;
@@ -73,9 +73,7 @@ export function ShareButton({variant, props, templateVersion, disabled, beforeOp
           {typeof navigator.share === 'function' && <button className="account-action" onClick={share}><Share2 size={17} />Share</button>}
         </div>
       </> : <>
-        <Thumbnail component={composition.component} inputProps={props} frameToDisplay={composition.posterFrame}
-          durationInFrames={composition.durationInFrames} compositionWidth={composition.width}
-          compositionHeight={composition.height} fps={composition.fps}
+        <VideoThumbnail composition={composition} props={props}
           style={{width: '100%', aspectRatio: `${composition.width} / ${composition.height}`, maxHeight: 220, objectFit: 'contain'}} />
         <p className="muted">Publishing makes a copy of this edit visible to anyone with the link.</p>
         {!sharingConfigured ? <p role="status">Publishing is not available yet. Your edits remain on this device.</p>

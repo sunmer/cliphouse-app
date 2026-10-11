@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {templateMeta} from '../src/videos/meta.ts';
+import {engineOf} from '../src/videos/engine.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
 const outDir = path.join(root, 'public/previews');
@@ -30,6 +31,7 @@ const browserExecutable = findBrowser();
 
 for (const entry of manifest.variants) {
   if (only.length && !only.includes(entry.id)) continue;
+  if (engineOf(entry.template) !== 'remotion') continue;
   const composition = await selectComposition({serveUrl, id: entry.template, inputProps: entry.props, browserExecutable});
   // Previews are ~480px on the long edge regardless of orientation.
   const scale = 480 / Math.max(composition.width, composition.height);

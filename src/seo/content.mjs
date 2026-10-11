@@ -348,11 +348,24 @@ export const editorialPages = [
     h1: 'Remotion templates',
     description: 'Browse finished Remotion templates, edit text and colors in the browser, or download the full source as a standalone Remotion project.',
     intro: 'Free Remotion templates built for humans and coding agents. Compare finished motion, edit copy and colors, then hand off clean props and source paths to your agent.',
-    match: () => true,
+    match: (v) => !['signal', 'ringstat', 'eventpass', 'pullquote', 'pricedrop'].includes(v.template),
     sections: [
       ['What you get', 'Each template is a React and Remotion composition. A shared contract defines seven text roles, five theme colors, and scene metadata. The editor and catalog read the same contract.'],
       ['How to use a template', 'Open a template, edit text in the preview, and choose colors. Download the source package for a standalone Remotion project: run npm ci, then render with your props. Give agent.json to a coding agent to change text, colors, layout, motion, or timing.'],
       ['Licensing', 'The cliphou.se templates use MIT-0. Rendering the code yourself uses Remotion, which has separate terms.'],
+    ],
+  },
+  {
+    path: '/hyperframes-templates/',
+    title: 'HyperFrames Templates with Editable Text and Colors | cliphou.se',
+    h1: 'HyperFrames templates',
+    description: 'Browse finished HyperFrames templates, edit text and colors in the browser, or download a native HTML, CSS, and GSAP project.',
+    intro: 'Free HyperFrames templates for humans and coding agents. Edit the copy and colors in cliphou.se, then download a native project for HyperFrames Studio or the CLI.',
+    match: (v) => ['signal', 'ringstat', 'eventpass', 'pullquote', 'pricedrop'].includes(v.template),
+    sections: [
+      ['What you get', 'Each template is a HyperFrames HTML composition with declared variables, a paused GSAP timeline, local fonts, and scene metadata used by the cliphou.se editor.'],
+      ['How to use a template', 'Open a template, edit text in the preview, and choose colors. Download the source package, then run npx hyperframes check and npx hyperframes render with variables.json.'],
+      ['Licensing', 'The cliphou.se templates use MIT-0. GSAP and the bundled fonts keep their own licenses.'],
     ],
   },
   {

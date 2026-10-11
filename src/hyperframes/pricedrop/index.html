@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; }
+    .slab { position:absolute; left:-220px; top:120px; width:1250px; height:820px; background:var(--theme-accent); transform:skewX(-14deg); }
+    .slab2 { position:absolute; right:-240px; top:0; width:760px; height:1080px; background:var(--theme-surface); transform:skewX(-14deg); }
+    .brand { position:absolute; left:120px; top:132px; font-size:34px; text-transform:uppercase; color:var(--theme-background); }
+    .headline { position:absolute; left:120px; top:250px; width:760px; height:330px; font-size:112px; line-height:.92; color:var(--theme-background); }
+    .note { position:absolute; left:126px; top:720px; font-size:42px; color:var(--theme-background); }
+    .tag { position:absolute; right:190px; top:250px; width:620px; height:500px; background:var(--theme-foreground); color:var(--theme-background); display:grid; place-items:center; text-align:center; border-radius:8px; }
+    .tag:before { content:""; position:absolute; left:52px; top:52px; width:48px; height:48px; border-radius:50%; background:var(--theme-background); }
+    .tag > div:first-child { width:500px; height:220px; display:grid; place-items:center; }
+    .price { display:block; width:500px; height:200px; font-size:178px; line-height:1.05; text-align:center; color:var(--theme-accent2); }
+    .old { position:absolute; bottom:72px; font-size:36px; opacity:.72; }
+    .finale { display:flex; align-items:center; justify-content:space-between; padding:0 150px; background:var(--theme-foreground); color:var(--theme-background); }
+    .finale-copy { width:900px; height:220px; font-size:92px; line-height:.94; }
+    .button { padding:42px 58px; background:var(--theme-accent); color:var(--theme-background); font-size:62px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+    <section id="pricedrop-offer" class="scene s1 clip" data-start="0" data-duration="5.6" data-track-index="0">
+      <div class="slab2" data-layout-allow-overflow></div><div class="slab" data-layout-allow-overflow></div><div class="brand display" data-text-role="brand" data-var-text="text_brand">Brand</div>
+      <h1 class="headline display fit" data-fit-max="112" data-fit-min="68" data-text-role="headline" data-var-text="text_headline">Headline</h1>
+      <p class="note display" data-text-role="priceNote" data-var-text="text_priceNote">Price note</p>
+      <div class="tag"><div><div class="price display fit" data-fit-max="178" data-fit-min="90" data-text-role="price" data-var-text="text_price">$29</div></div><div class="old mono">Limited release</div></div>
+    </section>
+    <section id="pricedrop-end" class="scene s2 finale clip" data-start="5.6" data-duration="2.4" data-track-index="0">
+      <h2 class="finale-copy display fit" data-fit-max="92" data-fit-min="58" data-text-role="headline" data-var-text="text_headline">Headline</h2><div class="button display" data-text-role="cta" data-var-text="text_cta">CTA</div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    tl.from('.s1 .slab', {xPercent: -110, duration: .82, ease: 'expo.out'}, 0)
+      .from('.s1 .slab2', {xPercent: 110, duration: .9, ease: 'expo.out'}, .08)
+      .from('.s1 .brand, .s1 .headline, .s1 .note', {x: -90, opacity: 0, duration: .55, stagger: .14, ease: 'power3.out'}, .45)
+      .from('.s1 .tag', {y: -700, rotate: 18, duration: 1, ease: 'bounce.out'}, .8)
+      .from('.s1 .price', {scale: .25, opacity: 0, duration: .7, ease: 'back.out(2.2)'}, 1.55)
+      .to('.s1 .tag', {y: 12, duration: .32, yoyo: true, repeat: 5, ease: 'sine.inOut'}, 2.35)
+      .from('.s2', {clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)', duration: .62, ease: 'power4.inOut'}, 5.6)
+      .from('.s2 .finale-copy', {x: -90, opacity: 0, duration: .45}, 5.95)
+      .from('.s2 .button', {scale: .6, opacity: 0, duration: .48, ease: 'back.out(2)'}, 6.12);
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

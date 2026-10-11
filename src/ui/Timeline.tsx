@@ -1,9 +1,9 @@
-import type {PlayerRef} from '@remotion/player';
 import {useEffect, useRef, useState, type PointerEvent, type RefObject} from 'react';
 import {SCENE_TYPES, type Role, type TemplateMeta} from '../videos/vocab';
+import type {VideoPlayerRef} from './VideoPlayer';
 
 // Scene strip under the player: shows where each scene sits, follows playback, and scrubs continuously.
-export function Timeline({meta, player, focusRole, disabled = false}: {meta: TemplateMeta; player: RefObject<PlayerRef | null>; focusRole: Role | null; disabled?: boolean}) {
+export function Timeline({meta, player, focusRole, disabled = false}: {meta: TemplateMeta; player: RefObject<VideoPlayerRef | null>; focusRole: Role | null; disabled?: boolean}) {
   const [frame, setFrame] = useState(0);
   const [scrubbing, setScrubbing] = useState(false);
   const resume = useRef(false);

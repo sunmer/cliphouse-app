@@ -1,9 +1,9 @@
-import {Thumbnail} from '@remotion/player';
 import {useEffect, useRef, useState} from 'react';
 import type {Variant} from '../catalog/catalog';
 import type {VideoProps} from '../videos/vocab';
 import {compositions} from '../videos/registry';
 import {ViewportVideo} from './ViewportVideo';
+import {VideoThumbnail} from './VideoPlayer';
 
 const asset = (file: string) => `${import.meta.env.BASE_URL}previews/${file}`;
 const FRAME_RATIO = 16 / 10;
@@ -33,16 +33,7 @@ export function Media({variant, props, autoplay = true}: {variant: Variant; prop
         {props ? (
           // Brand kit previews: one static Remotion frame per card, only while on screen.
           visible && (
-            <Thumbnail
-              component={c.component}
-              inputProps={props}
-              frameToDisplay={c.posterFrame}
-              durationInFrames={c.durationInFrames}
-              compositionWidth={c.width}
-              compositionHeight={c.height}
-              fps={c.fps}
-              style={{width: '100%', height: '100%'}}
-            />
+            <VideoThumbnail composition={c} props={props} style={{width: '100%', height: '100%'}} />
           )
         ) : (
           <>

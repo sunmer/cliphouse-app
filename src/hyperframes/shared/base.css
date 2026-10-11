@@ -1,0 +1,14 @@
+@font-face { font-family: "Archivo HF"; src: url("__ASSET_BASE__/fonts/archivo.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+@font-face { font-family: "Fraunces HF"; src: url("__ASSET_BASE__/fonts/fraunces.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+@font-face { font-family: "Fraunces HF"; src: url("__ASSET_BASE__/fonts/fraunces-italic.woff2") format("woff2"); font-style: italic; font-weight: 100 900; font-display: block; }
+@font-face { font-family: "Inter HF"; src: url("__ASSET_BASE__/fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+@font-face { font-family: "Mono HF"; src: url("__ASSET_BASE__/fonts/jetbrains-mono.woff2") format("woff2"); font-weight: 100 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: var(--w); height: var(--h); overflow: hidden; background: var(--theme-background); }
+body { color: var(--theme-foreground); font-family: "Inter HF", Inter, Arial, sans-serif; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+#root { position: relative; width: var(--w); height: var(--h); overflow: hidden; background: var(--theme-background); isolation: isolate; }
+.scene { position: absolute; inset: 0; }
+.display { font-family: "Archivo HF", "Arial Black", Arial, sans-serif; font-weight: 850; letter-spacing: 0; }
+.serif { font-family: "Fraunces HF", Georgia, serif; letter-spacing: 0; }
+.mono { font-family: "Mono HF", ui-monospace, monospace; letter-spacing: 0; }
+.fit { overflow-wrap: anywhere; text-wrap: balance; }
