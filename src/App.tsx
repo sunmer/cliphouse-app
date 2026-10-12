@@ -7,6 +7,7 @@ import {trackPage, trackReturnVisit} from './services/analytics';
 import {SharedVideo} from './ui/SharedVideo';
 import {SavedVideo} from './ui/SavedVideo';
 import {BenchmarkBanner} from './ui/BenchmarkBanner';
+import {pocEntries} from './poc/registry';
 
 type Route = {view: 'editor'; id: string; handoff?: string; version?: number} | {view: 'shared'; id: string; openShare?: boolean} | {view: 'saved'; id: string} | {view: 'gallery'; params: URLSearchParams} | {view: 'privacy'};
 
@@ -38,7 +39,8 @@ export function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
-  const variant = route.view === 'editor' ? variants.find((v) => v.id === route.id) : undefined;
+  const poc = route.view === 'editor' ? pocEntries[route.id] : undefined;
+  const variant = route.view === 'editor' ? poc?.variant ?? variants.find((v) => v.id === route.id) : undefined;
   useEffect(() => {
     window.scrollTo(0, 0);
     if (route.view !== 'shared') document.title = variant ? `${variant.title} | cliphou.se` : route.view === 'privacy' ? 'Privacy | cliphou.se' : 'cliphou.se';
@@ -50,7 +52,7 @@ export function App() {
   return <>
     <BenchmarkBanner />
     {route.view === 'saved' ? <SavedVideo key={route.id} id={route.id} /> : route.view === 'shared' ? <SharedVideo key={route.id} id={route.id} openShare={route.openShare} />
-      : variant && route.view === 'editor' ? <Editor key={`${variant.id}:${route.version ?? ''}:${route.handoff ?? ''}`} variant={variant} handoff={route.handoff} templateVersion={route.version} />
+      : variant && route.view === 'editor' ? <Editor key={`${variant.id}:${route.version ?? ''}:${route.handoff ?? ''}`} variant={variant} handoff={poc ? undefined : route.handoff} templateVersion={poc ? undefined : route.version} poc={poc} />
       : route.view === 'privacy' ? <PrivacyPage /> : <Gallery key={template ?? 'all'} initialTemplate={template} />}
     <SiteFooter />
   </>;

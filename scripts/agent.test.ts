@@ -123,10 +123,10 @@ test('versions are immutable, sequential, and match their committed packages', (
   }
 });
 
-test('a template change creates a new version and keeps the old one renderable', () => {
+test('a template change replaces the package with the next version', () => {
   // Work on a copy so the real catalog is untouched.
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cliphouse-version-'));
-  for (const p of ['LICENSE', 'scripts/build-sources.mjs', 'scripts/source-template', 'src/catalog/manifest.json', 'src/videos', 'src/hyperframes', 'src/legacy', 'public/source', 'node_modules/gsap/dist/gsap.min.js', 'node_modules/@fontsource-variable']) {
+  for (const p of ['LICENSE', 'scripts/build-sources.mjs', 'scripts/source-template', 'src/catalog/manifest.json', 'src/videos', 'src/hyperframes', 'public/source', 'node_modules/gsap/dist/gsap.min.js', 'node_modules/@fontsource-variable']) {
     if (fs.existsSync(path.join(root, p))) fs.cpSync(path.join(root, p), path.join(dir, p), {recursive: true});
   }
   const tmpl = 'stack';
@@ -134,12 +134,9 @@ test('a template change creates a new version and keeps the old one renderable',
   fs.appendFileSync(path.join(dir, `src/videos/${tmpl}/meta.ts`), '\n// changed\n');
   execFileSync(process.execPath, ['scripts/build-sources.mjs'], {cwd: dir, stdio: 'pipe'});
   const after = JSON.parse(fs.readFileSync(path.join(dir, 'src/videos/versions.json'), 'utf8'))[tmpl];
-  assert.equal(after.at(-1).version, before + 1);
+  assert.deepEqual(after.map((v: {version: number}) => v.version), [before + 1]);
   assert.ok(fs.existsSync(path.join(dir, `public/source/${tmpl}/v${before + 1}.tar.gz`)));
-  assert.equal(createHash('sha256').update(fs.readFileSync(path.join(dir, `public/source/${tmpl}/v${before}.tar.gz`))).digest('hex'), after[before - 1].sha256);
-  assert.ok(fs.existsSync(path.join(dir, `src/legacy/${tmpl}/v${before}/${tmpl}/Stack.tsx`)));
-  assert.match(fs.readFileSync(path.join(dir, 'src/videos/legacy.ts'), 'utf8'), new RegExp(`${tmpl}: \\{[^\\n]*\\b${before}: `));
-  assert.match(fs.readFileSync(path.join(dir, 'src/videos/legacy-schemas.ts'), 'utf8'), new RegExp(`${tmpl}: \\{[^\\n]*\\b${before}: `));
+  assert.ok(!fs.existsSync(path.join(dir, `public/source/${tmpl}/v${before}.tar.gz`)));
   execFileSync(process.execPath, ['scripts/build-sources.mjs', '--check'], {cwd: dir, stdio: 'pipe'});
   fs.rmSync(dir, {recursive: true, force: true});
 });

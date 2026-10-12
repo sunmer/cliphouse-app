@@ -1,0 +1,27 @@
+{
+  "beatFrames": 15,
+  "scenes": [
+    {"type": "marquee", "bars": 1, "focusBeat": 2, "roles": ["brand", "headline"], "energy": 1},
+    {"type": "list", "bars": 2, "focusBeat": 10, "roles": ["brand", "headline", "list"], "energy": 2},
+    {"type": "logo-lockup", "bars": 1, "focusBeat": 14, "roles": ["brand", "headline", "cta"], "energy": 3}
+  ],
+  "cues": [
+    {"id": "bands", "beat": 0, "sound": "impact", "velocity": 0.7},
+    {"id": "sticker", "beat": 1, "sound": "stamp", "role": "brand", "velocity": 0.7},
+    {"id": "boardHeadline", "beat": 4, "sound": "blip", "role": "headline", "velocity": 0.6},
+    {"id": "ctaBrand", "beat": 12, "sound": "lead", "role": "brand", "velocity": 0.6},
+    {"id": "ctaStamp", "beat": 13, "sound": "stamp", "role": "cta", "velocity": 1}
+  ],
+  "list": {"role": "list", "label": "Board items", "scene": 1, "min": 1, "max": 3, "itemMax": 16,
+    "schedules": {"1": [4], "2": [4, 8], "3": [4, 6, 8]}, "accentOffset": 0.75, "voice": "flap"},
+  "risers": [{"beat": 10, "beats": 2}],
+  "sound": {
+    "genre": "tech-house", "seed": 4018594063, "root": 40, "scale": "dorian", "progression": [0, 3, 5, 4], "swing": 0.06,
+    "kick": {"pattern": "four", "pitch": 50, "punch": 0.7, "decay": 0.45},
+    "hats": {"pattern": "eighths", "open": 0.4, "tone": 0.6},
+    "snare": {"kind": "clap", "pattern": "backbeat"},
+    "bass": {"pattern": "rolling", "cutoff": 0.35, "resonance": 0.4, "drive": 0.45},
+    "chords": {"voice": "stab", "rhythm": "syncopated", "brightness": 0.45},
+    "perc": "cowbell", "space": 0.3, "pump": 0.5
+  }
+}

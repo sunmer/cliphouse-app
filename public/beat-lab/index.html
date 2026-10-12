@@ -1,0 +1,7 @@
+<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Beat lab</title>
+<style>body{font:16px system-ui;background:#111;color:#eee;margin:0;padding:20px}h1{font-size:20px}div{margin:14px 0}audio{width:100%}span{color:#999;font-size:13px}</style></head>
+<body><h1>Genre engine samples</h1>
+<script>
+for (const [g, d] of [['deep-house','120 BPM, keys, shaker'],['house','120 BPM, organ, conga'],['tech-house','129 BPM, rolling bass, cowbell'],['techno','138 BPM, rolling bass, toms'],['minimal','129 BPM, sub bass, plucks'],['electro','129 BPM, broken kick, acid'],['garage','129 BPM, shuffle, organ skank'],['breaks','138 BPM, breakbeat'],['disco','120 BPM, octave bass, keys'],['progressive','120 BPM, pad, halftime clap']])
+  document.write(`<div><b>${g}</b> <span>${d}</span><audio controls loop preload="none" src="${g}.wav"></audio></div>`);
+</script></body></html>

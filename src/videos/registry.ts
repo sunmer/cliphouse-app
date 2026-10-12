@@ -1,6 +1,5 @@
 import type {TemplateMeta, VideoSchema} from './contract';
 import {templateMeta} from './meta';
-import {legacy} from './legacy';
 import {currentVersion} from '../agent/versions';
 import {remotionCompositions, type RemotionCompositionDef} from './remotionRegistry';
 import {signalSchema} from './signal/schema';
@@ -26,10 +25,8 @@ export const compositions: Record<string, CompositionDef> = {
   featuredrop: hyperframes('featuredrop', featuredropSchema), eventcountdown: hyperframes('eventcountdown', eventcountdownSchema),
 };
 
-// Saved and shared videos keep the template version they were made with.
+// Only the current version of each template exists. Older saved edits are not kept.
 export function compositionFor(template: string, version = currentVersion(template)): CompositionDef {
-  if (version === currentVersion(template)) return compositions[template];
-  const old = legacy[template]?.[version];
-  if (!old) throw new Error('This video uses a template version that this site no longer includes.');
-  return {...old, engine: 'remotion'};
+  if (version !== currentVersion(template)) throw new Error('This video uses a template version that this site no longer includes.');
+  return compositions[template];
 }

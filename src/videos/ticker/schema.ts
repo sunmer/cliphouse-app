@@ -1,9 +1,6 @@
-import {z} from 'zod';
-import {textsSchema, themeSchema} from '../contract';
+import type {z} from 'zod';
+import {beatSchema} from '../beat/schema.ts';
+import {tickerScore} from './score.ts';
 
-export const tickerSchema = z.object({
-  texts: textsSchema(['brand', 'headline', 'point1', 'point2', 'point3', 'cta'] as const),
-  theme: themeSchema,
-});
-
+export const tickerSchema = beatSchema(tickerScore, ['brand', 'headline', 'list', 'cta'] as const);
 export type TickerProps = z.infer<typeof tickerSchema>;

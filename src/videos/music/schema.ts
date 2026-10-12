@@ -31,7 +31,11 @@ export const isMusicSchema = (schema: unknown) => !!(schema as SchemaWithMusic).
 /** The roles a music schema lets users hide. */
 export const hideableRoles = (schema: unknown): Role[] =>
   ((schema as SchemaWithMusic).shape.hidden?.meta?.() as {options?: Role[]} | undefined)?.options ?? [];
-export const scoreOf = (meta: TemplateMeta) => (meta as Partial<MusicMeta>).score;
+/** The older music score of a template. Beat scores are read with beat/schema.ts. */
+export const scoreOf = (meta: TemplateMeta) => {
+  const score = (meta as Partial<MusicMeta>).score;
+  return score && !Object.hasOwn(score, 'beatFrames') ? score : undefined;
+};
 export const isMusicProps = (props: VideoProps): props is MusicVideoProps => Object.hasOwn(props, 'audio');
 
 /** Template metadata whose timing comes from the score. */

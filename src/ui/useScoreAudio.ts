@@ -13,8 +13,11 @@ type Source = {node: AudioBufferSourceNode; startedAt: number; offset: number};
  * The worker renders the same samples as the exported WAV whenever text or hidden roles change.
  * Play, pause, scrubbing, scene jumps, and loops restart the source at the player's frame.
  */
-export function useScoreAudio({score, fps, props, player, enabled}: {
-  score: Score | undefined; fps: number; props: VideoProps; player: RefObject<VideoPlayerRef | null>; enabled: boolean;
+/** A custom mix: the worker renders `message`, and `key` changes whenever the resolved musical plan changes. */
+export type AudioSource = {key: string; message: unknown; worker: () => Worker};
+
+export function useScoreAudio({score, fps, props, player, enabled, custom}: {
+  score: Score | undefined; fps: number; props: VideoProps; player: RefObject<VideoPlayerRef | null>; enabled: boolean; custom?: AudioSource;
 }) {
   const ctx = useRef<AudioContext | null>(null);
   const gain = useRef<GainNode | null>(null);
@@ -24,7 +27,8 @@ export function useScoreAudio({score, fps, props, player, enabled}: {
   const frame = useRef(0);
   const [ready, setReady] = useState(false);
   const hidden = (props as {hidden?: string[]}).hidden ?? [];
-  const key = score ? JSON.stringify([props.texts, hidden]) : '';
+  const key = custom ? custom.key : score ? JSON.stringify([props.texts, hidden]) : '';
+  const active = !!(score || custom);
 
   const context = () => {
     if (!ctx.current) {
@@ -61,9 +65,11 @@ export function useScoreAudio({score, fps, props, player, enabled}: {
 
   // Render the mix in a worker. A newer edit replaces an older render.
   useEffect(() => {
-    if (!score) return;
-    const worker = new Worker(new URL('./audioWorker.ts', import.meta.url), {type: 'module'});
+    if (!active) return;
+    const worker = custom ? custom.worker() : new Worker(new URL('./audioWorker.ts', import.meta.url), {type: 'module'});
     let live = true;
+    // A stale mix must never play against a newer arrangement: drop it until the new one arrives.
+    if (custom) { stop(); buffer.current = null; setReady(false); }
     worker.onmessage = (event: MessageEvent<{left: Float32Array<ArrayBuffer>; right: Float32Array<ArrayBuffer>}>) => {
       if (!live) return;
       const c = context();
@@ -73,9 +79,9 @@ export function useScoreAudio({score, fps, props, player, enabled}: {
       buffer.current = next;
       setReady(true);
       // An edit swaps the mix at the current position.
-      if (source.current) start(frame.current);
+      if (source.current || custom) start(frame.current);
     };
-    worker.postMessage({id: 1, score, props: {texts: props.texts, hidden}});
+    worker.postMessage(custom ? custom.message : {id: 1, score, props: {texts: props.texts, hidden}});
     return () => { live = false; worker.terminate(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [score, key]);
@@ -83,7 +89,7 @@ export function useScoreAudio({score, fps, props, player, enabled}: {
   // Follow the player.
   useEffect(() => {
     const p = player.current;
-    if (!score || !p) return;
+    if (!active || !p) return;
     const onPlay = () => { void ctx.current?.resume(); start(frame.current); };
     const onPause = () => stop();
     const onSeek = (e: {detail: {frame: number}}) => { frame.current = e.detail.frame; start(frame.current); };
@@ -105,7 +111,7 @@ export function useScoreAudio({score, fps, props, player, enabled}: {
       p.removeEventListener('frameupdate', onFrame);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [score, player, fps]);
+  }, [active, player, fps]);
 
   useEffect(() => {
     on.current = enabled;
@@ -116,7 +122,7 @@ export function useScoreAudio({score, fps, props, player, enabled}: {
 
   // Browser tests read playback state here: whether a source plays, the drift in seconds, the frame, and the mix length.
   useEffect(() => {
-    if (!score) return;
+    if (!active) return;
     const w = window as Window & {__cliphouseAudio?: () => object};
     w.__cliphouseAudio = () => {
       const h = heard();
@@ -124,7 +130,7 @@ export function useScoreAudio({score, fps, props, player, enabled}: {
         drift: h === null ? null : h - shown(), duration: buffer.current?.duration ?? null};
     };
     return () => { delete w.__cliphouseAudio; };
-  }, [score, fps]);
+  }, [active, fps]);
 
   return {
     ready,

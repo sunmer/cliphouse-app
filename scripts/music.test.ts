@@ -19,7 +19,9 @@ import {validateShare} from '../server/model.ts';
 import {audioErrors, editLeakErrors, hiddenSets, textSet} from './music-gates.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
-const music = manifest.templates.filter((t) => (t as {music?: boolean}).music).map((t) => t.id);
+// The older score format. Beat templates are tested in scripts/beat.test.ts.
+const isOldScore = (id: string) => !('beatFrames' in JSON.parse(fs.readFileSync(path.join(root, 'src/videos', id, 'score.json'), 'utf8')));
+const music = manifest.templates.filter((t) => (t as {music?: boolean}).music && isOldScore(t.id)).map((t) => t.id);
 const score = (id: string) => scoreOf(templateMeta[id])!;
 const preset = (id: string) => manifest.variants.find((v) => v.template === id && !(v as {hidden?: boolean}).hidden)!;
 const hashes = JSON.parse(fs.readFileSync(path.join(root, 'scripts/music-hashes.json'), 'utf8')) as Record<string, string>;
@@ -143,7 +145,8 @@ test('music templates accept only their declared fields and optional roles', () 
 });
 
 test('silent templates reject the music fields', () => {
-  for (const v of manifest.variants.filter((v) => !(v as {hidden?: boolean}).hidden && !music.includes(v.template)).slice(0, 40)) {
+  const silent = (t: string) => !(manifest.templates.find((x) => x.id === t) as {music?: boolean}).music;
+  for (const v of manifest.variants.filter((v) => !(v as {hidden?: boolean}).hidden && silent(v.template)).slice(0, 40)) {
     const schema = schemas[v.template];
     assert.equal(isMusicSchema(schema), false);
     assert.equal(validateProps(schema, {...v.props, hidden: []}).ok, false, v.id);

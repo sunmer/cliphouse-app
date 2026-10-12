@@ -20,7 +20,10 @@ const MAX_DRIFT = 0.045;
     await page.locator('.card video').first().waitFor();
     assert.equal(await page.locator('.card video').evaluateAll((els) => els.every((v) => v.muted)), true, 'gallery previews must be muted');
 
-    for (const t of manifest.templates.filter((t) => t.music)) {
+    // The older score format only; beat templates have no hidden roles (scripts/smoke-beat.cjs).
+    const fs = require('node:fs');
+    const oldScore = (id) => !('beatFrames' in JSON.parse(fs.readFileSync(`src/videos/${id}/score.json`, 'utf8')));
+    for (const t of manifest.templates.filter((t) => t.music && oldScore(t.id))) {
       if (process.env.TEMPLATE && t.id !== process.env.TEMPLATE) continue;
       const v = manifest.variants.find((x) => x.template === t.id && !x.hidden);
       const key = `voodoo:v2:${v.id}`;

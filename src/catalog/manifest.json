@@ -76,13 +76,14 @@
         "modelId": "claude-opus-5-5",
         "provider": "Anthropic",
         "effort": "medium"
-      }
+      },
+      "music": true
     },
     {
       "id": "ticker",
       "title": "Ticker",
       "creator": "mo.graph",
-      "prompt": "A loud 8 second square social ad: tilted scrolling marquee rows of the headline, a split-flap board for three offers, and a stamped CTA.",
+      "prompt": "A loud 8 second square social ad on a 120 BPM tech-house groove: tilted marquee bands of the headline, a split-flap board of one to three items that clack on the beat, and a stamped CTA.",
       "createdAt": "2026-10-07",
       "license": "MIT-0",
       "generation": {
@@ -90,7 +91,8 @@
         "modelId": "claude-opus-5-5",
         "provider": "Anthropic",
         "effort": "medium"
-      }
+      },
+      "music": true
     },
     {
       "id": "terminal",
@@ -1924,9 +1926,7 @@
         "texts": {
           "brand": "KICKLAB",
           "headline": "The drop is here",
-          "point1": "Limited run",
-          "point2": "Free shipping",
-          "point3": "48h only",
+          "list": "Limited run\nFree shipping\n48h only",
           "cta": "Shop now"
         },
         "theme": {
@@ -1935,6 +1935,9 @@
           "foreground": "#ffffff",
           "accent": "#d4ff3a",
           "accent2": "#ff5c39"
+        },
+        "audio": {
+          "enabled": true
         }
       },
       "seoDescription": "A vertical sneaker or product drop reel with a masked headline, three stacked selling points, and a circular call-to-action reveal.",
@@ -1972,9 +1975,7 @@
         "texts": {
           "brand": "Orbit",
           "headline": "Ship it faster.",
-          "point1": "Realtime sync",
-          "point2": "Zero config",
-          "point3": "Built-in AI",
+          "list": "Realtime sync\nZero config\nBuilt-in AI",
           "cta": "Start free"
         },
         "theme": {
@@ -1983,6 +1984,9 @@
           "foreground": "#111827",
           "accent": "#2563eb",
           "accent2": "#16a34a"
+        },
+        "audio": {
+          "enabled": true
         }
       },
       "hidden": true
@@ -2015,9 +2019,7 @@
         "texts": {
           "brand": "SUMMIT 26",
           "headline": "Future, live.",
-          "point1": "40 speakers",
-          "point2": "3 stages",
-          "point3": "1 city",
+          "list": "40 speakers\n3 stages\n1 city",
           "cta": "Get tickets"
         },
         "theme": {
@@ -2026,6 +2028,9 @@
           "foreground": "#fdf4ff",
           "accent": "#ff2bd6",
           "accent2": "#facc15"
+        },
+        "audio": {
+          "enabled": true
         }
       },
       "hidden": true
@@ -2057,9 +2062,7 @@
         "texts": {
           "brand": "Fern Studio",
           "headline": "Design that grows",
-          "point1": "Identity",
-          "point2": "Packaging",
-          "point3": "Spaces",
+          "list": "Identity\nPackaging\nSpaces",
           "cta": "Say hello"
         },
         "theme": {
@@ -2068,6 +2071,9 @@
           "foreground": "#eef5ec",
           "accent": "#9be15d",
           "accent2": "#f2c14e"
+        },
+        "audio": {
+          "enabled": true
         }
       },
       "hidden": true
@@ -2099,9 +2105,7 @@
         "texts": {
           "brand": "KICKLAB",
           "headline": "Weekend drop",
-          "point1": "30% off kicks",
-          "point2": "Free shipping",
-          "point3": "Ends Sunday",
+          "list": "30% off kicks\nFree shipping\nEnds Sunday",
           "cta": "Shop now"
         },
         "theme": {
@@ -2110,6 +2114,9 @@
           "foreground": "#f5f5f0",
           "accent": "#ff3b30",
           "accent2": "#ffd60a"
+        },
+        "audio": {
+          "enabled": true
         }
       },
       "seoDescription": "A square flash sale video with scrolling marquee type and split-flap offers for Instagram feed and LinkedIn campaigns.",
@@ -2146,9 +2153,7 @@
         "texts": {
           "brand": "Northwave",
           "headline": "Live this summer",
-          "point1": "Main stage",
-          "point2": "Night market",
-          "point3": "Afterparty",
+          "list": "Main stage\nNight market\nAfterparty",
           "cta": "Get tickets"
         },
         "theme": {
@@ -2157,6 +2162,9 @@
           "foreground": "#f7f3ff",
           "accent": "#ff4fd8",
           "accent2": "#3df5ff"
+        },
+        "audio": {
+          "enabled": true
         }
       },
       "hidden": true

@@ -47,6 +47,7 @@ export const Grain: React.FC = () => {
   if (LITE) return null;
   return (
     <AbsoluteFill
+      data-grain=""
       style={{
         opacity: 0.1,
         mixBlendMode: 'overlay',

@@ -7,6 +7,9 @@ import {ROLES, SCENE_TYPES, THEME_ROLES, roleHint, type Role, type VideoProps} f
 import {mediaOf, mediaSlots, slotOptions} from '../videos/media/catalog.ts';
 import {hideableRoles, isMusicSchema, scoreOf} from '../videos/music/schema.ts';
 import {durationSeconds, scoreScenes} from '../videos/music/score.ts';
+import {scoreOf as beatScoreOf} from '../videos/beat/schema.ts';
+import {bpmOf, durationSeconds as beatSeconds, totalBars} from '../videos/beat/score.ts';
+import {isBeatSchema} from './handoff.ts';
 import {MAX_HANDOFF_CHARS, REPOSITORY, TEMPLATE_LICENSE, handoffPath, sourcePath, templateVersion} from './versions.ts';
 
 type SpecInput = {
@@ -23,7 +26,7 @@ type SpecInput = {
 
 export function renderCommand(template: string) {
   // Music packages render silent video with their engine, then mux the generated score.
-  if (scoreOf(templateMeta[template])) return engineOf(template) === 'hyperframes' ? 'node music/render.mjs' : 'npm ci && node music/render.mjs';
+  if (scoreOf(templateMeta[template]) || beatScoreOf(templateMeta[template])) return engineOf(template) === 'hyperframes' ? 'node music/render.mjs' : 'npm ci && node music/render.mjs';
   return engineOf(template) === 'hyperframes'
     ? 'npx --yes hyperframes@0.8.146 render --variables-file variables.json --strict-variables -o out/video.mp4'
     : `npm ci && npx remotion render src/index.ts ${template} out/video.mp4 --props=props.json`;
@@ -41,8 +44,10 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
     [role, {label: ROLES[role].label, maxLength: ROLES[role].max, ...(roleHint(role) ? {format: roleHint(role)} : {}), current: props.texts[role]}]));
   const pkg = `${site}${sourcePath(variant.template, pinned.version)}`;
   const slots = mediaSlots(schema);
-  const score = scoreOf(meta);
+  const beat = beatScoreOf(meta);
+  const score = beat ? undefined : scoreOf(meta);
   const music = isMusicSchema(schema);
+  const beatProps = isBeatSchema(schema);
   const generation = manifest.templates.find((t) => t.id === variant.template)?.generation;
   if (!generation) throw new Error(`Missing generation metadata for template ${variant.template}.`);
   const old = pinned.version !== latest.version ? `&v=${pinned.version}` : '';
@@ -66,14 +71,26 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
       ...(slots.length ? {media: Object.fromEntries(slots.map((slot) => [slot, {
         format: 'Image ID', options: slotOptions(schema, slot), current: mediaOf(props)?.[slot],
       }]))} : {}),
-      ...(music ? {
+      ...(beatProps ? {
+        audio: {format: '{"enabled": boolean}', current: (props as {audio?: {enabled: boolean}}).audio ?? {enabled: true},
+          note: 'When enabled, the MP4 includes the generated score as AAC 48 kHz stereo audio.'},
+      } : music ? {
         hidden: {format: 'List of optional text roles', options: hideableRoles(schema), current: (props as {hidden?: string[]}).hidden ?? [],
           note: 'Hidden roles disappear with their accent notes. brand, headline, and cta cannot be hidden.'},
         audio: {format: '{"enabled": boolean}', current: (props as {audio?: {enabled: boolean}}).audio ?? {enabled: true},
           note: 'When enabled, the MP4 includes the generated score as AAC 48 kHz stereo audio.'},
       } : {}),
     },
-    ...(score ? {
+    ...(beat ? {
+      music: {
+        genre: beat.sound.genre, bpm: Math.round(bpmOf(beat) * 10) / 10, meter: '4/4', bars: totalBars(beat), seconds: beatSeconds(beat),
+        ...(beat.list ? {list: {role: 'list', minItems: beat.list.min, maxItems: beat.list.max, maxItemLength: beat.list.itemMax,
+          format: beat.list.format === 'chart' ? 'One "Label 42" item per line' : 'One item per line',
+          note: 'Each item reveals on its own beat with its own note. Removing items reflows the list; the length never changes.'}} : {}),
+        loudness: '-14 LUFS integrated, -1 dBTP ceiling', sampleRate: 48000,
+        note: 'Only the list item count changes the music. Wording, colors, and images never change it.',
+      },
+    } : score ? {
       music: {
         bpm: score.bpm, meter: `${score.meter}/4`, bars: score.scenes.reduce((n, s) => n + s.bars, 0), seconds: durationSeconds(score),
         scenes: scoreScenes(score).map((s, i) => ({type: s.type, bars: score.scenes[i].bars, roles: s.roles})),
@@ -102,7 +119,8 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
     },
     instructions: [
       'For text, color, and image edits, change only props.texts, props.theme, and props.media when present. Keep each text within maxLength, each color as #RRGGBB, and each image as one of its listed options.',
-      ...(music ? ['For music templates, props.hidden lists optional roles to remove and props.audio.enabled turns the score on or off in the MP4.'] : []),
+      ...(music && !beatProps ? ['For music templates, props.hidden lists optional roles to remove and props.audio.enabled turns the score on or off in the MP4.'] : []),
+      ...(beat?.list ? [`props.texts.list holds ${beat.list.min} to ${beat.list.max} items, one per line, each up to ${beat.list.itemMax} characters.`] : []),
       'Return text and color edits as handoff.urlTemplate with the props JSON URL-encoded.',
       'For layout, motion, timing, or scene edits, download source.package, extract it, and edit the code.',
       engine === 'hyperframes'

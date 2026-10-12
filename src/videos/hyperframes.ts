@@ -1,6 +1,7 @@
 import type {Role, TemplateMeta, ThemeRole, VideoProps} from './vocab.ts';
 import {ROLES, THEME_LABELS, THEME_ROLES} from './vocab.ts';
 import type {Score} from './music/score.ts';
+import type {BeatScore} from './beat/score.ts';
 
 export const HYPERFRAMES_VERSION = '0.8.146';
 export const GSAP_VERSION = '3.14.2';
@@ -10,11 +11,14 @@ const textVariable = (role: Role) => `text_${role}`;
 const themeVariable = (role: ThemeRole) => `theme_${role}`;
 const hideVariable = (role: Role) => `hide_${role}`;
 const scoreOf = (meta?: TemplateMeta) => (meta as {score?: Score} | undefined)?.score;
+const isBeat = (score: unknown): score is BeatScore => !!score && Object.hasOwn(score as object, 'beatFrames');
 const hiddenOf = (props: VideoProps) => (props as {hidden?: Role[]}).hidden ?? [];
 
-// Music templates add one boolean per optional role. Sound is not a variable: the composition renders silent video.
+// Music templates add one boolean per optional role. Beat templates have no hidden roles: the list text sets the count.
+// Sound is not a variable: the composition renders silent video.
 export function hyperframesVariables(props: VideoProps, meta?: TemplateMeta) {
-  const score = scoreOf(meta);
+  const raw = scoreOf(meta);
+  const score = isBeat(raw) ? undefined : raw;
   return {
     ...Object.fromEntries(Object.entries(props.texts).map(([role, value]) => [textVariable(role as Role), value])),
     ...Object.fromEntries(THEME_ROLES.map((role) => [themeVariable(role), props.theme[role]])),
@@ -23,7 +27,8 @@ export function hyperframesVariables(props: VideoProps, meta?: TemplateMeta) {
 }
 
 export function hyperframesDeclarations(props: VideoProps, meta?: TemplateMeta) {
-  const score = scoreOf(meta);
+  const raw = scoreOf(meta);
+  const score = isBeat(raw) ? undefined : raw;
   return [
     ...Object.entries(props.texts).map(([role, value]) => ({
       id: textVariable(role as Role), type: 'string', label: ROLES[role as Role].label, default: value,

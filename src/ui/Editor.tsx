@@ -22,6 +22,11 @@ import {exportVideo, sharingConfigured, type SharedVideo} from '../services/shar
 import {track} from '../services/analytics';
 import {useScoreAudio} from './useScoreAudio';
 import {templateKind} from '../catalog/catalog';
+import {applyList} from '../poc/lists';
+import type {PocEntry} from '../poc/registry';
+import {scoreOf as beatScoreOf} from '../videos/beat/schema';
+import {applyList as applyBeatList, bpmOf, countOf, planKey, totalBars} from '../videos/beat/index';
+import type {ListGroup} from '../poc/lists';
 
 const storageKey = (id: string) => `voodoo:v2:${id}`;
 type LockableOrientation = ScreenOrientation & {lock?: (orientation: 'landscape') => Promise<void>};
@@ -40,15 +45,16 @@ function useHistory(initial: VideoProps) {
   return {props: state.now, set, undo, redo, canUndo: state.past.length > 0, canRedo: state.future.length > 0};
 }
 
-export function Editor({variant, sharedProps, shareId, draftId, published, openShare, handoff, templateVersion}: {
+export function Editor({variant, sharedProps, shareId, draftId, published, openShare, handoff, templateVersion, poc}: {
   variant: Variant; sharedProps?: VideoProps; shareId?: string; draftId?: string; published?: SharedVideo; openShare?: boolean;
-  handoff?: string; templateVersion?: number;
+  handoff?: string; templateVersion?: number; poc?: PocEntry;
 }) {
-  const latest = currentVersion(variant.template);
+  const latest = poc ? 1 : currentVersion(variant.template);
   const [version, versionError] = useMemo(() => {
+    if (poc) return [1, ''];
     try { compositionFor(variant.template, templateVersion ?? latest); return [templateVersion ?? latest, '']; }
     catch (e) { return [latest, (e as Error).message]; }
-  }, [variant.template, templateVersion, latest]);
+  }, [variant.template, templateVersion, latest, poc]);
   // Edits of an older template version stay pinned to it; local drafts of older versions get a separate key.
   const localKey = version === latest ? variant.id : `${variant.id}@v${version}`;
   const account = useAccount();
@@ -57,7 +63,7 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
   const [exporting, setExporting] = useState(false);
   const [exportedKey, setExportedKey] = useState('');
   const [savedKey, setSavedKey] = useState(draftId ? JSON.stringify(sharedProps) : '');
-  const c = compositionFor(variant.template, version);
+  const c = poc ? poc.composition : compositionFor(variant.template, version);
   const kit = useBrandKit();
   const incoming = useMemo(() => handoff === undefined ? null : readHandoff(handoff, c.schema), [handoff, c]);
   const initial = useMemo(() => {
@@ -85,16 +91,28 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
   const palettes = generatedPalettes ?? defaultPalettes;
   const slots = mediaSlots(c.schema);
   const media = mediaOf(props);
-  const kitProps = kitHasValues(kit) ? applyKit(props, kit) : null;
+  // The brand kit never fills list members, so it cannot undo a list edit. POC entries skip it.
+  const kitProps = !poc && kitHasValues(kit) ? applyKit(props, kit) : null;
   const kitDiffers = kitProps && JSON.stringify(kitProps) !== JSON.stringify(props);
   // Music templates: sound starts muted in the editor and only plays after the user turns it on.
+  // Beat templates: the score sets the music and the list. Their sound is on by default in the MP4.
+  const beat = beatScoreOf(c);
   const music = isMusicSchema(c.schema);
-  const score = scoreOf(c);
+  const score = beat ? undefined : scoreOf(c);
   const optional = hideableRoles(c.schema);
   const hidden = (props as {hidden?: Role[]}).hidden ?? [];
   const exportSound = !!(props as {audio?: {enabled: boolean}}).audio?.enabled;
   const [listening, setListening] = useState(false);
-  const audio = useScoreAudio({score, fps: c.fps, props, player, enabled: music && listening});
+  const count = beat ? countOf(beat, props) : poc?.lists[0] ? (poc.lists[0].storage.kind === 'roles' ? poc.lists[0].storage.roles.length - hidden.filter((r) => poc.lists[0].storage.kind === 'roles' && poc.lists[0].storage.roles.includes(r)).length : 0) : 0;
+  const custom = useMemo(() => beat ? {key: planKey(beat, count), message: {id: 1, beat, count},
+    worker: () => new Worker(new URL('./audioWorker.ts', import.meta.url), {type: 'module'})}
+    : poc?.sound ? {key: `tickerbeat:${count}`, message: {id: 1, count},
+    worker: () => new Worker(new URL('../poc/tickerbeat/audioWorker.ts', import.meta.url), {type: 'module'})} : undefined, [beat, poc, count]);
+  // The editor's list contract for a beat score: the packed `list` role, limits from the score.
+  const lists = useMemo<ListGroup[] | undefined>(() => beat?.list
+    ? [{id: 'list', label: beat.list.label, storage: {kind: 'packed', role: 'list'}, min: beat.list.min, max: beat.list.max, itemMax: beat.list.itemMax, format: beat.list.format}]
+    : poc?.lists, [beat, poc]);
+  const audio = useScoreAudio({score, fps: c.fps, props, player, enabled: music && listening, custom});
   const soundPlayed = useRef(false);
   const toggleSound = () => {
     const next = !listening;
@@ -308,19 +326,21 @@ For text and color edits, return a link in the spec's handoff format. For code e
         <div className="editor-video-area">
           <div className="editor-video">
             <TextCanvas ref={textCanvas} player={player} props={props} playing={playing} onEditing={setEditing}
+              lists={lists} onCommitList={(group, items) => { h.set(beat ? applyBeatList(props, items) : applyList(group, props, items)); track('text_edit', {variant_id: variant.id, text_role: group.id}); }}
               onCommit={(role, value) => { h.set({...props, texts: {...props.texts, [role]: value}}); track('text_edit', {variant_id: variant.id, text_role: role}); }}>
               <VideoPlayer ref={player} composition={c} props={props} autoPlay={playing} style={{width: '100%', height: '100%'}} />
             </TextCanvas>
           </div>
         </div>
         <nav className="editor-tools" aria-label="Video tools">
-          <StarButton id={variant.id} title={variant.title} overlay />
+          {!poc && <StarButton id={variant.id} title={variant.title} overlay />}
           <button className="overlay-btn mobile-expand" title={expanded ? 'Exit fullscreen' : 'Fullscreen'} aria-label={expanded ? 'Exit fullscreen' : 'Fullscreen'}
             disabled={!!editing} onClick={toggleExpanded}>{expanded ? <Minimize size={20} /> : <Maximize size={20} />}</button>
           {kitDiffers && <button className="overlay-btn kit-apply" title="Apply brand kit" aria-label="Apply brand kit"
             disabled={!!editing} onClick={() => h.set(kitProps!)}><Wand2 size={20} /></button>}
           <button className="overlay-btn" title="Reset to original" aria-label="Reset to original"
             disabled={!!editing || JSON.stringify(props) === JSON.stringify(variant.props)} onClick={() => h.set(variant.props)}><RotateCcw size={20} /></button>
+          {!poc && <>
           <button className="overlay-btn" title="Save video" aria-label="Save video" disabled={!!editing || saving}
             onClick={() => void saveAndOpen()}>{saving ? <LoaderCircle className="spin" size={20} /> : savedKey === JSON.stringify(props) ? <Check size={20} /> : <Save size={20} />}</button>
           <ShareButton variant={variant} props={props} templateVersion={version} disabled={!!editing || saving} save={save} publishedVideo={published} initiallyOpen={openShare}
@@ -335,6 +355,7 @@ For text and color edits, return a link in the spec's handoff format. For code e
             disabled={!!editing || saving || exporting} aria-busy={exporting} onClick={() => void downloadMp4()}>
             {exporting ? <LoaderCircle className="spin" size={20} /> : exportedKey === JSON.stringify(props) ? <Check size={20} /> : <Download size={20} />}
           </button>}
+          </>}
         </nav>
         <div className="editor-bottom">
           <button className="overlay-btn playback-btn" title={playing ? 'Pause' : 'Play'} aria-label={playing ? 'Pause' : 'Play'}
@@ -344,12 +365,13 @@ For text and color edits, return a link in the spec's handoff format. For code e
           <Timeline meta={c} player={player} focusRole={editing} disabled={!!editing} />
         </div>
       </div>
-      {music && <section className="editor-theme editor-music" aria-labelledby="music-heading">
+      {music && !poc && <section className="editor-theme editor-music" aria-labelledby="music-heading">
         <div className="theme-heading"><h2 id="music-heading">Text and sound</h2>
-          {score && <span className="music-facts">{score.bpm} BPM · {score.scenes.reduce((n, s) => n + s.bars, 0)} bars</span>}</div>
+          {score && <span className="music-facts">{score.bpm} BPM · {score.scenes.reduce((n, s) => n + s.bars, 0)} bars</span>}
+          {beat && <span className="music-facts">{beat.sound.genre.replace('-', ' ')} · {Math.round(bpmOf(beat))} BPM · {totalBars(beat)} bars</span>}</div>
         <div className="music-controls">
           <div className="role-toggles" role="group" aria-label="Optional text">
-            {optional.map((role) => {
+            {!beat && optional.map((role) => {
               const shown = !hidden.includes(role);
               return <button key={role} className={`role-toggle ${shown ? 'on' : ''}`} aria-pressed={shown} disabled={!!editing}
                 title={`${shown ? 'Hide' : 'Show'} ${ROLES[role].label.toLowerCase()}`} aria-label={`${shown ? 'Hide' : 'Show'} ${ROLES[role].label}`}

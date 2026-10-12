@@ -9,9 +9,13 @@ const object = (value: unknown): value is Record<string, unknown> => !!value && 
 const sameKeys = (value: Record<string, unknown>, keys: readonly string[]) =>
   Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key));
 
-/** The exact top-level prop keys of a schema. Music fields exist only on music templates. */
+type Shape = {shape: Record<string, unknown>};
+/** True for beat templates: a sound switch and no hidden roles. */
+export const isBeatSchema = (schema: unknown) => !!(schema as Shape).shape.audio && !(schema as Shape).shape.hidden;
+/** The exact top-level prop keys of a schema. Music fields exist only on music and beat templates. */
 export function propKeys(schema: VideoSchema) {
-  return ['texts', 'theme', ...(mediaSlots(schema).length ? ['media'] : []), ...(isMusicSchema(schema) ? ['hidden', 'audio'] : [])];
+  return ['texts', 'theme', ...(mediaSlots(schema).length ? ['media'] : []),
+    ...(isBeatSchema(schema) ? ['audio'] : isMusicSchema(schema) ? ['hidden', 'audio'] : [])];
 }
 
 // Agent output is untrusted. Accept only the exact text and color fields of one template.
@@ -23,7 +27,9 @@ export function validateProps(schema: VideoSchema, value: unknown): HandoffResul
   if (!object(value.texts) || !sameKeys(value.texts, roles)) return {ok: false, error: `texts must contain exactly: ${roles.join(', ')}.`};
   if (!object(value.theme) || !sameKeys(value.theme, THEME_ROLES)) return {ok: false, error: `theme must contain exactly: ${THEME_ROLES.join(', ')}.`};
   if (slots.length && (!object(value.media) || !sameKeys(value.media, slots))) return {ok: false, error: `media must contain exactly: ${slots.join(', ')}.`};
-  if (isMusicSchema(schema)) {
+  if (isBeatSchema(schema)) {
+    if (!object(value.audio) || !sameKeys(value.audio, ['enabled']) || typeof value.audio.enabled !== 'boolean') return {ok: false, error: 'audio must be {"enabled": true} or {"enabled": false}.'};
+  } else if (isMusicSchema(schema)) {
     const optional = hideableRoles(schema);
     if (!Array.isArray(value.hidden)) return {ok: false, error: 'hidden must be a list of optional text roles.'};
     const bad = value.hidden.find((r) => !optional.includes(r));
@@ -32,7 +38,7 @@ export function validateProps(schema: VideoSchema, value: unknown): HandoffResul
   }
   for (const role of roles) {
     const text = value.texts[role];
-    if (typeof text === 'string' && (!text.trim() || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(text))) {
+    if (typeof text === 'string' && (!text.trim() || /[\u0000-\u0009\u000b\u000c\u000e-\u001f]/.test(text))) {
       return {ok: false, error: `texts.${role} must contain visible text without control characters.`};
     }
   }
