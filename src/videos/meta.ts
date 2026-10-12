@@ -92,6 +92,10 @@ import {ringstatMeta} from './ringstat/meta.ts';
 import {eventpassMeta} from './eventpass/meta.ts';
 import {pullquoteMeta} from './pullquote/meta.ts';
 import {pricedropMeta} from './pricedrop/meta.ts';
+import {beatreelMeta} from './beatreel/meta.ts';
+import {productpulseMeta} from './productpulse/meta.ts';
+import {featuredropMeta} from './featuredrop/meta.ts';
+import {eventcountdownMeta} from './eventcountdown/meta.ts';
 
 export const templateMeta: Record<string, TemplateMeta> = {
   [showreelMeta.id]: showreelMeta,
@@ -187,4 +191,8 @@ export const templateMeta: Record<string, TemplateMeta> = {
   [eventpassMeta.id]: eventpassMeta,
   [pullquoteMeta.id]: pullquoteMeta,
   [pricedropMeta.id]: pricedropMeta,
+  [beatreelMeta.id]: beatreelMeta,
+  [productpulseMeta.id]: productpulseMeta,
+  [featuredropMeta.id]: featuredropMeta,
+  [eventcountdownMeta.id]: eventcountdownMeta,
 };

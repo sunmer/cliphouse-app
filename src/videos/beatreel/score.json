@@ -1,0 +1,166 @@
+{
+  "bpm": 120,
+  "meter": 4,
+  "fps": 30,
+  "root": 57,
+  "scale": "minor",
+  "progression": [
+    0,
+    5,
+    2,
+    6
+  ],
+  "scenes": [
+    {
+      "type": "title-reveal",
+      "bars": 2,
+      "focusBeat": 6,
+      "roles": [
+        "brand",
+        "headline"
+      ],
+      "layers": [
+        "kick",
+        "pad"
+      ]
+    },
+    {
+      "type": "list",
+      "bars": 2,
+      "focusBeat": 6,
+      "roles": [
+        "point1",
+        "point2",
+        "point3"
+      ],
+      "layers": [
+        "kick",
+        "hat",
+        "bass",
+        "pad"
+      ]
+    },
+    {
+      "type": "transition",
+      "bars": 1,
+      "focusBeat": 3,
+      "roles": [],
+      "layers": [
+        "kick",
+        "hat",
+        "pad"
+      ]
+    },
+    {
+      "type": "counter",
+      "bars": 1,
+      "focusBeat": 2,
+      "roles": [
+        "stat"
+      ],
+      "layers": [
+        "kick",
+        "hat",
+        "bass",
+        "pad"
+      ]
+    },
+    {
+      "type": "end-screen",
+      "bars": 2,
+      "focusBeat": 4,
+      "roles": [
+        "brand",
+        "subhead",
+        "cta"
+      ],
+      "layers": [
+        "kick",
+        "hat",
+        "bass",
+        "pad"
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "role": "brand",
+      "scene": 0,
+      "beat": 0,
+      "beats": 1,
+      "maxHits": 2,
+      "voice": "bell"
+    },
+    {
+      "role": "headline",
+      "scene": 0,
+      "beat": 1,
+      "beats": 3,
+      "maxHits": 4,
+      "voice": "pluck"
+    },
+    {
+      "role": "point1",
+      "scene": 1,
+      "beat": 0,
+      "beats": 1,
+      "maxHits": 2,
+      "voice": "pluck"
+    },
+    {
+      "role": "point2",
+      "scene": 1,
+      "beat": 1,
+      "beats": 1,
+      "maxHits": 2,
+      "voice": "pluck"
+    },
+    {
+      "role": "point3",
+      "scene": 1,
+      "beat": 2,
+      "beats": 1.5,
+      "maxHits": 3,
+      "voice": "pluck"
+    },
+    {
+      "role": "stat",
+      "scene": 3,
+      "beat": 0,
+      "beats": 2,
+      "maxHits": 1,
+      "voice": "lead"
+    },
+    {
+      "role": "subhead",
+      "scene": 4,
+      "beat": 0.5,
+      "beats": 1.5,
+      "maxHits": 3,
+      "voice": "pluck"
+    },
+    {
+      "role": "cta",
+      "scene": 4,
+      "beat": 2,
+      "beats": 2,
+      "maxHits": 3,
+      "voice": "lead"
+    }
+  ],
+  "optional": [
+    "point3",
+    "subhead"
+  ],
+  "risers": [
+    {
+      "beat": 20,
+      "beats": 4
+    }
+  ],
+  "impacts": [
+    8,
+    16,
+    24
+  ]
+}

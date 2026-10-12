@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1350" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1350px; }
+    /* Concept: the ticket stub is the event. Its perforation becomes the agenda rule, its tear becomes the countdown, and the stamp is the CTA. */
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; white-space:nowrap; position:relative; top:var(--drop, 0px); }
+    .w { display:inline-block; }
+    .stub { position:absolute; left:90px; top:120px; width:900px; height:1110px; background:var(--theme-foreground); color:var(--theme-background); border-radius:8px; }
+    .notch { position:absolute; top:760px; width:80px; height:80px; border-radius:50%; background:var(--theme-background); }
+    .notch.l { left:-40px; } .notch.r { right:-40px; }
+    .perf { position:absolute; left:60px; right:60px; top:796px; height:8px; background:repeating-linear-gradient(90deg, var(--theme-background) 0 22px, transparent 22px 40px); }
+    .brand { position:absolute; left:72px; width:520px; overflow:hidden; top:70px; height:48px; font-size:34px; line-height:48px; color:var(--theme-accent); text-transform:uppercase; white-space:nowrap; }
+    .admit { position:absolute; right:72px; top:70px; height:48px; overflow:hidden; font-size:24px; line-height:48px; color:var(--theme-background); }
+    .headline { position:absolute; left:72px; right:72px; top:230px; height:440px; font-size:128px; line-height:1; text-transform:uppercase; }
+    .headline .wmask { height:1em; }
+    .date { position:absolute; left:72px; right:160px; top:870px; height:150px; font-size:62px; line-height:1.15; }
+    .date .wmask { height:1.15em; }
+    .agenda { position:absolute; left:120px; right:120px; top:300px; height:780px; display:flex; flex-direction:column; justify-content:center; gap:40px; }
+    .row { position:relative; height:200px; display:flex; align-items:center; gap:40px; padding:0 48px; background:var(--theme-surface); color:var(--theme-foreground); border-radius:8px; }
+    .row .time { font-size:28px; color:var(--theme-accent); width:100px; flex:0 0 auto; }
+    .row .name { flex:1 1 0; min-width:0; overflow:hidden; height:96px; font-size:80px; line-height:96px; text-transform:uppercase; white-space:nowrap; }
+    .row .name .wmask { height:96px; }
+    /* The tear line: three accent segments over the perforation, one per beat, before the stub tears. */
+    .tear { position:absolute; left:60px; right:60px; top:792px; height:16px; display:flex; gap:6px; }
+    .tear i { flex:1; background:var(--theme-accent); transform:scaleX(0); transform-origin:left center; }
+    .reader { position:absolute; left:-36px; top:0; width:12px; height:32px; background:var(--theme-accent); }
+    .slab { position:absolute; left:120px; right:120px; top:560px; height:200px; background:var(--theme-accent); border-radius:8px; }
+    .count { position:absolute; left:0; right:0; top:340px; height:560px; display:flex; align-items:center; justify-content:center; }
+    .digit { position:absolute; font-size:560px; line-height:560px; color:var(--theme-accent); font-variant-numeric:tabular-nums; }
+    .cta { position:absolute; left:120px; right:120px; top:560px; height:200px; display:flex; align-items:center; justify-content:center; gap:32px; background:var(--theme-accent); color:var(--theme-background); border-radius:8px; }
+    .cta .label { height:80px; width:560px; flex:0 0 auto; overflow:hidden; text-align:center; font-size:68px; line-height:80px; white-space:nowrap; text-transform:uppercase; }
+    .cta .label .wmask { height:80px; }
+    .cta svg { width:60px; height:60px; }
+    .endbrand { position:absolute; left:120px; right:120px; top:410px; height:80px; white-space:nowrap; overflow:hidden; text-align:center; font-size:44px; line-height:80px; text-transform:uppercase; }
+    .endbrand .wmask { height:80px; }
+    .bars { position:absolute; left:90px; right:90px; bottom:56px; height:10px; display:flex; gap:10px; }
+    .bars i { flex:1; background:var(--theme-surface); position:relative; overflow:hidden; }
+    .bars i b { position:absolute; inset:0; background:var(--theme-accent); transform:scaleX(0); transform-origin:left center; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="12" data-width="1080" data-height="1350">
+    <section id="eventcountdown-main" class="scene clip" data-start="0" data-duration="12" data-track-index="0">
+      <div class="stub">
+        <span class="notch l"></span><span class="notch r"></span><div class="perf"></div><div class="tear"><i></i><i></i><i></i></div>
+        <div class="brand display fit" data-fit-max="34" data-fit-min="22" data-text-role="brand" data-music-text="brand">Brand</div>
+        <div class="admit mono">ADMIT ONE</div>
+        <h1 class="headline display fit" data-fit-max="128" data-fit-min="64" data-text-role="headline" data-music-text="headline" data-music-align="bottom">Headline</h1>
+        <p class="date display fit" data-fit-max="62" data-fit-min="40" data-text-role="date" data-music-text="date">Date</p>
+      </div>
+      <div class="agenda"><span class="reader"></span>
+        <div class="row r1" data-role-block="point1"><span class="time mono">01</span><strong class="name display fit" data-fit-max="80" data-fit-min="44" data-text-role="point1" data-music-text="point1">Point 1</strong></div>
+        <div class="row r2" data-role-block="point2"><span class="time mono">02</span><strong class="name display fit" data-fit-max="80" data-fit-min="44" data-text-role="point2" data-music-text="point2">Point 2</strong></div>
+        <div class="row r3" data-role-block="point3"><span class="time mono">03</span><strong class="name display fit" data-fit-max="80" data-fit-min="44" data-text-role="point3" data-music-text="point3">Point 3</strong></div>
+      </div>
+      <div class="slab"></div>
+      <div class="count display"><span class="digit d3">3</span><span class="digit d2">2</span><span class="digit d1">1</span></div>
+      <div class="endbrand display fit" data-fit-max="44" data-fit-min="28" data-text-role="brand" data-music-text="brand">Brand</div>
+      <div class="cta display"><span class="label fit" data-fit-max="68" data-fit-min="36" data-text-role="cta" data-music-text="cta">CTA</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      <div class="bars"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__MUSIC_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseMusic.mount(tl, __SCORE__, (tl, m) => {
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const beat = m.at;
+      // A word starts rising .06 s before its accent; never before 0, which would shift the whole timeline.
+      // A word starts rising .06 s before its accent; never before 0, which would shift the whole timeline.
+      const rise = (el, role) => m.spans(el).forEach((w, i) => tl.fromTo(w, {yPercent: 105}, {yPercent: 0, duration: .26, ease: 'expo.out'}, Math.max(0, m.word(role, i) - .06)));
+      // Words leave together in .2 s (up to .06 s of stagger), so an exit never runs past its slot.
+      const fall = (el, at) => tl.to(m.spans(el), {yPercent: -105, duration: .2, ease: 'power3.in', stagger: {amount: .06}}, at);
+      const points = ['point1', 'point2', 'point3'].filter((r) => !m.hidden(r));
+      // Late elements start hidden; each scene shows its own.
+      tl.set(['.cta', '.endbrand'], {visibility: 'hidden'}, 0);
+      // Bar progress: one segment per bar.
+      // Each segment fills over its bar; the last one stops where the strip drains.
+      qa('.bars b').forEach((el, k) => tl.fromTo(el, {scaleX: 0}, {scaleX: 1, duration: Math.min(beat(4), m.duration - beat(.5) - beat(k * 4)), ease: 'none'}, beat(k * 4)));
+      // The bars drain in the last half beat, so the loop starts on an empty strip.
+      tl.to('.bars b', {scaleX: 0, duration: beat(.5) - .04, ease: 'power3.in'}, m.duration - beat(.5));
+      // Scene 1: the stub slides up on the downbeat. Words land on their accents.
+      tl.fromTo('.stub', {yPercent: 120}, {yPercent: 0, duration: .4, ease: 'expo.out'}, 0)
+        .fromTo('.perf', {scaleX: 0, transformOrigin: 'left center'}, {scaleX: 1, duration: .4, ease: 'expo.out'}, beat(3));
+      rise(q('.stub .brand'), 'brand');
+      rise(q('.stub .headline'), 'headline');
+      rise(q('.stub .date'), 'date');
+      tl.fromTo('.admit', {xPercent: 120}, {xPercent: 0, duration: .24, ease: 'expo.out'}, beat(1));
+      // Beats 5-7: the tear line runs along the perforation, one third per beat, while the text holds still to read.
+      qa('.tear i').forEach((el, k) => tl.fromTo(el, {scaleX: 0}, {scaleX: 1, duration: .22, ease: 'expo.out'}, beat(5 + k)));
+      // Scene 2: the stub tears at the perforation. The top half lifts away and the rule becomes the agenda.
+      const agenda = m.scene(1);
+      fall(q('.stub .headline'), agenda - .36); fall(q('.stub .date'), agenda - .36); fall(q('.stub .brand'), agenda - .36);
+      // The top of the stub tears off along the perforation and drops out of frame.
+      tl.fromTo('.stub', {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 28% 0%)', duration: .16, ease: 'power3.out'}, agenda - .1)
+        .to('.stub', {y: 1300, rotation: 4, duration: .34, ease: 'power3.in'}, agenda + .02);
+      qa('.row').forEach((el) => tl.set(el, {visibility: 'hidden'}, 0));
+      points.forEach((role) => {
+        const el = q('.row.r' + role.slice(-1));
+        const at = m.word(role, 0) - .16;
+        tl.set(el, {visibility: 'visible'}, at).fromTo(el, {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: .28, ease: 'expo.out'}, at);
+        rise(el.querySelector('.name'), role);
+      });
+      // Once the agenda is in, an accent marker steps down the rows on every beat, reading the program.
+      const rows = points.map((role) => q('.row.r' + role.slice(-1)));
+      const readFrom = m.scene(1, 3);
+      tl.set('.reader', {visibility: 'hidden'}, 0);
+      for (let k = 0; readFrom + beat(k) < m.scene(2) - .2; k++) {
+        const row = rows[k % rows.length];
+        tl.set('.reader', {visibility: 'visible'}, readFrom + beat(k))
+          .to('.reader', {y: row.offsetTop + row.offsetHeight / 2 - 16, duration: .18, ease: 'expo.out'}, readFrom + beat(k));
+      }
+      tl.set('.reader', {visibility: 'hidden'}, m.scene(2) - .2);
+      // Scene 3: rows collapse into the first digit. The countdown hits one digit per beat on the riser.
+      const count = m.scene(2);
+      points.forEach((role, i) => tl.to('.row.r' + role.slice(-1), {clipPath: 'inset(0% 0% 0% 100%)', duration: .2, ease: 'power3.in'}, count - .34 + i * .03));
+      qa('.digit').forEach((el) => tl.set(el, {visibility: 'hidden'}, 0));
+      // Beat 19: the last digit becomes the stamp. An accent slab grows from it to the CTA's size, then the CTA lands on it.
+      tl.set('.slab', {visibility: 'hidden'}, 0)
+        .set('.slab', {visibility: 'visible'}, count + beat(3))
+        .fromTo('.slab', {scaleX: .14, scaleY: .5}, {scaleX: 1, scaleY: 1, duration: beat(1) - .06, ease: 'expo.out'}, count + beat(3))
+        .set('.slab', {visibility: 'hidden'}, m.scene(3) - .02);
+      ['.d3', '.d2', '.d1'].forEach((d, k) => {
+        const at = count + beat(k);
+        tl.set(d, {visibility: 'visible'}, at).fromTo(d, {yPercent: 30, scale: .9}, {yPercent: 0, scale: 1, duration: .3, ease: 'expo.out'}, at)
+          .set(d, {visibility: 'hidden'}, count + beat(k + 1));
+      });
+      tl.fromTo('.count', {scale: 1}, {scale: 1.08, duration: beat(4), ease: 'none'}, count);
+      // Scene 4: the strongest impact. The CTA stamps down on beat 1 of the last bar.
+      const cta = m.scene(3);
+      tl.fromTo('.cta', {visibility: 'hidden', scale: 1.5, rotation: -6}, {visibility: 'visible', scale: 1, rotation: -2, duration: .22, ease: 'expo.out'}, cta - .04)
+        .to('.cta', {rotation: 0, duration: .5, ease: 'power3.out'}, cta + beat(1));
+      rise(q('.cta .label'), 'cta');
+      tl.fromTo('.cta svg', {x: -50}, {x: 0, duration: .3, ease: 'expo.out'}, m.word('cta', 0) + .1)
+        .to('.cta svg', {x: 10, duration: .14, ease: 'power3.out'}, cta + beat(2)).to('.cta svg', {x: 0, duration: .24, ease: 'power3.out'}, cta + beat(2.5));
+      rise(q('.endbrand'), 'brand');
+      tl.fromTo('.endbrand', {visibility: 'hidden'}, {visibility: 'visible', duration: .01}, cta);
+      // Loop: everything leaves on the last beat, so frame 0 starts on the empty field.
+      // The stamp lifts on the last beat and is gone before the loop point.
+      tl.to('.cta', {yPercent: -320, duration: .26, ease: 'power3.in'}, m.duration - beat(1) + .04);
+      fall(q('.endbrand'), m.duration - beat(1) + .04);
+      tl.set(['.cta', '.endbrand'], {visibility: 'hidden'}, m.duration - .04);
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines["main"] = tl;
+  </script>
+</body>
+</html>

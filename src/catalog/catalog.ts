@@ -66,6 +66,11 @@ export const variants: Variant[] = manifest.variants.map((v) => {
 // Hidden variants keep old bookmarks, drafts, and share links resolvable.
 export const galleryVariants = variants.filter((v) => !('hidden' in v && v.hidden));
 
+// Analytics segment: directed music, directed silent (the v3 pilot), or legacy.
+const DIRECTED_SILENT = new Set(['lowerthird', 'kinetic', 'endscreen', 'wordmark', 'ytintro']);
+export const templateKind = (t: Template) =>
+  (t as {music?: boolean}).music ? 'directed_music' : DIRECTED_SILENT.has(t.id) ? 'directed_silent' : 'legacy';
+
 export function searchText(v: Variant) {
   return [
     v.title,

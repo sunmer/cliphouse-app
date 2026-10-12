@@ -1351,6 +1351,66 @@
         "provider": "OpenAI",
         "effort": "medium"
       }
+    },
+    {
+      "id": "beatreel",
+      "title": "Beat Showreel",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16 second 16:9 Remotion showreel on a 120 BPM score: one accent bar keeps time through kinetic type, a list, a 3D cube, a counting stat, and an end title.",
+      "createdAt": "2026-10-11",
+      "license": "MIT-0",
+      "generation": {
+        "model": "GPT-5",
+        "modelId": "gpt-5",
+        "provider": "OpenAI",
+        "effort": "medium"
+      },
+      "music": true
+    },
+    {
+      "id": "productpulse",
+      "title": "Product Pulse",
+      "creator": "cliphouse.studio",
+      "prompt": "A 10 second vertical Remotion product promo on a 120 BPM score: an accent dot pulses on the kick, becomes the claim's underline, marks three benefits, and grows into the CTA button.",
+      "createdAt": "2026-10-11",
+      "license": "MIT-0",
+      "generation": {
+        "model": "GPT-5",
+        "modelId": "gpt-5",
+        "provider": "OpenAI",
+        "effort": "medium"
+      },
+      "music": true
+    },
+    {
+      "id": "featuredrop",
+      "title": "Feature Drop",
+      "creator": "cliphouse.studio",
+      "prompt": "A 7.5 second square HyperFrames launch on a 128 BPM score: a launch card splits into three feature tiles on the beat and folds back into the brand lockup.",
+      "createdAt": "2026-10-11",
+      "license": "MIT-0",
+      "generation": {
+        "model": "GPT-5",
+        "modelId": "gpt-5",
+        "provider": "OpenAI",
+        "effort": "medium"
+      },
+      "music": true
+    },
+    {
+      "id": "eventcountdown",
+      "title": "Event Countdown",
+      "creator": "cliphouse.studio",
+      "prompt": "A 12 second 4:5 HyperFrames event promo on a 120 BPM score: a ticket stub becomes the date, the agenda, a three-beat countdown, and a stamped CTA on the final impact.",
+      "createdAt": "2026-10-11",
+      "license": "MIT-0",
+      "generation": {
+        "model": "GPT-5",
+        "modelId": "gpt-5",
+        "provider": "OpenAI",
+        "effort": "medium"
+      },
+      "music": true
     }
   ],
   "variants": [
@@ -6589,6 +6649,222 @@
         "sale",
         "flash-sale",
         "social-ad"
+      ]
+    },
+    {
+      "template": "beatreel",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-11",
+      "id": "beatreel-launch",
+      "title": "Launch Beat Showreel",
+      "description": "A 16:9 music showreel where one accent bar keeps time through the headline, three points, a 3D cube, a counting stat, and the end title.",
+      "purpose": "Showreel",
+      "style": [
+        "Bold",
+        "Minimal"
+      ],
+      "energy": 5,
+      "keywords": [
+        "music video template",
+        "beat synced showreel",
+        "kinetic typography with music",
+        "remotion music template",
+        "product showreel"
+      ],
+      "props": {
+        "texts": {
+          "brand": "NORTHWIND",
+          "headline": "Built to move",
+          "point1": "Faster",
+          "point2": "Sharper",
+          "point3": "Louder",
+          "stat": "98%",
+          "subhead": "Motion that keeps time with your story.",
+          "cta": "Start free"
+        },
+        "theme": {
+          "background": "#0f1115",
+          "surface": "#2a2f3a",
+          "foreground": "#f4f1ea",
+          "accent": "#ff5a36",
+          "accent2": "#3ec9b0"
+        },
+        "hidden": [],
+        "audio": {
+          "enabled": true
+        }
+      },
+      "seoDescription": "A free 16:9 Remotion showreel with a generated 120 BPM score. Every word lands on a beat, and text edits keep the music in time.",
+      "useCases": [
+        "showreel",
+        "kinetic-typography",
+        "brand-intro",
+        "music-video"
+      ]
+    },
+    {
+      "template": "productpulse",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-11",
+      "id": "productpulse-app",
+      "title": "App Product Pulse",
+      "description": "A vertical product promo with a generated beat: the accent dot pulses on the kick, underlines the claim, marks three benefits, and becomes the CTA.",
+      "purpose": "Product launch",
+      "style": [
+        "Minimal",
+        "Bold"
+      ],
+      "energy": 4,
+      "keywords": [
+        "product promo with music",
+        "vertical music video template",
+        "reel template with sound",
+        "beat synced product video",
+        "app promo video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Lumen",
+          "headline": "Notes that think",
+          "point1": "Instant sync",
+          "point2": "Smart search",
+          "point3": "Offline first",
+          "cta": "Get the app"
+        },
+        "theme": {
+          "background": "#f6f3ee",
+          "surface": "#e7e0d4",
+          "foreground": "#14161a",
+          "accent": "#2f5bff",
+          "accent2": "#ff7a45"
+        },
+        "hidden": [],
+        "audio": {
+          "enabled": true
+        }
+      },
+      "seoDescription": "A free 9:16 Remotion product promo with a generated 120 BPM beat. The claim, three benefits, and the CTA land on the music.",
+      "useCases": [
+        "product-launch",
+        "instagram-reel",
+        "app-promo",
+        "music-video"
+      ]
+    },
+    {
+      "template": "featuredrop",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-11",
+      "id": "featuredrop-launch",
+      "title": "Feature Drop Launch",
+      "description": "A square feature launch with a generated 128 BPM beat: a launch card splits into three feature tiles and folds back into the brand lockup.",
+      "purpose": "Product launch",
+      "style": [
+        "Bold",
+        "Tech"
+      ],
+      "energy": 5,
+      "keywords": [
+        "feature launch video",
+        "square music video template",
+        "hyperframes music template",
+        "feature announcement with sound",
+        "social launch post"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Relay",
+          "headline": "Version 4 is here",
+          "subhead": "Three features you asked for.",
+          "point1": "Live cursors",
+          "point2": "Branching",
+          "point3": "Dark mode",
+          "cta": "Try it now"
+        },
+        "theme": {
+          "background": "#eef1f4",
+          "surface": "#d3dae2",
+          "foreground": "#111418",
+          "accent": "#7c3aed",
+          "accent2": "#00a37a"
+        },
+        "hidden": [],
+        "audio": {
+          "enabled": true
+        }
+      },
+      "seoDescription": "A free 1:1 HyperFrames feature launch with a generated 128 BPM beat. Feature tiles split from the launch card on the beat.",
+      "useCases": [
+        "feature-launch",
+        "product-launch",
+        "social-ad",
+        "music-video"
+      ]
+    },
+    {
+      "template": "eventcountdown",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-11",
+      "id": "eventcountdown-summit",
+      "title": "Summit Event Countdown",
+      "description": "A 4:5 event promo with a generated beat: a ticket stub shows the date, tears into the agenda, counts down three beats, and stamps the CTA.",
+      "purpose": "Event promo",
+      "style": [
+        "Bold",
+        "Editorial"
+      ],
+      "energy": 5,
+      "keywords": [
+        "event countdown video",
+        "event promo with music",
+        "ticket video template",
+        "4:5 instagram event post",
+        "conference countdown"
+      ],
+      "props": {
+        "texts": {
+          "brand": "FIELDWORK",
+          "headline": "Design Summit",
+          "date": "Thu, Nov 19 at 9 AM",
+          "point1": "Keynotes",
+          "point2": "Workshops",
+          "point3": "Open studio",
+          "cta": "Get a pass"
+        },
+        "theme": {
+          "background": "#141210",
+          "surface": "#2b2724",
+          "foreground": "#f3ede4",
+          "accent": "#ffcc33",
+          "accent2": "#ff5d73"
+        },
+        "hidden": [],
+        "audio": {
+          "enabled": true
+        }
+      },
+      "seoDescription": "A free 4:5 HyperFrames event countdown with a generated 120 BPM beat. The date, agenda, countdown, and CTA land on the music.",
+      "useCases": [
+        "event-promo",
+        "countdown",
+        "tickets",
+        "music-video"
       ]
     }
   ]

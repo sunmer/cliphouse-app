@@ -1,0 +1,114 @@
+{
+  "template": "productpulse",
+  "engine": "remotion",
+  "styleGuide": "docs/direction.md",
+  "concept": "The accent dot is the product's heartbeat: it pulses on the kick, stretches into the claim's underline, marks each benefit, and grows into the CTA button.",
+  "beatMap": [
+    {
+      "beats": [
+        0,
+        3
+      ],
+      "lands": "The dot pulses on each kick; the brand lands on beat 0 and the claim's words rise on beats 1-3."
+    },
+    {
+      "beats": [
+        4,
+        7
+      ],
+      "lands": "The dot drops under the claim on beat 4 and the underline grows in two steps on beats 5 and 6; the claim leaves on beat 7."
+    },
+    {
+      "beats": [
+        8,
+        11
+      ],
+      "lands": "Impact-free downbeat: the underline becomes the first benefit marker; benefits 2 and 3 split from it on beats 9 and 10; the reading bar starts on beat 11."
+    },
+    {
+      "beats": [
+        12,
+        15
+      ],
+      "lands": "The reading bar slides to the next benefit on each beat; a riser builds from beat 12."
+    },
+    {
+      "beats": [
+        16,
+        19
+      ],
+      "lands": "Strongest impact on beat 16: the marker grows into the CTA button on the surface panel; the arrow nudges on each kick; the dot returns home on beat 19."
+    }
+  ],
+  "handoffs": [
+    {
+      "from": 0,
+      "to": 1,
+      "element": "The claim's underline becomes the first benefit marker."
+    },
+    {
+      "from": 1,
+      "to": 2,
+      "element": "The first benefit marker grows into the CTA button."
+    }
+  ],
+  "sound": {
+    "concept": "The kick is the dot's heartbeat; each benefit is a pluck, and the CTA button opens on the final impact.",
+    "cueMap": {
+      "kick": "The dot pulses and the beat strip fills on every beat.",
+      "impact": "Beat 16: the button opens on the surface panel.",
+      "riser": "Beats 12-16: the reading bar runs down the benefits.",
+      "headline": "Each claim word rises on its pluck.",
+      "point1": "Benefit markers split from the dot on their plucks.",
+      "cta": "The CTA words land on lead notes."
+    }
+  },
+  "findings": [
+    {
+      "source": "gate",
+      "issue": "Max-length brand, headline, points, and CTA clipped.",
+      "fix": "Text is sized with real font measurement; the button width is measured from the label."
+    },
+    {
+      "source": "gate",
+      "issue": "Beats 4-5, 11-14, and 17-18 had no visible motion.",
+      "fix": "The underline grows in steps on beats 4-6, a reading bar moves row to row, and a beat strip fills on every kick."
+    },
+    {
+      "source": "gate",
+      "issue": "Kick motion on the text itself broke the 30-frame readable hold.",
+      "fix": "Text stays still; separate shapes carry the beat."
+    }
+  ],
+  "generation": {
+    "model": "GPT-5",
+    "modelId": "gpt-5",
+    "provider": "OpenAI",
+    "effort": "medium",
+    "costUsd": null,
+    "rounds": [
+      "plan",
+      "review",
+      "repair"
+    ]
+  },
+  "approval": {
+    "status": "approved",
+    "gates": [
+      "score",
+      "banned-patterns",
+      "beat-sheet",
+      "text-sheets",
+      "hidden-roles",
+      "readability",
+      "motion-every-beat",
+      "loop",
+      "audio",
+      "export-sync"
+    ],
+    "listened": false,
+    "waiver": "Operator approved shipping to test the mix in production.",
+    "by": "operator",
+    "at": "2026-10-12"
+  }
+}

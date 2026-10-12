@@ -3,10 +3,18 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {makeCancelSignal, openBrowser, renderMedia, renderStill, selectComposition} from '@remotion/renderer';
 import {engineOf} from '../src/videos/engine.ts';
+import {scoreOf} from '../src/videos/music/schema.ts';
+import {addScore} from './audio.ts';
 import {renderHyperframes, stillFromVideo, writeHyperframesProject} from './hyperframes.ts';
 import type {Snapshot} from './model.ts';
 
 export const MAX_VIDEO_BYTES = 60_000_000;
+
+// Music templates render silent video in either engine, then mux the generated score when sound is on.
+async function withScore(value: Snapshot, video: string, signal?: AbortSignal) {
+  const score = scoreOf(value.meta);
+  if (score && (value.props as {audio?: {enabled: boolean}}).audio?.enabled) await addScore(video, score, value.props, signal);
+}
 
 async function renderHyperframesThumbnail(value: Snapshot) {
   const directory = await mkdtemp(path.join(tmpdir(), 'cliphouse-share-'));
@@ -36,6 +44,7 @@ async function renderHyperframesVideo(value: Snapshot) {
   try {
     await writeHyperframesProject(value, directory);
     await renderHyperframes(directory, video, controller.signal);
+    await withScore(value, video, controller.signal);
     if ((await stat(video)).size > MAX_VIDEO_BYTES) throw new Error('Rendered video exceeds export size limit.');
     return {video, cleanup};
   } catch (e) {
@@ -71,7 +80,7 @@ export async function renderThumbnail(value: Snapshot) {
   }
 }
 
-// Full-resolution, silent H.264 export of one validated catalog edit.
+// Full-resolution H.264 export of one validated catalog edit. Music templates add their AAC score.
 export async function renderVideo(value: Snapshot) {
   if (engineOf(value.template) === 'hyperframes') return renderHyperframesVideo(value);
   const directory = await mkdtemp(path.join(tmpdir(), 'cliphouse-export-'));
@@ -91,6 +100,7 @@ export async function renderVideo(value: Snapshot) {
       codec: 'h264', crf: 18, pixelFormat: 'yuv420p', muted: true, outputLocation: video,
       concurrency: Number(process.env.RENDER_CONCURRENCY || 2), timeoutInMilliseconds: 60_000,
     });
+    await withScore(value, video);
     if ((await stat(video)).size > MAX_VIDEO_BYTES) throw new Error('Rendered video exceeds export size limit.');
     return {video, cleanup};
   } catch (e) {

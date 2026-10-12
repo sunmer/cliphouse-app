@@ -1,10 +1,11 @@
-import {ArrowLeft, Bot, Check, Copy, Download, FileCode, LoaderCircle, Maximize, Minimize, Pause, Play, Redo2, RefreshCw, RotateCcw, Save, Undo2, Wand2} from 'lucide-react';
+import {ArrowLeft, Bot, Check, Copy, Download, Eye, EyeOff, FileCode, LoaderCircle, Maximize, Minimize, Pause, Play, Redo2, RefreshCw, RotateCcw, Save, Undo2, Volume2, VolumeX, Wand2} from 'lucide-react';
 import {useCallback, useEffect, useMemo, useRef, useState, type CSSProperties} from 'react';
 import type {Variant} from '../catalog/catalog';
 import {generationLabel} from '../catalog/generation';
-import {THEME_LABELS, THEME_ROLES, type Role, type VideoProps} from '../videos/contract';
+import {ROLES, THEME_LABELS, THEME_ROLES, type Role, type VideoProps} from '../videos/contract';
 import {ENGINE_LABELS} from '../videos/engine';
 import {mediaOf, mediaSlots, slotOptions} from '../videos/media/catalog';
+import {hideableRoles, isMusicSchema, scoreOf} from '../videos/music/schema';
 import {compositionFor} from '../videos/registry';
 import {currentVersion, handoffPath, sourcePath, specPath} from '../agent/versions';
 import {readHandoff} from '../agent/handoff';
@@ -19,6 +20,8 @@ import {ShareButton} from './Share';
 import {saveDraft} from '../services/drafts';
 import {exportVideo, sharingConfigured, type SharedVideo} from '../services/sharing';
 import {track} from '../services/analytics';
+import {useScoreAudio} from './useScoreAudio';
+import {templateKind} from '../catalog/catalog';
 
 const storageKey = (id: string) => `voodoo:v2:${id}`;
 type LockableOrientation = ScreenOrientation & {lock?: (orientation: 'landscape') => Promise<void>};
@@ -84,8 +87,37 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
   const media = mediaOf(props);
   const kitProps = kitHasValues(kit) ? applyKit(props, kit) : null;
   const kitDiffers = kitProps && JSON.stringify(kitProps) !== JSON.stringify(props);
+  // Music templates: sound starts muted in the editor and only plays after the user turns it on.
+  const music = isMusicSchema(c.schema);
+  const score = scoreOf(c);
+  const optional = hideableRoles(c.schema);
+  const hidden = (props as {hidden?: Role[]}).hidden ?? [];
+  const exportSound = !!(props as {audio?: {enabled: boolean}}).audio?.enabled;
+  const [listening, setListening] = useState(false);
+  const audio = useScoreAudio({score, fps: c.fps, props, player, enabled: music && listening});
+  const soundPlayed = useRef(false);
+  const toggleSound = () => {
+    const next = !listening;
+    if (next) audio.unlock();
+    setListening(next);
+    track('sound_toggle', {variant_id: variant.id, state: next ? 'on' : 'off'});
+  };
+  useEffect(() => {
+    if (!music || !listening || !playing || soundPlayed.current) return;
+    soundPlayed.current = true;
+    track('sound_play', {variant_id: variant.id});
+  }, [music, listening, playing, variant.id]);
+  const toggleRole = (role: Role) => {
+    const on = hidden.includes(role);
+    const order = optional.filter((r) => r === role ? !on : hidden.includes(r));
+    h.set({...props, hidden: order} as VideoProps);
+    track('role_toggle', {variant_id: variant.id, text_role: role, state: on ? 'shown' : 'hidden'});
+  };
+  const setExportSound = (enabled: boolean) => {
+    h.set({...props, audio: {enabled}} as VideoProps);
+  };
 
-  useEffect(() => { track('editor_open', {variant_id: variant.id}); }, [variant.id]);
+  useEffect(() => { track('editor_open', {variant_id: variant.id, template_kind: templateKind(variant.tmpl)}); }, [variant.id, variant.tmpl]);
   useEffect(() => {
     if (!incoming) return;
     track(incoming.ok ? 'agent_handoff_open' : 'agent_handoff_reject', {variant_id: variant.id});
@@ -249,7 +281,8 @@ For text and color edits, return a link in the spec's handoff format. For code e
       link.remove();
       setExportedKey(JSON.stringify(props));
       setNotice('Your MP4 is downloading.');
-      track('mp4_export', {variant_id: variant.id});
+      track('mp4_export', {variant_id: variant.id, template_kind: templateKind(variant.tmpl)});
+      if (music && exportSound) track('audio_export', {variant_id: variant.id});
     } catch (e) { setNotice((e as Error).message); }
     finally { setExporting(false); }
   };
@@ -306,9 +339,29 @@ For text and color edits, return a link in the spec's handoff format. For code e
         <div className="editor-bottom">
           <button className="overlay-btn playback-btn" title={playing ? 'Pause' : 'Play'} aria-label={playing ? 'Pause' : 'Play'}
             disabled={!!editing} onClick={() => player.current?.toggle()}>{playing ? <Pause size={20} /> : <Play size={20} />}</button>
+          {music && <button className={`overlay-btn sound-btn ${listening ? 'on' : ''}`} title={listening ? 'Mute sound' : 'Play sound'} aria-label={listening ? 'Mute sound' : 'Play sound'}
+            aria-pressed={listening} data-audio-ready={audio.ready ? 'true' : 'false'} onClick={toggleSound}>{listening ? <Volume2 size={20} /> : <VolumeX size={20} />}</button>}
           <Timeline meta={c} player={player} focusRole={editing} disabled={!!editing} />
         </div>
       </div>
+      {music && <section className="editor-theme editor-music" aria-labelledby="music-heading">
+        <div className="theme-heading"><h2 id="music-heading">Text and sound</h2>
+          {score && <span className="music-facts">{score.bpm} BPM · {score.scenes.reduce((n, s) => n + s.bars, 0)} bars</span>}</div>
+        <div className="music-controls">
+          <div className="role-toggles" role="group" aria-label="Optional text">
+            {optional.map((role) => {
+              const shown = !hidden.includes(role);
+              return <button key={role} className={`role-toggle ${shown ? 'on' : ''}`} aria-pressed={shown} disabled={!!editing}
+                title={`${shown ? 'Hide' : 'Show'} ${ROLES[role].label.toLowerCase()}`} aria-label={`${shown ? 'Hide' : 'Show'} ${ROLES[role].label}`}
+                onClick={() => toggleRole(role)}>{shown ? <Eye size={16} /> : <EyeOff size={16} />}<span>{ROLES[role].label}</span></button>;
+            })}
+          </div>
+          <label className="export-sound">
+            <input type="checkbox" checked={exportSound} disabled={!!editing} onChange={(e) => setExportSound(e.target.checked)} />
+            <span>Include sound in MP4</span>
+          </label>
+        </div>
+      </section>}
       <section className="editor-theme" aria-labelledby="theme-heading">
         <div className="theme-heading">
           <h2 id="theme-heading">Theme</h2>

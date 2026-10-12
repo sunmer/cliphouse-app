@@ -3,7 +3,7 @@ import {variants} from './catalog/catalog';
 import {Editor} from './ui/Editor';
 import {Gallery} from './ui/Gallery';
 import {SiteFooter, PrivacyPage} from './ui/Privacy';
-import {trackPage} from './services/analytics';
+import {trackPage, trackReturnVisit} from './services/analytics';
 import {SharedVideo} from './ui/SharedVideo';
 import {SavedVideo} from './ui/SavedVideo';
 import {BenchmarkBanner} from './ui/BenchmarkBanner';
@@ -44,6 +44,7 @@ export function App() {
     if (route.view !== 'shared') document.title = variant ? `${variant.title} | cliphou.se` : route.view === 'privacy' ? 'Privacy | cliphou.se' : 'cliphou.se';
     trackPage(route.view === 'shared' ? 'shared-video' : route.view === 'privacy' ? 'privacy' : variant?.id);
   }, [variant?.id, route.view]);
+  useEffect(() => { trackReturnVisit(); }, []);
 
   const template = route.view === 'gallery' ? route.params.get('template') : null;
   return <>

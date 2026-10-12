@@ -13,6 +13,8 @@ export type VideoPlayerRef = {
   toggle(): void;
   seekTo(frame: number): void;
   isPlaying(): boolean;
+  /** The player's exact position in seconds, between frame events. */
+  currentTime(): number;
   addEventListener(type: 'play' | 'pause' | 'seeked' | 'frameupdate' | 'ready', listener: Listener): void;
   removeEventListener(type: 'play' | 'pause' | 'seeked' | 'frameupdate' | 'ready', listener: Listener): void;
   textRoot(): HTMLElement | Document | null;
@@ -27,19 +29,28 @@ const runtimeSrc = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/hyperframes/r
 
 function hyperframesDocument(c: Extract<CompositionDef, {engine: 'hyperframes'}>, props: VideoProps) {
   const html = bindHyperframes({html: c.html, meta: c, props, assetBase});
-  const values = JSON.stringify(hyperframesVariables(props)).replace(/</g, '\\u003c');
+  const values = JSON.stringify(hyperframesVariables(props, c)).replace(/</g, '\\u003c');
   return html.replace('<head>', `<head><script>window.__hfVariables=${values};</script>`);
 }
 
-function applyLive(doc: Document, props: VideoProps) {
-  const values = hyperframesVariables(props);
+type MusicWindow = Window & {cliphouseFitText?: () => void; cliphouseMusicUpdate?: (vars: Record<string, unknown>) => void; __hfVariables?: Record<string, unknown>};
+function applyLive(doc: Document, props: VideoProps, meta: CompositionDef) {
+  const values = hyperframesVariables(props, meta);
+  const win = doc.defaultView as MusicWindow | null;
   for (const el of doc.querySelectorAll<HTMLElement>('[data-var-text]')) {
     const value = values[el.dataset.varText as keyof typeof values];
     if (typeof value === 'string' && el.textContent !== value) el.textContent = value;
   }
   const root = doc.querySelector<HTMLElement>('[data-composition-id]');
-  for (const [key, value] of Object.entries(values)) if (key.startsWith('theme_')) root?.style.setProperty(`--${key.replace('_', '-')}`, value);
-  (doc.defaultView as Window & {cliphouseFitText?: () => void} | null)?.cliphouseFitText?.();
+  for (const [key, value] of Object.entries(values)) if (key.startsWith('theme_')) root?.style.setProperty(`--${key.replace('_', '-')}`, String(value));
+  // Music templates rebuild word masks and the timeline from the new text and hidden roles.
+  if (win?.cliphouseMusicUpdate) {
+    const key = JSON.stringify(values);
+    if (JSON.stringify(win.__hfVariables) !== key) {
+      win.__hfVariables = values;
+      win.cliphouseMusicUpdate(values);
+    }
+  } else win?.cliphouseFitText?.();
 }
 
 export const VideoPlayer = forwardRef<VideoPlayerRef, {
@@ -70,6 +81,7 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, {
       }
     },
     isPlaying: () => c.engine === 'remotion' ? !!remotion.current?.isPlaying() : !hyper.current?.paused,
+    currentTime: () => c.engine === 'remotion' ? (remotion.current?.getCurrentFrame() ?? 0) / c.fps : hyper.current?.currentTime ?? 0,
     addEventListener: (type, listener) => {
       if (c.engine === 'remotion') { if (type !== 'ready') remotion.current?.addEventListener(type, listener as never); }
       else {
@@ -90,7 +102,7 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, {
     if (c.engine !== 'hyperframes' || !p) return;
     const ready = () => {
       const doc = p.iframeElement.contentDocument;
-      if (doc) applyLive(doc, props);
+      if (doc) applyLive(doc, props, c);
       setReadyDocument(doc);
       if (wantsPlay.current) p.play(); else p.pause();
       emit('ready', Math.round(p.currentTime * c.fps));
@@ -114,7 +126,7 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, {
 
   useEffect(() => {
     if (c.engine === 'hyperframes' && readyDocument) {
-      applyLive(readyDocument, props);
+      applyLive(readyDocument, props, c);
       requestAnimationFrame(() => emit('seeked', Math.round((hyper.current?.currentTime ?? 0) * c.fps)));
     }
   }, [props, readyDocument, c]);

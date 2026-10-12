@@ -10,16 +10,17 @@ const root = process.cwd();
 const assets = ['gsap.min.js', 'fonts/archivo.woff2', 'fonts/fraunces.woff2', 'fonts/fraunces-italic.woff2', 'fonts/inter.woff2', 'fonts/jetbrains-mono.woff2'];
 
 export async function writeHyperframesProject(value: Snapshot, directory: string) {
-  const [template, css, js] = await Promise.all([
+  const [template, css, js, music] = await Promise.all([
     readFile(path.join(root, 'src/hyperframes', value.template, 'index.html'), 'utf8'),
     readFile(path.join(root, 'src/hyperframes/shared/base.css'), 'utf8'),
     readFile(path.join(root, 'src/hyperframes/shared/base.js'), 'utf8'),
+    readFile(path.join(root, 'src/hyperframes/shared/music.js'), 'utf8'),
   ]);
-  const html = template.replace('__BASE_CSS__', css).replace('__BASE_JS__', js);
+  const html = template.replace('__BASE_CSS__', css).replace('__BASE_JS__', js).replace('__MUSIC_JS__', () => music);
   await mkdir(path.join(directory, 'assets/fonts'), {recursive: true});
   await Promise.all(assets.map((asset) => copyFile(path.join(root, 'public/hyperframes/assets', asset), path.join(directory, 'assets', asset))));
   await writeFile(path.join(directory, 'index.html'), bindHyperframes({html, meta: value.meta, props: value.props, assetBase: 'assets'}));
-  await writeFile(path.join(directory, 'variables.json'), JSON.stringify(hyperframesVariables(value.props)));
+  await writeFile(path.join(directory, 'variables.json'), JSON.stringify(hyperframesVariables(value.props, value.meta)));
 }
 
 export async function renderHyperframes(project: string, output: string, signal: AbortSignal) {

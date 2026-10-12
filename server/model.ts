@@ -7,6 +7,7 @@ import type {VideoProps} from '../src/videos/vocab.ts';
 import {currentVersion, templateVersion} from '../src/agent/versions.ts';
 import {agentSpec} from '../src/agent/spec.ts';
 import {validateProps} from '../src/agent/handoff.ts';
+import {propKeys} from '../src/agent/handoff.ts';
 import {schemas} from '../src/videos/schemas.ts';
 import {legacySchemas} from '../src/videos/legacy-schemas.ts';
 
@@ -30,8 +31,10 @@ export function validateShare(body: unknown) {
   const schema = version === currentVersion(variant.template) ? schemas[variant.template] : legacySchemas[variant.template]?.[version];
   if (!schema) throw new HttpError(400, 'Unknown template version.');
   const slots = mediaSlots(schema);
-  if (!exactKeys(body.props, slots.length ? ['texts', 'theme', 'media'] : ['texts', 'theme'])) throw new HttpError(400, 'Invalid video.');
-  const {texts, theme, media} = body.props;
+  const keys = propKeys(schema);
+  const music = keys.includes('audio');
+  if (!exactKeys(body.props, keys)) throw new HttpError(400, 'Invalid video.');
+  const {texts, theme, media, hidden, audio} = body.props;
   const roles = Object.keys(schema.shape.texts.shape) as (keyof typeof ROLES)[];
   if (!exactKeys(texts, roles) || !exactKeys(theme, [...THEME_ROLES])) throw new HttpError(400, 'Invalid video fields.');
   if (slots.length && (!exactKeys(media, slots) || slots.some((s) => !slotOptions(schema, s).some((o) => o.id === media[s])))) {
@@ -46,12 +49,15 @@ export function validateShare(body: unknown) {
   for (const role of THEME_ROLES) {
     if (typeof theme[role] !== 'string' || !/^#[a-f0-9]{6}$/i.test(theme[role] as string)) throw new HttpError(400, 'Invalid video color.');
   }
-  if (!validateProps(schema, body.props).ok) throw new HttpError(400, 'Video text is invalid or too long.');
+  const checked = validateProps(schema, body.props);
+  if (!checked.ok) throw new HttpError(400, music && /hidden|audio/.test(checked.error) ? checked.error : 'Video text is invalid or too long.');
   // Canonical key order makes retries of an identical edit idempotent.
   const props = {
     texts: Object.fromEntries(roles.map((role) => [role, texts[role]])),
     theme: Object.fromEntries(THEME_ROLES.map((role) => [role, theme[role]])),
     ...(slots.length ? {media: Object.fromEntries(slots.map((s) => [s, (media as Record<string, unknown>)[s]]))} : {}),
+    // Hidden roles keep the score's role order, so equal sets give the same fingerprint.
+    ...(music ? {hidden: roles.filter((r) => (hidden as string[]).includes(r)), audio: {enabled: (audio as {enabled: boolean}).enabled}} : {}),
   } as VideoProps;
   return {variantId: variant.id, template: variant.template, templateVersion: version, props,
     composition: version === currentVersion(variant.template) ? variant.template : `${variant.template}-v${version}`,

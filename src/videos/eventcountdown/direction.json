@@ -1,0 +1,131 @@
+{
+  "template": "eventcountdown",
+  "engine": "hyperframes",
+  "styleGuide": "docs/direction.md",
+  "concept": "The ticket stub is the event: its perforation becomes the agenda rule, its tear becomes the countdown, and the stamp is the CTA.",
+  "beatMap": [
+    {
+      "beats": [
+        0,
+        3
+      ],
+      "lands": "The stub slides up on the downbeat; the brand, headline, and ADMIT ONE land; the perforation draws on beat 3."
+    },
+    {
+      "beats": [
+        4,
+        7
+      ],
+      "lands": "The date lands on beats 3-4.5; the tear line runs along the perforation one third per beat on beats 5-7."
+    },
+    {
+      "beats": [
+        8,
+        11
+      ],
+      "lands": "The stub tears and drops; agenda rows cut in on beats 8, 9, and 10; the reader marker starts on beat 11."
+    },
+    {
+      "beats": [
+        12,
+        15
+      ],
+      "lands": "The reader marker steps down the rows on each beat; the bar strip keeps filling."
+    },
+    {
+      "beats": [
+        16,
+        19
+      ],
+      "lands": "The rows collapse; 3, 2, 1 land on beats 16-18 under the riser; on beat 19 an accent slab grows into the stamp."
+    },
+    {
+      "beats": [
+        20,
+        23
+      ],
+      "lands": "Strongest impact on beat 20: the CTA stamps down; the arrow nudges; the stamp lifts on beat 23 and the strip drains to the empty frame 0."
+    }
+  ],
+  "handoffs": [
+    {
+      "from": 0,
+      "to": 1,
+      "element": "The perforation becomes the tear, and the stub's lower half drops away to reveal the agenda."
+    },
+    {
+      "from": 1,
+      "to": 2,
+      "element": "The agenda rows collapse into the first digit."
+    },
+    {
+      "from": 2,
+      "to": 3,
+      "element": "The last digit grows into the accent slab that becomes the stamp."
+    }
+  ],
+  "sound": {
+    "concept": "Each countdown digit is a kick under a rising sweep, and the CTA stamp is the final impact.",
+    "cueMap": {
+      "kick": "The bar strip and the reader marker move on every beat.",
+      "impact": "Beat 20: the CTA stamps down.",
+      "riser": "Beats 16-20: the countdown 3, 2, 1.",
+      "date": "The date's words land on plucks.",
+      "point1": "Each agenda row cuts in on its pluck.",
+      "cta": "The CTA words land on lead notes."
+    }
+  },
+  "findings": [
+    {
+      "source": "gate",
+      "issue": "Agenda names at max length overflowed their rows.",
+      "fix": "The fit box uses a fixed flex basis with min-width 0, so the fit text measures the real width."
+    },
+    {
+      "source": "gate",
+      "issue": "A word reveal placed before 0 shifted the whole GSAP timeline by 0.12 s and broke the loop.",
+      "fix": "Reveals are clamped to 0, and the runtime fails on any tween before 0 or after the score."
+    },
+    {
+      "source": "gate",
+      "issue": "The first frame showed the stub edge and the last frame showed the stamp mid-exit.",
+      "fix": "The stub starts fully off-frame, and the stamp and strip finish before the loop point."
+    },
+    {
+      "source": "gate",
+      "issue": "Beats 5-7, 11, and 19 had no visible motion.",
+      "fix": "Added the tear line, an earlier reader marker, and the slab that grows into the stamp."
+    }
+  ],
+  "generation": {
+    "model": "GPT-5",
+    "modelId": "gpt-5",
+    "provider": "OpenAI",
+    "effort": "medium",
+    "costUsd": null,
+    "rounds": [
+      "plan",
+      "review",
+      "repair"
+    ]
+  },
+  "approval": {
+    "status": "approved",
+    "gates": [
+      "score",
+      "banned-patterns",
+      "beat-sheet",
+      "text-sheets",
+      "hidden-roles",
+      "readability",
+      "motion-every-beat",
+      "loop",
+      "audio",
+      "export-sync"
+    ],
+    "listened": false,
+    "waiver": "Operator approved shipping to test the mix in production.",
+    "by": "operator",
+    "at": "2026-10-12"
+  }
+}

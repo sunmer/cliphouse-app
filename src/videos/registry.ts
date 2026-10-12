@@ -8,6 +8,8 @@ import {ringstatSchema} from './ringstat/schema';
 import {eventpassSchema} from './eventpass/schema';
 import {pullquoteSchema} from './pullquote/schema';
 import {pricedropSchema} from './pricedrop/schema';
+import {featuredropSchema} from './featuredrop/schema';
+import {eventcountdownSchema} from './eventcountdown/schema';
 import {hyperframesSources} from './hyperframesSources';
 
 export type {RemotionCompositionDef};
@@ -21,6 +23,7 @@ export const compositions: Record<string, CompositionDef> = {
   signal: hyperframes('signal', signalSchema), ringstat: hyperframes('ringstat', ringstatSchema),
   eventpass: hyperframes('eventpass', eventpassSchema), pullquote: hyperframes('pullquote', pullquoteSchema),
   pricedrop: hyperframes('pricedrop', pricedropSchema),
+  featuredrop: hyperframes('featuredrop', featuredropSchema), eventcountdown: hyperframes('eventcountdown', eventcountdownSchema),
 };
 
 // Saved and shared videos keep the template version they were made with.

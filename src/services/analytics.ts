@@ -38,7 +38,27 @@ export function startAnalytics() {
   document.head.append(script);
 }
 
-type EventName = 'page_view' | 'bookmark_add' | 'bookmark_remove' | 'login' | 'share_publish' | 'editor_open' | 'text_edit' | 'color_edit' | 'image_edit' | 'save_video' | 'agent_link_copy' | 'template_brief_copy' | 'agent_handoff_open' | 'agent_handoff_reject' | 'source_download' | 'mp4_export';
+type EventName = 'page_view' | 'bookmark_add' | 'bookmark_remove' | 'login' | 'share_publish' | 'editor_open' | 'text_edit' | 'color_edit' | 'image_edit' | 'save_video' | 'agent_link_copy' | 'template_brief_copy' | 'agent_handoff_open' | 'agent_handoff_reject' | 'source_download' | 'mp4_export'
+  | 'sound_toggle' | 'role_toggle' | 'sound_play' | 'audio_export' | 'return_visit';
+
+const VISIT_KEY = 'cliphouse:visits';
+/**
+ * Counts visits on this device with a first-party timestamp only, and sends `return_visit` once per
+ * session when an earlier visit is at least 30 minutes old. No identifier leaves the device.
+ */
+export function trackReturnVisit() {
+  try {
+    if (sessionStorage.getItem('cliphouse:visit-counted')) return;
+    sessionStorage.setItem('cliphouse:visit-counted', '1');
+    const last = Number(localStorage.getItem(VISIT_KEY) || 0);
+    const now = Date.now();
+    localStorage.setItem(VISIT_KEY, String(now));
+    if (last && now - last >= 30 * 60 * 1000) {
+      const days = Math.floor((now - last) / 86_400_000);
+      track('return_visit', {days_since_last: days >= 7 ? '7+' : String(days)});
+    }
+  } catch { /* Storage is unavailable. */ }
+}
 
 function landingPage() {
   try { return sessionStorage.getItem('cliphouse:landing') ?? ''; } catch { return ''; }

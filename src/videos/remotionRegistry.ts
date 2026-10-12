@@ -182,6 +182,10 @@ import {Vhsintro} from './vhsintro/Vhsintro';
 import {vhsintroSchema} from './vhsintro/schema';
 import {Logo3d} from './logo3d/Logo3d';
 import {logo3dSchema} from './logo3d/schema';
+import {Beatreel} from './beatreel/Beatreel';
+import {beatreelSchema} from './beatreel/schema';
+import {Productpulse} from './productpulse/Productpulse';
+import {productpulseSchema} from './productpulse/schema';
 
 export type RemotionCompositionDef = TemplateMeta & {engine: 'remotion'; component: React.FC<any>; schema: VideoSchema};
 
@@ -275,4 +279,6 @@ export const remotionCompositions: Record<string, RemotionCompositionDef> = {
   photoquote: {...templateMeta.photoquote, component: Photoquote, engine: 'remotion', schema: photoquoteSchema as unknown as VideoSchema},
   vhsintro: {...templateMeta.vhsintro, component: Vhsintro, engine: 'remotion', schema: vhsintroSchema as unknown as VideoSchema},
   logo3d: {...templateMeta.logo3d, component: Logo3d, engine: 'remotion', schema: logo3dSchema as unknown as VideoSchema},
+  beatreel: {...templateMeta.beatreel, component: Beatreel, engine: 'remotion', schema: beatreelSchema as unknown as VideoSchema},
+  productpulse: {...templateMeta.productpulse, component: Productpulse, engine: 'remotion', schema: productpulseSchema as unknown as VideoSchema},
 };

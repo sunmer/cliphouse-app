@@ -28,7 +28,7 @@ const validCases = new Set(['showreel', 'youtube-intro', 'instagram-reel', 'soci
   'hiring', 'livestream', 'animated-chart', 'counter', 'timeline', 'cyber-monday', 'new-year', 'valentines', 'giveaway', 'thank-you', 'pricing',
   'subscribe', 'channel-trailer', 'credits', 'gaming-intro', 'title-card', 'poll', 'quiz', 'before-after', 'progress-bar', 'comparison', 'top-list',
   'agenda', 'flash-sale', 'case-study', 'speaker', 'webinar', 'tickets', 'coming-soon', 'announcement', 'anniversary', 'grand-opening', 'team-intro',
-  'partnership', 'newsletter', 'app-promo', 'feature-launch', 'quote', 'birthday']);
+  'partnership', 'newsletter', 'app-promo', 'feature-launch', 'quote', 'birthday', 'music-video']);
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const local = (p) => `${base.replace(/\/$/, '')}${p}`;
@@ -141,7 +141,7 @@ function templatePage(v) {
   };
   const source = templateVersion(v.template);
   const engine = ENGINE_LABELS[engineOf(v.template)];
-  const facts = [['Format', `${v.format} (${v.meta.width} x ${v.meta.height})`], ['Duration', `${v.seconds} seconds`], ['Purpose', v.purpose], ['Styles', v.style.join(', ')], ['Scenes', v.scenes.join(', ')], ['Editable text', v.roles.join(', ')], ['Engine', engine], ['License', license], ['Source', `${engine} project, template v${source.version} (${source.hash})`], ['MP4 export', exportStatus], ['Updated', v.updatedAt], ['Created by', v.creator]];
+  const facts = [['Format', `${v.format} (${v.meta.width} x ${v.meta.height})`], ['Duration', `${v.seconds} seconds`], ['Purpose', v.purpose], ['Styles', v.style.join(', ')], ['Scenes', v.scenes.join(', ')], ['Editable text', v.roles.join(', ')], ['Engine', engine], ...(v.meta.score ? [["Sound", `Generated score, ${v.meta.score.bpm} BPM, ${v.meta.score.scenes.reduce((n, x) => n + x.bars, 0)} bars. Text edits change only accent notes.`]] : []), ['License', license], ['Source', `${engine} project, template v${source.version} (${source.hash})`], ['MP4 export', exportStatus], ['Updated', v.updatedAt], ['Created by', v.creator]];
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="${local('/')}">Home</a><span>/</span><a href="${local('/motion-graphics-templates/')}">Templates</a><span>/</span>${esc(v.title)}</nav>
     <section class="seo-template"><div class="seo-video" style="aspect-ratio:${v.meta.width}/${v.meta.height};background:${esc(v.props.theme.background)}"><video data-video-src="${local(`/previews/${v.id}.mp4`)}" poster="${local(`/previews/${v.id}.jpg`)}" aria-label="${esc(v.title)} preview" muted loop playsinline controls preload="none"></video><button type="button" data-video-play hidden>Play video</button><noscript><a href="${local(`/previews/${v.id}.mp4`)}">Watch video</a></noscript></div>
     <div><h1>${esc(v.title)}</h1><p class="lead">${esc(v.seoDescription)}</p><p class="claim">${promise}</p><div class="actions"><a class="seo-button" data-editor="${esc(v.id)}" href="${local(`/#/v/${v.id}`)}">Edit free now</a><a class="seo-secondary" href="${local(`${v.path}agent.json`)}">Agent spec</a><a class="seo-secondary" href="${local(sourcePath(v.template, source.version))}" download>Download source</a></div><section class="seo-brief"><h2>Creative brief</h2><p>${esc(v.tmpl.prompt)}</p></section><p class="license-note">${notice} <a href="${local('/license/')}">Read the license</a>.</p>

@@ -24,7 +24,8 @@ test('every template spec exports a JSON Schema that matches the zod schema', ()
     assert.deepEqual(s.generation, manifest.templates.find((t) => t.id === v.template)!.generation, v.id);
     assert.deepEqual(generationErrors(v.template, s.generation), [], v.id);
     assert.equal(s.engine, engineOf(v.template), v.id);
-    assert.match(s.source.renderCommand, s.engine === 'hyperframes' ? /hyperframes@0\.8\.146 render/ : /remotion render/);
+    const music = (manifest.templates.find((t) => t.id === v.template) as {music?: boolean}).music;
+    assert.match(s.source.renderCommand, music ? /node music\/render\.mjs/ : s.engine === 'hyperframes' ? /hyperframes@0\.8\.146 render/ : /remotion render/);
     const roles = Object.keys(schemas[v.template].shape.texts.shape);
     assert.deepEqual(s.jsonSchema.properties.texts.required, roles, v.id);
     assert.equal(s.jsonSchema.properties.texts.additionalProperties, false);

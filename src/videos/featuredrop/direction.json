@@ -1,0 +1,111 @@
+{
+  "template": "featuredrop",
+  "engine": "hyperframes",
+  "styleGuide": "docs/direction.md",
+  "concept": "The launch card is the product: it splits into feature tiles on the beat and folds back into the brand lockup.",
+  "beatMap": [
+    {
+      "beats": [
+        0,
+        3
+      ],
+      "lands": "The card drops on the downbeat; the brand, headline, and subhead land on their accents; the NEW badge pulses on beats 2 and 3."
+    },
+    {
+      "beats": [
+        4,
+        7
+      ],
+      "lands": "The card folds to one row and the three feature tiles cut out of it on beats 4, 5.5, and 7; the bar ticks fill on each beat."
+    },
+    {
+      "beats": [
+        8,
+        11
+      ],
+      "lands": "The tile numbers flash in turn on each beat while the names hold; a riser builds."
+    },
+    {
+      "beats": [
+        12,
+        15
+      ],
+      "lands": "Strongest impact on beat 12: the tiles fold into the accent panel and the lockup lands; the CTA opens on 12.5 and its arrow nudges; everything leaves on the last eighth."
+    }
+  ],
+  "handoffs": [
+    {
+      "from": 0,
+      "to": 1,
+      "element": "The card folds into the first feature tile."
+    },
+    {
+      "from": 1,
+      "to": 2,
+      "element": "The tiles fold back into the first row, which opens into the accent panel."
+    }
+  ],
+  "sound": {
+    "concept": "A 128 BPM drop: each feature tile is a pluck that cuts out of the card, and the lockup is the impact.",
+    "cueMap": {
+      "kick": "The bar ticks fill on every beat.",
+      "impact": "Beat 12: the panel opens into the lockup.",
+      "riser": "Beats 8-12: the tile numbers flash in turn.",
+      "point1": "Each tile cuts out on its pluck.",
+      "cta": "The CTA words land on lead notes."
+    }
+  },
+  "findings": [
+    {
+      "source": "gate",
+      "issue": "Template literals in the inline scripts failed HyperFrames strict lint.",
+      "fix": "The runtime bundle and template scripts use plain string concatenation."
+    },
+    {
+      "source": "gate",
+      "issue": "top and height tweens stuttered under frame capture.",
+      "fix": "All moves use transforms and clip-path insets."
+    },
+    {
+      "source": "gate",
+      "issue": "The final exits ran past 7.5 s, so the loop broke.",
+      "fix": "Exits start on the last eighth; the runtime now fails if any tween ends after the score."
+    },
+    {
+      "source": "gate",
+      "issue": "The subhead held for only 6 frames, and the max-length lockup brand clipped.",
+      "fix": "The card scene was re-slotted so the subhead lands on beat 1.5; the lockup brand fits down to 52 px."
+    }
+  ],
+  "generation": {
+    "model": "GPT-5",
+    "modelId": "gpt-5",
+    "provider": "OpenAI",
+    "effort": "medium",
+    "costUsd": null,
+    "rounds": [
+      "plan",
+      "review",
+      "repair"
+    ]
+  },
+  "approval": {
+    "status": "approved",
+    "gates": [
+      "score",
+      "banned-patterns",
+      "beat-sheet",
+      "text-sheets",
+      "hidden-roles",
+      "readability",
+      "motion-every-beat",
+      "loop",
+      "audio",
+      "export-sync"
+    ],
+    "listened": false,
+    "waiver": "Operator approved shipping to test the mix in production.",
+    "by": "operator",
+    "at": "2026-10-12"
+  }
+}

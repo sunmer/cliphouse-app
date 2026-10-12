@@ -37,7 +37,7 @@ export const useCases = [
     faq: [
       ['What size are these Reel templates?', 'They use a 1080 by 1920 pixel composition, which is a 9:16 vertical format.'],
       ['Can I use them on TikTok and Stories?', 'Yes. The same vertical format works for Reels, TikTok, and Stories. Check each platform for its current safe areas.'],
-      ['Can I add my own photos or audio?', 'Not yet. The current editor changes text and colors.'],
+      ['Can I add my own photos or audio?', 'You cannot upload audio yet. Music video templates include a generated score that follows your text, and some templates let you choose bundled photos.'],
     ],
   },
   {
@@ -336,7 +336,21 @@ export const useCases = [
     faq: [
       ['Is the noise random every time?', 'No. Every effect is seeded, so the same text and colors always render the same video.'],
       ['Which format do these use?', 'Most are 16:9 for YouTube. Check each template for its format.'],
-      ['Do they include sound?', 'No. Add music or sound effects in your video editor.'],
+      ['Do they include sound?', 'These retro intros are silent. Add music or sound effects in your video editor, or start from a music video template with a generated score.'],
+    ],
+  },
+  {
+    path: '/music-video-templates/',
+    title: 'Music Video Templates with a Beat-Synced Score | cliphou.se',
+    h1: 'Music video templates',
+    description: 'Free motion graphics templates with a generated, beat-synced score. Edit the text, hide optional lines, and export an MP4 with sound.',
+    intro: 'Every word lands on the beat. The score is generated in code on a fixed beat grid, so your text edits change only the accent notes, never the tempo or the length.',
+    match: (v) => v.useCases.includes('music-video'),
+    faq: [
+      ['Where does the music come from?', 'Each template generates its score in code: kick, hats, bass, pad, risers, impacts, and one accent note per word. No licensed or uploaded music is used, so there is nothing to clear.'],
+      ['What changes when I edit the text?', 'Only the accent notes and short responses in that line\'s slot. The tempo, bar count, scene timing, and video length stay the same.'],
+      ['Does the MP4 include sound?', 'Yes. The export renders the video, then adds the score as 48 kHz stereo AAC audio, mastered to about -14 LUFS. You can turn the sound off before you export.'],
+      ['Can I hide a line I do not need?', 'Yes. Optional lines, such as a third point or a subhead, can be hidden. The brand, headline, and call to action are always shown.'],
     ],
   },
 ];
@@ -348,7 +362,7 @@ export const editorialPages = [
     h1: 'Remotion templates',
     description: 'Browse finished Remotion templates, edit text and colors in the browser, or download the full source as a standalone Remotion project.',
     intro: 'Free Remotion templates built for humans and coding agents. Compare finished motion, edit copy and colors, then hand off clean props and source paths to your agent.',
-    match: (v) => !['signal', 'ringstat', 'eventpass', 'pullquote', 'pricedrop'].includes(v.template),
+    match: (v) => !['signal', 'ringstat', 'eventpass', 'pullquote', 'pricedrop', 'featuredrop', 'eventcountdown'].includes(v.template),
     sections: [
       ['What you get', 'Each template is a React and Remotion composition. A shared contract defines seven text roles, five theme colors, and scene metadata. The editor and catalog read the same contract.'],
       ['How to use a template', 'Open a template, edit text in the preview, and choose colors. Download the source package for a standalone Remotion project: run npm ci, then render with your props. Give agent.json to a coding agent to change text, colors, layout, motion, or timing.'],
@@ -361,7 +375,7 @@ export const editorialPages = [
     h1: 'HyperFrames templates',
     description: 'Browse finished HyperFrames templates, edit text and colors in the browser, or download a native HTML, CSS, and GSAP project.',
     intro: 'Free HyperFrames templates for humans and coding agents. Edit the copy and colors in cliphou.se, then download a native project for HyperFrames Studio or the CLI.',
-    match: (v) => ['signal', 'ringstat', 'eventpass', 'pullquote', 'pricedrop'].includes(v.template),
+    match: (v) => ['signal', 'ringstat', 'eventpass', 'pullquote', 'pricedrop', 'featuredrop', 'eventcountdown'].includes(v.template),
     sections: [
       ['What you get', 'Each template is a HyperFrames HTML composition with declared variables, a paused GSAP timeline, local fonts, and scene metadata used by the cliphou.se editor.'],
       ['How to use a template', 'Open a template, edit text in the preview, and choose colors. Download the source package, then run npx hyperframes check and npx hyperframes render with variables.json.'],

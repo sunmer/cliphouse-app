@@ -49,5 +49,6 @@ export function applyKit(props: VideoProps, kit: BrandKit): VideoProps {
     const v = ROLES[role].kit ? kit.texts[role]?.trim() : undefined;
     if (v && v.length <= ROLES[role].max) texts[role] = v;
   }
-  return {texts, theme: kit.theme ?? props.theme};
+  // Keep image choices, hidden roles, and the sound switch; the kit only sets text and color.
+  return {...props, texts, theme: kit.theme ?? props.theme};
 }

@@ -34,7 +34,7 @@ const briefs = {
   ytintro: 'A 6 second 16:9 YouTube channel intro. The channel name arrives with energy on the beat, then the headline and the call to action. It must feel like a confident channel identity, not a glitch effect.',
 };
 
-const style = read('scripts/directed/style.md');
+const style = read('docs/direction.md');
 const contract = `You write Remotion (v4) compositions for a template marketplace. Templates must follow this editing contract exactly:
 - All copy comes from props.texts, using only the shared roles in vocab.ts. All color comes from props.theme (5 roles). Never hardcode brand copy or colors (neutral shadows and fixed UI chrome like window dots are fine).
 - Export a meta object (TemplateMeta) whose scenes list drives the timeline in the component, so metadata and render always agree. Scene "from" and "duration" values must match what the component renders.

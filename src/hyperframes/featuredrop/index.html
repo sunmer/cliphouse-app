@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1080px; }
+    /* Concept: the launch card is the product. It splits into three feature tiles on the beat, then folds back into the brand lockup. */
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; white-space:nowrap; position:relative; top:var(--drop, 0px); }
+    .w { display:inline-block; }
+    .card { position:absolute; left:90px; top:90px; width:900px; height:900px; background:var(--theme-foreground); color:var(--theme-background); border-radius:8px; overflow:hidden; }
+    .card .brand { position:absolute; left:72px; width:560px; overflow:hidden; top:66px; height:48px; font-size:34px; line-height:48px; text-transform:uppercase; color:var(--theme-accent); white-space:nowrap; }
+    .card .badge { position:absolute; right:72px; top:66px; height:48px; padding:0 22px; font-size:24px; line-height:48px; background:var(--theme-accent); color:var(--theme-background); }
+    .card .headline { position:absolute; left:72px; right:72px; top:300px; height:330px; font-size:120px; line-height:1; text-transform:uppercase; }
+    .card .headline .wmask { height:1em; }
+    .card .subhead { position:absolute; left:72px; right:72px; top:680px; height:120px; font-size:40px; line-height:1.25; }
+    .card .subhead .wmask { height:1.25em; }
+    .tile { position:absolute; width:900px; height:276px; left:90px; border-radius:8px; overflow:hidden; color:var(--theme-background); }
+    .tile.t1 { top:90px; background:var(--theme-accent); }
+    .tile.t2 { top:402px; background:var(--theme-foreground); }
+    .tile.t3 { top:714px; background:var(--theme-accent2); }
+    .tile .num { position:absolute; left:60px; top:44px; font-size:26px; transform-origin:left center; }
+    .tile .name { position:absolute; left:60px; right:60px; overflow:hidden; bottom:44px; height:120px; font-size:104px; line-height:120px; text-transform:uppercase; white-space:nowrap; }
+    .tile .name .wmask { height:120px; }
+    .lock { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:56px; }
+    .lock { color:var(--theme-background); visibility:hidden; }
+    .lock .brand2 { width:780px; overflow:hidden; text-align:center; height:200px; font-size:170px; line-height:200px; text-align:center; text-transform:uppercase; white-space:nowrap; }
+    .lock .brand2 .wmask { height:200px; }
+    .lock .cta { height:112px; padding:0 56px; display:flex; align-items:center; gap:28px; background:var(--theme-background); color:var(--theme-foreground); border-radius:8px; }
+    .lock .cta .label { height:64px; width:560px; overflow:hidden; text-align:center; font-size:50px; line-height:64px; white-space:nowrap; }
+    .lock .cta .label .wmask { height:64px; }
+    .lock .cta svg { width:46px; height:46px; }
+    .tick { position:absolute; left:90px; top:1012px; height:10px; width:900px; display:flex; gap:12px; }
+    .tick i { flex:1; background:var(--theme-surface); position:relative; overflow:hidden; }
+    .tick i b { position:absolute; inset:0; background:var(--theme-accent); transform:scaleX(0); transform-origin:left center; }
+    .panel { position:absolute; left:90px; top:90px; width:900px; height:900px; background:var(--theme-accent); border-radius:8px; visibility:hidden; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="7.5" data-width="1080" data-height="1080">
+    <section id="featuredrop-card" class="scene s1 clip" data-start="0" data-duration="7.5" data-track-index="0">
+      <div class="card">
+        <div class="brand display fit" data-fit-max="34" data-fit-min="22" data-text-role="brand" data-music-text="brand">Brand</div>
+        <div class="badge mono">NEW</div>
+        <h1 class="headline display fit" data-fit-max="120" data-fit-min="64" data-text-role="headline" data-music-text="headline" data-music-align="bottom">Headline</h1>
+        <p class="subhead fit" data-fit-max="40" data-fit-min="28" data-role-block="subhead" data-text-role="subhead" data-music-text="subhead">Subhead</p>
+      </div>
+      <div class="tile t1" data-role-block="point1"><span class="num mono">01</span><strong class="name display fit" data-fit-max="104" data-fit-min="56" data-text-role="point1" data-music-text="point1">Point 1</strong></div>
+      <div class="tile t2" data-role-block="point2"><span class="num mono">02</span><strong class="name display fit" data-fit-max="104" data-fit-min="56" data-text-role="point2" data-music-text="point2">Point 2</strong></div>
+      <div class="tile t3" data-role-block="point3"><span class="num mono">03</span><strong class="name display fit" data-fit-max="104" data-fit-min="56" data-text-role="point3" data-music-text="point3">Point 3</strong></div>
+      <div class="panel"></div>
+      <div class="lock">
+        <div class="brand2 display fit" data-fit-max="170" data-fit-min="52" data-text-role="brand" data-music-text="brand">Brand</div>
+        <div class="cta display"><span class="label fit" data-fit-max="50" data-fit-min="32" data-text-role="cta" data-music-text="cta">CTA</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </div>
+      <div class="tick"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__MUSIC_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseMusic.mount(tl, __SCORE__, (tl, m) => {
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const beat = m.at;
+      // A word starts rising .06 s before its accent; never before 0, which would shift the whole timeline.
+      const rise = (el, role) => m.spans(el).forEach((w, i) => tl.fromTo(w, {yPercent: 105}, {yPercent: 0, duration: .26, ease: 'expo.out'}, Math.max(0, m.word(role, i) - .06)));
+      // Words leave together in .2 s (up to .06 s of stagger), so an exit never runs past its slot.
+      const fall = (el, at) => tl.to(m.spans(el), {yPercent: -105, duration: .2, ease: 'power3.in', stagger: {amount: .06}}, at);
+      const points = ['point1', 'point2', 'point3'].filter((r) => !m.hidden(r));
+      // Bar counter: one segment lights on each beat.
+      qa('.tick b').forEach((el, k) => { for (let b = k; b < 16; b += 4) tl.fromTo(el, {scaleX: 0}, {scaleX: 1, duration: .12, ease: 'expo.out'}, beat(b)).set(el, {scaleX: 0}, beat(b + 1) - .001); });
+      // Scene 1: the card drops in on the downbeat, words land on their accents.
+      tl.fromTo('.card', {yPercent: -110}, {yPercent: 0, duration: .36, ease: 'expo.out'}, 0)
+        .fromTo('.badge', {scale: 0}, {scale: 1, duration: .24, ease: 'back.out(1.2)'}, beat(1));
+      rise(q('.card .brand'), 'brand');
+      rise(q('.card .headline'), 'headline');
+      if (!m.hidden('subhead')) rise(q('.card .subhead'), 'subhead');
+      // The NEW badge pulses on beats 2 and 3 while the card text holds still to read.
+      for (const k of [2, 3]) tl.fromTo('.badge', {scale: 1.18}, {scale: 1, duration: .2, ease: 'power3.out'}, beat(k));
+      // Scene 2: the card splits. Its text leaves, the card folds to the first tile's height, and tiles cut out of it, one per point.
+      const split = m.scene(1);
+      fall(q('.card .brand'), split - .14); fall(q('.card .headline'), split - .14); fall(q('.card .subhead'), split - .14);
+      tl.to('.badge', {scale: 0, duration: .16, ease: 'power3.in'}, split - .14)
+        .fromTo('.card', {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 69.33% 0%)', duration: .28, ease: 'expo.inOut'}, split - .06)
+        .set('.card', {visibility: 'hidden'}, split + .22);
+      qa('.tile').forEach((el) => tl.set(el, {visibility: 'hidden'}, 0));
+      // Rows are 276 px tall on a 312 px pitch. Two points get taller rows centered in the card.
+      const slot = points.length === 3 ? [0, 312, 624] : [104, 468];
+      const scaleY = points.length === 3 ? 1 : 328 / 276;
+      points.forEach((role, i) => {
+        const el = q('.tile.t' + role.slice(-1));
+        const at = i === 0 ? split + .22 : m.word(role, 0) - .14;
+        const home = Number(role.slice(-1)) - 1;
+        const y = (k) => slot[k] - home * 312;
+        tl.set(el, {visibility: 'visible', transformOrigin: 'center top', scaleY}, at)
+          .fromTo(el, {y: y(Math.max(0, i - 1))}, {y: y(i), duration: .3, ease: 'expo.out'}, at);
+        rise(el.querySelector('.name'), role);
+      });
+      // While the grid holds, its number badges flash in turn on each beat; the tile names stay still to read.
+      const nums = points.map((role) => q('.tile.t' + role.slice(-1) + ' .num'));
+      for (let k = 0; m.scene(1, 4 + k) < m.scene(2) - .3; k++) {
+        tl.fromTo(nums[k % nums.length], {scale: 1.6}, {scale: 1, duration: .2, ease: 'power3.out'}, m.scene(1, 4 + k));
+      }
+      // Scene 3: the tiles fold back into the first row and the accent panel opens into the lockup on the impact.
+      const lock = m.scene(2);
+      points.forEach((role) => {
+        const home = Number(role.slice(-1)) - 1;
+        tl.to(q('.tile.t' + role.slice(-1)), {y: -home * 312, scaleY: 1, duration: .26, ease: 'expo.inOut'}, lock - .3);
+      });
+      points.forEach((role) => fall(q('.tile.t' + role.slice(-1) + ' .name'), lock - .36));
+      tl.set('.tile', {visibility: 'hidden'}, lock - .04).set('.panel', {visibility: 'visible'}, lock - .04)
+        .fromTo('.panel', {clipPath: 'inset(0% 0% 69.33% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: .3, ease: 'expo.out'}, lock - .04)
+        .set('.lock', {visibility: 'visible'}, lock - .02);
+      // The lockup brand lands on the impact (the brand's accent is in scene 1, so this reveal is visual only).
+      m.spans(q('.lock .brand2')).forEach((w, i) => tl.fromTo(w, {yPercent: 105}, {yPercent: 0, duration: .26, ease: 'expo.out'}, lock + i * .03));
+      tl.fromTo('.lock .cta', {scaleX: 0, transformOrigin: 'left center'}, {scaleX: 1, duration: .3, ease: 'expo.out'}, m.word('cta', 0) - .12);
+      rise(q('.lock .label'), 'cta');
+      tl.fromTo('.lock .cta svg', {x: -40}, {x: 0, duration: .26, ease: 'expo.out'}, m.word('cta', 0) + .1)
+        .to('.lock .cta svg', {x: 8, duration: .12, ease: 'power3.out'}, lock + beat(2)).to('.lock .cta svg', {x: 0, duration: .2, ease: 'power3.out'}, lock + beat(2.5))
+        .to('.lock .cta svg', {x: 8, duration: .12, ease: 'power3.out'}, lock + beat(3)).to('.lock .cta svg', {x: 0, duration: .2, ease: 'power3.out'}, lock + beat(3.5));
+      // Loop: the lockup leaves on the last eighth so frame 0 starts on an empty field.
+      // Exits start on the last eighth and finish two frames before the loop point.
+      const out = m.duration - beat(.5);
+      fall(q('.lock .brand2'), out - .1);
+      tl.to('.lock .cta', {scaleX: 0, duration: .18, ease: 'power3.in'}, out)
+        .to('.panel', {yPercent: -112, duration: beat(.5) - .07, ease: 'power3.in'}, out);
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines["main"] = tl;
+  </script>
+</body>
+</html>
