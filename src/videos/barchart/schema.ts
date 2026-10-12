@@ -1,9 +1,6 @@
-import {z} from 'zod';
-import {textsSchema, themeSchema} from '../contract';
+import type {z} from 'zod';
+import {beatSchema} from '../beat/schema.ts';
+import {barchartScore} from './score.ts';
 
-export const barchartSchema = z.object({
-  texts: textsSchema(['brand', 'headline', 'subhead', 'chart', 'attribution'] as const),
-  theme: themeSchema,
-});
-
+export const barchartSchema = beatSchema(barchartScore, ['brand', 'headline', 'subhead', 'list', 'attribution'] as const);
 export type BarchartProps = z.infer<typeof barchartSchema>;

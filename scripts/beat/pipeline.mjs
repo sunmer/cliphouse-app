@@ -1,7 +1,12 @@
 // Unattended conversion of templates to the beat contract.
-// For each template: Opus plan, apply presets, checks, up to REPAIRS repair rounds, beat sheets,
-// one Opus visual review, checks again. The result is "ready" for the user's watch-and-listen review, or "failed".
-// Usage: node scripts/beat/pipeline.mjs <template ...>     (CONCURRENCY=3 REPAIRS=3)
+// For each template: plan, apply presets, checks, up to REPAIRS repair rounds, beat sheets, then one
+// Opus visual review when the plan needed a repair (or REVIEW=always), and checks again.
+// Then the music stage (MUSIC=1, the default): a song written to the timing plan, the audio gates and mix
+// report, and up to REPAIRS music repairs. The song is wired in but presets keep audio off until approved.
+// The result is "ready" for the user's watch-and-listen review, or "failed".
+// Usage: node scripts/beat/pipeline.mjs <template ...>     (CONCURRENCY=3 REPAIRS=2 REVIEW=auto|always|never MUSIC=1|0)
+// SKIP_PICTURE=1 runs only the music stage, for templates whose picture is already converted.
+// RESUME=1 continues a failed picture conversion from its last candidate instead of planning again.
 import {execFile} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -11,7 +16,11 @@ const run = promisify(execFile);
 const root = path.resolve(import.meta.dirname, '../..');
 const ids = process.argv.slice(2);
 const CONCURRENCY = Number(process.env.CONCURRENCY || 3);
-const REPAIRS = Number(process.env.REPAIRS || 3);
+const REPAIRS = Number(process.env.REPAIRS || 2);
+const REVIEW = process.env.REVIEW || 'auto';
+const MUSIC = process.env.MUSIC !== '0';
+const SKIP_PICTURE = process.env.SKIP_PICTURE === '1';
+const RESUME = process.env.RESUME === '1';
 const statusFile = path.join(root, 'output/beat-convert/status.json');
 fs.mkdirSync(path.dirname(statusFile), {recursive: true});
 const status = fs.existsSync(statusFile) ? JSON.parse(fs.readFileSync(statusFile, 'utf8')) : {};
@@ -76,10 +85,9 @@ async function check(id, sheets) {
       const {templateMeta} = await import('./src/videos/meta.ts');
       const {scoreOf} = await import('./src/videos/beat/schema.ts');
       const {scoreErrors} = await import('./src/videos/beat/check.ts');
-      const {countErrors, beatAudioErrors, renderCount} = await import('./scripts/beat-gates.ts');
+      const {countErrors} = await import('./scripts/beat-gates.ts');
       const {schemas} = await import('./src/videos/schemas.ts');
       const {validateProps} = await import('./src/agent/handoff.ts');
-      const {likeness} = await import('./src/videos/beat/variety.ts');
       const manifest = (await import('./src/catalog/manifest.json', {with: {type: 'json'}})).default;
       const id = ${JSON.stringify(id)};
       const s = scoreOf(templateMeta[id]);
@@ -87,20 +95,100 @@ async function check(id, sheets) {
       if (!s) e.push('meta.ts does not carry a beat score (use beatMeta)');
       else {
         e.push(...scoreErrors(s).map((x) => 'score: ' + x));
+        if (s.sound) e.push('score: remove the "sound" block; the score is timing only');
         e.push(...countErrors(s));
         for (const v of manifest.variants.filter((x) => x.template === id)) {
           const r = validateProps(schemas[id], v.props);
           if (!r.ok) e.push('preset ' + v.id + ': ' + r.error);
+          if (v.props.audio?.enabled) e.push('preset ' + v.id + ': audio.enabled must be false until the music is approved');
           if (s.list && v.props.texts.list?.split('\\n').length !== s.list.max) e.push('preset ' + v.id + ': list must have list.max items');
         }
-        if (s.list) for (let n = s.list.min; n <= s.list.max; n++) e.push(...beatAudioErrors(s, renderCount(s, n), n).map((x) => 'audio ' + n + ' items: ' + x));
-        for (const [k, m] of Object.entries(templateMeta)) { const o = scoreOf(m); if (o && k !== id && likeness(s, o) >= 5) e.push('sound: shares ' + likeness(s, o) + ' of 7 traits with ' + k + '; change tempo, genre, key, groove, or timbre'); }
       }
       if (e.length) { console.log(e.join('\\n')); process.exit(1); }`]);
   } catch (e) { return `Contract:\n${String(e.stdout || e.stderr).slice(0, 8000)}`; }
   try { await node(['--import', 'tsx', 'scripts/beat-direction.mjs', '--sheets', sheets, id], {timeout: 900_000}); }
   catch (e) { return `Direction gates:\n${String(e.stdout || e.stderr).slice(0, 8000)}`; }
   return '';
+}
+
+/** Pass `song` as the third argument of the beatMeta(...) call, whatever its formatting. */
+function wireSong(meta) {
+  if (/import song from '\.\/song\.ts';/.test(meta)) return meta;
+  const start = meta.indexOf('beatMeta(');
+  if (start < 0) return null;
+  // Find the matching close paren of the call.
+  let depth = 0, end = -1;
+  for (let i = start + 'beatMeta'.length; i < meta.length; i++) {
+    if (meta[i] === '(') depth++;
+    else if (meta[i] === ')' && --depth === 0) { end = i; break; }
+  }
+  if (end < 0) return null;
+  const args = meta.slice(start + 'beatMeta('.length, end).replace(/,\s*$/, '');
+  const lastImport = [...meta.matchAll(/^import .*;$/gm)].at(-1);
+  const at = lastImport ? lastImport.index + lastImport[0].length + 1 : 0;
+  const call = `beatMeta(${args.trimEnd()}, song)`;
+  return `${meta.slice(0, at)}import song from './song.ts';\n${meta.slice(at, start)}${call}${meta.slice(end + 1)}`;
+}
+
+/** Put a candidate song in the template and pass it to beatMeta in meta.ts. Returns a function that undoes both. */
+function applySong(id) {
+  const vdir = path.join(root, 'src/videos', id);
+  const songPath = path.join(vdir, 'song.ts');
+  const metaPath = path.join(vdir, 'meta.ts');
+  const oldMeta = fs.readFileSync(metaPath, 'utf8');
+  const meta = wireSong(oldMeta);
+  if (!meta) throw new Error(`could not find the beatMeta(...) call in ${id}/meta.ts`);
+  // A song file that meta.ts does not import is a leftover, not an approved song: replace it.
+  const oldSong = fs.existsSync(songPath) && oldMeta.includes("from './song.ts'") ? fs.readFileSync(songPath) : null;
+  fs.copyFileSync(path.join(root, 'output/beat-music', id, 'song.ts'), songPath);
+  fs.writeFileSync(metaPath, meta);
+  return () => { if (oldSong) fs.writeFileSync(songPath, oldSong); else fs.rmSync(songPath, {force: true}); fs.writeFileSync(metaPath, oldMeta); };
+}
+
+// Audio gates and the mix report for the song in the tree. Returns the error text, or '' when everything passes.
+async function checkSong(id) {
+  try { await run(path.join(root, 'node_modules/.bin/tsc'), ['--noEmit'], {cwd: root, maxBuffer: 16 * 1024 * 1024}); }
+  catch (e) { return `TypeScript:\n${String(e.stdout).split('\n').filter((l) => l.includes(`/${id}/`)).slice(0, 40).join('\n') || String(e.stdout).slice(0, 4000)}`; }
+  try {
+    const {stdout} = await node(['--import', 'tsx', '--input-type=module', '-e', `
+      const {templateMeta} = await import('./src/videos/meta.ts');
+      const {musicOf} = await import('./src/videos/song/index.ts');
+      const {songErrors, counts} = await import('./scripts/song-gates.ts');
+      const {songReport} = await import('./scripts/song-report.ts');
+      const m = musicOf(templateMeta[${JSON.stringify(id)}]);
+      if (!m) { console.log(JSON.stringify({errors: ['meta.ts does not pass the song to beatMeta']})); process.exit(0); }
+      const errors = songErrors(m.score, m.song);
+      const full = counts(m.score).at(-1);
+      const report = errors.length ? null : songReport(m.score, m.song, full);
+      console.log(JSON.stringify({errors: [...errors, ...(report?.problems ?? [])], report}));`], {timeout: 600_000});
+    const {errors, report} = JSON.parse(stdout.trim().split('\n').at(-1));
+    if (report) fs.writeFileSync(path.join(root, 'output/beat-music', id, 'report.json'), JSON.stringify(report, null, 2));
+    return errors.length ? `Audio gates:\n${errors.join('\n')}${report ? `\n\nMix report:\n${JSON.stringify(report)}` : ''}` : '';
+  } catch (e) { return `Song failed to load or render:\n${String(e.stdout || e.stderr || e.message).slice(0, 6000)}`; }
+}
+
+async function compose(id, s) {
+  const dir = path.join(root, 'output/beat-music', id);
+  fs.mkdirSync(dir, {recursive: true});
+  const music = async (step) => {
+    const {stdout} = await node(['scripts/beat/compose.mjs', id, step], {timeout: 1_800_000});
+    s.rounds.push(JSON.parse(stdout.trim().split('\n').at(-1)));
+    save();
+  };
+  const applyAndCheck = () => exclusive(async () => {
+    const undo = applySong(id);
+    const errors = await checkSong(id);
+    if (errors) undo();
+    return errors;
+  });
+  await music('compose');
+  let errors = await applyAndCheck();
+  for (let k = 0; errors && k < REPAIRS; k++) {
+    fs.writeFileSync(path.join(dir, 'errors.txt'), errors);
+    await music('repair');
+    errors = await applyAndCheck();
+  }
+  if (errors) throw new Error(errors);
 }
 
 async function convert(id) {
@@ -123,34 +211,47 @@ async function convert(id) {
     return errors;
   });
   try {
-    await opus('plan');
+    if (SKIP_PICTURE) {
+      await compose(id, s);
+      s.state = 'ready';
+      return;
+    }
+    if (!RESUME) await opus('plan');
     let errors = await applyAndCheck();
+    const clean = !errors && !RESUME;
     for (let k = 0; errors && k < REPAIRS; k++) {
       fs.writeFileSync(path.join(dir, 'errors.txt'), errors);
       await opus('repair');
       errors = await applyAndCheck();
     }
     if (errors) throw new Error(errors);
-    // One visual review round on the passing render.
-    fs.rmSync(path.join(dir, 'sheets'), {recursive: true, force: true});
-    fs.cpSync(path.join(sheets, id), path.join(dir, 'sheets'), {recursive: true});
-    await opus('review');
-    errors = await applyAndCheck();
-    for (let k = 0; errors && k < REPAIRS; k++) {
-      fs.writeFileSync(path.join(dir, 'errors.txt'), errors);
-      await opus('repair');
+    s.reviewed = REVIEW === 'always' || (REVIEW === 'auto' && !clean);
+    if (s.reviewed) {
+      // One visual review round on the passing render, for plans that needed a repair.
+      fs.rmSync(path.join(dir, 'sheets'), {recursive: true, force: true});
+      fs.cpSync(path.join(sheets, id), path.join(dir, 'sheets'), {recursive: true});
+      await opus('review');
       errors = await applyAndCheck();
+      for (let k = 0; errors && k < REPAIRS; k++) {
+        fs.writeFileSync(path.join(dir, 'errors.txt'), errors);
+        await opus('repair');
+        errors = await applyAndCheck();
+      }
+      if (errors) throw new Error(errors);
     }
-    if (errors) throw new Error(errors);
+    s.picture = 'ready';
+    save();
+    if (MUSIC) await compose(id, s);
     s.state = 'ready';
   } catch (e) {
     s.state = 'failed';
     s.error = String(e.message ?? e).slice(0, 4000);
+  } finally {
+    s.cost = Math.round(s.rounds.reduce((n, r) => n + (r.cost ?? 0), 0) * 100) / 100;
+    s.finishedAt = new Date().toISOString();
+    save();
+    console.log(`${s.state.padEnd(6)} ${id} $${s.cost} ${s.rounds.length} rounds${s.error ? `\n  ${s.error.split('\n').slice(0, 6).join('\n  ')}` : ''}`);
   }
-  s.cost = Math.round(s.rounds.reduce((n, r) => n + (r.cost ?? 0), 0) * 100) / 100;
-  s.finishedAt = new Date().toISOString();
-  save();
-  console.log(`${s.state.padEnd(6)} ${id} $${s.cost} ${s.rounds.length} rounds${s.error ? `\n  ${s.error.split('\n').slice(0, 6).join('\n  ')}` : ''}`);
 }
 
 // Type checks and gates read the whole repository, so conversions run in parallel but checks see others' work.

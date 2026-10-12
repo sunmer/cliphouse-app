@@ -456,7 +456,8 @@
         "modelId": "claude-opus-5-5",
         "provider": "Anthropic",
         "effort": "medium"
-      }
+      },
+      "music": true
     },
     {
       "id": "counter",
@@ -1352,7 +1353,8 @@
         "modelId": "gpt-5",
         "provider": "OpenAI",
         "effort": "medium"
-      }
+      },
+      "music": true
     },
     {
       "id": "beatreel",
@@ -1937,7 +1939,7 @@
           "accent2": "#ff5c39"
         },
         "audio": {
-          "enabled": true
+          "enabled": false
         }
       },
       "seoDescription": "A vertical sneaker or product drop reel with a masked headline, three stacked selling points, and a circular call-to-action reveal.",
@@ -1986,7 +1988,7 @@
           "accent2": "#16a34a"
         },
         "audio": {
-          "enabled": true
+          "enabled": false
         }
       },
       "hidden": true
@@ -2030,7 +2032,7 @@
           "accent2": "#facc15"
         },
         "audio": {
-          "enabled": true
+          "enabled": false
         }
       },
       "hidden": true
@@ -2073,7 +2075,7 @@
           "accent2": "#f2c14e"
         },
         "audio": {
-          "enabled": true
+          "enabled": false
         }
       },
       "hidden": true
@@ -2116,7 +2118,7 @@
           "accent2": "#ffd60a"
         },
         "audio": {
-          "enabled": true
+          "enabled": false
         }
       },
       "seoDescription": "A square flash sale video with scrolling marquee type and split-flap offers for Instagram feed and LinkedIn campaigns.",
@@ -2164,7 +2166,7 @@
           "accent2": "#3df5ff"
         },
         "audio": {
-          "enabled": true
+          "enabled": false
         }
       },
       "hidden": true
@@ -3757,7 +3759,7 @@
           "brand": "Fieldnote",
           "headline": "Revenue doubled",
           "subhead": "Quarterly recurring revenue, in thousands of dollars",
-          "chart": "Q1 120, Q2 168, Q3 205, Q4 251",
+          "list": "Q1 120\nQ2 168\nQ3 205\nQ4 251",
           "attribution": "Source: Fieldnote finance, 2026"
         },
         "theme": {
@@ -3766,6 +3768,9 @@
           "foreground": "#17201b",
           "accent": "#e4572e",
           "accent2": "#2f6f5e"
+        },
+        "audio": {
+          "enabled": false
         }
       },
       "seoDescription": "A free animated bar chart video template. Type labels and values, watch the bars grow with counting numbers, and edit the colors online.",
@@ -6866,6 +6871,9 @@
           "foreground": "#111111",
           "accent": "#ff3d2e",
           "accent2": "#ffe45c"
+        },
+        "audio": {
+          "enabled": false
         }
       },
       "seoDescription": "A free HyperFrames sale template with diagonal panels, a swinging price tag, and a shop button. Edit the price, offer, and colors online.",

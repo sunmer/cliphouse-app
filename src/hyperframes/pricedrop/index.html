@@ -7,45 +7,118 @@
   <style>
     __BASE_CSS__
     :root { --w: 1920px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
     .slab { position:absolute; left:-220px; top:120px; width:1250px; height:820px; background:var(--theme-accent); transform:skewX(-14deg); }
     .slab2 { position:absolute; right:-240px; top:0; width:760px; height:1080px; background:var(--theme-surface); transform:skewX(-14deg); }
-    .brand { position:absolute; left:120px; top:132px; font-size:34px; text-transform:uppercase; color:var(--theme-background); }
+    .brand { position:absolute; left:120px; top:170px; width:700px; font-size:36px; text-transform:uppercase; color:var(--theme-background); }
     .headline { position:absolute; left:120px; top:250px; width:760px; height:330px; font-size:112px; line-height:.92; color:var(--theme-background); }
-    .note { position:absolute; left:126px; top:720px; font-size:42px; color:var(--theme-background); }
-    .tag { position:absolute; right:190px; top:250px; width:620px; height:500px; background:var(--theme-foreground); color:var(--theme-background); display:grid; place-items:center; text-align:center; border-radius:8px; }
+    .note { position:absolute; left:120px; top:650px; width:700px; font-size:36px; color:var(--theme-background); }
+    .tag { position:absolute; right:190px; top:250px; width:620px; height:500px; background:var(--theme-foreground); color:var(--theme-background); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; border-radius:8px; }
     .tag:before { content:""; position:absolute; left:52px; top:52px; width:48px; height:48px; border-radius:50%; background:var(--theme-background); }
-    .tag > div:first-child { width:500px; height:220px; display:grid; place-items:center; }
+    .pricebox { width:500px; height:220px; display:grid; place-items:center; }
     .price { display:block; width:500px; height:200px; font-size:178px; line-height:1.05; text-align:center; color:var(--theme-accent2); }
-    .old { position:absolute; bottom:72px; font-size:36px; opacity:.72; }
-    .finale { display:flex; align-items:center; justify-content:space-between; padding:0 150px; background:var(--theme-foreground); color:var(--theme-background); }
-    .finale-copy { width:900px; height:220px; font-size:92px; line-height:.94; }
-    .button { padding:42px 58px; background:var(--theme-accent); color:var(--theme-background); font-size:62px; }
+    .bar { width:260px; height:14px; margin-top:20px; background:var(--theme-accent); transform-origin:0 50%; }
+    .s2 { background:var(--theme-foreground); color:var(--theme-background); }
+    .fin { position:absolute; inset:0; display:flex; align-items:center; justify-content:space-between; padding:0 150px; }
+    .finale-copy { width:760px; height:400px; font-size:124px; line-height:.92; color:var(--theme-background); display:flex; align-items:center; }
+    .button { position:relative; width:760px; padding:42px 58px; background:var(--theme-accent); color:var(--theme-background); border-radius:8px; }
+    .btext { display:block; width:644px; height:160px; font-size:76px; line-height:1; text-align:center; align-content:center; }
+    .punch { position:absolute; left:14px; top:calc(50% - 16px); width:32px; height:32px; border-radius:50%; background:var(--theme-background); }
+    .rule { position:absolute; left:150px; top:780px; width:300px; height:14px; background:var(--theme-accent2); transform-origin:0 50%; }
+    .base { position:absolute; left:150px; top:930px; width:1620px; height:28px; background:var(--theme-accent); transform-origin:0 50%; }
+    .slab3 { position:absolute; left:1240px; top:820px; width:900px; height:400px; background:var(--theme-surface); transform:skewX(-14deg); }
+    .wipe { position:absolute; inset:0; background:var(--theme-background); z-index:5; }
   </style>
 </head>
 <body>
-  <div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
-    <section id="pricedrop-offer" class="scene s1 clip" data-start="0" data-duration="5.6" data-track-index="0">
-      <div class="slab2" data-layout-allow-overflow></div><div class="slab" data-layout-allow-overflow></div><div class="brand display" data-text-role="brand" data-var-text="text_brand">Brand</div>
-      <h1 class="headline display fit" data-fit-max="112" data-fit-min="68" data-text-role="headline" data-var-text="text_headline">Headline</h1>
-      <p class="note display" data-text-role="priceNote" data-var-text="text_priceNote">Price note</p>
-      <div class="tag"><div><div class="price display fit" data-fit-max="178" data-fit-min="90" data-text-role="price" data-var-text="text_price">$29</div></div><div class="old mono">Limited release</div></div>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="7.467" data-width="1920" data-height="1080">
+    <section id="pricedrop-offer" class="scene s1 clip" data-start="0" data-duration="7.467" data-track-index="0">
+      <div class="slab2" data-layout-allow-overflow></div><div class="slab" data-layout-allow-overflow></div>
+      <div class="brand display" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <h1 class="headline display fit" data-fit-max="112" data-fit-min="64" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <p class="note display" data-text-role="priceNote" data-beat-text="priceNote">Price note</p>
+      <div class="tag">
+        <div class="pricebox"><div class="price display fit" data-fit-max="178" data-fit-min="64" data-text-role="price" data-beat-text="price">$29</div></div>
+        <div class="bar"></div>
+      </div>
     </section>
-    <section id="pricedrop-end" class="scene s2 finale clip" data-start="5.6" data-duration="2.4" data-track-index="0">
-      <h2 class="finale-copy display fit" data-fit-max="92" data-fit-min="58" data-text-role="headline" data-var-text="text_headline">Headline</h2><div class="button display" data-text-role="cta" data-var-text="text_cta">CTA</div>
+    <section id="pricedrop-end" class="scene s2 clip" data-start="0" data-duration="7.467" data-track-index="1">
+      <div class="slab3" data-layout-allow-overflow></div>
+      <div class="fin">
+        <h2 class="finale-copy display fit" data-fit-max="124" data-fit-min="60" data-text-role="headline" data-beat-text="headline">Headline</h2>
+        <div class="button display"><div class="punch"></div><div class="btext fit" data-fit-max="76" data-fit-min="40" data-text-role="cta" data-beat-text="cta">CTA</div></div>
+        <div class="rule"></div>
+        <div class="base"></div>
+      </div>
     </section>
+    <div class="wipe" data-layout-allow-overflow></div>
   </div>
   <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
   <script>
     const tl = gsap.timeline({paused: true});
-    tl.from('.s1 .slab', {xPercent: -110, duration: .82, ease: 'expo.out'}, 0)
-      .from('.s1 .slab2', {xPercent: 110, duration: .9, ease: 'expo.out'}, .08)
-      .from('.s1 .brand, .s1 .headline, .s1 .note', {x: -90, opacity: 0, duration: .55, stagger: .14, ease: 'power3.out'}, .45)
-      .from('.s1 .tag', {y: -700, rotate: 18, duration: 1, ease: 'bounce.out'}, .8)
-      .from('.s1 .price', {scale: .25, opacity: 0, duration: .7, ease: 'back.out(2.2)'}, 1.55)
-      .to('.s1 .tag', {y: 12, duration: .32, yoyo: true, repeat: 5, ease: 'sine.inOut'}, 2.35)
-      .from('.s2', {clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)', duration: .62, ease: 'power4.inOut'}, 5.6)
-      .from('.s2 .finale-copy', {x: -90, opacity: 0, duration: .45}, 5.95)
-      .from('.s2 .button', {scale: .6, opacity: 0, duration: .48, ease: 'back.out(2)'}, 6.12);
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      // Words rise through masks on eighth notes; later words share the last slot so long text settles early.
+      const words = (el, start, cap = 2) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, start + Math.min(i, cap) * B(0.5)));
+      const pop = (sel, at) => tl.fromTo(sel, {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.75), ease: 'expo.out'}, at);
+
+      // Beat 0: the panels slide in from both edges.
+      tl.fromTo('.slab', {xPercent: -110}, {xPercent: 0, duration: B(1.5), ease: 'expo.out'}, t('bands'))
+        .fromTo('.slab2', {xPercent: 110}, {xPercent: 0, duration: B(1.5), ease: 'expo.out'}, t('bands') + B(0.25));
+
+      // Beats 1-3: brand, headline, and price note rise through masks.
+      words(q('.s1 .brand'), t('brand'));
+      words(q('.s1 .headline'), t('headline'));
+      words(q('.s1 .note'), t('priceNote'));
+
+      // Beats 3-4: the tag falls from well above the frame and hits on beat 4.
+      tl.fromTo('.tag', {y: -1100, rotation: 14, transformOrigin: '50% 0%'},
+        {y: 0, rotation: 0, duration: B(1), ease: 'power2.in'}, t('tagLand') - B(1));
+
+      // Beats 4-6.5: damped swings that settle to rest.
+      let prev = 4;
+      [[4.5, -5], [5.25, 3], [6, -1.2], [6.5, 0]].forEach(([b, r]) => {
+        tl.to('.tag', {rotation: r, duration: B(b) - B(prev), ease: 'sine.inOut'}, B(prev));
+        prev = b;
+      });
+
+      // Beat 5: the price pops; beat 6: the bar draws.
+      words(q('.s1 .price'), t('price'));
+      tl.fromTo('.pricebox', {scale: 1.15}, {scale: 1, duration: B(1), ease: 'expo.out'}, t('price'));
+      tl.fromTo('.bar', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('priceBar'));
+
+      // Beat 7: the red slab steps toward the tag, exposing a visible strip of background on its edge.
+      tl.to('.slab', {xPercent: 8, duration: B(1), ease: 'expo.out'}, t('panelStep'));
+      tl.to('.slab2', {xPercent: -30, duration: B(1), ease: 'expo.out'}, t('panelStep'));
+      // Beat 8: the slab steps again while the price holds still.
+      tl.to('.slab', {xPercent: 12, duration: B(1), ease: 'expo.out'}, t('slabStep'));
+
+      // Beat 9: the tag center floods the screen into the finale.
+      tl.fromTo('.s2', {clipPath: 'circle(0px at 1420px 500px)'},
+        {clipPath: 'circle(1700px at 1420px 500px)', duration: B(0.75), ease: 'power3.out'}, t('flood'));
+      tl.set('.s1', {visibility: 'hidden'}, B(10));
+
+      // Beats 10-11: the headline rises, the CTA tag wipes open and stamps.
+      words(q('.s2 .finale-copy'), t('finaleHeadline'));
+      tl.fromTo('.button', {clipPath: 'inset(0 100% 0 0)'}, {clipPath: 'inset(0 0% 0 0)', duration: B(0.5), ease: 'expo.out'}, t('ctaStamp') - B(0.5));
+      tl.fromTo('.button', {scale: 1.14, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.75), ease: 'expo.out'}, t('ctaStamp'));
+      words(q('.s2 .btext'), t('ctaStamp'), 1);
+
+      // Beats 12-14: the rule draws, the hole punches with a base bar, the yellow panel returns.
+      tl.fromTo('.rule', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('rule'));
+      pop('.punch', t('punch'));
+      tl.fromTo('.base', {scaleX: 0}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('punch'));
+      tl.fromTo('.slab3', {xPercent: 110}, {xPercent: 0, duration: B(1), ease: 'expo.out'}, t('panelReturn'));
+
+      // Beat 15: the CTA tag hole floods cream to the empty first frame.
+      tl.fromTo('.wipe', {clipPath: 'circle(0px at 1040px 540px)'},
+        {clipPath: 'circle(1250px at 1040px 540px)', duration: B(0.75), ease: 'power3.out'}, t('loopFlood'));
+    });
     window.__timelines = window.__timelines || {};
     window.__timelines.main = tl;
   </script>

@@ -25,7 +25,8 @@ import {templateKind} from '../catalog/catalog';
 import {applyList} from '../poc/lists';
 import type {PocEntry} from '../poc/registry';
 import {scoreOf as beatScoreOf} from '../videos/beat/schema';
-import {applyList as applyBeatList, bpmOf, countOf, planKey, totalBars} from '../videos/beat/index';
+import {applyList as applyBeatList, bpmOf, countOf, totalBars} from '../videos/beat/index';
+import {musicOf, songKey} from '../videos/song/index';
 import type {ListGroup} from '../poc/lists';
 
 const storageKey = (id: string) => `voodoo:v2:${id}`;
@@ -97,17 +98,19 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
   // Music templates: sound starts muted in the editor and only plays after the user turns it on.
   // Beat templates: the score sets the music and the list. Their sound is on by default in the MP4.
   const beat = beatScoreOf(c);
-  const music = isMusicSchema(c.schema);
+  // A beat template has sound only when it has a song. Without one it is a silent template with a beat-timed picture.
+  const beatMusic = beat ? musicOf(c) : undefined;
+  const music = isMusicSchema(c.schema) && (!beat || !!beatMusic);
   const score = beat ? undefined : scoreOf(c);
   const optional = hideableRoles(c.schema);
   const hidden = (props as {hidden?: Role[]}).hidden ?? [];
   const exportSound = !!(props as {audio?: {enabled: boolean}}).audio?.enabled;
   const [listening, setListening] = useState(false);
   const count = beat ? countOf(beat, props) : poc?.lists[0] ? (poc.lists[0].storage.kind === 'roles' ? poc.lists[0].storage.roles.length - hidden.filter((r) => poc.lists[0].storage.kind === 'roles' && poc.lists[0].storage.roles.includes(r)).length : 0) : 0;
-  const custom = useMemo(() => beat ? {key: planKey(beat, count), message: {id: 1, beat, count},
-    worker: () => new Worker(new URL('./audioWorker.ts', import.meta.url), {type: 'module'})}
+  const custom = useMemo(() => beat ? beatMusic ? {key: songKey(beatMusic.score, beatMusic.song, count), message: {id: 1, beat, song: beatMusic.song, count},
+    worker: () => new Worker(new URL('./audioWorker.ts', import.meta.url), {type: 'module'})} : undefined
     : poc?.sound ? {key: `tickerbeat:${count}`, message: {id: 1, count},
-    worker: () => new Worker(new URL('../poc/tickerbeat/audioWorker.ts', import.meta.url), {type: 'module'})} : undefined, [beat, poc, count]);
+    worker: () => new Worker(new URL('../poc/tickerbeat/audioWorker.ts', import.meta.url), {type: 'module'})} : undefined, [beat, beatMusic, poc, count]);
   // The editor's list contract for a beat score: the packed `list` role, limits from the score.
   const lists = useMemo<ListGroup[] | undefined>(() => beat?.list
     ? [{id: 'list', label: beat.list.label, storage: {kind: 'packed', role: 'list'}, min: beat.list.min, max: beat.list.max, itemMax: beat.list.itemMax, format: beat.list.format}]
@@ -368,7 +371,7 @@ For text and color edits, return a link in the spec's handoff format. For code e
       {music && !poc && <section className="editor-theme editor-music" aria-labelledby="music-heading">
         <div className="theme-heading"><h2 id="music-heading">Text and sound</h2>
           {score && <span className="music-facts">{score.bpm} BPM · {score.scenes.reduce((n, s) => n + s.bars, 0)} bars</span>}
-          {beat && <span className="music-facts">{beat.sound.genre.replace('-', ' ')} · {Math.round(bpmOf(beat))} BPM · {totalBars(beat)} bars</span>}</div>
+          {beatMusic && <span className="music-facts">{beatMusic.song.genre} · {Math.round(bpmOf(beat!))} BPM · {totalBars(beat!)} bars</span>}</div>
         <div className="music-controls">
           <div className="role-toggles" role="group" aria-label="Optional text">
             {!beat && optional.map((role) => {

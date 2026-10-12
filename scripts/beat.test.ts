@@ -13,15 +13,16 @@ import {scoreOf} from '../src/videos/beat/schema.ts';
 import {applyList, listItems, listProblems, parseLines} from '../src/videos/beat/list.ts';
 import {beatPlan} from '../src/videos/beat/plan.ts';
 import {beatFrame, durationInFrames, sceneStartBeat, type BeatScore} from '../src/videos/beat/score.ts';
-import {encodeWav} from '../src/videos/beat/synth.ts';
 import {varietyErrors} from '../src/videos/beat/variety.ts';
+import {musicOf} from '../src/videos/song/index.ts';
 import {validateShare} from '../server/model.ts';
-import {beatAudioErrors, countErrors, renderCount} from './beat-gates.ts';
+import {countErrors} from './beat-gates.ts';
+import {songErrors} from './song-gates.ts';
 
 const beats = manifest.templates.map((t) => t.id).filter((id) => scoreOf(templateMeta[id]));
 const score = (id: string) => scoreOf(templateMeta[id])!;
 const preset = (id: string) => manifest.variants.find((v) => v.template === id && !(v as {hidden?: boolean}).hidden)!;
-const counts = (s: BeatScore) => s.list ? Array.from({length: s.list.max - s.list.min + 1}, (_, k) => s.list!.min + k) : [0];
+void ({} as BeatScore);
 
 test('beat scores are valid and drive the template timing', () => {
   assert.ok(beats.length >= 1);
@@ -70,16 +71,22 @@ test('the plan depends on the count only, never on wording', () => {
   }
 });
 
-test('mixes are deterministic, on the grid, under -1 dBTP, near -14 LUFS, for every count', () => {
+test('beat scores are timing only: the music lives in the template song', () => {
+  for (const id of beats) assert.equal(score(id).sound, undefined, `${id}: remove the "sound" block from score.json`);
+});
+
+test('songs land on the plan, deterministic, under -1 dBTP, near -14 LUFS, for every count', () => {
   for (const id of beats) {
-    const s = score(id);
-    for (const n of counts(s)) {
-      const a = renderCount(s, n);
-      const b = renderCount(s, n);
-      const h = (x: typeof a) => createHash('sha256').update(encodeWav(x)).digest('hex');
-      assert.equal(h(a), h(b), `${id} ${n}`);
-      assert.deepEqual(beatAudioErrors(s, a, n), [], `${id} ${n} items`);
-    }
+    const music = musicOf(templateMeta[id]);
+    if (!music) continue;
+    assert.deepEqual(songErrors(music.score, music.song), [], id);
+  }
+});
+
+test('templates without a song are silent: no audio on by default and no sound in exports', () => {
+  for (const id of beats) {
+    if (musicOf(templateMeta[id])) continue;
+    for (const v of manifest.variants.filter((x) => x.template === id)) assert.equal((v.props as {audio?: {enabled: boolean}}).audio?.enabled, false, v.id);
   }
 });
 
@@ -107,4 +114,4 @@ test('no two templates sound alike', () => {
   assert.deepEqual(varietyErrors(Object.fromEntries(beats.map((id) => [id, score(id)]))), []);
 });
 
-void fs; void path;
+void fs; void path; void createHash;

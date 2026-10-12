@@ -5,6 +5,7 @@ import {makeCancelSignal, openBrowser, renderMedia, renderStill, selectCompositi
 import {engineOf} from '../src/videos/engine.ts';
 import {scoreOf} from '../src/videos/music/schema.ts';
 import {scoreOf as beatScoreOf} from '../src/videos/beat/schema.ts';
+import {musicOf} from '../src/videos/song/index.ts';
 import {addScore} from './audio.ts';
 import {renderHyperframes, stillFromVideo, writeHyperframesProject} from './hyperframes.ts';
 import type {Snapshot} from './model.ts';
@@ -12,9 +13,17 @@ import type {Snapshot} from './model.ts';
 export const MAX_VIDEO_BYTES = 60_000_000;
 
 // Music templates render silent video in either engine, then mux the generated score when sound is on.
+// A beat template has sound only when it has a song; without one it always exports silent.
 async function withScore(value: Snapshot, video: string, signal?: AbortSignal) {
-  const score = beatScoreOf(value.meta) ?? scoreOf(value.meta);
-  if (score && (value.props as {audio?: {enabled: boolean}}).audio?.enabled) await addScore(video, score, value.props, signal);
+  if (!(value.props as {audio?: {enabled: boolean}}).audio?.enabled) return;
+  const beat = beatScoreOf(value.meta);
+  if (beat) {
+    const music = musicOf(value.meta);
+    if (music) await addScore(video, music.score, value.props, signal, music.song);
+    return;
+  }
+  const score = scoreOf(value.meta);
+  if (score) await addScore(video, score, value.props, signal);
 }
 
 async function renderHyperframesThumbnail(value: Snapshot) {

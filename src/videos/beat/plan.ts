@@ -35,6 +35,7 @@ export type BeatPlan = {
 };
 
 export function degreeNote(s: BeatScore, degree: number, octave = 0) {
+  if (!s.sound) return 60;
   const scale = SCALES[s.sound.scale];
   const d = ((degree % 7) + 7) % 7;
   return s.sound.root + scale[d] + 12 * (octave + Math.floor(degree / 7));
@@ -58,30 +59,32 @@ export const listCount = (s: BeatScore, count: number) => s.list ? Math.max(s.li
 const step = (beat: number) => beat / 4;
 
 function chordNotes(s: BeatScore, bar: number, sevenths: boolean) {
-  const p = s.sound.progression;
+  const p = s.sound!.progression;
   const d = p[bar % p.length];
   const tones = [d, d + 2, d + 4, ...(sevenths ? [d + 6] : [])].map((x) => degreeNote(s, x, 2));
   // Keep chords in one register (A3 to G#4), so the progression voice-leads instead of jumping.
   return tones.map((n) => { let m = n; while (m < 57) m += 12; while (m >= 69) m -= 12; return m; }).sort((a, b) => a - b);
 }
 
-const KICK: Record<BeatScore['sound']['kick']['pattern'], number[]> = {
+type Sound = NonNullable<BeatScore['sound']>;
+const KICK: Record<Sound['kick']['pattern'], number[]> = {
   four: [0, 4, 8, 12], broken: [0, 6, 10], garage: [0, 7, 10], breaks: [0, 7, 10],
 };
-const HATS: Record<BeatScore['sound']['hats']['pattern'], number[]> = {
+const HATS: Record<Sound['hats']['pattern'], number[]> = {
   offbeat: [2, 6, 10, 14], eighths: [0, 2, 4, 6, 8, 10, 12, 14], sixteenths: Array.from({length: 16}, (_, i) => i),
   shuffle: [2, 3, 6, 7, 10, 11, 14, 15], sparse: [2, 10],
 };
-const SNARE: Record<BeatScore['sound']['snare']['pattern'], number[]> = {backbeat: [4, 12], halftime: [8], garage: [4, 12, 15]};
-const CHORD: Record<BeatScore['sound']['chords']['rhythm'], [number, number][]> = {
+const SNARE: Record<Sound['snare']['pattern'], number[]> = {backbeat: [4, 12], halftime: [8], garage: [4, 12, 15]};
+const CHORD: Record<Sound['chords']['rhythm'], [number, number][]> = {
   offbeat: [[2, 1], [6, 1], [10, 1], [14, 1]], held: [[0, 16]], skank: [[4, 2], [12, 2]],
   syncopated: [[0, 2], [3, 2], [6, 2], [10, 3]], pulse: [[0, 1], [2, 1], [4, 1], [6, 1], [8, 1], [10, 1], [12, 1], [14, 1]],
 };
 
-/** The groove: drums, bass, chords, risers, and scene transitions. Fixed for a score. */
+/** The legacy groove: drums, bass, chords, risers, and scene transitions. Empty without a legacy sound design. */
 function groove(s: BeatScore): Note[] {
   const out: Note[] = [];
   const d = s.sound;
+  if (!d) return out;
   const swing = (st: number) => step(st + (st % 2 ? d.swing : 0));
   const sevenths = ['deep-house', 'house', 'garage', 'disco'].includes(d.genre);
   const add = (n: Omit<Note, 'kind'>) => out.push({...n, kind: 'groove'});
@@ -163,6 +166,7 @@ export function beatPlan(s: BeatScore, count = s.list?.max ?? 0): BeatPlan {
   const notes = groove(s);
   const cues: Record<string, number> = {};
   const pitch = (beat: number, note?: number) => {
+    if (!s.sound) return 60;
     const bar = Math.floor(beat / METER);
     const d = s.sound.progression[bar % s.sound.progression.length];
     return degreeNote(s, note ?? d + 4, 3);

@@ -45,6 +45,7 @@ var CliphouseBeat = (() => {
 
   // src/videos/beat/plan.ts
   function degreeNote(s, degree, octave = 0) {
+    if (!s.sound) return 60;
     const scale = SCALES[s.sound.scale];
     const d = (degree % 7 + 7) % 7;
     return s.sound.root + scale[d] + 12 * (octave + Math.floor(degree / 7));
@@ -97,6 +98,7 @@ var CliphouseBeat = (() => {
   function groove(s) {
     const out = [];
     const d = s.sound;
+    if (!d) return out;
     const swing = (st) => step(st + (st % 2 ? d.swing : 0));
     const sevenths = ["deep-house", "house", "garage", "disco"].includes(d.genre);
     const add = (n) => out.push({ ...n, kind: "groove" });
@@ -196,6 +198,7 @@ var CliphouseBeat = (() => {
     const notes = groove(s);
     const cues = {};
     const pitch = (beat, note) => {
+      if (!s.sound) return 60;
       const bar = Math.floor(beat / METER);
       const d = s.sound.progression[bar % s.sound.progression.length];
       return degreeNote(s, note ?? d + 4, 3);

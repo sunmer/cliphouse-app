@@ -5,7 +5,8 @@ import type {Role, TemplateMeta} from '../vocab.ts';
 import {durationInFrames, FPS, scoreRoles, scoreScenes, type BeatScore} from './score.ts';
 import {storedListErrors} from './list.ts';
 
-export type BeatMeta = TemplateMeta & {score: BeatScore};
+/** A template's song is opaque here (see src/videos/song). Approval is the presets' audio.enabled default. */
+export type BeatMeta = TemplateMeta & {score: BeatScore; song?: unknown};
 
 /** Texts, theme, and the sound switch, plus any extra fields such as media. List rules come from the score. */
 export function beatSchema<R extends Role>(score: BeatScore, roles: readonly R[], extra: z.ZodRawShape = {}) {
@@ -25,11 +26,14 @@ export function beatSchema<R extends Role>(score: BeatScore, roles: readonly R[]
 }
 
 /** Template metadata whose timing comes from the score. */
-export function beatMeta(meta: Omit<TemplateMeta, 'durationInFrames' | 'scenes' | 'fps'>, score: BeatScore): BeatMeta {
-  return {...meta, fps: FPS, durationInFrames: durationInFrames(score), scenes: scoreScenes(score), score};
+export function beatMeta(meta: Omit<TemplateMeta, 'durationInFrames' | 'scenes' | 'fps'>, score: BeatScore, song?: unknown): BeatMeta {
+  return {...meta, fps: FPS, durationInFrames: durationInFrames(score), scenes: scoreScenes(score), score,
+    ...(song ? {song} : {})};
 }
 /** The beat score of a template, or undefined for templates without one (including the older music scores). */
 export const scoreOf = (meta: TemplateMeta | undefined): BeatScore | undefined => {
   const score = (meta as Partial<BeatMeta> | undefined)?.score;
   return score && Object.hasOwn(score, 'beatFrames') ? score : undefined;
 };
+/** The template's song, or undefined for a silent template. */
+export const songDataOf = (meta: TemplateMeta | undefined): unknown => (meta as Partial<BeatMeta> | undefined)?.song;

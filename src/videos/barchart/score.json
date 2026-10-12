@@ -1,0 +1,53 @@
+{
+  "beatFrames": 14,
+  "scenes": [
+    {
+      "type": "title-reveal",
+      "bars": 2,
+      "focusBeat": 5,
+      "roles": ["headline", "subhead"],
+      "energy": 1
+    },
+    {
+      "type": "chart",
+      "bars": 2,
+      "focusBeat": 14,
+      "roles": ["list"],
+      "energy": 2
+    },
+    {
+      "type": "tagline",
+      "bars": 1,
+      "focusBeat": 18,
+      "roles": ["brand", "attribution"],
+      "energy": 3
+    }
+  ],
+  "cues": [
+    {"id": "headline", "beat": 0, "sound": "pluck", "role": "headline", "velocity": 0.7},
+    {"id": "subhead", "beat": 2, "sound": "pluck", "role": "subhead", "velocity": 0.55},
+    {"id": "baseline", "beat": 8.5, "sound": "snap", "velocity": 0.7},
+    {"id": "peak", "beat": 13.5, "sound": "stab", "velocity": 0.7},
+    {"id": "sourceBrand", "beat": 16, "sound": "stamp", "role": "brand", "velocity": 1},
+    {"id": "sourceNote", "beat": 16, "sound": "pluck", "role": "attribution", "velocity": 0.5}
+  ],
+  "list": {
+    "role": "list",
+    "label": "Chart bars",
+    "scene": 1,
+    "min": 2,
+    "max": 4,
+    "itemMax": 24,
+    "format": "chart",
+    "schedules": {
+      "2": [9.5, 11.5],
+      "3": [9, 10.5, 12],
+      "4": [9, 10, 11, 12]
+    },
+    "accentOffset": 1,
+    "voice": "marimba"
+  },
+  "risers": [
+    {"beat": 14, "beats": 2}
+  ]
+}

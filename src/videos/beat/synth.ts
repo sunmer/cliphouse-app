@@ -55,7 +55,7 @@ type Voice = {length: number; gain: number; pan: number; send: number; echo?: nu
 
 // One mono or stereo voice per note. Lengths are seconds; t is seconds since the note start.
 function voiceFor(s: BeatScore, n: Note, seed: number, prevBass: number | null): Voice {
-  const d = s.sound;
+  const d = s.sound!;
   const len = n.beats * beatSeconds(s);
   const f = n.notes.length ? mtof(n.notes[0]) : 0;
   const noise = rng(seed);
@@ -298,14 +298,14 @@ function renderBus(s: BeatScore, notes: Note[]): Bus {
   let prevBass: number | null = null;
   notes.forEach((note) => {
     const start = Math.round(note.beat * spb * SR);
-    const seed = (Math.round(note.beat * 960) * 2654435761 + note.instrument.length * 40503 + (note.notes[0] ?? 0) * 97 + s.sound.seed) >>> 0;
+    const seed = (Math.round(note.beat * 960) * 2654435761 + note.instrument.length * 40503 + (note.notes[0] ?? 0) * 97 + s.sound!.seed) >>> 0;
     const v = voiceFor(s, note, seed, prevBass);
     if (note.instrument === 'bass') prevBass = note.notes[0];
     const target = DUCKED.has(note.instrument) && note.kind === 'groove' ? bus.ducked : bus.dry;
     const gain = v.gain * note.velocity;
     const lg = gain * Math.min(1, 1 - v.pan);
     const rg = gain * Math.min(1, 1 + v.pan);
-    const send = v.send * (0.4 + s.sound.space);
+    const send = v.send * (0.4 + s.sound!.space);
     const echoAmount = v.echo ?? 0;
     const length = Math.min(n - start, Math.ceil(v.length * SR));
     const left = v.make(0);
@@ -326,7 +326,7 @@ function renderBus(s: BeatScore, notes: Note[]): Bus {
 
 function mixBus(s: BeatScore, bus: Bus, duck: Float32Array): Stereo {
   const n = bus.dry.left.length;
-  const room = reverb(bus.send, s.sound.space);
+  const room = reverb(bus.send, s.sound!.space);
   const delay = echo(bus.echo, s);
   const out = stereo(n);
   for (let i = 0; i < n; i++) {
@@ -343,7 +343,7 @@ export function renderBeat(s: BeatScore, plan: BeatPlan): Stereo {
   const events = renderBus(s, plan.notes.filter((x) => x.kind !== 'groove'));
   // Sidechain: bass and chords dip after every kick, the house pump.
   const duck = new Float32Array(n).fill(1);
-  const depth = 0.25 + s.sound.pump * 0.6;
+  const depth = 0.25 + s.sound!.pump * 0.6;
   for (const k of plan.notes) if (k.instrument === 'kick') {
     const start = Math.round(k.beat * beatSeconds(s) * SR);
     const length = Math.min(n - start, Math.round(beatSeconds(s) * SR));

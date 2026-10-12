@@ -6,13 +6,14 @@
 import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import {beatWav} from '../src/videos/beat/index.ts';
+import {songWav} from '../src/videos/song/index.ts';
 import {durationSeconds, bpmOf} from '../src/videos/beat/score.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 const score = JSON.parse(fs.readFileSync(path.join(root, 'music/score.json'), 'utf8'));
 const engine = pkg.cliphouse.engine;
+const song = (await import(`../src/videos/${pkg.cliphouse.composition}/song.ts`)).default;
 const out = path.join(root, 'out');
 fs.mkdirSync(out, {recursive: true});
 
@@ -25,7 +26,7 @@ function props() {
 }
 
 const wav = path.join(out, 'score.wav');
-fs.writeFileSync(wav, beatWav(score, props()));
+fs.writeFileSync(wav, songWav(score, song, props()));
 console.log('wrote', path.relative(root, wav));
 if (process.argv.includes('--wav-only')) process.exit(0);
 

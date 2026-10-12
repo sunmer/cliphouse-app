@@ -1,4 +1,4 @@
-// The beat contract: one score per template drives the picture and the sound.
+// The beat contract: one timing score per template drives the picture, and the music lands on the same plan.
 // Plain data and timing math with no runtime imports, so Remotion, HyperFrames, the editor,
 // the export server, and source packages all share it. Wording never changes any time here;
 // only the list item count chooses one of the authored list schedules.
@@ -102,7 +102,8 @@ export type BeatScore = {
   list?: ListScore;
   /** Noise risers in absolute beats. */
   risers: {beat: number; beats: number}[];
-  sound: SoundDesign;
+  /** Legacy synth design, used only by the reference synth in synth.ts. Music now comes from the template's song. */
+  sound?: SoundDesign;
 };
 
 export const bpmOf = (s: BeatScore) => (60 * FPS) / s.beatFrames;

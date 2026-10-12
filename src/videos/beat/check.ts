@@ -58,6 +58,7 @@ export function scoreErrors(s: BeatScore): string[] {
     for (const k of Object.keys(l.schedules)) if (Number(k) < l.min || Number(k) > l.max) e.push(`list.schedules has an extra count ${k}`);
   }
   const d = s.sound;
+  if (!d) return e;
   if (!(GENRES as readonly string[]).includes(d.genre)) e.push(`unknown genre ${d.genre}`);
   if (!Number.isInteger(d.seed) || d.seed < 0) e.push('sound.seed must be a positive whole number');
   if (!Number.isInteger(d.root) || d.root < 33 || d.root > 45) e.push('sound.root must be a MIDI note from 33 to 45');

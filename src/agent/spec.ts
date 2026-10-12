@@ -7,7 +7,7 @@ import {ROLES, SCENE_TYPES, THEME_ROLES, roleHint, type Role, type VideoProps} f
 import {mediaOf, mediaSlots, slotOptions} from '../videos/media/catalog.ts';
 import {hideableRoles, isMusicSchema, scoreOf} from '../videos/music/schema.ts';
 import {durationSeconds, scoreScenes} from '../videos/music/score.ts';
-import {scoreOf as beatScoreOf} from '../videos/beat/schema.ts';
+import {scoreOf as beatScoreOf, songDataOf} from '../videos/beat/schema.ts';
 import {bpmOf, durationSeconds as beatSeconds, totalBars} from '../videos/beat/score.ts';
 import {isBeatSchema} from './handoff.ts';
 import {MAX_HANDOFF_CHARS, REPOSITORY, TEMPLATE_LICENSE, handoffPath, sourcePath, templateVersion} from './versions.ts';
@@ -83,7 +83,8 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
     },
     ...(beat ? {
       music: {
-        genre: beat.sound.genre, bpm: Math.round(bpmOf(beat) * 10) / 10, meter: '4/4', bars: totalBars(beat), seconds: beatSeconds(beat),
+        hasMusic: !!songDataOf(meta), genre: (songDataOf(meta) as {genre?: string} | undefined)?.genre ?? null,
+        bpm: Math.round(bpmOf(beat) * 10) / 10, meter: '4/4', bars: totalBars(beat), seconds: beatSeconds(beat),
         ...(beat.list ? {list: {role: 'list', minItems: beat.list.min, maxItems: beat.list.max, maxItemLength: beat.list.itemMax,
           format: beat.list.format === 'chart' ? 'One "Label 42" item per line' : 'One item per line',
           note: 'Each item reveals on its own beat with its own note. Removing items reflows the list; the length never changes.'}} : {}),

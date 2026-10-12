@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>__TITLE__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #E7EBEF; --ink: #172033; --muted: #556074; --lane: #D8DEE5; --rule: #C2CAD4; --btn-fg: #E7EBEF;
+  --c-pickup: #8A95A8; --c-groove: #2E6CAE; --c-variation: #D4940E; --c-build: #138A79; --c-drop: #C92C5F; --c-ending: #6352A6;
+  --font: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151E; --ink: #E6EAF0; --muted: #9AA4B6; --lane: #1A2130; --rule: #2B3445; --btn-fg: #10151E;
+    --c-pickup: #7D889C; --c-groove: #4F8FD3; --c-variation: #E2A92F; --c-build: #2BAE9A; --c-drop: #E34F7F; --c-ending: #8A79CC;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151E; --ink: #E6EAF0; --muted: #9AA4B6; --lane: #1A2130; --rule: #2B3445; --btn-fg: #10151E;
+  --c-pickup: #7D889C; --c-groove: #4F8FD3; --c-variation: #E2A92F; --c-build: #2BAE9A; --c-drop: #E34F7F; --c-ending: #8A79CC;
+}
+*, *::before, *::after { box-sizing: inherit; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.5; font-variation-settings: "wdth" 100; -webkit-font-smoothing: antialiased; }
+main { max-width: 760px; margin: 0 auto; padding: 40px 20px 56px; }
+h1 { font-size: clamp(30px, 7.2vw, 50px); line-height: 1.02; font-weight: 820; font-stretch: 125%; font-variation-settings: "wdth" 125; letter-spacing: -0.015em; margin: 0 0 16px; max-width: 14ch; }
+.lede { margin: 0 0 28px; max-width: 54ch; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; list-style: none; margin: 0 0 8px; padding: 0; font-size: 14px; color: var(--muted); }
+.legend li { display: flex; align-items: center; gap: 7px; }
+.legend i { width: 18px; height: 8px; border-radius: 2px; display: inline-block; }
+.track { padding: 28px 0 26px; border-top: 1px solid var(--rule); }
+.track:last-child { border-bottom: 1px solid var(--rule); }
+.head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+h2 { margin: 0; font-size: clamp(26px, 5.6vw, 36px); line-height: 1.05; font-weight: 760; font-stretch: 118%; font-variation-settings: "wdth" 118; letter-spacing: -0.01em; }
+.meta { font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.row { display: grid; grid-template-columns: 56px 1fr; gap: 14px; align-items: start; }
+.play { width: 56px; height: 56px; border-radius: 50%; border: 0; background: var(--ink); color: var(--btn-fg); display: grid; place-items: center; cursor: pointer; margin-top: 14px; }
+.play:disabled { opacity: 0.35; cursor: progress; }
+.play svg { width: 22px; height: 22px; fill: currentColor; }
+.play:focus-visible, .save:focus-visible { outline: 3px solid var(--c-groove); outline-offset: 3px; }
+.lane-wrap { min-width: 0; }
+.lane { position: relative; height: 84px; background: var(--lane); border-radius: 6px; overflow: hidden; }
+.sec { position: absolute; top: 0; height: 9px; }
+.lane canvas { position: absolute; left: 0; right: 0; top: 13px; bottom: 4px; width: 100%; height: calc(100% - 17px); }
+.grid { position: absolute; top: 9px; bottom: 0; width: 1px; background: var(--rule); opacity: 0.8; }
+.playhead { position: absolute; top: 0; bottom: 0; left: 0; width: 2px; background: var(--ink); opacity: 0; pointer-events: none; }
+.playing .playhead { opacity: 1; }
+.bars { position: relative; height: 20px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bars span { position: absolute; top: 3px; transform: translateX(3px); }
+.foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-top: 6px; padding-left: 70px; }
+.status { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.save { font: inherit; font-size: 15px; font-weight: 600; color: var(--ink); background: none; border: 1px solid var(--ink); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.save:disabled { opacity: 0.35; cursor: progress; }
+.notes { margin-top: 30px; font-size: 14px; color: var(--muted); max-width: 62ch; }
+.notes p { margin: 0 0 8px; }
+@media (max-width: 520px) {
+  main { padding-top: 28px; }
+  .row { grid-template-columns: 48px 1fr; gap: 10px; }
+  .play { width: 48px; height: 48px; }
+  .foot { padding-left: 58px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>__TITLE__</h1>
+  <p class="lede">Every sound on this page is computed by code when you open it. No samples, no recordings, no audio files. Each track takes a few seconds to build.</p>
+  <ul class="legend" id="legend"></ul>
+  <div id="tracks"></div>
+  <div class="notes">
+    <p>__NOTE__</p>
+    <p>Save gives you the 16-bit, 44.1 kHz WAV inside a .zip, because the viewer only accepts certain file types.</p>
+  </div>
+</main>
+<script id="engine">
+var ENGINE = (function () {
+/*__ENGINE__*/
+return { renderSong: renderSong, SONGS: SONGS, SONG_ORDER: SONG_ORDER, LOFI_ORDER: LOFI_ORDER, encodeWav: encodeWav, SR: SR, stepDur: stepDur };
+})();
+</script>
+<script>
+(function () {
+  'use strict';
+  var E = ENGINE, ORDER = __ORDER__;
+  var FILE = __FILES__;
+  var SEC_COLOR = { Pickup: 'pickup', Groove: 'groove', Variation: 'variation', Build: 'build', Drop: 'drop', Ending: 'ending' };
+  var PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>';
+  var STOP = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>';
+  var T = {};
+
+  // legend
+  var legend = document.getElementById('legend');
+  var used = {}; ORDER.forEach(function (id) { E.SONGS[id].sections.forEach(function (x) { used[x[0]] = 1; }); });
+  ['Pickup', 'Groove', 'Build', 'Drop', 'Variation', 'Ending'].filter(function (n) { return used[n]; }).forEach(function (n) {
+    var li = document.createElement('li');
+    li.innerHTML = '<i style="background:var(--c-' + SEC_COLOR[n] + ')"></i>' + n;
+    legend.appendChild(li);
+  });
+
+  // track rows
+  var host = document.getElementById('tracks');
+  ORDER.forEach(function (id) {
+    var s = E.SONGS[id], sd = E.stepDur(s), barDur = sd * 16, len = s.length;
+    var el = document.createElement('section');
+    el.className = 'track'; el.setAttribute('aria-label', s.title);
+    var bpm = Math.abs(s.bpm - Math.round(s.bpm)) < 1e-6 ? String(s.bpm) : s.bpm.toFixed(3);
+    var secs = s.sections.map(function (x) {
+      var a = x[1] * barDur / len * 100, b = Math.min(100, x[2] * barDur / len * 100);
+      return '<div class="sec" title="' + x[0] + '" style="left:' + a + '%;width:' + (b - a) + '%;background:var(--c-' + SEC_COLOR[x[0]] + ')"></div>';
+    }).join('');
+    var grid = '', bars = '';
+    for (var b = 0; b < 8; b++) {
+      var x = b * barDur / len * 100;
+      if (b > 0) grid += '<div class="grid" style="left:' + x + '%"></div>';
+      bars += '<span style="left:' + x + '%">' + (b + 1) + '</span>';
+    }
+    el.innerHTML =
+      '<div class="head"><h2>' + s.title + '</h2><div class="meta">' + bpm + ' BPM, ' + s.key + ', final hit at ' + (s.finalStep * sd).toFixed(2) + ' s</div></div>' +
+      '<div class="row"><button class="play" disabled aria-label="Play ' + s.title + '">' + PLAY + '</button>' +
+      '<div class="lane-wrap"><div class="lane">' + secs + grid + '<canvas></canvas><div class="playhead"></div></div><div class="bars">' + bars + '</div></div></div>' +
+      '<div class="foot"><span class="status" aria-live="polite">Waiting to synthesize</span><button class="save" disabled>Save WAV</button></div>';
+    host.appendChild(el);
+    T[id] = { el: el, song: s, play: el.querySelector('.play'), save: el.querySelector('.save'), status: el.querySelector('.status'),
+      canvas: el.querySelector('canvas'), head: el.querySelector('.playhead'), lane: el.querySelector('.lane') };
+    T[id].play.addEventListener('click', function () { toggle(id); });
+    T[id].save.addEventListener('click', function () { save(id); });
+  });
+
+  // ---- synthesis: workers when allowed, otherwise the main thread ----
+  var queue = ORDER.slice(), running = 0, useWorker = typeof Worker !== 'undefined';
+  var MAXC = Math.max(1, Math.min(2, (navigator.hardwareConcurrency || 2) - 1));
+  var workerURL = null;
+  function getWorkerURL() {
+    if (workerURL) return workerURL;
+    var src = document.getElementById('engine').textContent +
+      '\nself.onmessage=function(e){var id=e.data;var r=ENGINE.renderSong(ENGINE.SONGS[id]);var w=ENGINE.encodeWav(r.L,r.R,7);' +
+      'self.postMessage({id:id,L:r.L,R:r.R,wav:w,lufs:r.lufs,tp:r.tp},[r.L.buffer,r.R.buffer,w]);};';
+    workerURL = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+    return workerURL;
+  }
+  function pump() {
+    while (running < (useWorker ? MAXC : 1) && queue.length) { var id = queue.shift(); running++; build(id); }
+  }
+  function finish(id) { running--; pump(); }
+  function build(id) {
+    var t = T[id], t0 = performance.now();
+    t.status.textContent = 'Synthesizing';
+    if (useWorker) {
+      var w;
+      try { w = new Worker(getWorkerURL()); } catch (e) { w = null; }
+      if (w) {
+        w.onmessage = function (e) { w.terminate(); ready(id, e.data, performance.now() - t0); finish(id); };
+        w.onerror = function (ev) { if (ev && ev.preventDefault) ev.preventDefault(); w.terminate(); fallback(id); };
+        w.postMessage(id);
+        return;
+      }
+      fallback(id); return;
+    }
+    setTimeout(function () {
+      var r = E.renderSong(t.song), wav = E.encodeWav(r.L, r.R, 7);
+      ready(id, { L: r.L, R: r.R, wav: wav, lufs: r.lufs, tp: r.tp }, performance.now() - t0);
+      finish(id);
+    }, 40);
+  }
+  function fallback(id) {   // workers blocked here: build one track at a time on the page itself
+    useWorker = false; queue.unshift(id); running--;
+    T[id].status.textContent = 'Waiting to synthesize';
+    pump();
+  }
+  function ready(id, d, ms) {
+    var t = T[id];
+    t.L = d.L; t.R = d.R; t.wav = d.wav;
+    t.play.disabled = false; t.save.disabled = false;
+    t.status.textContent = (t.L.length / E.SR).toFixed(2) + ' s, ' + d.lufs.toFixed(1) + ' LUFS, true peak ' + d.tp.toFixed(1) + ' dBTP';
+    draw(id);
+  }
+
+  // ---- waveform ----
+  function draw(id) {
+    var t = T[id]; if (!t.L) return;
+    var c = t.canvas, dpr = window.devicePixelRatio || 1, w = Math.max(1, Math.round(c.clientWidth * dpr)), h = Math.max(1, Math.round(c.clientHeight * dpr));
+    c.width = w; c.height = h;
+    var g = c.getContext('2d'), L = t.L, R = t.R, n = L.length, per = n / w, mid = h / 2;
+    g.clearRect(0, 0, w, h);
+    g.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+    g.globalAlpha = 0.78;
+    for (var x = 0; x < w; x++) {
+      var a = Math.floor(x * per), b = Math.min(n, Math.floor((x + 1) * per)), lo = 0, hi = 0;
+      for (var i = a; i < b; i += 2) { var v = (L[i] + R[i]) * 0.5; if (v < lo) lo = v; if (v > hi) hi = v; }
+      var y0 = mid - hi * mid * 1.05, y1 = mid - lo * mid * 1.05;
+      g.fillRect(x, y0, 1, Math.max(1, y1 - y0));
+    }
+  }
+  var rz; window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(function () { ORDER.forEach(draw); }, 120); });
+  if (window.matchMedia) { var mq = window.matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', function () { ORDER.forEach(draw); }); }
+
+  // ---- playback ----
+  var ctx = null, cur = null;
+  function toggle(id) {
+    if (cur && cur.id === id) { stop(); return; }
+    stop();
+    var t = T[id]; if (!t.L) return;
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    if (!t.buf) {
+      t.buf = ctx.createBuffer(2, t.L.length, E.SR);
+      t.buf.getChannelData(0).set(t.L); t.buf.getChannelData(1).set(t.R);
+    }
+    var src = ctx.createBufferSource(); src.buffer = t.buf; src.connect(ctx.destination);
+    var start = ctx.currentTime + 0.03; src.start(start);
+    cur = { id: id, src: src, start: start, dur: t.buf.duration };
+    src.onended = function () { if (cur && cur.src === src) stop(); };
+    t.el.classList.add('playing'); t.play.innerHTML = STOP; t.play.setAttribute('aria-label', 'Stop ' + t.song.title);
+    tick();
+  }
+  function stop() {
+    if (!cur) return;
+    var t = T[cur.id], s = cur.src; cur = null;
+    try { s.onended = null; s.stop(); } catch (e) {}
+    t.el.classList.remove('playing'); t.play.innerHTML = PLAY; t.play.setAttribute('aria-label', 'Play ' + t.song.title);
+    t.head.style.transform = 'translateX(0)';
+  }
+  function tick() {
+    if (!cur) return;
+    var t = T[cur.id], p = Math.min(1, Math.max(0, (ctx.currentTime - cur.start) / cur.dur));
+    t.head.style.transform = 'translateX(' + (p * t.lane.clientWidth) + 'px)';
+    requestAnimationFrame(tick);
+  }
+
+  // ---- saving: a .zip holding the WAV (the viewer's allowed types do not include .wav) ----
+  var dlP = (window.claude && typeof window.claude.use === 'function') ? window.claude.use('downloads').catch(function () { return null; }) : Promise.resolve(null);
+  var CRC = (function () { var t = new Uint32Array(256); for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(u) { var c = 0xFFFFFFFF; for (var i = 0; i < u.length; i++) c = CRC[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+  function zip(name, data) {
+    var nb = new TextEncoder().encode(name), crc = crc32(data), sz = data.length;
+    var lh = new DataView(new ArrayBuffer(30)), cd = new DataView(new ArrayBuffer(46)), end = new DataView(new ArrayBuffer(22));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(12, 0x21, true); lh.setUint32(14, crc, true); lh.setUint32(18, sz, true); lh.setUint32(22, sz, true); lh.setUint16(26, nb.length, true);
+    cd.setUint32(0, 0x02014b50, true); cd.setUint16(4, 20, true); cd.setUint16(6, 20, true); cd.setUint16(14, 0x21, true); cd.setUint32(16, crc, true); cd.setUint32(20, sz, true); cd.setUint32(24, sz, true); cd.setUint16(28, nb.length, true);
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, 1, true); end.setUint16(10, 1, true); end.setUint32(12, 46 + nb.length, true); end.setUint32(16, 30 + nb.length + sz, true);
+    return new Blob([lh.buffer, nb, data, cd.buffer, nb, end.buffer], { type: 'application/zip' });
+  }
+  function save(id) {
+    var t = T[id]; if (!t.wav) return;
+    var name = FILE[id];
+    dlP.then(function (dl) {
+      if (dl) {
+        t.save.disabled = true;
+        return dl.save({ filename: name + '.zip', data: zip(name + '.wav', new Uint8Array(t.wav)) })
+          .then(function () { t.save.textContent = 'Saved'; })
+          .catch(function (e) { if (e && e.code !== 'declined' && e.code !== 'rate_limited') t.save.textContent = 'Saving is not available here'; })
+          .then(function () { t.save.disabled = false; });
+      }
+      // opened outside the viewer: a plain download of the WAV works
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([t.wav], { type: 'audio/wav' })); a.download = name + '.wav';
+      document.body.appendChild(a); a.click(); a.remove();
+    });
+  }
+
+  pump();
+})();
+</script>
+</body>
+</html>

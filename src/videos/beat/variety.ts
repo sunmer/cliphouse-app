@@ -4,7 +4,7 @@ import {bpmOf, type BeatScore} from './score.ts';
 
 /** A short fingerprint of what a listener hears first: tempo, genre, key, groove, and lead timbre. */
 export const soundPrint = (s: BeatScore) => {
-  const d = s.sound;
+  const d = s.sound!;
   return {
     bpm: Math.round(bpmOf(s)), genre: d.genre, key: `${d.root % 12}:${d.scale}`, progression: d.progression.join(''),
     groove: `${d.kick.pattern}/${d.hats.pattern}/${d.snare.kind}-${d.snare.pattern}/${d.bass.pattern}`,
@@ -19,9 +19,9 @@ export function likeness(a: BeatScore, b: BeatScore) {
   return Object.keys(x).filter((k) => x[k] === y[k]).length;
 }
 
-/** Pairs of templates that sound too much alike. */
+/** Pairs of templates that sound too much alike. Timing-only scores carry no sound design and are skipped. */
 export function varietyErrors(scores: Record<string, BeatScore>, limit = 5): string[] {
-  const ids = Object.keys(scores);
+  const ids = Object.keys(scores).filter((id) => scores[id].sound);
   const out: string[] = [];
   for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
     const n = likeness(scores[ids[i]], scores[ids[j]]);

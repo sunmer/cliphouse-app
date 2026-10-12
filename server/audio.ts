@@ -4,7 +4,8 @@ import path from 'node:path';
 import {promisify} from 'node:util';
 import {musicWav} from '../src/videos/music/index.ts';
 import {durationSeconds, type Score} from '../src/videos/music/score.ts';
-import {beatWav, durationSeconds as beatDuration, type BeatScore} from '../src/videos/beat/index.ts';
+import {durationSeconds as beatDuration, type BeatScore} from '../src/videos/beat/score.ts';
+import {songWav, type TemplateSong} from '../src/videos/song/index.ts';
 import type {VideoProps} from '../src/videos/vocab.ts';
 
 type AnyScore = Score | BeatScore;
@@ -43,12 +44,14 @@ export function syncErrors(info: Awaited<ReturnType<typeof probe>>, score: AnySc
   return errors;
 }
 
-/** Write the props' WAV next to a silent video and replace the video with the muxed MP4. */
-export async function addScore(video: string, score: AnyScore, props: VideoProps, signal?: AbortSignal) {
+/** Write the props' WAV next to a silent video and replace the video with the muxed MP4.
+ * Beat templates need their song: a beat score alone is timing only and has no sound. */
+export async function addScore(video: string, score: AnyScore, props: VideoProps, signal?: AbortSignal, song?: TemplateSong) {
   const dir = path.dirname(video);
   const wav = path.join(dir, 'score.wav');
   const out = path.join(dir, 'with-audio.mp4');
-  await writeFile(wav, isBeat(score) ? beatWav(score, props) : musicWav(score, props));
+  if (isBeat(score) && !song) throw new Error('This template has no music yet.');
+  await writeFile(wav, isBeat(score) ? songWav(score, song!, props) : musicWav(score, props));
   // Copy the video stream as is and encode only the audio. -t pins both streams to the score length.
   await run('ffmpeg', ['-v', 'error', '-y', '-i', video, '-i', wav, '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy',
     '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-ac', '2', '-t', seconds(score).toFixed(6), '-movflags', '+faststart', out], {signal});
