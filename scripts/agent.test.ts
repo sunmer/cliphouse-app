@@ -47,7 +47,7 @@ test('generation metadata names a real model and effort', () => {
 });
 
 test('valid handoffs open; invalid and oversized handoffs are rejected', () => {
-  const v = visible[0];
+  const v = visible.find((x) => x.template === 'showreel')!;
   const schema = schemas[v.template];
   const edited = structuredClone(v.props);
   edited.texts.headline = 'Agent edit';

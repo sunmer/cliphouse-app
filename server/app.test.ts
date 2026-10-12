@@ -7,7 +7,8 @@ import {createHandler} from './app.ts';
 import {HttpError, byteRange, exportFilename, fingerprint, shareHtml, validateShare, type Exported, type Published} from './model.ts';
 import type {createStore} from './store.ts';
 
-const variant = manifest.variants[0];
+// A silent showreel preset: these tests use the plain texts + theme contract.
+const variant = manifest.variants.find((v) => v.id === 'showreel-nocturne')!;
 const props = structuredClone(variant.props);
 props.texts.headline = 'MY SHARED EDIT';
 const payload = {variantId: variant.id, props};
