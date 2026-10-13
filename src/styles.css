@@ -376,6 +376,7 @@ h1, h2, h3 { margin: 0; }
 @media (max-width: 560px) {
   .benchmark-banner { justify-content: flex-start; padding: 0 52px 0 12px; font-size: 13px; text-align: left; }
   .benchmark-banner-link { justify-content: flex-start; padding: 10px 0; gap: 8px; }
+  .benchmark-banner-detail { display: none; }
   .benchmark-banner-close { right: 6px; }
   .topbar { gap: 12px; padding: 0 12px; }
   .filters { grid-template-columns: 1fr; }
