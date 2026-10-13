@@ -7,6 +7,7 @@ import {durationSeconds, type Score} from '../src/videos/music/score.ts';
 import {durationSeconds as beatDuration, type BeatScore} from '../src/videos/beat/score.ts';
 import {songWav, type TemplateSong} from '../src/videos/song/index.ts';
 import type {VideoProps} from '../src/videos/vocab.ts';
+import {fadeFilter, trackById, trackPath} from '../src/music/library.ts';
 
 type AnyScore = Score | BeatScore;
 const isBeat = (s: AnyScore): s is BeatScore => Object.hasOwn(s, 'beatFrames');
@@ -59,4 +60,30 @@ export async function addScore(video: string, score: AnyScore, props: VideoProps
   if (errors.length) throw new Error(`Audio export failed its sync check: ${errors.join('; ')}.`);
   await rename(out, video);
   return wav;
+}
+
+/** Problems with a muxed library-track MP4: AAC 48 kHz stereo, starting and ending with the video. */
+export function trackSyncErrors(info: Awaited<ReturnType<typeof probe>>, seconds: number) {
+  const errors: string[] = [];
+  const {video, audio} = info;
+  if (!video) errors.push('missing video stream');
+  if (!audio) return [...errors, 'missing audio stream'];
+  if (audio.codec_name !== 'aac') errors.push(`audio codec is ${audio.codec_name}, not AAC`);
+  if (audio.sample_rate !== '48000') errors.push(`audio sample rate is ${audio.sample_rate}, not 48000`);
+  if (audio.channels !== 2) errors.push(`audio has ${audio.channels} channels, not 2`);
+  if (Math.abs(Number(audio.start_time ?? 0) - Number(video?.start_time ?? 0)) > SYNC_TOLERANCE) errors.push('audio does not start with the video');
+  if (Math.abs(Number(audio.duration ?? 0) - seconds) > SYNC_TOLERANCE) errors.push(`audio lasts ${Number(audio.duration).toFixed(3)} s, video lasts ${seconds.toFixed(3)} s`);
+  return errors;
+}
+
+/** Mux a music-library track under a silent video: from the track start, cut to the video length, faded in and out. */
+export async function addTrack(video: string, trackId: string, seconds: number, signal?: AbortSignal) {
+  if (!trackById(trackId)) throw new Error('Unknown music track.');
+  const file = path.join(process.cwd(), 'public', trackPath(trackId));
+  const out = path.join(path.dirname(video), 'with-track.mp4');
+  await run('ffmpeg', ['-v', 'error', '-y', '-i', video, '-i', file, '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy',
+    '-af', fadeFilter(seconds), '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-ac', '2', '-t', seconds.toFixed(6), '-movflags', '+faststart', out], {signal});
+  const errors = trackSyncErrors(await probe(out, signal), seconds);
+  if (errors.length) throw new Error(`Music export failed its sync check: ${errors.join('; ')}.`);
+  await rename(out, video);
 }

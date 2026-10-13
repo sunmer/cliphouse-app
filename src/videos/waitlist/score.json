@@ -1,0 +1,51 @@
+{
+  "beatFrames": 15,
+  "scenes": [
+    {
+      "type": "date-card",
+      "bars": 1,
+      "focusBeat": 3,
+      "roles": ["brand", "date"],
+      "energy": 1
+    },
+    {
+      "type": "announcement",
+      "bars": 2,
+      "focusBeat": 9,
+      "roles": ["brand", "date", "headline", "subhead"],
+      "energy": 2
+    },
+    {
+      "type": "end-screen",
+      "bars": 1,
+      "focusBeat": 13,
+      "roles": ["brand", "date", "cta"],
+      "energy": 3
+    }
+  ],
+  "cues": [
+    {"id": "page", "beat": 0, "sound": "impact", "velocity": 0.6},
+    {"id": "date", "beat": 0.5, "sound": "blip", "role": "date", "velocity": 0.6},
+    {"id": "brand", "beat": 1, "sound": "blip", "role": "brand", "velocity": 0.6},
+    {"id": "cells", "beat": 2, "sound": "pluck", "velocity": 0.5},
+    {"id": "dayMark", "beat": 2.5, "sound": "snap", "velocity": 0.8},
+    {"id": "dayFocus", "beat": 3, "sound": "tom", "velocity": 0.6},
+    {"id": "feed", "beat": 4, "sound": "impact", "velocity": 0.8},
+    {"id": "dateLabel", "beat": 4, "sound": "blip", "role": "date", "velocity": 0.5},
+    {"id": "headline", "beat": 4.5, "sound": "pluck", "role": "headline", "velocity": 0.7},
+    {"id": "step1", "beat": 6, "sound": "tom", "velocity": 0.6},
+    {"id": "subhead", "beat": 7, "sound": "keys", "role": "subhead", "velocity": 0.6},
+    {"id": "step2", "beat": 8, "sound": "tom", "velocity": 0.6},
+    {"id": "step3", "beat": 9, "sound": "tom", "velocity": 0.7},
+    {"id": "step4", "beat": 10, "sound": "tom", "velocity": 0.8},
+    {"id": "step5", "beat": 10.5, "sound": "tom", "velocity": 0.9},
+    {"id": "flood", "beat": 11, "sound": "crash", "velocity": 0.9},
+    {"id": "ctaStamp", "beat": 12, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "arrow", "beat": 13, "sound": "snap", "velocity": 0.6},
+    {"id": "track", "beat": 14, "sound": "clap", "velocity": 0.6},
+    {"id": "loopWipe", "beat": 15, "sound": "zap", "velocity": 0.7}
+  ],
+  "risers": [
+    {"beat": 8, "beats": 3}
+  ]
+}

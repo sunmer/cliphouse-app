@@ -57,7 +57,8 @@ export function validateShare(body: unknown) {
     ...(slots.length ? {media: Object.fromEntries(slots.map((s) => [s, (media as Record<string, unknown>)[s]]))} : {}),
     // Hidden roles keep the score's role order, so equal sets give the same fingerprint.
     ...(music && !isBeatSchema(schema) ? {hidden: roles.filter((r) => (hidden as string[]).includes(r))} : {}),
-    ...(music ? {audio: {enabled: (audio as {enabled: boolean}).enabled}} : {}),
+    ...(music ? {audio: {enabled: (audio as {enabled: boolean}).enabled,
+      ...(Object.hasOwn(audio as object, 'track') ? {track: (audio as {track: string}).track} : {})}} : {}),
   } as VideoProps;
   return {variantId: variant.id, template: variant.template, templateVersion: version, props,
     composition: version === currentVersion(variant.template) ? variant.template : `${variant.template}-v${version}`,

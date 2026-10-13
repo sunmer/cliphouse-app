@@ -9,6 +9,7 @@ import featuredrop from '../hyperframes/featuredrop/index.html?raw';
 import eventcountdown from '../hyperframes/eventcountdown/index.html?raw';
 import musicJs from '../hyperframes/shared/music.js?raw';
 import beatJs from '../hyperframes/shared/beat.js?raw';
+import {launchSources} from './launch/sources';
 
 const withShared = (html: string) => html.replace('__BASE_CSS__', baseCss).replace('__BASE_JS__', baseJs).replace('__MUSIC_JS__', () => musicJs).replace('__BEAT_JS__', () => beatJs);
 
@@ -20,4 +21,5 @@ export const hyperframesSources: Record<string, string> = {
   pricedrop: withShared(pricedrop),
   featuredrop: withShared(featuredrop),
   eventcountdown: withShared(eventcountdown),
+  ...Object.fromEntries(Object.entries(launchSources).map(([id, html]) => [id, withShared(html)])),
 };

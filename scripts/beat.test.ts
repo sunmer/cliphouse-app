@@ -18,15 +18,18 @@ import {musicOf} from '../src/videos/song/index.ts';
 import {validateShare} from '../server/model.ts';
 import {countErrors} from './beat-gates.ts';
 import {songErrors} from './song-gates.ts';
+import {usesLibrary} from '../src/music/schema.ts';
 
-const beats = manifest.templates.map((t) => t.id).filter((id) => scoreOf(templateMeta[id]));
+const all = manifest.templates.map((t) => t.id).filter((id) => scoreOf(templateMeta[id]));
+// Library templates (the launch set) share the timing contract but take music from the library; scripts/launch.test.ts covers their audio.
+const beats = all.filter((id) => !usesLibrary(schemas[id]));
 const score = (id: string) => scoreOf(templateMeta[id])!;
 const preset = (id: string) => manifest.variants.find((v) => v.template === id && !(v as {hidden?: boolean}).hidden)!;
 void ({} as BeatScore);
 
 test('beat scores are valid and drive the template timing', () => {
   assert.ok(beats.length >= 1);
-  for (const id of beats) {
+  for (const id of all) {
     const s = score(id);
     assert.deepEqual(scoreErrors(s), [], id);
     const meta = templateMeta[id];
@@ -36,7 +39,7 @@ test('beat scores are valid and drive the template timing', () => {
 });
 
 test('presets fill the list to capacity and pass the schema', () => {
-  for (const id of beats) {
+  for (const id of all) {
     const s = score(id);
     for (const v of manifest.variants.filter((x) => x.template === id)) {
       if (s.list) assert.equal(listItems(v.props as never).length, s.list.max, `${v.id}: preset list sets the capacity`);

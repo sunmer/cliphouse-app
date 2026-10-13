@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1350" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1350px; }
+    body { font-family: "Archivo HF", "Arial Black", Arial, sans-serif; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:.06em .04em .14em; margin:-.06em 0 -.14em; }
+    .w { display:inline-block; }
+
+    /* The blank release log: the first and last frame. */
+    .card { position:absolute; left:48px; top:48px; width:984px; height:1254px; background:var(--theme-surface); }
+    .track { position:absolute; left:126px; top:172px; width:4px; height:978px; background:var(--theme-background); }
+    .hair { position:absolute; left:190px; width:770px; height:2px; background:var(--theme-background); }
+    .hair-top { top:244px; }
+    .hair-foot { top:1160px; }
+    .head { position:absolute; left:106px; top:150px; width:44px; height:44px; border-radius:50%; background:var(--theme-accent); }
+    .head::after { content:""; position:absolute; left:15px; top:15px; width:14px; height:14px; border-radius:50%; background:var(--theme-foreground); }
+    .ghost { position:absolute; left:190px; height:36px; background:var(--theme-background); transform-origin:0 50%; }
+    .gdot { position:absolute; left:118px; width:20px; height:20px; border-radius:50%; background:var(--theme-background); }
+    .g1 { top:334px; width:620px; } .g2 { top:509px; width:470px; } .g3 { top:684px; width:560px; } .g4 { top:860px; width:400px; } .g5 { top:1035px; width:520px; }
+    .d1 { top:342px; } .d2 { top:517px; } .d3 { top:692px; } .d4 { top:868px; } .d5 { top:1043px; }
+
+    .prog { position:absolute; left:126px; top:172px; width:4px; height:978px; background:var(--theme-accent); transform-origin:50% 0; transform:scaleY(0); }
+    .conn { position:absolute; left:150px; top:170px; width:40px; height:4px; background:var(--theme-accent2); transform-origin:0 50%; transform:scaleX(0); }
+    .chip { position:absolute; left:190px; top:128px; height:88px; width:max-content; max-width:770px; padding:0 30px; background:var(--theme-accent2); color:var(--theme-background); font-size:52px; line-height:88px; font-weight:700; white-space:nowrap; clip-path:inset(0% 100% 0% 0%); z-index:7; }
+
+    .headline { position:absolute; left:190px; top:264px; width:770px; height:876px; font-size:180px; line-height:.96; font-weight:850; color:var(--theme-foreground); align-content:center; text-wrap:balance; }
+    .hrule { position:absolute; left:190px; top:900px; width:200px; height:14px; background:var(--theme-accent2); transform-origin:0 50%; transform:scaleX(0); }
+
+    .list { position:absolute; left:0; top:264px; width:1080px; height:876px; display:grid; grid-template-rows:repeat(var(--count, 5), minmax(0, 1fr)); visibility:hidden; }
+    .row { position:relative; }
+    .ph { position:absolute; left:190px; top:calc(50% - 18px); height:36px; width:500px; background:var(--theme-background); transform-origin:0 50%; }
+    .node { position:absolute; left:110px; top:calc(50% - 18px); width:36px; height:36px; border-radius:50%; background:var(--theme-accent); }
+    .row.t-new .node { background:var(--theme-accent2); }
+    .row.t-fix .node { background:var(--theme-foreground); }
+    .check { position:absolute; inset:0; }
+    .tick { position:absolute; left:13px; top:7px; width:10px; height:18px; border-right:5px solid var(--theme-background); border-bottom:5px solid var(--theme-background); transform:rotate(45deg); }
+    .rtext { position:absolute; left:190px; top:10px; width:780px; height:calc(100% - 20px); font-size:128px; line-height:1.06; font-weight:650; color:var(--theme-foreground); align-content:center; text-wrap:balance; overflow-wrap:anywhere; }
+    .rtext .wmask.pm { font-size:max(28px, .36em); vertical-align:middle; padding:0; margin:0 .2em 0 0; }
+    .pfx { font-family:"Mono HF", ui-monospace, monospace; font-weight:700; text-transform:uppercase; line-height:1.2; padding:.12em .42em .1em; background:var(--theme-accent); color:var(--theme-background); }
+    .row.t-new .pfx { background:var(--theme-accent2); }
+    .row.t-fix .pfx { background:var(--theme-foreground); }
+    .rrule { position:absolute; left:190px; width:770px; bottom:0; height:2px; background:var(--theme-background); transform-origin:0 50%; }
+    .row:last-child .rrule { display:none; }
+
+    .brand { position:absolute; left:190px; top:1195px; width:560px; height:72px; font-size:60px; line-height:72px; font-weight:850; text-transform:uppercase; white-space:nowrap; color:var(--theme-foreground); z-index:7; }
+    .pips { position:absolute; right:120px; top:1213px; height:36px; display:flex; gap:10px; }
+    .pip { position:relative; display:block; width:36px; height:36px; background:var(--theme-background); }
+    .pfill { position:absolute; inset:7px; background:var(--theme-accent2); }
+
+    .flood { position:absolute; inset:0; background:var(--theme-accent); clip-path:circle(0px at 128px 1150px); z-index:5; }
+    .slab { position:absolute; left:80px; top:290px; width:920px; height:800px; background:var(--theme-background); clip-path:inset(100% 0% 0% 0%); visibility:hidden; z-index:6; }
+    .cta { position:absolute; left:80px; top:90px; width:760px; height:440px; font-size:170px; line-height:.96; font-weight:850; color:var(--theme-foreground); align-content:start; text-wrap:balance; }
+    .crule { position:absolute; left:80px; top:540px; width:220px; height:14px; background:var(--theme-accent2); transform-origin:0 50%; transform:scaleX(0); }
+    .arrow { position:absolute; right:80px; bottom:80px; width:150px; height:150px; background:var(--theme-accent2); overflow:hidden; clip-path:inset(0% 100% 0% 0%); }
+    .arw { position:absolute; inset:0; }
+    .shaft { position:absolute; left:30px; top:69px; width:70px; height:12px; background:var(--theme-background); }
+    .chev { position:absolute; left:58px; top:51px; width:48px; height:48px; border-top:12px solid var(--theme-background); border-right:12px solid var(--theme-background); transform:rotate(45deg); }
+    .merge { position:absolute; left:128px; top:1124px; width:872px; height:10px; background:var(--theme-background); transform-origin:0 50%; transform:scaleX(0); z-index:6; }
+    .merge::before { content:""; position:absolute; left:-14px; top:-9px; width:28px; height:28px; border-radius:50%; background:var(--theme-background); }
+    .mnode { position:absolute; left:976px; top:1105px; width:48px; height:48px; border-radius:50%; background:var(--theme-accent2); z-index:6; transform:scale(0); }
+    .mnode .tick { left:17px; top:9px; width:12px; height:22px; border-right-width:6px; border-bottom-width:6px; }
+
+    .rest { position:absolute; inset:0; background:var(--theme-background); clip-path:circle(0px at 845px 935px); z-index:10; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1080" data-height="1350">
+    <section id="changelog-log" class="scene" data-start="0" data-duration="10" data-track-index="0">
+      <div class="card"></div>
+      <div class="track"></div>
+      <div id="prog" class="prog"></div>
+      <div class="hair hair-top"></div>
+      <div class="hair hair-foot"></div>
+      <div id="ghosts">
+        <i class="ghost g1"></i><i class="ghost g2"></i><i class="ghost g3"></i><i class="ghost g4"></i><i class="ghost g5"></i>
+        <i class="gdot d1"></i><i class="gdot d2"></i><i class="gdot d3"></i><i class="gdot d4"></i><i class="gdot d5"></i>
+      </div>
+      <div id="conn" class="conn"></div>
+      <div id="chip" class="chip mono" data-fit-max="52" data-fit-min="26" data-text-role="date" data-beat-text="date">Date</div>
+
+      <h1 id="headline" class="headline display" data-fit-max="180" data-fit-min="56" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <div id="hrule" class="hrule"></div>
+
+      <div id="list" class="list" data-list>
+        <template data-list-row>
+          <div class="row"><i class="ph"></i><i class="node"><i class="check"><i class="tick"></i></i></i><div class="rtext" data-list-text data-words data-fit-max="128" data-fit-min="34"></div><i class="rrule"></i></div>
+        </template>
+      </div>
+
+      <div id="head" class="head"></div>
+      <div id="pips" class="pips"></div>
+      <div id="brand" class="brand display" data-fit-max="60" data-fit-min="30" data-text-role="brand" data-beat-text="brand">Brand</div>
+
+      <div id="flood" class="flood"></div>
+      <div id="slab" class="slab">
+        <div id="cta" class="cta display" data-fit-max="170" data-fit-min="60" data-text-role="cta" data-beat-text="cta">CTA</div>
+        <div id="crule" class="crule"></div>
+        <div id="arrow" class="arrow"><div id="arw" class="arw"><i class="shaft"></i><i class="chev"></i></div></div>
+      </div>
+      <div id="merge" class="merge"></div>
+      <div id="mnode" class="mnode"><i class="tick"></i></div>
+
+      <div id="rest" class="rest">
+        <div class="card"></div>
+        <div class="track"></div>
+        <div class="hair hair-top"></div>
+        <div class="hair hair-foot"></div>
+        <i class="ghost g1"></i><i class="ghost g2"></i><i class="ghost g3"></i><i class="ghost g4"></i><i class="ghost g5"></i>
+        <i class="gdot d1"></i><i class="gdot d2"></i><i class="gdot d3"></i><i class="gdot d4"></i><i class="gdot d5"></i>
+        <div class="head"></div>
+      </div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const HEAD_Y = 172, RAIL = 978, LOG_TOP = 264, RAIL_END = HEAD_Y + RAIL;
+      const PH = [620, 470, 560, 400, 520];
+      // Words rise through masks; long text shares the last slot so it settles early.
+      const rise = (el, at, stag = 0.125, cap = 2, dur = 0.5) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, at + B(Math.min(i, cap) * stag)));
+
+      // Prefixes such as New: / Improved: / Fixed: become colored mono pills.
+      const rows = qa('#list [data-list-item]');
+      rows.forEach((row, i) => {
+        row.querySelector('.ph').style.width = `${PH[i % PH.length]}px`;
+        const first = row.querySelector('.w');
+        const word = first ? first.textContent : '';
+        if (word.length > 1 && /:$/.test(word)) {
+          const kind = word.slice(0, -1).toLowerCase();
+          row.classList.add(kind === 'new' ? 't-new' : kind === 'improved' ? 't-imp' : kind === 'fixed' ? 't-fix' : 't-tag');
+          first.classList.add('pfx');
+          first.parentElement.classList.add('pm');
+        }
+      });
+      // Fit every row, then give all rows the smallest fitted size so the log reads as one set.
+      const texts = rows.map((r) => r.querySelector('.rtext'));
+      window.cliphouseFitText?.();
+      if (texts.length) {
+        const size = Math.min(...texts.map((el) => parseFloat(el.style.fontSize) || 128));
+        texts.forEach((el) => { el.dataset.fitMax = String(size); el.dataset.fitMin = String(Math.min(size, 34)); });
+        window.cliphouseFitText?.();
+      }
+
+      // Footer pips: one per shipped item.
+      const pips = q('#pips');
+      pips.textContent = '';
+      const pipEls = m.items.map(() => {
+        const p = document.createElement('i'); p.className = 'pip';
+        const f = document.createElement('i'); f.className = 'pfill';
+        p.append(f); pips.append(p); return p;
+      });
+
+      // Rules sit under the last line of the headline and the CTA.
+      const h = q('#headline');
+      const masks = h.querySelectorAll('.wmask');
+      const lastMask = masks[masks.length - 1];
+      if (lastMask) q('#hrule').style.top = `${h.offsetTop + lastMask.offsetTop + lastMask.offsetHeight + 20}px`;
+      const c = q('#cta');
+      const cMasks = c.querySelectorAll('.wmask');
+      const cLast = cMasks[cMasks.length - 1];
+      if (cLast) q('#crule').style.top = `${Math.min(c.offsetTop + cLast.offsetTop + cLast.offsetHeight + 24, 560)}px`;
+
+      // Beat 0: the chip branches off the head; 0.5: the date rises and the empty slots retract.
+      tl.fromTo('#chip', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.75), ease: 'expo.out'}, t('chip'));
+      tl.fromTo('#conn', {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('chip'));
+      rise(q('#chip'), t('date'), 0.125, 3);
+      qa('#ghosts .ghost').forEach((g, i) => tl.to(g, {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.25), ease: 'power3.in'}, t('date') + B(i * 0.0625)));
+      qa('#ghosts .gdot').forEach((d, i) => tl.to(d, {scale: 0, duration: B(0.25), ease: 'power3.in'}, t('date') + B(i * 0.0625)));
+
+      // Beat 1: headline; beat 2: brand; beat 3: rule under the headline.
+      rise(h, t('headline'));
+      rise(q('#brand'), t('brand'));
+      tl.fromTo('#hrule', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('headStep'));
+
+      // Beat 4: the headline lifts out; 4.5: rules, placeholders, and pips draw for the count.
+      m.spans(h).forEach((w, i) => tl.to(w, {yPercent: -125, duration: B(0.375), ease: 'power3.in'}, t('logOpen') + B(Math.min(i, 3) * 0.0625)));
+      tl.to('#hrule', {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.375), ease: 'power3.in'}, t('logOpen'));
+      tl.set('#list', {visibility: 'visible'}, t('logOpen') + B(0.5));
+      tl.set(h, {visibility: 'hidden'}, t('logOpen') + B(0.625));
+      rows.forEach((row, i) => {
+        tl.fromTo(row.querySelector('.rrule'), {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('logOpen') + B(0.5 + i * 0.0625));
+        tl.fromTo(row.querySelector('.ph'), {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('logOpen') + B(0.5 + i * 0.0625));
+      });
+      pipEls.forEach((p, i) => tl.fromTo(p, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('logOpen') + B(0.5 + i * 0.0625)));
+
+      // Each item prints as the head reaches its row: the placeholder retracts, the node pops, the text rises.
+      const host = q('#list');
+      const rowY = rows.map((r) => host.offsetTop + r.offsetTop + r.offsetHeight / 2);
+      m.plan.items.forEach((it, i) => {
+        const row = rows[i];
+        tl.to(row.querySelector('.ph'), {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.25), ease: 'power3.in'}, B(it.start));
+        tl.fromTo(row.querySelector('.node'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, B(it.start));
+        rise(row.querySelector('.rtext'), B(it.start));
+        tl.fromTo(pipEls[i].firstChild, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, B(it.accent));
+      });
+
+      // The head steps down the rail on every beat and stops on each item's row.
+      const s3 = m.score.cues.find((x) => x.id === 'headStep').beat;
+      const s11 = m.score.cues.find((x) => x.id === 'headDown').beat;
+      const anchors = [[s3, LOG_TOP], ...m.plan.items.map((it, i) => [it.start, rowY[i]]), [s11, RAIL_END]];
+      const yAt = (b) => {
+        for (let k = 1; k < anchors.length; k++) {
+          const [b0, y0] = anchors[k - 1], [b1, y1] = anchors[k];
+          if (b <= b1) return b1 === b0 ? y1 : y0 + (y1 - y0) * (b - b0) / (b1 - b0);
+        }
+        return RAIL_END;
+      };
+      const beats = [];
+      for (let b = s3; b <= s11; b++) beats.push(b);
+      const keys = [...new Set([...beats, ...m.plan.items.map((it) => it.start)])].sort((a, b) => a - b);
+      keys.forEach((b, k) => {
+        const y = yAt(b);
+        const dur = B(Math.min(0.5, (keys[k + 1] ?? s11 + 1) - b));
+        if (k === 0) {
+          tl.fromTo('#head', {y: 0}, {y: y - HEAD_Y, duration: dur, ease: 'expo.out'}, B(b));
+          tl.fromTo('#prog', {scaleY: 0}, {scaleY: (y - HEAD_Y) / RAIL, duration: dur, ease: 'expo.out'}, B(b));
+        } else {
+          tl.to('#head', {y: y - HEAD_Y, duration: dur, ease: 'expo.out'}, B(b));
+          tl.to('#prog', {scaleY: (y - HEAD_Y) / RAIL, duration: dur, ease: 'expo.out'}, B(b));
+        }
+      });
+
+      // Beat 10: every node gets its shipped check.
+      rows.forEach((row, i) => tl.fromTo(row.querySelector('.check'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('shipped') + B(i * 0.0625)));
+
+      // Beat 12: the head floods the frame in accent; the dark slab rises with it and lands on beat 13.
+      tl.fromTo('#flood', {clipPath: 'circle(0px at 128px 1150px)'}, {clipPath: 'circle(1510px at 128px 1150px)', duration: B(0.75), ease: 'power2.out'}, t('flood'));
+      tl.set('#list', {visibility: 'hidden'}, t('flood') + B(0.75));
+      tl.set('#slab', {visibility: 'visible'}, t('flood') + B(0.5));
+      tl.fromTo('#slab', {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('flood') + B(0.5));
+
+      // Beat 13: the CTA rises. Beat 14: the arrow block stamps in.
+      rise(c, t('cta'));
+      tl.fromTo('#arrow', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.25), ease: 'expo.out'}, t('stamp') - B(0.25));
+      tl.fromTo('#arrow', {scale: 1.3, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('stamp'));
+      tl.fromTo('#arw', {x: -60}, {x: 0, duration: B(0.75), ease: 'expo.out'}, t('stamp'));
+
+      // Beats 15-18: rule under the CTA, the merge bar, its node, and an arrow step.
+      tl.fromTo('#crule', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('ctaRule'));
+      tl.fromTo('#merge', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('merge'));
+      tl.fromTo('#mnode', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('mergeNode'));
+      tl.to('#arw', {x: 22, duration: B(0.75), ease: 'expo.out'}, t('arrowStep'));
+
+      // Beat 19: the blank log opens from the arrow, matching frame 0.
+      tl.fromTo('#rest', {clipPath: 'circle(0px at 845px 935px)'}, {clipPath: 'circle(1290px at 845px 935px)', duration: B(0.75), ease: 'power2.out'}, t('loop'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

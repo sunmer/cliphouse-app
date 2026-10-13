@@ -25,7 +25,8 @@ test('every template spec exports a JSON Schema that matches the zod schema', ()
     assert.deepEqual(generationErrors(v.template, s.generation), [], v.id);
     assert.equal(s.engine, engineOf(v.template), v.id);
     const music = (manifest.templates.find((t) => t.id === v.template) as {music?: boolean}).music;
-    assert.match(s.source.renderCommand, music ? /node music\/render\.mjs/ : s.engine === 'hyperframes' ? /hyperframes@0\.8\.146 render/ : /remotion render/);
+    const library = (v as {launch?: boolean}).launch;
+    assert.match(s.source.renderCommand, music || library ? /node music\/render\.mjs/ : s.engine === 'hyperframes' ? /hyperframes@0\.8\.146 render/ : /remotion render/);
     const roles = Object.keys(schemas[v.template].shape.texts.shape);
     assert.deepEqual(s.jsonSchema.properties.texts.required, roles, v.id);
     assert.equal(s.jsonSchema.properties.texts.additionalProperties, false);
@@ -126,7 +127,7 @@ test('versions are immutable, sequential, and match their committed packages', (
 test('a template change replaces the package with the next version', () => {
   // Work on a copy so the real catalog is untouched.
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cliphouse-version-'));
-  for (const p of ['LICENSE', 'scripts/build-sources.mjs', 'scripts/source-template', 'src/catalog/manifest.json', 'src/videos', 'src/hyperframes', 'public/source', 'node_modules/gsap/dist/gsap.min.js', 'node_modules/@fontsource-variable']) {
+  for (const p of ['LICENSE', 'scripts/build-sources.mjs', 'scripts/source-template', 'src/catalog/manifest.json', 'src/videos', 'src/hyperframes', 'src/music', 'public/source', 'public/music', 'node_modules/gsap/dist/gsap.min.js', 'node_modules/@fontsource-variable']) {
     if (fs.existsSync(path.join(root, p))) fs.cpSync(path.join(root, p), path.join(dir, p), {recursive: true});
   }
   const tmpl = 'stack';

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+
+    /* The armed countdown (base) and its duplicate that floods back in for the loop. */
+    .armed, .loop { position:absolute; inset:0; }
+    .armed { z-index:1; }
+    .loop { z-index:5; background:var(--theme-background); visibility:hidden; }
+
+    /* Gantry cells: two fuel columns that drain with the countdown. */
+    .cell { position:absolute; width:96px; height:188px; background:var(--theme-accent2); }
+    .cl { left:80px; } .cr { left:904px; }
+    .c0 { top:200px; } .c1 { top:404px; } .c2 { top:608px; } .c3 { top:812px; }
+
+    /* Seven-segment digit: a ghost 8 under lit segments. */
+    .digit { position:absolute; left:280px; top:200px; width:520px; height:800px; }
+    .layer { position:absolute; inset:0; }
+    .seg { position:absolute; }
+    .ghost .seg { background:var(--theme-surface); }
+    .lit .seg { background:var(--theme-accent); }
+    .sa { left:110px; top:0; width:300px; height:100px; }
+    .sg { left:110px; top:350px; width:300px; height:100px; }
+    .sd { left:110px; top:700px; width:300px; height:100px; }
+    .sf { left:0; top:0; width:100px; height:395px; }
+    .sb { left:420px; top:0; width:100px; height:395px; }
+    .se { left:0; top:405px; width:100px; height:395px; }
+    .sc { left:420px; top:405px; width:100px; height:395px; }
+
+    /* The stage that floods out of the zero's window. */
+    .stage { position:absolute; inset:0; z-index:2; background:var(--theme-accent); visibility:hidden; }
+    .strip { position:absolute; left:80px; top:168px; width:920px; height:104px; background:var(--theme-accent2); }
+    .date { position:absolute; left:36px; top:0; width:760px; height:104px; font-size:56px; line-height:1; white-space:nowrap; color:var(--theme-accent); align-content:center; }
+    .tri { position:absolute; background:var(--theme-accent); clip-path:polygon(50% 0, 100% 100%, 0 100%); }
+    .strip .tri { right:40px; top:30px; width:52px; height:44px; }
+    .headline { position:absolute; left:80px; top:308px; width:920px; height:344px; font-size:176px; line-height:.92; color:var(--theme-foreground); }
+    .track { position:absolute; left:80px; top:680px; width:920px; height:24px; background:color-mix(in srgb, var(--theme-foreground) 22%, transparent); }
+    .fill { position:absolute; left:80px; top:680px; width:920px; height:24px; background:var(--theme-accent2); }
+    .subhead { position:absolute; left:80px; top:736px; width:920px; height:244px; font-size:64px; line-height:1.1; font-weight:500; color:var(--theme-foreground); }
+
+    /* The upvote button that the progress bar opens into. */
+    .button { position:absolute; left:80px; top:300px; width:920px; height:700px; z-index:3; background:var(--theme-accent2); visibility:hidden; }
+    .button .tri { left:56px; top:56px; width:120px; height:104px; }
+    .cta { position:absolute; left:56px; top:200px; width:808px; height:452px; font-size:156px; line-height:.92; text-transform:uppercase; color:var(--theme-accent); }
+
+    .brand { position:absolute; left:80px; top:80px; width:920px; height:56px; z-index:6; font-size:42px; line-height:1; white-space:nowrap; text-transform:uppercase; color:var(--theme-foreground); align-content:center; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="7.467" data-width="1080" data-height="1080">
+    <section id="launchday-main" class="scene clip" data-start="0" data-duration="7.467" data-track-index="0">
+      <div class="armed">
+        <div class="cell cl c0"></div><div class="cell cl c1"></div><div class="cell cl c2"></div><div class="cell cl c3"></div>
+        <div class="cell cr c0"></div><div class="cell cr c1"></div><div class="cell cr c2"></div><div class="cell cr c3"></div>
+        <div class="digit">
+          <div class="layer ghost">
+            <div class="seg sa"></div><div class="seg sb"></div><div class="seg sc"></div><div class="seg sd"></div>
+            <div class="seg se"></div><div class="seg sf"></div><div class="seg sg"></div>
+          </div>
+          <div class="layer lit">
+            <div class="seg sa"></div><div class="seg sb"></div><div class="seg sc"></div><div class="seg sd"></div>
+            <div class="seg se"></div><div class="seg sf"></div><div class="seg sg"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="strip">
+          <div class="date display" data-fit-max="56" data-fit-min="36" data-text-role="date" data-beat-text="date">Live today</div>
+          <div class="tri"></div>
+        </div>
+        <h1 class="headline display fit" data-fit-max="176" data-fit-min="88" data-text-role="headline" data-beat-text="headline">Headline</h1>
+        <div class="track"></div>
+        <div class="fill"></div>
+        <p class="subhead fit" data-fit-max="64" data-fit-min="40" data-text-role="subhead" data-beat-text="subhead">Subhead</p>
+      </div>
+
+      <div class="button">
+        <div class="tri"></div>
+        <div class="cta display fit" data-fit-max="156" data-fit-min="72" data-text-role="cta" data-beat-text="cta">CTA</div>
+      </div>
+
+      <div class="loop">
+        <div class="cell cl c0"></div><div class="cell cl c1"></div><div class="cell cl c2"></div><div class="cell cl c3"></div>
+        <div class="cell cr c0"></div><div class="cell cr c1"></div><div class="cell cr c2"></div><div class="cell cr c3"></div>
+        <div class="digit">
+          <div class="layer ghost">
+            <div class="seg sa"></div><div class="seg sb"></div><div class="seg sc"></div><div class="seg sd"></div>
+            <div class="seg se"></div><div class="seg sf"></div><div class="seg sg"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="brand display" data-fit-max="42" data-fit-min="32" data-text-role="brand" data-beat-text="brand">Brand</div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+
+      // Words rise through masks; later words share the last slot so long text settles early.
+      const rise = (el, at, cap = 2) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, at + Math.min(i, cap) * B(0.5)));
+      const sink = (el, at) => tl.to(m.spans(el), {yPercent: -125, duration: B(0.4), ease: 'power3.in'}, at);
+      // A stamp: snap up, then settle. Set + to keeps the rest state intact when scrubbing backward.
+      const stamp = (sel, at, s) => {
+        tl.set(sel, {scale: s, transformOrigin: '50% 50%'}, at);
+        tl.to(sel, {scale: 1, duration: B(0.75), ease: 'expo.out'}, at);
+      };
+
+      // Segments draw along their long axis; off segments retract out the far end.
+      const AX = {a: 'scaleX', g: 'scaleX', d: 'scaleX', b: 'scaleY', c: 'scaleY', e: 'scaleY', f: 'scaleY'};
+      const ORIGIN = {scaleX: ['0% 50%', '100% 50%'], scaleY: ['50% 0%', '50% 100%']};
+      const used = new Set();
+      const seg = (k, on, at) => {
+        const p = AX[k];
+        const first = !used.has(k);
+        used.add(k);
+        tl.fromTo(q('.armed .lit .s' + k), {[p]: on ? 0 : 1, transformOrigin: ORIGIN[p][on ? 0 : 1]},
+          {[p]: on ? 1 : 0, duration: B(0.5), ease: 'expo.out', immediateRender: first}, at);
+      };
+      const digit = (at, on, off) => {
+        off.forEach((k) => seg(k, false, at));
+        on.forEach((k) => seg(k, true, at));
+      };
+      const drain = (i, at) => tl.fromTo(qa('.armed .c' + i), {scaleY: 1, transformOrigin: '50% 100%'},
+        {scaleY: 0, duration: B(0.5), ease: 'expo.out', immediateRender: false}, at);
+
+      // Beats 0-3: the countdown. One digit and one pair of gantry cells per beat.
+      digit(t('three'), ['a', 'b', 'c', 'd', 'g'], []);
+      drain(0, t('three'));
+      rise(q('.brand'), t('brand'));
+      digit(t('two'), ['e'], ['c']);
+      drain(1, t('two'));
+      digit(t('one'), ['c'], ['a', 'g', 'e', 'd']);
+      drain(2, t('one'));
+      digit(t('zero'), ['a', 'd', 'e', 'f'], []);
+      drain(3, t('zero'));
+      stamp('.armed .digit', t('zero'), 1.06);
+
+      // Beat 4: the zero's window floods dark to every corner.
+      tl.set('.stage', {visibility: 'visible'}, t('launch'));
+      tl.fromTo('.stage', {clipPath: 'inset(300px 380px 180px 380px)'},
+        {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.75), ease: 'power3.out', immediateRender: false}, t('launch'));
+      // Hidden under the stage: the countdown silently re-arms for the loop.
+      'abcdefg'.split('').forEach((k) => tl.set(q('.armed .lit .s' + k), {[AX[k]]: 0}, t('date')));
+      tl.set(qa('.armed .cell'), {scaleY: 1}, t('date'));
+
+      // Beats 4.5-8: date strip, headline, subhead, progress track.
+      tl.fromTo('.strip', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('date') - B(0.5));
+      rise(q('.date'), t('date'), 1);
+      rise(q('.headline'), t('headline'), 2);
+      rise(q('.subhead'), t('subhead'), 1);
+      tl.fromTo('.track', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('track'));
+
+      // Beat 9: an upvote triangle pops on the strip. Beat 10: the progress bar fills.
+      tl.fromTo('.strip .tri', {scale: 0, transformOrigin: '50% 100%'}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('vote'));
+      tl.fromTo('.fill', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('progress'));
+
+      // Beat 11: the full bar opens into the button; the name and tagline sink under it.
+      sink(q('.headline'), t('button'));
+      sink(q('.subhead'), t('button'));
+      tl.set('.button', {visibility: 'visible'}, t('button'));
+      tl.fromTo('.button', {clipPath: 'inset(380px 0px 296px 0px)'},
+        {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.5), ease: 'expo.out', immediateRender: false}, t('button'));
+      tl.set(['.headline', '.subhead'], {visibility: 'hidden'}, t('button') + B(0.5));
+
+      // Beat 12: the CTA stamps. Beat 13: the upvote arrow. Beat 14: both arrows tick up.
+      stamp('.button', t('cta'), 1.05);
+      rise(q('.cta'), t('cta'), 0);
+      tl.fromTo('.button .tri', {scale: 0, transformOrigin: '50% 100%'}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('arrow'));
+      tl.to('.button .tri', {y: -18, duration: B(0.5), ease: 'expo.out'}, t('tick'));
+      tl.to('.strip .tri', {y: -8, duration: B(0.5), ease: 'expo.out'}, t('tick'));
+
+      // Beat 15: coral floods from the upvote arrow back to the armed countdown of frame 0.
+      tl.set('.loop', {visibility: 'visible'}, t('loop'));
+      tl.fromTo('.loop', {clipPath: 'circle(0px at 196px 390px)'},
+        {clipPath: 'circle(1140px at 196px 390px)', duration: B(0.75), ease: 'power3.out', immediateRender: false}, t('loop'));
+      sink(q('.brand'), t('loop'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

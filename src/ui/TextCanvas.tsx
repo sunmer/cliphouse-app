@@ -1,5 +1,5 @@
 import {Check, ListPlus, X} from 'lucide-react';
-import {useCallback, useEffect, useRef, useState, type ReactNode, type RefObject} from 'react';
+import {useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode, type RefObject} from 'react';
 import {flushSync} from 'react-dom';
 import {ROLES, roleError, roleHint, type Role, type VideoProps} from '../videos/vocab';
 import {groupOf, listItems, listLabel, listProblems, listRoles, parseLines, type ListGroup} from '../poc/lists';
@@ -171,8 +171,27 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
   const height = active ? Math.min(Math.max(group ? listHeight : active.height + 12, 60), Math.max(60, Math.min(260, availableBottom - availableTop - 48))) : 0;
   const top = active ? Math.max(availableTop, Math.min(active.top - 6, availableBottom - height - 48)) : 0;
   const label = group ? listLabel(group) : active ? ROLES[active.role].label : '';
+  // While the video plays, the hit targets are not rendered and the player iframe owns the cursor.
+  // Track hover over live text so the text cursor and a hint still show that text is editable.
+  const [hovering, setHovering] = useState(false);
+  const hoverFrame = useRef(0);
+  const onHover = (event: ReactPointerEvent) => {
+    if (!playing || active || !root.current) { if (hovering) setHovering(false); return; }
+    const {clientX: x, clientY: y} = event;
+    cancelAnimationFrame(hoverFrame.current);
+    hoverFrame.current = requestAnimationFrame(() => {
+      if (!root.current) return;
+      const hit = targetsIn(root.current, player.current?.textRoot() ?? root.current).some((t) => t.rects.some((r) =>
+        x >= r.left - 4 && x <= r.right + 4 && y >= r.top - 4 && y <= r.bottom + 4));
+      setHovering(hit);
+    });
+  };
+  // The line under the caret, so its length shows while typing a list item.
+  const [caretLine, setCaretLine] = useState(0);
+  const lineText = group ? (draft.split('\n')[caretLine] ?? '').trim() : '';
   return (
-    <div ref={setRoot} className={`text-canvas ${active ? 'is-editing' : ''}`} tabIndex={-1}
+    <div ref={setRoot} className={`text-canvas ${active ? 'is-editing' : ''} ${hovering ? 'over-text' : ''}`} tabIndex={-1}
+      onPointerMove={onHover} onPointerLeave={() => setHovering(false)}
       onClickCapture={(event) => {
         if ((event.target as Element).closest('.inline-editor, .text-hit')) return;
         if (active) { finish(true); return; }
@@ -186,6 +205,8 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
         }
       }}>
       {children}
+      {/* The player's iframe swallows pointer events; this layer keeps hover and click on the canvas. */}
+      {!active && <div className="text-capture" aria-hidden="true" />}
       {!playing && !active && <div className="text-targets">
         {targets.map((target, i) => (
           <button key={`${target.role}-${i}`} type="button" className="text-hit"
@@ -198,7 +219,11 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
         <textarea ref={input} aria-label={label} aria-invalid={!valid} value={draft}
           enterKeyHint={group ? 'enter' : 'done'}
           style={group ? {height, fontSize: 20, lineHeight: '30px'} : {height, fontFamily: active.fontFamily, fontWeight: active.fontWeight, fontSize: Math.max(20, Math.min(42, active.height * 0.55))}}
-          onChange={(e) => setDraft(group ? e.target.value : e.target.value.replace(/[\r\n]+/g, ' '))}
+          onSelect={(e) => { if (group) setCaretLine(e.currentTarget.value.slice(0, e.currentTarget.selectionStart).split('\n').length - 1); }}
+          onChange={(e) => {
+            setDraft(group ? e.target.value : e.target.value.replace(/[\r\n]+/g, ' '));
+            if (group) setCaretLine(e.target.value.slice(0, e.target.selectionStart).split('\n').length - 1);
+          }}
           onKeyDown={(e) => {
             e.stopPropagation();
             if (e.nativeEvent.isComposing) return;
@@ -208,6 +233,7 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
           }} />
         <div className="inline-actions">
           {group ? <span className={!valid ? 'error' : ''}>{label} <span className="counter">{items.length}/{group.max}</span>
+            {!problem && <span className={`counter ${lineText.length > group.itemMax ? 'error' : ''}`}> · line {lineText.length}/{group.itemMax}</span>}
             {problem && <span className="counter"> {problem}</span>}</span>
             : <span className={!valid ? 'error' : ''}>{label} <span className="counter">{draft.length}/{ROLES[active.role].max}</span>
             {problem && problem === roleHint(active.role) && <span className="counter"> {problem}</span>}</span>}

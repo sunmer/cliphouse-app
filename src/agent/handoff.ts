@@ -2,6 +2,7 @@ import {THEME_ROLES, type VideoProps} from '../videos/vocab.ts';
 import type {VideoSchema} from '../videos/contract.ts';
 import {hideableRoles, isMusicSchema} from '../videos/music/schema.ts';
 import {mediaSlots} from '../videos/media/catalog.ts';
+import {audioKeys} from '../music/schema.ts';
 import {MAX_HANDOFF_CHARS} from './versions.ts';
 
 export type HandoffResult = {ok: true; props: VideoProps} | {ok: false; error: string};
@@ -28,7 +29,10 @@ export function validateProps(schema: VideoSchema, value: unknown): HandoffResul
   if (!object(value.theme) || !sameKeys(value.theme, THEME_ROLES)) return {ok: false, error: `theme must contain exactly: ${THEME_ROLES.join(', ')}.`};
   if (slots.length && (!object(value.media) || !sameKeys(value.media, slots))) return {ok: false, error: `media must contain exactly: ${slots.join(', ')}.`};
   if (isBeatSchema(schema)) {
-    if (!object(value.audio) || !sameKeys(value.audio, ['enabled']) || typeof value.audio.enabled !== 'boolean') return {ok: false, error: 'audio must be {"enabled": true} or {"enabled": false}.'};
+    const keys = audioKeys(schema);
+    if (!object(value.audio) || !sameKeys(value.audio, keys) || typeof value.audio.enabled !== 'boolean') {
+      return {ok: false, error: keys.includes('track') ? 'audio must be {"enabled": boolean, "track": "<track id>"}.' : 'audio must be {"enabled": true} or {"enabled": false}.'};
+    }
   } else if (isMusicSchema(schema)) {
     const optional = hideableRoles(schema);
     if (!Array.isArray(value.hidden)) return {ok: false, error: 'hidden must be a list of optional text roles.'};

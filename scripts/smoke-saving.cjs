@@ -1,3 +1,4 @@
+const {openPanel, menuAction} = require("./smoke-helpers.cjs");
 const {chromium, webkit, devices} = require('playwright');
 const assert = require('node:assert/strict');
 const manifest = require('../src/catalog/manifest.json');
@@ -42,7 +43,7 @@ props.texts.headline = 'MY PRIVATE EDIT';
     await page.locator('.immersive-editor').waitFor();
     await page.reload();
     await page.locator('.immersive-editor').waitFor();
-    await page.getByRole('button', {name: 'Share video', exact: true}).click();
+    await (await menuAction(page, 'Share to socials')).click();
     await page.getByRole('dialog', {name: 'Share video'}).getByText('MY PRIVATE EDIT', {exact: true}).first().waitFor();
     await page.getByRole('button', {name: 'Close share', exact: true}).click();
     await page.getByRole('link', {name: 'All videos', exact: true}).click();

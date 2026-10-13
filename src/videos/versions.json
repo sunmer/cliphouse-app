@@ -774,5 +774,109 @@
       "sha256": "9442506ad749a80cf8994235bf5741833a0921f57a4d1c22e0fef76fe49cbf8d",
       "createdAt": "2026-10-12"
     }
+  ],
+  "changelog": [
+    {
+      "version": 1,
+      "hash": "2b708386ffcb808d",
+      "sha256": "6df08e869b5cde24ec403bcd1ed7d8a84be02fdc295764ebc43946402378812a",
+      "createdAt": "2026-10-13"
+    }
+  ],
+  "versionreveal": [
+    {
+      "version": 1,
+      "hash": "c3941b1073cfb9ca",
+      "sha256": "2abc9598fdb8bcd17b8924ded358a85d86aef15b2cc1e7cae307c9bee675aa7e",
+      "createdAt": "2026-10-13"
+    }
+  ],
+  "shipped": [
+    {
+      "version": 1,
+      "hash": "76fe93452b39faf5",
+      "sha256": "fa45a881c4c14a96c25efafce1343a5e9107531c470da359a221e1f9805e42a3",
+      "createdAt": "2026-10-13"
+    }
+  ],
+  "featurelist": [
+    {
+      "version": 1,
+      "hash": "ce4b0eedb68889a8",
+      "sha256": "450b15f064b46564ff493a8ec6e6d0fee27d9dcaa5e97ccb0ea8b00060ccb72c",
+      "createdAt": "2026-10-13"
+    }
+  ],
+  "metricbump": [
+    {
+      "version": 1,
+      "hash": "ac2665127ce5e4c4",
+      "sha256": "e45e3e0098bb5e20bf25c306ce3dcb565afa7bdbefb2bd8881f911fb1e75324f",
+      "createdAt": "2026-10-13"
+    }
+  ],
+  "integration": [
+    {
+      "version": 1,
+      "hash": "db1d35b68ebc5063",
+      "sha256": "431317114233d39a67ace2f99a20d9006f91acf08e963fd0832da8aa1fa9eed3",
+      "createdAt": "2026-10-13"
+    }
+  ],
+  "pricingchange": [
+    {
+      "version": 1,
+      "hash": "7a20dc1bc017b663",
+      "sha256": "b6535b9e74fe2fef24ddab5cf27e982406c646e51ed84b3fc1a33b40a4ca589b",
+      "createdAt": "2026-10-13"
+    }
+  ],
+  "waitlist": [
+    {
+      "version": 1,
+      "hash": "89cd3afc7e395e04",
+      "sha256": "27b8b422a3621c2c972579178397840be6a694a01bbe527def69eb6c7715be0a",
+      "createdAt": "2026-10-13"
+    }
+  ],
+  "launchday": [
+    {
+      "version": 1,
+      "hash": "f888335dc1a766b3",
+      "sha256": "16fac86cb3eb336d4d487cd2ce572e1d57a02465851a0098301c1175fc6fff16",
+      "createdAt": "2026-10-13"
+    }
+  ],
+  "releasenotes": [
+    {
+      "version": 1,
+      "hash": "277fc1db866a2184",
+      "sha256": "8ca9acfa699077aacf1dc2cff6734000a09ee38aad78bb6ba9929d509c4c6526",
+      "createdAt": "2026-10-13"
+    }
+  ],
+  "beforenow": [
+    {
+      "version": 1,
+      "hash": "27f4780f01a2149d",
+      "sha256": "c9d88995331afb8eeb69519ce29f346b4cfa8b650ea52e56f717dfe39e2353c0",
+      "createdAt": "2026-10-13"
+    }
+  ],
+  "customerquote": [
+    {
+      "version": 1,
+      "hash": "2298b65b74c90dfc",
+      "sha256": "276e7b6be8bf94f4ed58dd82029af6a1462f79febbca74950197d006b29c5dd3",
+      "createdAt": "2026-10-13"
+    }
+  ],
+  "nowinbeta": [
+    {
+      "version": 1,
+      "hash": "e647bd0c458331b6",
+      "sha256": "dd4b2b633e2897b553d146592d183615c03765bee5c6291e098a848581ec5787",
+      "createdAt": "2026-10-13"
+    }
   ]
 }

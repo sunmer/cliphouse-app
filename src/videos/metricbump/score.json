@@ -1,0 +1,29 @@
+{
+  "beatFrames": 15,
+  "scenes": [
+    {"type": "counter", "bars": 1, "focusBeat": 3, "roles": ["stat"], "energy": 1},
+    {"type": "announcement", "bars": 1, "focusBeat": 7, "roles": ["stat", "headline", "subhead"], "energy": 2},
+    {"type": "end-screen", "bars": 2, "focusBeat": 12, "roles": ["stat", "brand", "cta"], "energy": 3}
+  ],
+  "cues": [
+    {"id": "rise", "beat": 0, "sound": "tom", "velocity": 0.7},
+    {"id": "before", "beat": 1, "sound": "pluck", "velocity": 0.5},
+    {"id": "stat", "beat": 2, "sound": "stab", "role": "stat", "velocity": 0.85},
+    {"id": "level", "beat": 3, "sound": "pluck", "velocity": 0.5},
+    {"id": "headline", "beat": 4, "sound": "lead", "role": "headline", "velocity": 0.7},
+    {"id": "subhead", "beat": 5, "sound": "blip", "role": "subhead", "velocity": 0.6},
+    {"id": "trend", "beat": 6, "sound": "pluck", "velocity": 0.6},
+    {"id": "points", "beat": 7, "sound": "snap", "velocity": 0.6},
+    {"id": "fromLine", "beat": 8, "sound": "blip", "velocity": 0.5},
+    {"id": "flood", "beat": 9, "sound": "zap", "velocity": 0.8},
+    {"id": "brand", "beat": 10, "sound": "lead", "role": "brand", "velocity": 0.7},
+    {"id": "ctaStamp", "beat": 11, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "rule", "beat": 12, "sound": "pluck", "velocity": 0.6},
+    {"id": "base", "beat": 13, "sound": "tom", "velocity": 0.6},
+    {"id": "arrow", "beat": 14, "sound": "snap", "velocity": 0.6},
+    {"id": "loop", "beat": 15, "sound": "zap", "velocity": 0.7}
+  ],
+  "risers": [
+    {"beat": 7, "beats": 2}
+  ]
+}

@@ -1,3 +1,4 @@
+const {openPanel, menuAction} = require("./smoke-helpers.cjs");
 const {chromium, webkit, devices} = require('playwright');
 const assert = require('node:assert/strict');
 const manifest = require('../src/catalog/manifest.json');
@@ -26,7 +27,7 @@ const data = {id, variantId: variant.id, props, title: props.texts.headline,
       assert.equal(await page.getByText('Most remixed', {exact: true}).count(), 0);
       assert.ok(!(await page.locator('.grid').innerText()).includes('@'));
       await page.locator('.card-edit').first().click();
-      await page.getByRole('button', {name: 'Share video', exact: true}).click();
+      await (await menuAction(page, 'Share to socials')).click();
       const dialog = page.getByRole('dialog', {name: 'Share video'});
       await dialog.waitFor({state: 'visible'});
       assert.equal(await page.getByRole('button', {name: /Download props/}).count(), 0);
@@ -62,7 +63,7 @@ const data = {id, variantId: variant.id, props, title: props.texts.headline,
       });
       await page.route(`**/api/shares/${id}`, (route) => route.fulfill({json: {...data, props: sent?.props || props}}));
       await page.goto(`${base}#/v/${variant.id}`);
-      await page.getByRole('button', {name: 'Share video', exact: true}).click();
+      await (await menuAction(page, 'Share to socials')).click();
       await page.getByRole('button', {name: 'Sign in to publish', exact: true}).click();
       const popupPromise = page.waitForEvent('popup');
       await page.getByRole('button', {name: 'Sign in with Google', exact: true}).click();

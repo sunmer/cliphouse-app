@@ -1,0 +1,43 @@
+{
+  "beatFrames": 15,
+  "scenes": [
+    {"type": "title-reveal", "bars": 1, "focusBeat": 3, "roles": ["brand", "headline", "date"], "energy": 1},
+    {"type": "list", "bars": 3, "focusBeat": 12, "roles": ["brand", "headline", "date", "list"], "energy": 2},
+    {"type": "end-screen", "bars": 2, "focusBeat": 20, "roles": ["brand", "headline", "date", "cta"], "energy": 3}
+  ],
+  "cues": [
+    {"id": "brand", "beat": 0, "sound": "blip", "role": "brand", "velocity": 0.5},
+    {"id": "headline", "beat": 1, "sound": "pluck", "role": "headline", "velocity": 0.7},
+    {"id": "date", "beat": 2, "sound": "blip", "role": "date", "velocity": 0.5},
+    {"id": "gutter", "beat": 3, "sound": "snap", "velocity": 0.6},
+    {"id": "shipped", "beat": 15, "sound": "snap", "velocity": 0.7},
+    {"id": "flood", "beat": 16, "sound": "zap", "velocity": 0.7},
+    {"id": "ctaStamp", "beat": 17, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "endHeadline", "beat": 18, "sound": "lead", "role": "headline", "velocity": 0.6},
+    {"id": "endBrand", "beat": 19, "sound": "blip", "role": "brand", "velocity": 0.5},
+    {"id": "rule", "beat": 20, "sound": "pluck", "velocity": 0.5},
+    {"id": "collapse", "beat": 22, "sound": "tom", "velocity": 0.6},
+    {"id": "loopFold", "beat": 23, "sound": "zap", "velocity": 0.7}
+  ],
+  "list": {
+    "role": "list",
+    "label": "Release notes",
+    "scene": 1,
+    "min": 1,
+    "max": 6,
+    "itemMax": 36,
+    "schedules": {
+      "1": [6],
+      "2": [5, 7],
+      "3": [5, 7, 9],
+      "4": [5, 6, 7, 8],
+      "5": [5, 6, 7, 8, 9],
+      "6": [5, 6, 7, 8, 9, 10]
+    },
+    "accentOffset": 0.5,
+    "voice": "keys"
+  },
+  "risers": [
+    {"beat": 13, "beats": 3}
+  ]
+}

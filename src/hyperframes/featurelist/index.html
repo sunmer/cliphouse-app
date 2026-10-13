@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+    svg path { fill:none; stroke-linecap:square; stroke-linejoin:miter; stroke-dasharray:100; stroke-dashoffset:100; }
+
+    .s1 { background:var(--theme-background); }
+    .stage { position:absolute; inset:0; }
+    .seed, .endbox { position:absolute; left:340px; top:340px; width:400px; height:400px; }
+    .seed { background:var(--theme-accent); }
+    .seed svg, .endbox svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+    .seed path, .endbox path { stroke:var(--theme-surface); stroke-dashoffset:0; }
+    .ol { stroke-width:3.5; }
+    .ck { stroke-width:9; }
+
+    .brand { position:absolute; left:160px; top:80px; width:840px; height:56px; font-size:46px; line-height:1; text-transform:uppercase; align-content:center; color:var(--theme-foreground); }
+    .headline { position:absolute; left:80px; top:168px; width:920px; height:250px; font-size:124px; line-height:.94; align-content:center; color:var(--theme-foreground); }
+
+    .list { position:absolute; left:80px; top:440px; width:920px; height:440px; display:flex; flex-direction:column; justify-content:center;
+      --rh: calc(440px / var(--count, 6)); }
+    .row { position:relative; flex:none; height:var(--rh); display:flex; align-items:center; gap:28px; }
+    .box { --bs: min(104px, calc(var(--rh) * .52)); --bw: max(3px, calc(var(--bs) * .06)); position:relative; flex:none; width:var(--bs); height:var(--bs); border:var(--bw) solid var(--theme-foreground); }
+    .box > * { position:absolute; left:calc(var(--bw) * -1); top:calc(var(--bw) * -1); width:calc(100% + var(--bw) * 2); height:calc(100% + var(--bw) * 2); }
+    .box .bf { background:var(--theme-accent); }
+    .box path { stroke:var(--theme-surface); stroke-width:12; }
+    .itext { flex:1; min-width:0; height:calc(var(--rh) - 12px); font-size:132px; font-weight:750; line-height:1; align-content:center; color:var(--theme-foreground); }
+    .itext.fit { overflow-wrap:normal; word-break:normal; }
+    .nm { flex:none; overflow:hidden; padding:0 0 .06em; }
+    .num { display:block; font-size:min(56px, max(32px, calc(var(--rh) * .44))); line-height:1; color:color-mix(in srgb, var(--theme-foreground) 42%, transparent); }
+    .rule { position:absolute; left:0; right:0; bottom:0; height:3px; background:color-mix(in srgb, var(--theme-foreground) 16%, transparent); }
+
+    .track { position:absolute; left:80px; top:912px; width:920px; height:88px; display:flex; gap:12px; }
+    .seg { position:relative; flex:1; height:100%; background:color-mix(in srgb, var(--theme-foreground) 10%, transparent); }
+    .sf { position:absolute; inset:0; background:var(--theme-accent); }
+    .seg svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+    .seg path { stroke:var(--theme-surface); stroke-width:12; }
+    .tdone { position:absolute; left:80px; top:912px; width:920px; height:88px; background:var(--theme-accent); transform:scaleX(0); transform-origin:0 50%; }
+
+    .s2 { z-index:2; }
+    .field { position:absolute; inset:0; background:var(--theme-accent); }
+    .s2c { position:absolute; inset:0; clip-path:inset(0px 0px 0px 0px); }
+    .brand2 { position:absolute; left:80px; top:80px; width:920px; height:140px; font-size:120px; line-height:1; align-content:center; color:var(--theme-surface); }
+    .button { position:absolute; left:80px; top:252px; width:920px; height:468px; background:var(--theme-surface); }
+    .cbox { position:absolute; left:64px; top:144px; width:180px; height:180px; border:10px solid var(--theme-foreground); }
+    .cbox > * { position:absolute; left:-10px; top:-10px; width:calc(100% + 20px); height:calc(100% + 20px); }
+    .cbox .bf { background:var(--theme-accent2); }
+    .cbox path { stroke:var(--theme-foreground); stroke-width:11; }
+    .ctext { position:absolute; left:292px; top:54px; width:580px; height:360px; font-size:128px; line-height:.94; align-content:center; color:var(--theme-foreground); }
+    .pips { position:absolute; left:80px; top:760px; height:104px; display:flex; gap:16px; }
+    .pip { position:relative; width:104px; height:104px; flex:none; background:var(--theme-accent2); }
+    .pip svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+    .pip path { stroke:var(--theme-foreground); stroke-width:12; }
+    .loopbar { position:absolute; left:80px; top:912px; width:920px; height:88px; background:var(--theme-accent2); transform:scaleX(0); transform-origin:0 50%; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1080" data-height="1080">
+    <section id="featurelist-list" class="scene s1" data-start="0" data-duration="10" data-track-index="0">
+      <div class="stage">
+        <div class="brand display fit" data-fit-max="46" data-fit-min="30" data-text-role="brand" data-beat-text="brand">Brand</div>
+        <h1 class="headline display fit" data-fit-max="124" data-fit-min="64" data-text-role="headline" data-beat-text="headline">Headline</h1>
+        <div class="list" data-list>
+          <template data-list-row>
+            <div class="row">
+              <div class="box"><div class="bf"></div><svg class="tick" viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
+              <div class="itext display fit" data-list-text data-words data-fit-max="132" data-fit-min="34"></div>
+              <div class="nm"><span class="num mono" data-list-number></span></div>
+              <div class="rule"></div>
+            </div>
+          </template>
+        </div>
+        <div class="track">
+          <div class="seg"><div class="sf"></div><svg viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
+          <div class="seg"><div class="sf"></div><svg viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
+          <div class="seg"><div class="sf"></div><svg viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
+          <div class="seg"><div class="sf"></div><svg viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
+          <div class="seg"><div class="sf"></div><svg viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
+          <div class="seg"><div class="sf"></div><svg viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
+          <div class="seg"><div class="sf"></div><svg viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
+        </div>
+        <div class="tdone"></div>
+        <div class="seed"><svg viewBox="0 0 100 100"><path class="ol" pathLength="100" d="M1.75 1.75 H98.25 V98.25 H1.75 Z"/><path class="ck" pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
+      </div>
+    </section>
+    <section id="featurelist-end" class="scene s2" data-start="0" data-duration="10" data-track-index="1">
+      <div class="field">
+        <div class="s2c">
+          <div class="brand2 display fit" data-fit-max="120" data-fit-min="56" data-text-role="brand" data-beat-text="brand">Brand</div>
+          <div class="button">
+            <div class="cbox"><div class="bf"></div><svg class="tick" viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
+            <div class="ctext display fit" data-fit-max="128" data-fit-min="48" data-text-role="cta" data-beat-text="cta">CTA</div>
+          </div>
+          <div class="pips"></div>
+          <div class="loopbar"></div>
+        </div>
+        <div class="endbox"><svg viewBox="0 0 100 100"><path class="ol" pathLength="100" d="M1.75 1.75 H98.25 V98.25 H1.75 Z"/><path class="ck" pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
+      </div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const root = q('#root');
+      const W = root.offsetWidth, H = root.offsetHeight;
+      const rectInset = (el) => `inset(${el.offsetTop}px ${W - el.offsetLeft - el.offsetWidth}px ${H - el.offsetTop - el.offsetHeight}px ${el.offsetLeft}px)`;
+      // Words rise through masks on eighth notes; later words share the last slot so long text settles early.
+      const words = (el, start, cap = 2, dur = 0.75) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, start + Math.min(i, cap) * B(0.5)));
+      const draw = (path, at, dur = 0.5, ir = true) => tl.fromTo(path, {strokeDashoffset: 100},
+        {strokeDashoffset: 0, duration: B(dur), ease: 'power3.out', immediateRender: ir}, at);
+      const stamp = (el, at) => tl.fromTo(el, {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, at);
+
+      const field = q('.field');
+      const endbox = q('.endbox');
+      const seed = q('.seed');
+
+      // Beat 0: the accent field folds into the checked box; the meter slots draw underneath.
+      tl.fromTo(field, {clipPath: 'inset(0px 0px 0px 0px)'},
+        {clipPath: rectInset(endbox), duration: B(0.6), ease: 'power3.inOut'}, t('fold'));
+      tl.set([field, endbox], {visibility: 'hidden'}, t('fold') + B(0.6));
+      tl.fromTo('.seg', {scaleX: 0, transformOrigin: '0% 50%'},
+        {scaleX: 1, duration: B(0.75), ease: 'expo.out', stagger: B(0.0625)}, t('fold'));
+
+      // Beat 1: the box becomes the brand mark; the brand rises beside it.
+      tl.fromTo(seed, {x: 0, y: 0, scale: 1, transformOrigin: '0% 0%'},
+        {x: 80 - seed.offsetLeft, y: 80 - seed.offsetTop, scale: 56 / seed.offsetWidth, duration: B(0.75), ease: 'expo.out'}, t('brand'));
+      words(q('.s1 .brand'), t('brand'));
+
+      // Beats 1.5-2: the hero headline rises and stays as the header.
+      words(q('.headline'), t('headline'), 1);
+
+      // Beats 2-3: the empty checklist: rules draw, then boxes and numbers land.
+      const rows = m.items.map((it) => q(`.list [data-list-item="${it.index}"]`));
+      rows.forEach((row, i) => {
+        if (!row) return;
+        tl.fromTo(row.querySelector('.rule'), {scaleX: 0, transformOrigin: '0% 50%'},
+          {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('rules') + B(0.0625 * i));
+        stamp(row.querySelector('.box'), t('boxes') + B(0.0625 * i));
+        tl.fromTo(row.querySelector('.num'), {yPercent: 110}, {yPercent: 0, duration: B(0.5), ease: 'expo.out'}, t('boxes') + B(0.0625 * i));
+      });
+
+      // Beats 4.5-10: each feature rises on its start and ticks on its accent.
+      m.items.forEach((it, i) => {
+        const row = rows[i];
+        if (!row) return;
+        m.spans(row.querySelector('[data-list-text]')).forEach((w) =>
+          tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.5), ease: 'expo.out'}, it.start));
+        stamp(row.querySelector('.bf'), it.accent);
+        draw(row.querySelector('.tick path'), it.accent);
+      });
+
+      // Beats 4-10: one meter block stamps and ticks per beat; beat 11: the done bar wipes across.
+      qa('.track .seg').forEach((seg, k) => {
+        const at = t('meter') + B(k);
+        stamp(seg.querySelector('.sf'), at);
+        draw(seg.querySelector('path'), at);
+      });
+      tl.fromTo('.tdone', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('done'));
+
+      // Beat 12: the done bar floods the frame; the CTA slab wipes in behind it.
+      tl.set(field, {visibility: 'visible'}, t('flood'));
+      tl.fromTo(field, {clipPath: rectInset(q('.tdone'))},
+        {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.75), ease: 'power3.out', immediateRender: false}, t('flood'));
+      tl.set('.stage', {visibility: 'hidden'}, t('ctaBrand'));
+      tl.fromTo('.button', {clipPath: 'inset(0% 100% 0% 0%)'},
+        {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('flood') + B(0.5));
+
+      // Beat 13: the brand rises large.
+      words(q('.brand2'), t('ctaBrand'));
+
+      // Beat 14: the slab settles with a stamp and the CTA rises.
+      tl.fromTo('.button', {scale: 1.08, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.75), ease: 'expo.out'}, t('ctaStamp'));
+      words(q('.ctext'), t('ctaStamp'), 1, 0.5);
+
+      // Beat 15: the CTA box fills amber and ticks.
+      stamp(q('.cbox .bf'), t('ctaTick'));
+      draw(q('.cbox path'), t('ctaTick'));
+
+      // Beat 16: one ticked pip per feature.
+      const pipHost = q('.pips');
+      pipHost.textContent = '';
+      m.items.forEach((_, i) => {
+        const p = document.createElement('div');
+        p.className = 'pip';
+        p.innerHTML = '<svg viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg>';
+        pipHost.append(p);
+        tl.fromTo(p, {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('pips') + B(0.0625 * i));
+        draw(p.querySelector('path'), t('pips') + B(0.25 + 0.0625 * i));
+      });
+
+      // Beat 17: the amber bar draws where the meter stood.
+      tl.fromTo('.loopbar', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('loopBar'));
+
+      // Beat 18: the content snaps shut to the center line on the beat; the big box outline draws on the clean field.
+      tl.fromTo('.s2c', {clipPath: 'inset(0px 0px 0px 0px)'},
+        {clipPath: `inset(${H / 2}px 0px ${H / 2}px 0px)`, duration: B(0.5), ease: 'expo.out', immediateRender: false}, t('slice'));
+      tl.set('.endbox .ol, .endbox .ck', {strokeDashoffset: 100}, t('slice'));
+      tl.set(endbox, {visibility: 'visible'}, t('slice') + B(0.5));
+      draw(q('.endbox .ol'), t('slice') + B(0.5), 0.5, false);
+
+      // Beat 19: the big box ticks, landing on frame 0.
+      draw(q('.endbox .ck'), t('loop'), 0.5, false);
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

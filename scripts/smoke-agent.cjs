@@ -1,4 +1,5 @@
 // Browser checks for agent handoff links, the copy action, and source downloads.
+const {openPanel, menuAction} = require("./smoke-helpers.cjs");
 const {chromium} = require('playwright');
 const assert = require('node:assert/strict');
 const manifest = require('../src/catalog/manifest.json');
@@ -18,17 +19,18 @@ const base = process.env.URL || 'http://127.0.0.1:5180/voodoo/';
     await page.goto(`${base}#/v/${variant.id}?props=${encodeURIComponent(JSON.stringify(edited))}`);
     await page.locator('.immersive-editor').waitFor();
     await page.waitForFunction(() => !location.hash.includes('props='));
+    await openPanel(page, 'Theme');
     assert.equal(await page.locator('#hex-accent').inputValue(), '#ff2266');
     const stored = await page.evaluate((id) => JSON.parse(localStorage.getItem(`voodoo:v2:${id}`)), variant.id);
     assert.deepEqual(stored, edited, 'valid handoff loads exactly');
     assert.equal(await page.locator('.editor-notice').count(), 0);
 
-    await page.getByRole('button', {name: 'Copy agent link'}).click();
+    await (await menuAction(page, 'Copy agent link')).click();
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     assert.match(copied, new RegExp(`/templates/${variant.id}/agent\\.json`));
     const link = copied.match(/Current edit: (\S+)/)[1];
     assert.deepEqual(JSON.parse(new URLSearchParams(link.split('?')[1]).get('props')), edited, 'copied link round-trips');
-    const href = await page.getByRole('link', {name: 'Download source'}).getAttribute('href');
+    const href = await (await menuAction(page, /Download source/)).getAttribute('href');
     assert.match(href, /\/source\/stack\/v\d+\.tar\.gz$/);
     const download = await page.request.get(new URL(href, page.url()).href);
     assert.equal(download.status(), 200);

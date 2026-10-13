@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const {openPanel, menuAction} = require("./smoke-helpers.cjs");
 const {chromium, webkit, devices} = require('playwright');
 const base = process.env.URL || 'http://localhost:5180/voodoo/';
 
@@ -62,9 +63,10 @@ async function check(engine, options, name) {
     await input.waitFor();
     await page.getByRole('button', {name: 'Cancel edit', exact: true}).click();
     assert(await page.getByRole('button', {name: 'Play', exact: true}).isVisible());
-    await page.getByRole('button', {name: 'Share video', exact: true}).click();
+    await (await menuAction(page, 'Share to socials')).click();
     await page.getByRole('dialog', {name: 'Share video'}).waitFor({state: 'visible'});
     await page.getByRole('button', {name: 'Close share', exact: true}).click();
+    await openPanel(page, 'Theme');
     await page.getByRole('textbox', {name: 'Background hex', exact: true}).fill('#123456');
     assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('voodoo:v2:drop-sale')).theme.background), '#123456');
     await page.getByRole('button', {name: 'Undo', exact: true}).click();

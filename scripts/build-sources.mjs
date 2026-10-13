@@ -26,6 +26,8 @@ const template = JSON.parse(read('scripts/source-template/package.json'));
 const lock = read('scripts/source-template/package-lock.json');
 const license = read('LICENSE');
 const hyperframesIds = new Set(JSON.parse(read('src/videos/engine.ts').toString().match(/HYPERFRAMES_TEMPLATES = (\[[^\]]+\])/)[1].replaceAll("'", '"')));
+// Launch templates take their sound from the music library: the package bundles the preset's track.
+const launchIds = new Set(JSON.parse(read('src/videos/launch/ids.ts').toString().match(/LAUNCH_TEMPLATES = (\[[^\]]+\])/)[1].replaceAll("'", '"').replace(/,\s*\]/, ']')));
 const hfAssets = [
   ['assets/gsap.min.js', 'node_modules/gsap/dist/gsap.min.js'],
   ['assets/fonts/archivo.woff2', 'node_modules/@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2'],
@@ -88,6 +90,7 @@ function hyperframesDeclarations(props, id) {
 }
 function hyperframesFiles(id, version, variant) {
   const music = musicIds.has(id);
+  const library = launchIds.has(id);
   let html = read(`src/hyperframes/${id}/index.html`).toString()
     .replace('__BASE_CSS__', read('src/hyperframes/shared/base.css').toString())
     .replace('__BASE_JS__', read('src/hyperframes/shared/base.js').toString())
@@ -118,6 +121,56 @@ function hyperframesFiles(id, version, variant) {
   for (const [target, source] of hfAssets) out.set(target, read(source));
   for (const name of ['archivo', 'fraunces', 'inter', 'jetbrains-mono']) out.set(`assets/fonts/LICENSE-${name}.txt`, read(`node_modules/@fontsource-variable/${name}/LICENSE`));
   if (music) for (const [k, v] of musicFiles(id, variant, 'hyperframes')) out.set(k, v);
+  if (library) for (const [k, v] of libraryFiles(id, version, variant)) out.set(k, v);
+  return out;
+}
+// The preset's music track, the fade settings, and a render script that muxes it under the silent video.
+function libraryFiles(id, version, variant) {
+  const track = variant.props.audio.track;
+  const lib = read('src/music/library.ts').toString();
+  const fadeIn = Number(lib.match(/FADE_IN = ([\d.]+)/)[1]);
+  const fadeOut = Number(lib.match(/FADE_OUT = ([\d.]+)/)[1]);
+  const seconds = JSON.parse(read(`src/videos/${id}/score.json`)).scenes.reduce((n, s) => n + s.bars * 4, 0) * JSON.parse(read(`src/videos/${id}/score.json`)).beatFrames / 30;
+  const render = 'npx --yes hyperframes@0.8.146 render --variables-file variables.json --strict-variables -o out/silent.mp4';
+  const out = new Map();
+  out.set(`music/${track}.m4a`, read(`public/music/${track}.m4a`));
+  out.set('music/render.mjs', Buffer.from(`// Render the video silent, then mux the music: from the track start, cut to ${seconds.toFixed(3)} s, faded in ${fadeIn} s and out ${fadeOut} s.
+// Usage: node music/render.mjs [track.m4a]   (needs ffmpeg on PATH)
+import {execFileSync} from 'node:child_process';
+import fs from 'node:fs';
+const seconds = ${seconds.toFixed(6)};
+const track = process.argv[2] ?? 'music/${track}.m4a';
+const fadeOut = Math.min(${fadeOut}, seconds / 3);
+fs.mkdirSync('out', {recursive: true});
+execFileSync('sh', ['-c', ${JSON.stringify(render)}], {stdio: 'inherit'});
+execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', 'out/silent.mp4', '-i', track, '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy',
+  '-af', \`atrim=0:\${seconds},afade=t=in:st=0:d=${fadeIn},afade=t=out:st=\${seconds - fadeOut}:d=\${fadeOut},apad=whole_dur=\${seconds}\`,
+  '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-ac', '2', '-t', String(seconds), '-movflags', '+faststart', 'out/video.mp4'], {stdio: 'inherit'});
+fs.rmSync('out/silent.mp4');
+console.log('Wrote out/video.mp4');
+`));
+  out.set('package.json', Buffer.from(`${JSON.stringify({name: `cliphouse-${id}`, private: true, license: 'MIT-0', type: 'module', cliphouse: {engine: 'hyperframes', composition: id},
+    scripts: {preview: 'npx --yes hyperframes@0.8.146 preview', check: 'npx --yes hyperframes@0.8.146 check', render: 'node music/render.mjs',
+      'render:silent': 'npx --yes hyperframes@0.8.146 render --variables-file variables.json --strict-variables -o out/video.mp4'}}, null, 2)}\n`));
+  out.set('README.md', Buffer.from(`# ${pascal(id)} by cliphou.se, template v${version}
+
+This is a native HyperFrames project for the cliphou.se \`${id}\` launch template, with a royalty-free music track.
+
+\`\`\`bash
+npx --yes hyperframes@0.8.146 check
+node music/render.mjs          # video with music: out/video.mp4 (needs ffmpeg)
+npx --yes hyperframes@0.8.146 preview
+\`\`\`
+
+- Change text and colors in \`variables.json\`. \`text_list\` holds one item per line.
+- Change layout and GSAP motion in \`index.html\`. All timing comes from the beat score inlined in it.
+- \`music/${track}.m4a\` is the preset track. Pass another file to \`node music/render.mjs <file>\` to use your own; it is cut to the video length and faded in and out.
+- GSAP and fonts are local. The composition uses a paused, seekable timeline and no network assets.
+
+The cliphou.se template is MIT-0. The music track is royalty-free: generated for cliphou.se with the ElevenLabs Music API and free to use in videos made with this template, including commercial use. GSAP and fonts keep their own licenses.
+
+Made with cliphou.se. Credit is optional, and appreciated: https://cliphou.se/?ref=agent
+`));
   return out;
 }
 function files(id, version) {
@@ -229,7 +282,9 @@ let added = 0;
 // with the next version number; older packages and their code are not kept. RESET_VERSIONS=1 rebuilds
 // every changed package as v1, for the library-wide beat migration.
 const reset = process.env.RESET_VERSIONS === '1';
-for (const id of manifest.templates.map((t) => t.id)) {
+// ONLY=a,b limits the run to those templates, so one batch can publish without touching others.
+const onlyIds = process.env.ONLY ? new Set(process.env.ONLY.split(',')) : null;
+for (const id of manifest.templates.map((t) => t.id).filter((t) => !onlyIds || onlyIds.has(t))) {
   const list = versions[id] ?? [];
   const latest = list.at(-1);
   // Hash with a placeholder version so only source or dependency changes create a new version.

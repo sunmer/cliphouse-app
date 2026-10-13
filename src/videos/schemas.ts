@@ -1,4 +1,5 @@
 import type {VideoSchema} from './contract.ts';
+import {launchSchemas} from './launch/index.ts';
 import {bentoSchema} from './bento/schema.ts';
 import {blackfridaySchema} from './blackfriday/schema.ts';
 import {collageSchema} from './collage/schema.ts';
@@ -157,4 +158,5 @@ export const schemas = {
   productpulse: productpulseSchema,
   featuredrop: featuredropSchema,
   eventcountdown: eventcountdownSchema,
+  ...launchSchemas,
 } as unknown as Record<string, VideoSchema>;

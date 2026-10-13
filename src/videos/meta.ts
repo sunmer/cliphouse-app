@@ -1,4 +1,5 @@
 import type {TemplateMeta} from './vocab.ts';
+import {launchMeta} from './launch/index.ts';
 import {showreelMeta} from './showreel/meta.ts';
 import {stackMeta} from './stack/meta.ts';
 import {tickerMeta} from './ticker/meta.ts';
@@ -195,4 +196,5 @@ export const templateMeta: Record<string, TemplateMeta> = {
   [productpulseMeta.id]: productpulseMeta,
   [featuredropMeta.id]: featuredropMeta,
   [eventcountdownMeta.id]: eventcountdownMeta,
+  ...launchMeta,
 };

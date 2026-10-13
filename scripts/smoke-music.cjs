@@ -2,6 +2,7 @@
 // and loops, inline edits, hide and show, undo and redo, local save, and silent gallery previews.
 // Usage: URL=http://127.0.0.1:5180/voodoo/ node scripts/smoke-music.cjs
 const assert = require('node:assert/strict');
+const {openPanel, menuAction} = require("./smoke-helpers.cjs");
 const {chromium} = require('playwright');
 const manifest = require('../src/catalog/manifest.json');
 const base = process.env.URL || 'http://localhost:5180/voodoo/';
@@ -41,6 +42,7 @@ const MAX_DRIFT = 0.045;
       await sound.click();
       assert.equal(await sound.getAttribute('aria-pressed'), 'true');
       if (!await page.getByRole('button', {name: 'Pause', exact: true}).count()) await page.getByRole('button', {name: 'Play', exact: true}).click();
+      await page.waitForFunction(() => window.__cliphouseAudio?.().playing, null, {timeout: 10000});
       await page.waitForTimeout(1200);
       let s = await state();
       assert.equal(s.playing, true, `${t.id}: audio plays after the toggle`);
@@ -81,6 +83,7 @@ const MAX_DRIFT = 0.045;
       await page.getByRole('button', {name: 'Pause', exact: true}).click();
 
       // Hide and show an optional role, with undo and redo. Hidden state is saved locally.
+      await openPanel(page, 'Music');
       const role = t.id === 'beatreel' ? 'Point 3' : t.id === 'featuredrop' ? 'Subhead' : 'Point 3';
       const roleKey = {'Point 3': 'point3', Subhead: 'subhead'}[role];
       const hide = page.getByRole('button', {name: `Hide ${role}`, exact: true});
@@ -95,7 +98,7 @@ const MAX_DRIFT = 0.045;
       // Required roles have no hide control.
       for (const required of ['Brand', 'Headline', 'Call to action']) assert.equal(await page.getByRole('button', {name: `Hide ${required}`, exact: true}).count(), 0);
       // Export sound switch is part of the saved props.
-      const exportSound = page.getByLabel('Include sound in MP4');
+      const exportSound = page.getByLabel('Include music in MP4');
       assert.equal(await exportSound.isChecked(), true);
       await exportSound.uncheck();
       assert.deepEqual(await page.evaluate((k) => JSON.parse(localStorage.getItem(k)).audio, key), {enabled: false});

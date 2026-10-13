@@ -6,7 +6,8 @@ import {engineOf} from '../src/videos/engine.ts';
 import {scoreOf} from '../src/videos/music/schema.ts';
 import {scoreOf as beatScoreOf} from '../src/videos/beat/schema.ts';
 import {musicOf} from '../src/videos/song/index.ts';
-import {addScore} from './audio.ts';
+import {addScore, addTrack} from './audio.ts';
+import {trackFor} from '../src/music/schema.ts';
 import {renderHyperframes, stillFromVideo, writeHyperframesProject} from './hyperframes.ts';
 import type {Snapshot} from './model.ts';
 
@@ -16,6 +17,9 @@ export const MAX_VIDEO_BYTES = 60_000_000;
 // A beat template has sound only when it has a song; without one it always exports silent.
 async function withScore(value: Snapshot, video: string, signal?: AbortSignal) {
   if (!(value.props as {audio?: {enabled: boolean}}).audio?.enabled) return;
+  // Library templates and the older music templates: a library track, cut to the video and faded in and out.
+  const track = trackFor(value.template, value.props);
+  if (track) return addTrack(video, track, value.meta.durationInFrames / value.meta.fps, signal);
   const beat = beatScoreOf(value.meta);
   if (beat) {
     const music = musicOf(value.meta);

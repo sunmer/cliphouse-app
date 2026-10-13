@@ -67,7 +67,8 @@ for (const id of ids) {
   const score = scoreOf(meta);
   const errors = [];
   const fail = (m) => errors.push(m);
-  const variant = manifest.variants.find((v) => v.template === id && !v.hidden);
+  // Templates still in generation have only a hidden preset; gate it so they can become visible.
+  const variant = manifest.variants.find((v) => v.template === id && !v.hidden) ?? manifest.variants.find((v) => v.template === id);
   const dir = path.join(sheetsAt, id);
   fs.mkdirSync(dir, {recursive: true});
   const max = score.list ? parseLines(variant.props.texts.list).length : 0;

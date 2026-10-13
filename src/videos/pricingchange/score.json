@@ -1,0 +1,45 @@
+{
+  "beatFrames": 15,
+  "scenes": [
+    {"type": "title-reveal", "bars": 1, "focusBeat": 2, "roles": ["brand", "headline"], "energy": 1},
+    {"type": "price-reveal", "bars": 2, "focusBeat": 10, "roles": ["brand", "headline", "price", "priceNote", "list"], "energy": 2},
+    {"type": "end-screen", "bars": 1, "focusBeat": 13, "roles": ["brand", "headline", "price", "priceNote", "cta"], "energy": 3}
+  ],
+  "cues": [
+    {"id": "open", "beat": 0, "sound": "snap", "velocity": 0.6},
+    {"id": "headline", "beat": 0.5, "sound": "pluck", "role": "headline", "velocity": 0.7},
+    {"id": "brand", "beat": 1, "sound": "blip", "role": "brand", "velocity": 0.5},
+    {"id": "mark", "beat": 2, "sound": "snap", "velocity": 0.5},
+    {"id": "push", "beat": 3, "sound": "impact", "velocity": 0.7},
+    {"id": "price", "beat": 4, "sound": "stab", "role": "price", "velocity": 0.85},
+    {"id": "priceNote", "beat": 5, "sound": "blip", "role": "priceNote", "velocity": 0.6},
+    {"id": "lift", "beat": 6, "sound": "tom", "velocity": 0.6},
+    {"id": "footer", "beat": 7, "sound": "pluck", "velocity": 0.5},
+    {"id": "badge", "beat": 9, "sound": "snap", "velocity": 0.7},
+    {"id": "cursor", "beat": 10, "sound": "blip", "velocity": 0.5},
+    {"id": "aim", "beat": 11, "sound": "blip", "velocity": 0.4},
+    {"id": "click", "beat": 12, "sound": "crash", "velocity": 0.9},
+    {"id": "ctaStamp", "beat": 12.5, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "arrow", "beat": 13, "sound": "pluck", "velocity": 0.6},
+    {"id": "press", "beat": 14, "sound": "snap", "velocity": 0.6},
+    {"id": "close", "beat": 15, "sound": "zap", "velocity": 0.7}
+  ],
+  "list": {
+    "role": "list",
+    "label": "Included",
+    "scene": 1,
+    "min": 1,
+    "max": 3,
+    "itemMax": 22,
+    "schedules": {
+      "1": [8],
+      "2": [7, 8],
+      "3": [7, 8, 9]
+    },
+    "accentOffset": 0.5,
+    "voice": "marimba"
+  },
+  "risers": [
+    {"beat": 10, "beats": 2}
+  ]
+}

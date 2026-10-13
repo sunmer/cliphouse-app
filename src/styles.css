@@ -153,14 +153,45 @@ h1, h2, h3 { margin: 0; }
 .overlay-btn:hover:not(:disabled) { background: #32363e; }
 .overlay-btn:focus-visible, .text-hit:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .overlay-btn.confirmed { color: var(--accent); }
-.editor-video-area { position: absolute; inset: 66px 76px 72px; display: grid; place-items: center; container-type: size; }
-.editor-video { width: min(100cqw, calc(100cqh * var(--video-ratio))); aspect-ratio: var(--video-ratio); position: relative; }
+.editor-video-area { position: absolute; inset: 66px 76px 16px; display: grid; place-items: center; container-type: size; }
+/* With a panel open the stage makes room for it, so the whole video stays visible while editing. */
+.immersive-editor.panel-open .editor-video-area { right: 428px; }
+/* The video and its control bar form one player: the bar sits on the video's bottom edge at the video's width. */
+.editor-video { --bar: 50px; width: min(100cqw, calc((100cqh - var(--bar)) * var(--video-ratio))); aspect-ratio: var(--video-ratio); position: relative; margin-bottom: var(--bar); }
 .text-canvas { position: relative; width: 100%; height: 100%; outline: none; }
 .text-canvas [data-text-role] { cursor: text; }
+.text-capture { position: absolute; inset: 0; z-index: 1; }
+.text-canvas.over-text .text-capture { cursor: text; }
+.text-targets { z-index: 2; }
 .editor-tools { position: absolute; right: 16px; top: 80px; display: flex; flex-direction: column; gap: 10px; z-index: 4; }
 .editor-tools .mobile-expand { display: none; }
-.editor-bottom { position: absolute; bottom: 16px; left: 16px; right: 16px; display: flex; align-items: center; gap: 16px; z-index: 4; }
-.editor-bottom .timeline { flex: 1; min-width: 0; height: 38px; }
+.overlay-btn.on { color: var(--accent); border-color: var(--accent); }
+.share-menu-wrap { position: relative; }
+.share-menu { position: absolute; right: calc(100% + 10px); top: 0; z-index: 8; display: flex; flex-direction: column; min-width: 220px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); box-shadow: 0 12px 32px #0008; }
+.menu-item { display: flex; align-items: center; gap: 10px; width: 100%; height: 38px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: var(--text); font: inherit; font-size: 13px; text-align: left; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.menu-item:hover:not(:disabled), .menu-item:focus-visible { background: var(--panel-2); outline: none; }
+.menu-item:disabled { opacity: .5; cursor: default; }
+.menu-note { margin-left: auto; color: var(--muted); font-size: 12px; }
+/* The side panel slides over the right of the stage, next to the tool rail. */
+.editor-panel { position: absolute; top: 66px; bottom: 72px; right: 72px; z-index: 5; width: min(340px, calc(100% - 96px)); display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 8px; background: #15171bf5; box-shadow: -12px 0 40px #0007; animation: panel-in .18s ease-out; overflow: hidden; }
+@keyframes panel-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .editor-panel { animation: none; } }
+.panel-heading { display: flex; align-items: center; gap: 6px; padding: 10px 10px 10px 16px; border-bottom: 1px solid var(--line); }
+.panel-heading h2 { flex: 1; font-size: 14px; margin: 0; }
+.panel-body { display: flex; flex-direction: column; gap: 14px; padding: 14px 16px 18px; overflow-y: auto; }
+.panel-body .music-facts { margin: 0; }
+.panel-body .track-list { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; }
+.panel-body .palettes { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.panel-body .palette-btn { height: 34px; }
+.panel-body .theme-colors { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.panel-sub { margin: 4px 0 0; font-size: 12px; font-weight: 600; color: var(--muted); }
+.editor-bottom { display: flex; align-items: center; z-index: 4; }
+.editor-bottom .timeline { flex: 1; min-width: 0; }
+.editor-bottom.attached { position: absolute; top: 100%; left: 0; right: 0; height: var(--bar); gap: 8px; padding: 0 8px; background: #15171b; border: 1px solid #ffffff1a; border-top: 0; border-radius: 0 0 8px 8px; }
+.editor-bottom.attached .overlay-btn { width: 36px; height: 36px; }
+.editor-bottom.attached .timeline { height: 32px; }
+.editor-bottom.floating { position: absolute; left: 10px; right: 10px; bottom: max(12px, env(safe-area-inset-bottom)); gap: 10px; }
+.editor-bottom.floating .timeline { height: 38px; }
 .text-targets { position: absolute; inset: 0; pointer-events: none; }
 .text-hit { position: absolute; pointer-events: auto; background: transparent; border: 1px dashed transparent; border-radius: 3px; padding: 0; cursor: text; }
 .text-hit:hover, .text-hit:focus-visible { background: #4ade8010; border-color: var(--accent); }
@@ -203,7 +234,11 @@ h1, h2, h3 { margin: 0; }
   .editor-tools .mobile-expand { display: inline-grid; }
   .overlay-btn { width: 40px; height: 40px; }
   .editor-tools .overlay-btn { width: 40px; height: 40px; }
-  .editor-bottom { left: 10px; right: 10px; bottom: max(12px, env(safe-area-inset-bottom)); gap: 10px; }
+  .editor-panel { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 62%; border-radius: 12px 12px 0 0; animation-name: sheet-in; }
+  .immersive-editor.panel-open .editor-video-area { right: 0; }
+  .share-menu { right: calc(100% + 8px); }
+  /* Phones keep the screen-filling stage; the floating bar sits at the bottom of the editor. */
+  .editor-video { --bar: 0px; margin-bottom: 0; }
   .editor-theme { padding: 16px 16px 32px; }
   .theme-content { grid-template-columns: 1fr; gap: 20px; }
   .theme-heading { margin-bottom: 12px; }
@@ -217,7 +252,7 @@ h1, h2, h3 { margin: 0; }
   .editor-top { left: max(10px, env(safe-area-inset-left)); right: max(10px, env(safe-area-inset-right)); }
   .editor-tools { top: 60px; right: max(8px, env(safe-area-inset-right)); gap: 6px; }
   .editor-tools .overlay-btn { width: 34px; height: 34px; }
-  .editor-bottom { bottom: max(8px, env(safe-area-inset-bottom)); left: max(10px, env(safe-area-inset-left)); right: max(10px, env(safe-area-inset-right)); }
+  .editor-bottom.floating { bottom: max(8px, env(safe-area-inset-bottom)); left: max(10px, env(safe-area-inset-left)); right: max(10px, env(safe-area-inset-right)); }
 }
 
 .timeline { position: relative; height: 34px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); overflow: hidden; cursor: ew-resize; touch-action: none; user-select: none; -webkit-user-select: none; }
@@ -402,3 +437,13 @@ h1, h2, h3 { margin: 0; }
 .role-toggle:disabled { opacity: .5; cursor: default; }
 .export-sound { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); cursor: pointer; }
 .export-sound input { width: 16px; height: 16px; accent-color: var(--accent); }
+.track-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+@media (max-width: 680px) { .track-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.track-btn { display: grid; grid-template-columns: 16px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 8px; align-items: center; min-height: 52px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--muted); font: inherit; text-align: left; cursor: pointer; }
+.track-btn svg { grid-row: 1 / 3; }
+.track-title { color: var(--text); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.track-genre { font-size: 12px; }
+.track-btn:hover:not(:disabled) { border-color: #4a5468; }
+.track-btn.on { border-color: var(--accent); color: var(--accent); }
+.track-btn:disabled { opacity: .5; cursor: default; }
+@keyframes sheet-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
