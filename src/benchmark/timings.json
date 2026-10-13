@@ -602,6 +602,66 @@
       "provider": "Novita",
       "generationTimeMs": 34011,
       "fetchedAt": "2026-10-08T20:46:18.351Z"
+    },
+    {
+      "video": "benchmark/media/addition-a1-gemini-4-argon-product-launch-1/video.mp4",
+      "sourceSha256": "aaa590baeef741c13bae6299bb977ef3efd35dc4acf72e8e71fe935035f12d90",
+      "generationId": "gen-1791924025-GhCRUz0mZHVKdsvIst4X",
+      "model": "google/gemini-4-argon",
+      "resolvedModel": "google/gemini-4-argon-20261013",
+      "provider": "Google",
+      "generationTimeMs": 136268,
+      "fetchedAt": "2026-10-13T20:46:10.566Z"
+    },
+    {
+      "video": "benchmark/media/addition-a1-gemini-4-argon-product-launch-2/video.mp4",
+      "sourceSha256": "49c63b2aa2f96f80e25996e3a0f5e1fa4a0f4b21b326df975a9c378c50750f3f",
+      "generationId": "gen-1791924025-0CxEBpqBtnr1kVXUz16p",
+      "model": "google/gemini-4-argon",
+      "resolvedModel": "google/gemini-4-argon-20261013",
+      "provider": "Google",
+      "generationTimeMs": 138791,
+      "fetchedAt": "2026-10-13T20:46:11.150Z"
+    },
+    {
+      "video": "benchmark/media/addition-a1-gemini-4-argon-kinetic-type-1/video.mp4",
+      "sourceSha256": "66ea56f8e91cfc87a318857ce93f8e3cb0c69726114dcf94e3d0e67274ab7f7d",
+      "generationId": "gen-1791924025-rfR6HlOlOCRtPVcGrrjf",
+      "model": "google/gemini-4-argon",
+      "resolvedModel": "google/gemini-4-argon-20261013",
+      "provider": "Google",
+      "generationTimeMs": 128995,
+      "fetchedAt": "2026-10-13T20:46:11.589Z"
+    },
+    {
+      "video": "benchmark/media/addition-a1-gemini-4-argon-kinetic-type-2/video.mp4",
+      "sourceSha256": "24aebc604329ca2261588a48fdcb0cd63a7daac8cde7609592751812b5eeb7c4",
+      "generationId": "gen-1791924025-gJqzkTT7xYNZfpgGIaSw",
+      "model": "google/gemini-4-argon",
+      "resolvedModel": "google/gemini-4-argon-20261013",
+      "provider": "Google",
+      "generationTimeMs": 137008,
+      "fetchedAt": "2026-10-13T20:46:11.814Z"
+    },
+    {
+      "video": "benchmark/media/addition-a1-gemini-4-argon-data-story-1/video.mp4",
+      "sourceSha256": "e8a5b1a3e03a534bcd989fa01dc05cee08ec77d09fc173c1c1e58c2bb6092ba3",
+      "generationId": "gen-1791924189-YJysUElVWFUalt2r2r5i",
+      "model": "google/gemini-4-argon",
+      "resolvedModel": "google/gemini-4-argon-20261013",
+      "provider": "Google",
+      "generationTimeMs": 92139,
+      "fetchedAt": "2026-10-13T20:46:12.485Z"
+    },
+    {
+      "video": "benchmark/media/addition-a1-gemini-4-argon-data-story-2/video.mp4",
+      "sourceSha256": "7eb4b15728b571a9a5ca0b96f1bf73c6a5cd49c18a04c05e8b0d854bfac13ca4",
+      "generationId": "gen-1791924228-ivTL6tle6WMtKWq2DDJK",
+      "model": "google/gemini-4-argon",
+      "resolvedModel": "google/gemini-4-argon-20261013",
+      "provider": "Google",
+      "generationTimeMs": 67850,
+      "fetchedAt": "2026-10-13T20:46:12.711Z"
     }
   ]
 }

@@ -35,6 +35,26 @@ and no audio. The anonymous review package is in
 Do not substitute existing gallery videos for benchmark results.
 The example in the methodology section is explicitly labeled as a gallery example.
 
+## Late Addition A1
+
+Gemini 4 Argon (`google/gemini-4-argon`) was added on October 13, 2026, the
+day it appeared on OpenRouter. It is listed first in the comparison. It uses the
+unchanged protocol 1.1 contract, briefs, limits, renderer image, and repair rule.
+The provider rule pinned `google-vertex/global`. All six runs rendered on the
+first attempt, at a total cost of $0.9453. The original 60 runs, ledger, and
+protocol hash are unchanged. A1 did not receive recovery R1, and the Argon runs
+are not part of the blind-review package.
+
+Definition: `src/benchmark/addition.json`. Results:
+`src/benchmark/addition-results.json`. Raw records and the separate ledger:
+`.benchmark/2026-10/addition-a1/`.
+
+```sh
+npm run benchmark:run -- --addition
+node scripts/benchmark/publish-addition.mjs
+node scripts/benchmark/collect-timings.mjs --execute
+```
+
 ## Pilot Limitation
 
 The runner selected stderr instead of combining stdout and stderr for failed

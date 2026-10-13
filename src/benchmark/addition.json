@@ -1,0 +1,10 @@
+{
+  "id": "A1",
+  "baselineVersion": "1.1",
+  "edition": "2026-10",
+  "date": "2026-10-13",
+  "policy": "Late addition to the October 2026 edition. It uses the protocol 1.1 contract, briefs, palette, fonts, token limit, renderer image, single repair rule, and provider selection rule. The original 60 runs are unchanged. Automated recovery R1 does not apply to this addition.",
+  "models": [
+    {"key": "gemini-4-argon", "name": "Gemini 4 Argon", "author": "Google", "id": "google/gemini-4-argon", "tier": "Mid-range", "weights": "Closed", "reasoning": "high"}
+  ]
+}

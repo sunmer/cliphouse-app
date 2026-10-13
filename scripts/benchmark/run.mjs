@@ -2,11 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {execFile, execFileSync} from 'node:child_process';
 import {parseArgs, promisify} from 'node:util';
-import {atomicJson, contract, digest, ensureBudget, hash, parseSource, priceCeiling, protocol, reserveCost, root} from './protocol.mjs';
+import {addition, additionDigest, atomicJson, contract, digest as baseDigest, ensureBudget, hash, parseSource, priceCeiling, protocol, reserveCost, root} from './protocol.mjs';
 
-const {values} = parseArgs({options: {execute: {type: 'boolean'}, model: {type: 'string'}, brief: {type: 'string'}, run: {type: 'string'}}});
-const store = path.join(root, '.benchmark', protocol.edition);
-const models = protocol.models.filter((model) => !values.model || model.key === values.model);
+const {values} = parseArgs({options: {execute: {type: 'boolean'}, addition: {type: 'boolean'}, model: {type: 'string'}, brief: {type: 'string'}, run: {type: 'string'}}});
+// --addition runs late-added models in a separate store and ledger; original runs are never touched.
+const digest = values.addition ? additionDigest : baseDigest;
+const store = values.addition ? path.join(root, '.benchmark', protocol.edition, `addition-${addition.id.toLowerCase()}`) : path.join(root, '.benchmark', protocol.edition);
+const models = (values.addition ? addition.models : protocol.models).filter((model) => !values.model || model.key === values.model);
 const briefs = protocol.briefs.filter((brief) => !values.brief || brief.id === values.brief);
 if (!models.length || !briefs.length || (values.run && !['1', '2'].includes(values.run))) throw new Error('Unknown model, brief, or run. See src/benchmark/protocol.json.');
 const jobs = models.flatMap((model) => briefs.flatMap((brief) => [1, 2].filter((run) => !values.run || run === Number(values.run)).map((run) => ({model, brief, run, id: `${model.key}-${brief.id}-${run}`}))));
@@ -18,11 +20,15 @@ const key = process.env.OPENROUTER_API_KEY;
 if (!key) throw new Error('Set a dedicated OPENROUTER_API_KEY server-side. Never include it in frontend code or the repository.');
 execFileSync('docker', ['info', '--format', '{{.ServerVersion}}'], {stdio: 'pipe'});
 const imageId = execFileSync('docker', ['image', 'inspect', 'cliphouse-benchmark:1', '--format', '{{.Id}}'], {encoding: 'utf8'}).trim();
+if (values.addition) {
+  const base = JSON.parse(fs.readFileSync(path.join(root, '.benchmark', protocol.edition, 'ledger.json'), 'utf8'));
+  if (base.protocolHash !== baseDigest || base.imageId !== imageId) throw new Error('An addition must use the unchanged edition protocol and render image.');
+}
 fs.mkdirSync(store, {recursive: true, mode: 0o700});
 const lock = path.join(store, 'runner.lock');
 try { fs.mkdirSync(lock); } catch { throw new Error('Benchmark runner is locked. Check for a running process or unresolved charge before removing runner.lock.'); }
 const ledgerFile = path.join(store, 'ledger.json');
-const ledger = fs.existsSync(ledgerFile) ? JSON.parse(fs.readFileSync(ledgerFile, 'utf8')) : {protocolHash: digest, imageId, charges: [{job: 'pilot-v1.0-haiku-product-launch', attempt: 1, kind: 'generation', cost: protocol.pilot.costUsd}], pending: null};
+const ledger = fs.existsSync(ledgerFile) ? JSON.parse(fs.readFileSync(ledgerFile, 'utf8')) : {protocolHash: digest, ...(values.addition ? {baselineHash: baseDigest} : {}), imageId, charges: values.addition ? [] : [{job: 'pilot-v1.0-haiku-product-launch', attempt: 1, kind: 'generation', cost: protocol.pilot.costUsd}], pending: null};
 if (ledger.protocolHash !== digest || ledger.imageId !== imageId) {
   fs.rmdirSync(lock);
   throw new Error('Protocol or render image changed. Start a new benchmark edition.');

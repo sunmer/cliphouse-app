@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {contract, digest, ensureBudget, parseSource, priceCeiling, protocol, reserveCost, validateResults} from './protocol.mjs';
+import {addition, additionDigest, allModels, contract, digest, ensureBudget, parseSource, priceCeiling, protocol, reserveCost, validateAddition, validateResults} from './protocol.mjs';
 
 const blank = () => ({version: protocol.version, edition: '2026-10', updatedAt: '2026-10-08', status: 'awaiting-runs', entries: []});
 const entry = () => ({
@@ -30,6 +30,21 @@ test('default command is a dry run without credentials or network', () => {
 });
 test('execution refuses a missing key before checking Docker', () => {
   assert.throws(() => execFileSync(process.execPath, ['scripts/benchmark/run.mjs', '--execute'], {stdio: 'pipe', env: {...process.env, OPENROUTER_API_KEY: ''}}), /OPENROUTER_API_KEY server-side/);
+});
+test('late addition keeps the frozen protocol and lists the added model first', () => {
+  assert.equal(digest, '67692ee132be8b02f695632fabe2e49012d5b06fab50329b5dce59d71f65e0af', 'protocol 1.1 must stay unchanged');
+  assert.notEqual(additionDigest, digest);
+  assert.equal(allModels[0].key, 'gemini-4-argon');
+  assert.equal(new Set(allModels.map((model) => model.id)).size, 11);
+  const plan = JSON.parse(execFileSync(process.execPath, ['scripts/benchmark/run.mjs', '--addition'], {encoding: 'utf8', env: {...process.env, OPENROUTER_API_KEY: ''}}));
+  assert.equal(plan.jobs.length, 6);
+  assert.ok(plan.jobs.every((job) => job.startsWith('gemini-4-argon-')));
+  const base = {id: addition.id, edition: addition.edition, updatedAt: '2026-10-13'};
+  const added = {...entry(), model: 'gemini-4-argon'};
+  assert.equal(validateAddition({...base, entries: [added]}, blank()).entries.length, 1);
+  assert.throws(() => validateAddition({...base, entries: [{...added, model: 'opus-5-5'}]}, blank()));
+  assert.throws(() => validateAddition({...base, entries: [added]}, {entries: [entry()]}), /overwrite/);
+  assert.throws(() => validateResults(dataWith([added])), 'additions cannot enter the original results');
 });
 test('submission format is structured and rejects surplus files', () => {
   const source = 'export function BenchmarkVideo() { return <div>Deterministic video</div>; }';

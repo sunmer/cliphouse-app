@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {z} from 'zod';
-import {hash, protocol} from './protocol.mjs';
+import {allModels, hash} from './protocol.mjs';
 
 const generationId = z.string().regex(/^gen-[0-9A-Za-z-]+$/);
 const entrySchema = z.object({
@@ -31,18 +31,18 @@ export function reportedTiming(metadata, expected) {
   };
 }
 
-export function validateTimings(data, baseline, recovery, assetRoot) {
+export function validateTimings(data, baseline, recovery, assetRoot, additions = {entries: []}) {
   const parsed = z.object({
     version: z.literal(1), metric: z.literal('generation_time'),
     unit: z.literal('milliseconds'), entries: z.array(entrySchema),
   }).strict().parse(data);
-  const videos = [...baseline.entries, ...recovery.entries].filter(entry => entry.status === 'rendered');
+  const videos = [...baseline.entries, ...recovery.entries, ...additions.entries].filter(entry => entry.status === 'rendered');
   const seen = new Set();
   const ids = new Set();
   for (const timing of parsed.entries) {
     const entry = videos.find(entry => entry.video === timing.video);
     if (!entry || seen.has(timing.video) || ids.has(timing.generationId)) throw new Error('Unknown or duplicate generation timing.');
-    if (timing.model !== protocol.models.find(model => model.key === entry.model)?.id) throw new Error('Timing model does not match video.');
+    if (timing.model !== allModels.find(model => model.key === entry.model)?.id) throw new Error('Timing model does not match video.');
     if (timing.resolvedModel !== timing.model && !timing.resolvedModel.startsWith(`${timing.model}-`)) throw new Error('Resolved timing model does not match requested model.');
     if ((timing.generationTimeMs === null) !== Boolean(timing.unavailableReason)) throw new Error('Missing timing must have a reason, not an estimate.');
     if (assetRoot && hash(fs.readFileSync(path.join(assetRoot, entry.source))) !== timing.sourceSha256) throw new Error('Timing source does not match published source.');

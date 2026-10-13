@@ -3,15 +3,22 @@ import {ArrowDown, ArrowDownToLine, ArrowUpRight, Check, ChevronDown, CircleDash
 import {ArticleLayout} from '../ui/ArticleLayout';
 import {ViewportVideo} from '../ui/ViewportVideo';
 import protocol from './protocol.json';
+import addition from './addition.json';
+import additionData from './addition-results.json';
 import resultsData from './results.json';
 import recoveryData from './recovery.json';
 import recoveryProtocol from './recovery-protocol.json';
 import timingsData from './timings.json';
 import contractData from './contract.json';
-import {withRecovery, type BenchmarkModel, type BenchmarkResult, type BenchmarkResults, type BenchmarkRecoveries, type BenchmarkTiming, type BenchmarkTimings} from './types';
+import {withRecovery, type BenchmarkAdditionResults, type BenchmarkModel, type BenchmarkResult, type BenchmarkResults, type BenchmarkRecoveries, type BenchmarkTiming, type BenchmarkTimings} from './types';
 
 // The publication build validates this JSON against the result schema.
 const defaultResults = resultsData as BenchmarkResults;
+const defaultAdditions = additionData as BenchmarkAdditionResults;
+// Late additions are listed first in shortlist order.
+const allModels: BenchmarkModel[] = [...addition.models, ...protocol.models];
+const additionKeys = new Set(addition.models.map((model) => model.key));
+const additionDate = 'October 13';
 const month = 'October 2026';
 const dateLabel = 'October 8, 2026';
 const money = (value: number) => `$${value.toFixed(value < 0.01 ? 4 : 3)}`;
@@ -44,6 +51,7 @@ function ResultCard({model, entry, timing, base, run, brief}: {model: BenchmarkM
     <div className="benchmark-card-body">
       <div className="benchmark-card-labels"><span>{model.author}</span><span>{model.weights === 'Open' ? 'Open weights' : model.tier}</span></div>
       <h3>{model.name}</h3>
+      {additionKeys.has(model.key) && <p className="benchmark-addition-label">New / Added {additionDate}</p>}
       {entry?.recovery && <p className="benchmark-recovery-label">{entry.status === 'rendered' ? 'Recovered' : 'Repair limit reached'} / R1 &middot; {entry.recovery.attempts} additional attempt{entry.recovery.attempts === 1 ? '' : 's'}</p>}
       <dl className="benchmark-metrics">
         <div><dt>API cost</dt><dd>{entry ? money(entry.costUsd) : <span className="metric-pending">Pending</span>}</dd></div>
@@ -78,7 +86,7 @@ function ResultCard({model, entry, timing, base, run, brief}: {model: BenchmarkM
   </article>;
 }
 
-export function BenchmarkPage({base = '/', edition = false, data = defaultResults, recoveries = recoveryData as BenchmarkRecoveries, timings = timingsData as BenchmarkTimings}: {base?: string; edition?: boolean; data?: BenchmarkResults; recoveries?: BenchmarkRecoveries; timings?: BenchmarkTimings}) {
+export function BenchmarkPage({base = '/', edition = false, data = defaultResults, additions = defaultAdditions, recoveries = recoveryData as BenchmarkRecoveries, timings = timingsData as BenchmarkTimings}: {base?: string; edition?: boolean; data?: BenchmarkResults; additions?: BenchmarkAdditionResults; recoveries?: BenchmarkRecoveries; timings?: BenchmarkTimings}) {
   const results = data;
   const [briefId, setBriefId] = useState(protocol.briefs[0].id);
   const [run, setRun] = useState(1);
@@ -86,11 +94,12 @@ export function BenchmarkPage({base = '/', edition = false, data = defaultResult
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const brief = protocol.briefs.find((item) => item.id === briefId)!;
-  const completed = results.entries.length;
-  const entries = results.entries.filter((entry) => entry.brief === briefId && entry.run === run)
-    .map(entry => withRecovery(entry, recoveries.entries.find(item => item.model === entry.model && item.brief === entry.brief && item.run === entry.run)));
+  const completed = results.entries.length + additions.entries.length;
+  const entries = [...results.entries.filter((entry) => entry.brief === briefId && entry.run === run)
+    .map(entry => withRecovery(entry, recoveries.entries.find(item => item.model === entry.model && item.brief === entry.brief && item.run === entry.run))),
+    ...additions.entries.filter((entry) => entry.brief === briefId && entry.run === run)];
   const findEntry = (key: string) => entries.find((entry) => entry.model === key);
-  const models = [...protocol.models].sort((a, b) => {
+  const models = [...allModels].sort((a, b) => {
     if (sort === 'name') return a.name.localeCompare(b.name);
     if (sort === 'cost') return (findEntry(a.key)?.costUsd ?? Infinity) - (findEntry(b.key)?.costUsd ?? Infinity);
     return 0;
@@ -143,7 +152,7 @@ export function BenchmarkPage({base = '/', edition = false, data = defaultResult
 
       <section id="comparison" className="benchmark-comparison" aria-labelledby="comparison-title">
         <div className="benchmark-section-heading"><div><span className="section-number">01 / Comparison</span><h2 id="comparison-title">One brief. Every model.</h2></div>
-          <span className="benchmark-small">{protocol.models.length} models &middot; 2 independent runs</span></div>
+          <span className="benchmark-small">{allModels.length} models &middot; 2 independent runs</span></div>
         <div className="benchmark-controls">
           <div className="benchmark-tabs" role="group" aria-label="Test brief">
             {protocol.briefs.map((item) => <button key={item.id} aria-pressed={briefId === item.id} onClick={() => selectBrief(item.id)}>{item.name}</button>)}
@@ -180,6 +189,7 @@ export function BenchmarkPage({base = '/', edition = false, data = defaultResult
         <p className="benchmark-footnote">A curated selection across price tiers, not a popularity ranking. Empty entries are untested, not failed.</p>
         <p className="benchmark-footnote">Time to video is an estimate from prompt submission until the MP4 was ready. It adds every model response and render attempt, including repairs. It excludes waiting in the render queue and small file-handling overhead. <a href={`${base}benchmark/timings.json`}>OpenRouter timing records</a></p>
         {recoveries.entries.length > 0 && <p className="benchmark-footnote">Recovered entries show total API cost, including original attempts. The additional repair cost is itemized in run details. Recovery means the code compiled and rendered. It is not first-attempt success.</p>}
+        <p className="benchmark-footnote"><strong>Late addition:</strong> {addition.models.map((model) => model.name).join(', ')} was added on {additionDate} after the original ten models. It used the same protocol, briefs, token limit, renderer, and repair rule. It did not receive the R1 recovery pass.</p>
       </section>
 
       <section id="methodology" className="benchmark-section">
@@ -200,13 +210,14 @@ export function BenchmarkPage({base = '/', edition = false, data = defaultResult
           <div className="benchmark-reference">
             <figure><ViewportVideo src={`${base}previews/bento-launch.mp4`} poster={`${base}previews/bento-launch.jpg`} label="Existing Cliphouse motion graphics example" style={{aspectRatio: '16 / 9'}} />
               <figcaption><span><Play size={12} aria-hidden="true" />What we mean by motion graphics</span>Existing Cliphouse template. Not a benchmark submission.</figcaption></figure>
-            <div className="benchmark-facts"><div><strong>10</strong><span>models</span></div><div><strong>3</strong><span>fixed briefs</span></div><div><strong>2</strong><span>runs per brief</span></div></div>
+            <div className="benchmark-facts"><div><strong>{allModels.length}</strong><span>models</span></div><div><strong>3</strong><span>fixed briefs</span></div><div><strong>2</strong><span>runs per brief</span></div></div>
           </div>
         </div>
         <div className="benchmark-scoring">
           <p className="benchmark-footnote">Both runs are published, including failures. Two runs are exploratory evidence, not a statistically definitive ranking.</p>
           <p className="benchmark-footnote"><strong>Protocol revision:</strong> A Haiku setup pilot used 13,309 reasoning tokens and was truncated at the original 16,000-token limit. Protocol 1.1 uses 32,000 tokens for all 60 comparable runs. The pilot cost $0.008 and remains in the spending record, outside the comparison.</p>
           <p className="benchmark-footnote"><strong>Repair-feedback limitation:</strong> In this pilot, compile-failure repairs received a stack trace without the detailed TypeScript diagnostics. Treat repair outcomes as provisional. First-attempt outcomes are unaffected.</p>
+          <p className="benchmark-footnote"><strong>Addition {addition.id}:</strong> {addition.policy} <a href={`${base}benchmark/addition-results.json`}>Addition results</a></p>
         </div>
       </section>
 
