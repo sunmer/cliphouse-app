@@ -5,7 +5,7 @@ import {makeCancelSignal, openBrowser, renderMedia, renderStill, selectCompositi
 import {engineOf} from '../src/videos/engine.ts';
 import {scoreOf} from '../src/videos/music/schema.ts';
 import {addScore} from './audio.ts';
-import {SOUND_ENABLED} from '../src/videos/music/flags.ts';
+import {SOUND_ENABLED} from '../src/site/flags.ts';
 import {renderHyperframes, stillFromVideo, writeHyperframesProject} from './hyperframes.ts';
 import type {Snapshot} from './model.ts';
 

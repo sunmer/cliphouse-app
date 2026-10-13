@@ -7,7 +7,7 @@ import {ROLES, SCENE_TYPES, THEME_ROLES, roleHint, type Role, type VideoProps} f
 import {mediaOf, mediaSlots, slotOptions} from '../videos/media/catalog.ts';
 import {hideableRoles, isMusicSchema, scoreOf} from '../videos/music/schema.ts';
 import {durationSeconds, scoreScenes} from '../videos/music/score.ts';
-import {SOUND_ENABLED} from '../videos/music/flags.ts';
+import {SOUND_ENABLED} from '../site/flags.ts';
 import {MAX_HANDOFF_CHARS, REPOSITORY, TEMPLATE_LICENSE, handoffPath, sourcePath, templateVersion} from './versions.ts';
 
 type SpecInput = {

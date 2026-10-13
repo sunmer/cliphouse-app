@@ -6,7 +6,7 @@ import {ROLES, THEME_LABELS, THEME_ROLES, type Role, type VideoProps} from '../v
 import {ENGINE_LABELS} from '../videos/engine';
 import {mediaOf, mediaSlots, slotOptions} from '../videos/media/catalog';
 import {hideableRoles, isMusicSchema, scoreOf} from '../videos/music/schema';
-import {SOUND_ENABLED} from '../videos/music/flags';
+import {SOUND_ENABLED} from '../site/flags';
 import {compositionFor} from '../videos/registry';
 import {currentVersion, handoffPath, sourcePath, specPath} from '../agent/versions';
 import {readHandoff} from '../agent/handoff';
