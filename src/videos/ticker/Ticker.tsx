@@ -156,7 +156,7 @@ const Band: React.FC<{text: string; role: string; size: number; color: string; d
   );
 };
 
-const Chrome: React.FC<{frame: number; ink: string; dot: string; brand: string; headline: string; clip?: string}> = ({frame, ink, dot, brand, headline, clip}) => {
+const Chrome: React.FC<{frame: number; ink: string; dot: string; brand: string; headline: string; settles: number[]; clip?: string; copy?: boolean}> = ({frame, ink, dot, brand, headline, settles, clip, copy}) => {
   const enter = interpolate(frame, [F_CHROME, F_CHROME + 8], [110, 0], {...clamp, easing: easeOut});
   const out = interpolate(frame, [F_COLLAPSE, F_COLLAPSE + 6], [0, -110], {...clamp, easing: easeIn});
   const brandY = frame < F_CTA_BRAND ? enter : interpolate(frame, [F_CTA_BRAND, F_CTA_BRAND + 8], [0, -110], {...clamp, easing: easeIn});
@@ -185,8 +185,11 @@ const Chrome: React.FC<{frame: number; ink: string; dot: string; brand: string; 
       <div style={{position: 'absolute', left: M, right: M, bottom: 72, height: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.6, overflow: 'hidden'}}>
         <span style={{display: 'block', lineHeight: '28px', transform: `translateY(${low}%)`}}>{String(frame).padStart(4, '0')}</span>
         <span style={{display: 'flex', gap: 10, transform: `translateY(${low}%)`}}>
-          {[0, 1, 2].map((k) => (
-            <span key={k} style={{width: 12, height: 12, background: ink}} />
+          {/* One tally pip per board item; each fills when its own row settles. */}
+          {settles.map((at, k) => (
+            <span key={k} data-list-part={copy ? undefined : 'tally-slot'} data-list-item={copy ? undefined : k} data-list-group="scaffold" style={{position: 'relative', width: 12, height: 12, boxShadow: `inset 0 0 0 2px ${ink}`}}>
+              <span data-list-part={copy ? undefined : 'tally'} data-list-item={copy ? undefined : k} style={{position: 'absolute', inset: 0, background: ink, transform: `scale(${ease(frame, at, at + 6)})`}} />
+            </span>
           ))}
         </span>
       </div>
@@ -267,7 +270,7 @@ function boardLayout(items: string[]) {
   const bottomTop = rowsTop + rowsH + 36;
   let y = rowsTop;
   const laid = padded.map((lines, i) => {
-    const item = {lines, len: items[i].length, top: y};
+    const item = {lines, len: items[i].length, top: y, height: heights[i]};
     y += heights[i] + rowGap;
     return item;
   });
@@ -353,8 +356,11 @@ const Board: React.FC<{frame: number; theme: Theme; headline: string; beats: num
         const barW = 18 * grow + 30 * active;
         return (
           <React.Fragment key={i}>
+            {/* The row's layout box: the alignment reference for the parts of this item. */}
+            <div data-list-part="row" data-list-item={i} style={{position: 'absolute', left: M, right: M, top: item.top, height: item.height, pointerEvents: 'none'}} />
             <div style={{position: 'absolute', left: M, top: item.top, height: lay.lineH, display: 'flex', alignItems: 'center', overflow: 'hidden'}}>
               <span
+                data-list-part="number" data-list-item={i} data-list-group="scaffold"
                 style={{
                   display: 'block',
                   fontFamily: MONO_FONT,
@@ -368,7 +374,7 @@ const Board: React.FC<{frame: number; theme: Theme; headline: string; beats: num
                 {`0${i + 1}`}
               </span>
             </div>
-            <div style={{position: 'absolute', left: M, top: item.top + lay.lineH / 2 + lay.numSize * 0.66, width: barW, height: 4, background: theme.accent}} />
+            <div data-list-part="marker" data-list-item={i} style={{position: 'absolute', left: M, top: item.top + lay.lineH / 2 + lay.numSize * 0.66, width: barW, height: 4, background: theme.accent}} />
             <span data-text-role="list" data-list-item={i} style={{display: 'contents'}}>
               {item.lines.map((cells, li) => (
                 <div key={li} style={{position: 'absolute', left: lay.gridLeft, top: item.top + li * (lay.lineH + lay.lineGap), display: 'flex', gap: size * 0.08}}>
@@ -446,6 +452,7 @@ export const Ticker: React.FC<TickerBeatProps> = (props) => {
   const items = listed.length ? listed : [''];
   const beats = itemBeats(items.length);
   const lay = boardLayout(items);
+  const settles = lay.items.map((_, i) => frameOf(beats[i]) + Math.min(FLAP_FRAMES, frameOf(beats[i] + SETTLE) - frameOf(beats[i])));
 
   // Wrapped time: the last 8 frames lead straight into frame 0.
   const fw = frame >= F_COLLAPSE ? frame - DURATION : frame;
@@ -680,10 +687,10 @@ export const Ticker: React.FC<TickerBeatProps> = (props) => {
       ) : null}
 
       {frame >= F_CHROME && frame < F_FLOOD + FLOOD_LEN ? (
-        <Chrome frame={frame} ink={theme.foreground} dot={theme.accent} brand={brand} headline={headline} clip={frame >= F_FLOOD ? outsidePoly : undefined} />
+        <Chrome frame={frame} ink={theme.foreground} dot={theme.accent} brand={brand} headline={headline} settles={settles} clip={frame >= F_FLOOD ? outsidePoly : undefined} />
       ) : null}
       {frame >= F_FLOOD ? (
-        <Chrome frame={frame} ink={theme.background} dot={theme.background} brand={brand} headline={headline} clip={insidePoly} />
+        <Chrome frame={frame} ink={theme.background} dot={theme.background} brand={brand} headline={headline} settles={settles} clip={insidePoly} copy={frame < F_FLOOD + FLOOD_LEN} />
       ) : null}
 
       <Grain />

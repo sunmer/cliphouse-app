@@ -52,6 +52,7 @@ const system = [
   '- Something visibly lands on every beat. No idle hold longer than 2 beats except the final message. The last frame must closely match the first frame so the loop is seamless.',
   '- Decorative repeats of a text role carry data-text-copy. Exactly one real copy of each role is visible at a time.',
   '- List rows come from <template data-list-row> inside a [data-list] host. The runtime sets data-list-item on each row and data-text-role="list" on its [data-list-text] element.',
+  '- Every visual repeated per item (checks, markers, pips, meters, rail stops, placeholders) carries data-list-part="<name>". Inside the row template the runtime sets its data-list-item. Outside it, generate the parts with m.parts(host, name, make) from m.items; never hardcode one element per item in HTML. Time each part to its item\'s start or accent. Mark parts drawn before the items data-list-group="scaffold" and deliberate group moments data-list-group="finale". Mark parts that must sit on their item data-list-align="y" (or "x").',
   '- Text never leaves the frame. Text boxes of different roles never overlap for a full beat.',
   '- Follow docs/direction.md, including its banned list.',
   '- The score is timing only: never write a "sound" block. Music comes from a separate library and is mixed under the video.',

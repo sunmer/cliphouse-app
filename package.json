@@ -26,6 +26,7 @@
     "studio": "remotion studio src/remotion/index.ts",
     "typecheck": "tsc",
     "music:runtime": "node scripts/build-music-runtime.mjs",
+    "beat:runtime": "node scripts/build-beat-runtime.mjs",
     "music:hashes": "node --import tsx scripts/music-hashes.mjs",
     "test:music": "node --import tsx --test scripts/music.test.ts",
     "test:direction": "node --import tsx scripts/check-direction.mjs --sheets output/direction-gates",

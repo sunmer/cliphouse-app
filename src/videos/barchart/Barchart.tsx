@@ -145,14 +145,14 @@ export const Barchart: React.FC<BarchartProps> = ({texts, theme}) => {
             const isPeak = i === peak;
             const vin = prog(frame, it.startFrame, 8);
             return (
-              <div key={i} data-text-role="list" data-list-item={i} style={{position: 'absolute', left: colLeft(i), top: COL_TOP, width: bar, height: COL_H}}>
-                <div style={{position: 'absolute', left: 0, bottom: 0, width: '100%', height: h, background: isPeak ? theme.accent : theme.accent2}} />
+              <div key={i} data-text-role="list" data-list-item={i} data-list-part="row" style={{position: 'absolute', left: colLeft(i), top: COL_TOP, width: bar, height: COL_H}}>
+                <div data-list-part="bar" data-list-item={i} data-list-align="x" style={{position: 'absolute', left: 0, bottom: 0, width: '100%', height: h, background: isPeak ? theme.accent : theme.accent2}} />
                 <div style={{position: 'absolute', left: 0, top: COL_H + RULE_H + 24, width: '100%', textAlign: 'center', fontSize: labelSize, fontWeight: 650, color: `${theme.foreground}cc`}}>
                   <Words text={p.label} at={it.startFrame} size={labelSize} />
                 </div>
                 {' '}
                 <div style={{position: 'absolute', left: 0, width: '100%', bottom: h + 14, height: valueSize * 1.2, overflow: 'hidden', textAlign: 'center'}}>
-                  <span style={{display: 'inline-block', fontFamily: MONO_FONT, fontWeight: 800, fontSize: valueSize, lineHeight: `${valueSize * 1.2}px`, color: isPeak ? theme.accent : theme.foreground, transform: `translateY(${(1 - vin) * 105}%)`}}>
+                  <span data-list-part="value" data-list-item={i} data-list-align="x" style={{display: 'inline-block', fontFamily: MONO_FONT, fontWeight: 800, fontSize: valueSize, lineHeight: `${valueSize * 1.2}px`, color: isPeak ? theme.accent : theme.foreground, transform: `translateY(${(1 - vin) * 105}%)`}}>
                     {countText(p.display, t)}
                   </span>
                 </div>

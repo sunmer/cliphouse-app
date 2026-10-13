@@ -18,6 +18,7 @@ import {usesLibrary} from '../src/music/schema.ts';
 import {FADE_IN, FADE_OUT, TRACKS, fadeFilter, fadeGain, trackPath} from '../src/music/library.ts';
 import {addTrack, probe} from '../server/audio.ts';
 import {validateShare} from '../server/model.ts';
+import {currentVersion} from '../src/agent/versions.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
 const launchVariants = manifest.variants.filter((v) => (LAUNCH_TEMPLATES as readonly string[]).includes(v.template));
@@ -40,7 +41,7 @@ test('library props need a known track and reject old audio shapes', () => {
     for (const bad of [{enabled: true}, {enabled: true, track: 'nope'}, {enabled: 'yes', track: TRACKS[0].id}, {enabled: true, track: TRACKS[0].id, extra: 1}]) {
       assert.equal(validateProps(schema, {...p, audio: bad}).ok, false, `${v.id}: ${JSON.stringify(bad)}`);
     }
-    assert.deepEqual(validateShare({variantId: v.id, props: p, templateVersion: 1}).props.audio, p.audio, v.id);
+    assert.deepEqual(validateShare({variantId: v.id, props: p, templateVersion: currentVersion(v.template)}).props.audio, p.audio, v.id);
   }
 });
 

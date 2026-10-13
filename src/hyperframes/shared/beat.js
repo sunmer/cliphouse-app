@@ -255,8 +255,31 @@ var CliphouseBeat = (() => {
       },
       items: plan.items.map((it) => ({ text: list[it.index], index: it.index, start: at(it.start), accent: at(it.accent) })),
       duration: durationSeconds(score),
-      spans: (el) => el ? [...el.querySelectorAll(".w")] : []
+      spans: (el) => el ? [...el.querySelectorAll(".w")] : [],
+      row: (index) => document.querySelector(`[data-list] > [data-list-item="${index}"]`),
+      parts: () => [],
+      tag: (el, name, index) => {
+        if (!el) return el;
+        el.setAttribute("data-list-part", name);
+        el.setAttribute("data-list-item", String(index));
+        return el;
+      }
     };
+  }
+  function withParts(m) {
+    m.parts = (host, name, make) => {
+      if (!host) return [];
+      for (const old of host.querySelectorAll(`[data-list-generated][data-list-part="${name}"]`)) old.remove();
+      return m.items.map((item) => {
+        const el = make(item);
+        m.tag(el, name, item.index);
+        el.setAttribute("data-list-generated", "");
+        el.style.setProperty("--i", String(item.index));
+        host.append(el);
+        return el;
+      });
+    };
+    return m;
   }
   function fill(el, text) {
     el.textContent = "";
@@ -274,16 +297,20 @@ var CliphouseBeat = (() => {
   function mount(tl, score, build) {
     const win = window;
     const run = (vars) => {
-      const m = create(score, vars);
+      const m = withParts(create(score, vars));
+      for (const old of document.querySelectorAll("[data-list-generated]")) old.remove();
       for (const host of document.querySelectorAll("[data-list]")) {
         const tpl = host.querySelector("template[data-list-row]");
         if (!tpl) continue;
-        for (const old of host.querySelectorAll("[data-list-item]")) old.remove();
+        for (const old of host.querySelectorAll(":scope > [data-list-item]")) old.remove();
         host.style.setProperty("--count", String(m.items.length));
         m.items.forEach((item) => {
+          var _a;
           const row = tpl.content.firstElementChild.cloneNode(true);
           row.dataset.listItem = String(item.index);
+          (_a = row.dataset).listPart ?? (_a.listPart = "row");
           row.style.setProperty("--i", String(item.index));
+          for (const p of row.querySelectorAll("[data-list-part]")) p.dataset.listItem = String(item.index);
           for (const t of row.querySelectorAll("[data-list-text]")) {
             t.dataset.textRole = "list";
             if (t.hasAttribute("data-words")) fill(t, item.text);

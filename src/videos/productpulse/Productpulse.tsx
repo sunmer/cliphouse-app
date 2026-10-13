@@ -121,8 +121,8 @@ export const Productpulse: React.FC<ProductpulseProps> = (props) => {
         const leave = prog(frame, sc(2) - 8, 8, easeIn);
         const beatScale = 1;
         return (
-          <div key={role} data-role-block={role}>
-            {mark && <div style={{...shape({...mark, w: mark.w * (1 - leave), h: mark.h * (1 - leave)}, [theme.accent, theme.accent2, theme.foreground][i]), transform: `scale(${beatScale})`}} />}
+          <div key={role} data-role-block={role} data-list-part="row" data-list-item={i}>
+            {mark && <div data-list-part="marker" data-list-item={i} style={{...shape({...mark, w: mark.w * (1 - leave), h: mark.h * (1 - leave)}, [theme.accent, theme.accent2, theme.foreground][i]), transform: `scale(${beatScale})`}} />}
             <div style={{position: 'absolute', left: PAD + DOT + 40, width: INNER - DOT - 40, top: rowY(i) + (rowH - pointSize * 1.08) / 2}}>
               <MaskWords role={role} text={texts[role].toUpperCase()} size={pointSize} lineHeight={1.08} at={(w) => word(role, w) - 4}
                 exit={sc(2) - 10 + i} style={{fontWeight: 850, whiteSpace: 'nowrap'}} />

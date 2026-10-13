@@ -56,9 +56,9 @@
       <div class="list" data-list data-done="0" data-count="3">
         <template data-list-row>
           <div class="row">
-            <div class="chip"><span class="fill"></span><span class="num mono" data-list-number>01</span></div>
+            <div class="chip" data-list-part="chip" data-list-align="y"><span class="fill" data-list-part="chip-fill" data-list-group="finale"></span><span class="num mono" data-list-number>01</span></div>
             <div class="itext display fit" data-list-text data-words data-fit-max="80" data-fit-min="48">Item</div>
-            <span class="hair"></span>
+            <span class="hair" data-list-part="divider"></span>
           </div>
         </template>
       </div>
@@ -140,7 +140,7 @@
       const sS = Math.min(0.5, 740 / Math.max(uw, 1));
       const sH = Math.min(0.5, 740 / Math.max(hw, 1));
       const capLX = Math.max(80, ux - 100), capRX = Math.min(1816, ux + uw + 76);
-      const rows = [...host.querySelectorAll('[data-list-item]')];
+      const rows = [...host.querySelectorAll(':scope > [data-list-item]')];
       const listX = host.offsetLeft, listW = host.offsetWidth;
       const rowBottom = rows.map((r) => host.offsetTop + r.offsetTop + r.offsetHeight);
       const ruleY = rows.length ? host.offsetTop + rows[0].offsetTop - 24 : 200;

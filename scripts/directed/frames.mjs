@@ -117,6 +117,8 @@ export async function openTemplate(browser, id, props) {
     return {
       page, meta,
       seek: async (frame) => { await page.evaluate((t) => { window.__timelines.main.pause(); window.__timelines.main.totalTime(t, true); }, frame / meta.fps); },
+      // Change the list in place through the same rebuild the editor uses.
+      setList: (text) => page.evaluate((v) => window.cliphouseBeatUpdate({text_list: v}), text),
       close: async () => { await page.close(); fs.rmSync(dir, {recursive: true, force: true}); },
     };
   }
@@ -143,5 +145,42 @@ export async function grab(t, frame, {png} = {}) {
   const shot = await t.page.screenshot({type: 'png', ...(png ? {path: png} : {})});
   return {boxes, shot};
 }
+
+// Every element tagged with data-list-part: its name, item, group, alignment, and the part of its box that shows.
+// A part shows when no ancestor hides it and its own box survives the clip chain. Rows (the row part) are the
+// alignment reference for the parts inside them; they keep their layout box even while hidden.
+const PARTS = `(() => {
+  const out = [];
+  const W = document.documentElement.clientWidth, H = document.documentElement.clientHeight;
+  const collapsed = (cp, c) => {
+    if (cp.startsWith('circle(') && parseFloat(cp.slice(7)) === 0) return true;
+    if (!cp.startsWith('inset(')) return false;
+    const v = cp.slice(6, cp.indexOf(')')).split(' ').filter(Boolean).slice(0, 4).map((x, i) => x.endsWith('%') ? parseFloat(x) / 100 * (i % 2 ? c.width : c.height) : parseFloat(x) || 0);
+    const [t, r = t, b = t, l = r] = v;
+    return t + b >= c.height - 0.5 || l + r >= c.width - 0.5;
+  };
+  for (const el of document.querySelectorAll('[data-list-part][data-list-item]')) {
+    const r = el.getBoundingClientRect();
+    let hidden = r.width < 1 || r.height < 1 || getComputedStyle(el).visibility === 'hidden';
+    let vis = {l: r.left, t: r.top, r: r.right, b: r.bottom};
+    for (let a = el; a && a !== document.body && !hidden; a = a.parentElement) {
+      const css = getComputedStyle(a);
+      if (css.display === 'none' || Number(css.opacity) < 0.08) hidden = true;
+      if (css.clipPath !== 'none' && collapsed(css.clipPath, a.getBoundingClientRect())) hidden = true;
+      if (a !== el && css.overflow !== 'visible') {
+        const c = a.getBoundingClientRect();
+        vis = {l: Math.max(vis.l, c.left), t: Math.max(vis.t, c.top), r: Math.min(vis.r, c.right), b: Math.min(vis.b, c.bottom)};
+      }
+    }
+    vis = {l: Math.max(vis.l, 0), t: Math.max(vis.t, 0), r: Math.min(vis.r, W), b: Math.min(vis.b, H)};
+    const shown = hidden ? 0 : Math.max(0, vis.r - vis.l) * Math.max(0, vis.b - vis.t) / (r.width * r.height);
+    const tol = el.closest('[data-list-tolerance]')?.dataset.listTolerance;
+    out.push({part: el.dataset.listPart, item: Number(el.dataset.listItem), group: el.dataset.listGroup ?? null, align: el.dataset.listAlign ?? null,
+      tolerance: tol === undefined ? null : Number(tol), shown, cx: (r.left + r.right) / 2, cy: (r.top + r.bottom) / 2});
+  }
+  return out;
+})()`;
+/** The list parts at the current frame. Seek first. */
+export const listParts = (t) => t.page.evaluate(PARTS);
 
 export const launch = () => chromium.launch({args: ['--allow-file-access-from-files']});

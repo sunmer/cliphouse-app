@@ -209,9 +209,9 @@
   ],
   "barchart": [
     {
-      "version": 2,
-      "hash": "4cf024e9f8a337a2",
-      "sha256": "2048b1a973bd76c6c9f6a62a9321fb051fe519d4b95e42af66281b3bf4aa5641",
+      "version": 3,
+      "hash": "ca657447fe6e5735",
+      "sha256": "8e3cc882e65d968946e612d655911188515a71d91bf621d1aebbe4cd0d5f2603",
       "createdAt": "2026-10-13"
     }
   ],
@@ -721,9 +721,9 @@
   ],
   "pricedrop": [
     {
-      "version": 2,
-      "hash": "d6bf10d19ae34fc0",
-      "sha256": "2e8205089c05467c1775cb38241aa1065924fcc07eaccd6f0b2ab9bb872e4c3d",
+      "version": 3,
+      "hash": "cab6de8bbc1df145",
+      "sha256": "abdbb53bc53bdffdb1e3f2cc19b999a9d128966eb64f5993cde09677c0d6da4e",
       "createdAt": "2026-10-13"
     }
   ],
@@ -737,145 +737,145 @@
   ],
   "eventcountdown": [
     {
-      "version": 1,
-      "hash": "62fc7dd7514ef369",
-      "sha256": "c45efb5517177ea9e18be422ad7d6c04de3544dc2620062345651197cd7f56b3",
-      "createdAt": "2026-10-12"
+      "version": 2,
+      "hash": "333c99f90f09d5c9",
+      "sha256": "110f8a29a538940fb74942592ff64d4a0bfc7d27b0cbf5d2f80d45b80de412b2",
+      "createdAt": "2026-10-13"
     }
   ],
   "ticker": [
     {
-      "version": 2,
-      "hash": "1f45a9826b26bdfc",
-      "sha256": "a0a9d5b7341fa8f587f2fc3f7cca07cf1b34e9324837f9813bc1acff80d16ce3",
+      "version": 3,
+      "hash": "4f9eae302c94891b",
+      "sha256": "b2a50ef67f200d1f99dd06ab7dbc0e34f0a2d56ce0248973a8ceb9c3d2aad6b5",
       "createdAt": "2026-10-13"
     }
   ],
   "beatreel": [
     {
-      "version": 1,
-      "hash": "8225a281e4ab9611",
-      "sha256": "0aef1e36c90717d0e9d9f41c84511f1637a720a4e86ed1e87a2ee353ba48ab51",
-      "createdAt": "2026-10-12"
+      "version": 2,
+      "hash": "e4ec426b9290d5fd",
+      "sha256": "e7bf81c228f8e2434765a86e3f811c19c00925e7e5052eefa72f468dcac2f216",
+      "createdAt": "2026-10-13"
     }
   ],
   "productpulse": [
     {
-      "version": 1,
-      "hash": "50080a1cef18d64a",
-      "sha256": "dcda6a55054a4eda3110b0f7e20830ff2742dfabe9caf5ed63da2743a6a2770d",
-      "createdAt": "2026-10-12"
+      "version": 2,
+      "hash": "b632acb0f83f37b7",
+      "sha256": "3dd305244eee0fc579e4ab40f8e339f44a8c4cb3d87c17223a24d3c0ac3b6661",
+      "createdAt": "2026-10-13"
     }
   ],
   "stack": [
     {
-      "version": 2,
-      "hash": "f879fc214ae858ac",
-      "sha256": "cfa09fde6bcfc50622282107e0bc19a3147f6f3c5f82ca30965b41f2ab98240f",
+      "version": 3,
+      "hash": "7fd6ca36a764ece0",
+      "sha256": "7df83474fe7cd0adc89e2a0d8f682b5b182f8748353bda1fce08841230398bd1",
       "createdAt": "2026-10-13"
     }
   ],
   "changelog": [
     {
-      "version": 1,
-      "hash": "2b708386ffcb808d",
-      "sha256": "6df08e869b5cde24ec403bcd1ed7d8a84be02fdc295764ebc43946402378812a",
+      "version": 2,
+      "hash": "1f4e92eb2b035556",
+      "sha256": "48e7ebbb49e03a22fa5c22379999a0a3d30c09b97dc4dc1537b7f94d85c7448a",
       "createdAt": "2026-10-13"
     }
   ],
   "versionreveal": [
     {
-      "version": 1,
-      "hash": "c3941b1073cfb9ca",
-      "sha256": "2abc9598fdb8bcd17b8924ded358a85d86aef15b2cc1e7cae307c9bee675aa7e",
+      "version": 2,
+      "hash": "ecd827ea6f6bb267",
+      "sha256": "6aa7d978dbc2041453c7fba0491c1bdb116665de40bb8d91d032e6882e7e9c27",
       "createdAt": "2026-10-13"
     }
   ],
   "shipped": [
     {
-      "version": 1,
-      "hash": "76fe93452b39faf5",
-      "sha256": "fa45a881c4c14a96c25efafce1343a5e9107531c470da359a221e1f9805e42a3",
+      "version": 2,
+      "hash": "9cace196054509b5",
+      "sha256": "a389c7bcaf7b78dd4f4b6c4a2a831af7f12f8a038829f9b045428f09f260523a",
       "createdAt": "2026-10-13"
     }
   ],
   "featurelist": [
     {
-      "version": 1,
-      "hash": "ce4b0eedb68889a8",
-      "sha256": "450b15f064b46564ff493a8ec6e6d0fee27d9dcaa5e97ccb0ea8b00060ccb72c",
+      "version": 2,
+      "hash": "e617e4d084fb59db",
+      "sha256": "ae4a6ec5a95a0d13170fafac205366ced6fb74a7f5641a8bcc587d4a1c48588b",
       "createdAt": "2026-10-13"
     }
   ],
   "metricbump": [
     {
-      "version": 1,
-      "hash": "ac2665127ce5e4c4",
-      "sha256": "e45e3e0098bb5e20bf25c306ce3dcb565afa7bdbefb2bd8881f911fb1e75324f",
+      "version": 2,
+      "hash": "642b24eaa6d10b9a",
+      "sha256": "6172f39288abadde6387d0b7c461a18cecf58fe0cb1e9c4a6fb4555cad96f2a7",
       "createdAt": "2026-10-13"
     }
   ],
   "integration": [
     {
-      "version": 1,
-      "hash": "db1d35b68ebc5063",
-      "sha256": "431317114233d39a67ace2f99a20d9006f91acf08e963fd0832da8aa1fa9eed3",
+      "version": 2,
+      "hash": "2810ff4e52398982",
+      "sha256": "04a35bcaba1ae404228d7734c414fe2fa1f6f6c6c13960a94bffb540650e4d16",
       "createdAt": "2026-10-13"
     }
   ],
   "pricingchange": [
     {
-      "version": 1,
-      "hash": "7a20dc1bc017b663",
-      "sha256": "b6535b9e74fe2fef24ddab5cf27e982406c646e51ed84b3fc1a33b40a4ca589b",
+      "version": 2,
+      "hash": "8c4e2c25c7e0d158",
+      "sha256": "fdb7ae379cb98b61d1f67098778532c8d1a7ca0425fa106026f40ad887301b0d",
       "createdAt": "2026-10-13"
     }
   ],
   "waitlist": [
     {
-      "version": 1,
-      "hash": "89cd3afc7e395e04",
-      "sha256": "27b8b422a3621c2c972579178397840be6a694a01bbe527def69eb6c7715be0a",
+      "version": 2,
+      "hash": "e66c44ec4a821c36",
+      "sha256": "62dc486c6e53fa53cb6be39421ee6866790fe6011af573ddc5b97e187555287b",
       "createdAt": "2026-10-13"
     }
   ],
   "launchday": [
     {
-      "version": 1,
-      "hash": "f888335dc1a766b3",
-      "sha256": "16fac86cb3eb336d4d487cd2ce572e1d57a02465851a0098301c1175fc6fff16",
+      "version": 2,
+      "hash": "cff3c35121e5b742",
+      "sha256": "f33ce015866bcd108e70af658e9c42a75708eed37abb4fabf8280f705e8a2739",
       "createdAt": "2026-10-13"
     }
   ],
   "releasenotes": [
     {
-      "version": 1,
-      "hash": "277fc1db866a2184",
-      "sha256": "8ca9acfa699077aacf1dc2cff6734000a09ee38aad78bb6ba9929d509c4c6526",
+      "version": 2,
+      "hash": "84e79fa9eb110a92",
+      "sha256": "2ac779200989d17e1f8e0baab9b9f6b672350d4c3b826093f6851db78c1a025d",
       "createdAt": "2026-10-13"
     }
   ],
   "beforenow": [
     {
-      "version": 1,
-      "hash": "27f4780f01a2149d",
-      "sha256": "c9d88995331afb8eeb69519ce29f346b4cfa8b650ea52e56f717dfe39e2353c0",
+      "version": 2,
+      "hash": "3e1e3044e1c4262e",
+      "sha256": "da4a0ea9d7e836e53612a10cdea0617aa94e73f7227f36437e058c205159c34c",
       "createdAt": "2026-10-13"
     }
   ],
   "customerquote": [
     {
-      "version": 1,
-      "hash": "2298b65b74c90dfc",
-      "sha256": "276e7b6be8bf94f4ed58dd82029af6a1462f79febbca74950197d006b29c5dd3",
+      "version": 2,
+      "hash": "6b6bcd9151ea2c33",
+      "sha256": "b19884b65dcf5066030175d5cab8667f6fcd3ae76d19b1d6e42eeb113d8f8851",
       "createdAt": "2026-10-13"
     }
   ],
   "nowinbeta": [
     {
-      "version": 1,
-      "hash": "e647bd0c458331b6",
-      "sha256": "dd4b2b633e2897b553d146592d183615c03765bee5c6291e098a848581ec5787",
+      "version": 2,
+      "hash": "567fc5115b8392ee",
+      "sha256": "b898a5f10214ac3ebd0a6162e30b0bac4027d5c40629de7091fed6a1668ab3dd",
       "createdAt": "2026-10-13"
     }
   ]
