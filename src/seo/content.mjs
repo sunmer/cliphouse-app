@@ -26,7 +26,7 @@ export const useCases = [
     faq: [
       ['What should a product launch video include?', 'Lead with the product name and one clear promise. Add up to three proof points, then end with one action.'],
       ['Which format should I use?', 'Use 16:9 for websites, YouTube, and slides. Use 9:16 for Reels, TikTok, and Stories.'],
-      ['Can I match my brand colors?', 'Yes. Each template uses five editable theme colors, and the brand kit can apply your saved text and colors.'],
+      ['Can I match my brand colors?', 'Yes. Each template uses five editable theme colors, and the gallery can preview every template in your brand colors.'],
     ],
   },
   {
@@ -130,7 +130,7 @@ export const useCases = [
     faq: [
       ['Can I upload an image logo?', 'Not yet. The Wordmark template animates your brand name as text.'],
       ['How long is a logo reveal?', 'The Wordmark template runs for 6 seconds, which suits a video opener or sign-off.'],
-      ['Can I match my brand colors?', 'Yes. Set the five theme colors or apply your brand kit.'],
+      ['Can I match my brand colors?', 'Yes. Set the five theme colors, or pick your brand colors in the gallery and every video opens in them.'],
     ],
   },
   {
