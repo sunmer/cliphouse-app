@@ -76,13 +76,14 @@
         "modelId": "claude-opus-5-5",
         "provider": "Anthropic",
         "effort": "medium"
-      }
+      },
+      "music": true
     },
     {
       "id": "ticker",
       "title": "Ticker",
       "creator": "mo.graph",
-      "prompt": "A loud 8 second square social ad: tilted scrolling marquee rows of the headline, a split-flap board for three offers, and a stamped CTA.",
+      "prompt": "A loud 8 second square social ad on a 120 BPM tech-house groove: tilted marquee bands of the headline, a split-flap board of one to three items that clack on the beat, and a stamped CTA.",
       "createdAt": "2026-10-07",
       "license": "MIT-0",
       "generation": {
@@ -90,7 +91,8 @@
         "modelId": "claude-opus-5-5",
         "provider": "Anthropic",
         "effort": "medium"
-      }
+      },
+      "music": true
     },
     {
       "id": "terminal",
@@ -454,7 +456,8 @@
         "modelId": "claude-opus-5-5",
         "provider": "Anthropic",
         "effort": "medium"
-      }
+      },
+      "music": true
     },
     {
       "id": "counter",
@@ -1350,7 +1353,8 @@
         "modelId": "gpt-5",
         "provider": "OpenAI",
         "effort": "medium"
-      }
+      },
+      "music": true
     },
     {
       "id": "beatreel",
@@ -1411,6 +1415,188 @@
         "effort": "medium"
       },
       "music": true
+    },
+    {
+      "id": "changelog",
+      "title": "Changelog",
+      "creator": "cliphouse.studio",
+      "prompt": "A 4:5 weekly changelog post. A version tag and the week, then up to five shipped items print onto a release log one per beat, each read as its own line (the user may prefix them with New, Improved, or Fixed), then the CTA. Built for X and LinkedIn feeds.",
+      "createdAt": "2026-10-13",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "nowinbeta",
+      "title": "Now in Beta",
+      "creator": "cliphouse.studio",
+      "prompt": "A 1:1 \"now in beta\" announcement. A beta badge stamps onto the feature name, the subhead says who can join, and the CTA invites people in. Confident and a little playful.",
+      "createdAt": "2026-10-13",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "versionreveal",
+      "title": "Version Reveal",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16:9 major version reveal. The version number is the hero: its characters slam or roll into place, the headline names the release, up to three highlights land, then the CTA. Feels like a keynote title card.",
+      "createdAt": "2026-10-13",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "shipped",
+      "title": "Shipped",
+      "creator": "cliphouse.studio",
+      "prompt": "A 9:16 \"we shipped it\" story. A deploy progress bar fills, a SHIPPED stamp lands, the feature name and subhead read clearly, then the CTA. Built for Reels, TikTok, and Stories.",
+      "createdAt": "2026-10-13",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "featurelist",
+      "title": "Feature List",
+      "creator": "cliphouse.studio",
+      "prompt": "A 1:1 launch post that lists what is new. The headline sets it up, then up to six features stack into a clean grid or list, each with a check mark landing on its beat, and the CTA closes.",
+      "createdAt": "2026-10-13",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "metricbump",
+      "title": "Metric Bump",
+      "creator": "cliphouse.studio",
+      "prompt": "A 4:5 metric milestone post. A big number snaps into place, the headline says what it measures, a short note gives context, then the brand and CTA. Celebratory but credible, for founders sharing traction.",
+      "createdAt": "2026-10-13",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "integration",
+      "title": "Integration",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16:9 integration announcement. The product mark, built from the brand text, meets a plug or connector shape that snaps in, the headline names the integration (for example \"Relay + Linear\"), the subhead says what it does, and the CTA closes.",
+      "createdAt": "2026-10-13",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "pricingchange",
+      "title": "Pricing Update",
+      "creator": "cliphouse.studio",
+      "prompt": "A 1:1 pricing update. The plan name and the new price land with weight, a note gives the billing unit, up to three included items appear, and the CTA closes. Clear and honest, not a discount ad.",
+      "createdAt": "2026-10-13",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "waitlist",
+      "title": "Waitlist",
+      "creator": "cliphouse.studio",
+      "prompt": "A 9:16 waitlist teaser for a product that is coming soon. A launch date, a headline that teases the product, a subhead with one line of promise, and a strong CTA to join the waitlist. Builds anticipation.",
+      "createdAt": "2026-10-13",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "launchday",
+      "title": "Launch Day",
+      "creator": "cliphouse.studio",
+      "prompt": "A 1:1 launch-day post for a Product Hunt or Hacker News style launch. \"We are live\" energy: the date line, the product name and tagline, then a CTA asking for support. Feels like a countdown that hits zero.",
+      "createdAt": "2026-10-13",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "releasenotes",
+      "title": "Release Notes",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16:9 release notes video for a changelog page or YouTube. A version and date header, then up to six notes that type or slide in one per beat like a terminal or a document, then the CTA. Developer-friendly and calm.",
+      "createdAt": "2026-10-13",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "beforenow",
+      "title": "Before and Now",
+      "creator": "cliphouse.studio",
+      "prompt": "A 4:5 before-and-now launch post. The old way (the subhead) sits on one side of a split, a wipe crosses the frame and reveals the new way (the headline), then the brand and CTA. Makes an improvement obvious.",
+      "createdAt": "2026-10-13",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "customerquote",
+      "title": "Customer Quote",
+      "creator": "cliphouse.studio",
+      "prompt": "A 1:1 social-proof post for a launch. A short customer quote lands word by word, the author and their company appear, then the brand and CTA. Warm and credible, not a generic testimonial card.",
+      "createdAt": "2026-10-13",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
     }
   ],
   "variants": [
@@ -1924,9 +2110,7 @@
         "texts": {
           "brand": "KICKLAB",
           "headline": "The drop is here",
-          "point1": "Limited run",
-          "point2": "Free shipping",
-          "point3": "48h only",
+          "list": "Limited run\nFree shipping\n48h only",
           "cta": "Shop now"
         },
         "theme": {
@@ -1935,6 +2119,9 @@
           "foreground": "#ffffff",
           "accent": "#d4ff3a",
           "accent2": "#ff5c39"
+        },
+        "audio": {
+          "enabled": false
         }
       },
       "seoDescription": "A vertical sneaker or product drop reel with a masked headline, three stacked selling points, and a circular call-to-action reveal.",
@@ -1972,9 +2159,7 @@
         "texts": {
           "brand": "Orbit",
           "headline": "Ship it faster.",
-          "point1": "Realtime sync",
-          "point2": "Zero config",
-          "point3": "Built-in AI",
+          "list": "Realtime sync\nZero config\nBuilt-in AI",
           "cta": "Start free"
         },
         "theme": {
@@ -1983,6 +2168,9 @@
           "foreground": "#111827",
           "accent": "#2563eb",
           "accent2": "#16a34a"
+        },
+        "audio": {
+          "enabled": false
         }
       },
       "hidden": true
@@ -2015,9 +2203,7 @@
         "texts": {
           "brand": "SUMMIT 26",
           "headline": "Future, live.",
-          "point1": "40 speakers",
-          "point2": "3 stages",
-          "point3": "1 city",
+          "list": "40 speakers\n3 stages\n1 city",
           "cta": "Get tickets"
         },
         "theme": {
@@ -2026,6 +2212,9 @@
           "foreground": "#fdf4ff",
           "accent": "#ff2bd6",
           "accent2": "#facc15"
+        },
+        "audio": {
+          "enabled": false
         }
       },
       "hidden": true
@@ -2057,9 +2246,7 @@
         "texts": {
           "brand": "Fern Studio",
           "headline": "Design that grows",
-          "point1": "Identity",
-          "point2": "Packaging",
-          "point3": "Spaces",
+          "list": "Identity\nPackaging\nSpaces",
           "cta": "Say hello"
         },
         "theme": {
@@ -2068,6 +2255,9 @@
           "foreground": "#eef5ec",
           "accent": "#9be15d",
           "accent2": "#f2c14e"
+        },
+        "audio": {
+          "enabled": false
         }
       },
       "hidden": true
@@ -2099,9 +2289,7 @@
         "texts": {
           "brand": "KICKLAB",
           "headline": "Weekend drop",
-          "point1": "30% off kicks",
-          "point2": "Free shipping",
-          "point3": "Ends Sunday",
+          "list": "30% off kicks\nFree shipping\nEnds Sunday",
           "cta": "Shop now"
         },
         "theme": {
@@ -2110,6 +2298,9 @@
           "foreground": "#f5f5f0",
           "accent": "#ff3b30",
           "accent2": "#ffd60a"
+        },
+        "audio": {
+          "enabled": false
         }
       },
       "seoDescription": "A square flash sale video with scrolling marquee type and split-flap offers for Instagram feed and LinkedIn campaigns.",
@@ -2146,9 +2337,7 @@
         "texts": {
           "brand": "Northwave",
           "headline": "Live this summer",
-          "point1": "Main stage",
-          "point2": "Night market",
-          "point3": "Afterparty",
+          "list": "Main stage\nNight market\nAfterparty",
           "cta": "Get tickets"
         },
         "theme": {
@@ -2157,6 +2346,9 @@
           "foreground": "#f7f3ff",
           "accent": "#ff4fd8",
           "accent2": "#3df5ff"
+        },
+        "audio": {
+          "enabled": false
         }
       },
       "hidden": true
@@ -3749,7 +3941,7 @@
           "brand": "Fieldnote",
           "headline": "Revenue doubled",
           "subhead": "Quarterly recurring revenue, in thousands of dollars",
-          "chart": "Q1 120, Q2 168, Q3 205, Q4 251",
+          "list": "Q1 120\nQ2 168\nQ3 205\nQ4 251",
           "attribution": "Source: Fieldnote finance, 2026"
         },
         "theme": {
@@ -3758,6 +3950,9 @@
           "foreground": "#17201b",
           "accent": "#e4572e",
           "accent2": "#2f6f5e"
+        },
+        "audio": {
+          "enabled": false
         }
       },
       "seoDescription": "A free animated bar chart video template. Type labels and values, watch the bars grow with counting numbers, and edit the colors online.",
@@ -6858,6 +7053,9 @@
           "foreground": "#111111",
           "accent": "#ff3d2e",
           "accent2": "#ffe45c"
+        },
+        "audio": {
+          "enabled": false
         }
       },
       "seoDescription": "A free HyperFrames sale template with diagonal panels, a swinging price tag, and a shop button. Edit the price, offer, and colors online.",
@@ -6866,6 +7064,677 @@
         "flash-sale",
         "social-ad"
       ]
+    },
+    {
+      "template": "changelog",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-13",
+      "id": "changelog-launch",
+      "title": "Weekly Changelog",
+      "description": "A weekly changelog post. A version tag and the week, then up to five shipped items print onto a release log one per beat, each read as its own line (the user may prefix them with New, Improved, or Fixed), then the CTA. Built for X and LinkedIn feeds.",
+      "purpose": "Product launch",
+      "style": [
+        "Tech",
+        "Minimal"
+      ],
+      "energy": 3,
+      "keywords": [
+        "weekly changelog video",
+        "saas launch video",
+        "changelog video",
+        "product launch template",
+        "hyperframes template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Relay",
+          "headline": "Shipped this week",
+          "date": "v2.14 / Oct 13",
+          "list": "New: Shared inbox views\nImproved: Search is 3x faster\nFixed: Calendar sync drift\nNew: Slack thread replies\nImproved: Dark mode contrast",
+          "cta": "Read the changelog"
+        },
+        "theme": {
+          "background": "#0f1115",
+          "surface": "#1b1f27",
+          "foreground": "#f4f6fb",
+          "accent": "#5b8cff",
+          "accent2": "#3ddc97"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-launch"
+        }
+      },
+      "seoDescription": "A free 4:5 weekly changelog template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "saas",
+        "product-launch",
+        "social-ad"
+      ],
+      "launch": true
+    },
+    {
+      "template": "nowinbeta",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-13",
+      "id": "nowinbeta-launch",
+      "title": "Now in Beta",
+      "description": "A \"now in beta\" announcement. A beta badge stamps onto the feature name, the subhead says who can join, and the CTA invites people in. Confident and a little playful.",
+      "purpose": "Product launch",
+      "style": [
+        "Bold",
+        "Playful"
+      ],
+      "energy": 4,
+      "keywords": [
+        "now in beta video",
+        "saas launch video",
+        "changelog video",
+        "product launch template",
+        "hyperframes template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Northwind",
+          "headline": "AI Drafts",
+          "subhead": "Open beta for every Pro workspace.",
+          "cta": "Join the beta"
+        },
+        "theme": {
+          "background": "#fff7ea",
+          "surface": "#ffe2b8",
+          "foreground": "#1d1a16",
+          "accent": "#ff5b2e",
+          "accent2": "#2e5bff"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "techno-pulse"
+        }
+      },
+      "seoDescription": "A free 1:1 now in beta template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "saas",
+        "product-launch",
+        "social-ad"
+      ],
+      "launch": true
+    },
+    {
+      "template": "versionreveal",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-13",
+      "id": "versionreveal-launch",
+      "title": "Version Reveal",
+      "description": "A major version reveal. The version number is the hero: its characters slam or roll into place, the headline names the release, up to three highlights land, then the CTA. Feels like a keynote title card.",
+      "purpose": "Product launch",
+      "style": [
+        "Tech",
+        "Bold"
+      ],
+      "energy": 5,
+      "keywords": [
+        "version reveal video",
+        "saas launch video",
+        "changelog video",
+        "product launch template",
+        "hyperframes template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Orbit",
+          "stat": "3.0",
+          "headline": "Rebuilt from scratch",
+          "list": "Offline mode\nRealtime sync\nPlugin API",
+          "cta": "Upgrade today"
+        },
+        "theme": {
+          "background": "#08090d",
+          "surface": "#15171f",
+          "foreground": "#ffffff",
+          "accent": "#c6ff3d",
+          "accent2": "#7a5cff"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-window"
+        }
+      },
+      "seoDescription": "A free 16:9 version reveal template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "product-launch",
+        "saas",
+        "youtube-intro"
+      ],
+      "launch": true
+    },
+    {
+      "template": "shipped",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-13",
+      "id": "shipped-launch",
+      "title": "Feature Shipped",
+      "description": "A \"we shipped it\" story. A deploy progress bar fills, a SHIPPED stamp lands, the feature name and subhead read clearly, then the CTA. Built for Reels, TikTok, and Stories.",
+      "purpose": "Product launch",
+      "style": [
+        "Bold",
+        "Tech"
+      ],
+      "energy": 4,
+      "keywords": [
+        "feature shipped video",
+        "saas launch video",
+        "changelog video",
+        "product launch template",
+        "hyperframes template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Acme",
+          "headline": "Custom domains",
+          "subhead": "Bring your own domain in two clicks.",
+          "cta": "Try it now"
+        },
+        "theme": {
+          "background": "#0b1a12",
+          "surface": "#123524",
+          "foreground": "#eafff3",
+          "accent": "#36f28d",
+          "accent2": "#ffe14d"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-shipit"
+        }
+      },
+      "seoDescription": "A free 9:16 feature shipped template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "product-launch",
+        "saas",
+        "instagram-reel"
+      ],
+      "launch": true
+    },
+    {
+      "template": "featurelist",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-13",
+      "id": "featurelist-launch",
+      "title": "Feature List Launch",
+      "description": "A launch post that lists what is new. The headline sets it up, then up to six features stack into a clean grid or list, each with a check mark landing on its beat, and the CTA closes.",
+      "purpose": "Product launch",
+      "style": [
+        "Minimal",
+        "Tech"
+      ],
+      "energy": 3,
+      "keywords": [
+        "feature list launch video",
+        "saas launch video",
+        "changelog video",
+        "product launch template",
+        "hyperframes template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Fieldnote",
+          "headline": "New in Fieldnote",
+          "list": "Voice notes\nTeam spaces\nPDF export\nTemplates\nCalendar view\nAPI access",
+          "cta": "See what is new"
+        },
+        "theme": {
+          "background": "#f3f5f9",
+          "surface": "#ffffff",
+          "foreground": "#121826",
+          "accent": "#4f46e5",
+          "accent2": "#f59e0b"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-rooftop"
+        }
+      },
+      "seoDescription": "A free 1:1 feature list launch template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "saas",
+        "product-launch",
+        "social-ad"
+      ],
+      "launch": true
+    },
+    {
+      "template": "metricbump",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-13",
+      "id": "metricbump-launch",
+      "title": "Metric Bump",
+      "description": "A metric milestone post. A big number snaps into place, the headline says what it measures, a short note gives context, then the brand and CTA. Celebratory but credible, for founders sharing traction.",
+      "purpose": "Data recap",
+      "style": [
+        "Bold",
+        "Minimal"
+      ],
+      "energy": 4,
+      "keywords": [
+        "metric bump video",
+        "saas launch video",
+        "changelog video",
+        "product launch template",
+        "hyperframes template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Ledgerly",
+          "stat": "10k",
+          "headline": "teams on Ledgerly",
+          "subhead": "Up from 2,000 in March. Thank you.",
+          "cta": "Join them"
+        },
+        "theme": {
+          "background": "#101418",
+          "surface": "#1c232b",
+          "foreground": "#f2f7fa",
+          "accent": "#ff7a59",
+          "accent2": "#5ad1ff"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "techno-grid"
+        }
+      },
+      "seoDescription": "A free 4:5 metric bump template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "data-recap",
+        "saas",
+        "social-ad"
+      ],
+      "launch": true
+    },
+    {
+      "template": "integration",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-13",
+      "id": "integration-launch",
+      "title": "Integration Announcement",
+      "description": "A integration announcement. The product mark, built from the brand text, meets a plug or connector shape that snaps in, the headline names the integration (for example \"Relay + Linear\"), the subhead says what it does, and the CTA closes.",
+      "purpose": "Product launch",
+      "style": [
+        "Minimal",
+        "Editorial"
+      ],
+      "energy": 3,
+      "keywords": [
+        "integration announcement video",
+        "saas launch video",
+        "changelog video",
+        "product launch template",
+        "hyperframes template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Relay",
+          "headline": "Relay + Linear",
+          "subhead": "Turn any thread into an issue in one click.",
+          "cta": "Connect now"
+        },
+        "theme": {
+          "background": "#f7f7f4",
+          "surface": "#e9e8e1",
+          "foreground": "#141414",
+          "accent": "#5e6ad2",
+          "accent2": "#ff6b3d"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-sunday"
+        }
+      },
+      "seoDescription": "A free 16:9 integration announcement template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "product-launch",
+        "saas",
+        "brand-intro"
+      ],
+      "launch": true
+    },
+    {
+      "template": "pricingchange",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-13",
+      "id": "pricingchange-launch",
+      "title": "Pricing Update",
+      "description": "A pricing update. The plan name and the new price land with weight, a note gives the billing unit, up to three included items appear, and the CTA closes. Clear and honest, not a discount ad.",
+      "purpose": "Product launch",
+      "style": [
+        "Minimal",
+        "Bold"
+      ],
+      "energy": 3,
+      "keywords": [
+        "pricing update video",
+        "saas launch video",
+        "changelog video",
+        "product launch template",
+        "hyperframes template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Stackwise",
+          "headline": "New Team plan",
+          "price": "$12",
+          "priceNote": "per seat / month",
+          "list": "Unlimited projects\nSSO included\nPriority support",
+          "cta": "Compare plans"
+        },
+        "theme": {
+          "background": "#fdfcfb",
+          "surface": "#efe9ff",
+          "foreground": "#17131f",
+          "accent": "#7c3aed",
+          "accent2": "#10b981"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-nightshift"
+        }
+      },
+      "seoDescription": "A free 1:1 pricing update template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "saas",
+        "product-launch",
+        "sale"
+      ],
+      "launch": true
+    },
+    {
+      "template": "waitlist",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-13",
+      "id": "waitlist-launch",
+      "title": "Waitlist Open",
+      "description": "A waitlist teaser for a product that is coming soon. A launch date, a headline that teases the product, a subhead with one line of promise, and a strong CTA to join the waitlist. Builds anticipation.",
+      "purpose": "Product launch",
+      "style": [
+        "Bold",
+        "Neon"
+      ],
+      "energy": 4,
+      "keywords": [
+        "waitlist open video",
+        "saas launch video",
+        "changelog video",
+        "product launch template",
+        "hyperframes template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Halo",
+          "headline": "Your inbox, made quiet",
+          "subhead": "An email client that reads first.",
+          "date": "Launching Nov 4",
+          "cta": "Join the waitlist"
+        },
+        "theme": {
+          "background": "#140f24",
+          "surface": "#241b3d",
+          "foreground": "#f5f0ff",
+          "accent": "#ff4fa3",
+          "accent2": "#ffd166"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-launch"
+        }
+      },
+      "seoDescription": "A free 9:16 waitlist open template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "product-launch",
+        "instagram-reel",
+        "saas"
+      ],
+      "launch": true
+    },
+    {
+      "template": "launchday",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-13",
+      "id": "launchday-launch",
+      "title": "Launch Day",
+      "description": "A launch-day post for a Product Hunt or Hacker News style launch. \"We are live\" energy: the date line, the product name and tagline, then a CTA asking for support. Feels like a countdown that hits zero.",
+      "purpose": "Product launch",
+      "style": [
+        "Bold",
+        "Playful"
+      ],
+      "energy": 5,
+      "keywords": [
+        "launch day video",
+        "saas launch video",
+        "changelog video",
+        "product launch template",
+        "hyperframes template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Tinybase",
+          "date": "Live today",
+          "headline": "Tinybase 1.0",
+          "subhead": "The local-first database for small teams.",
+          "cta": "Support our launch"
+        },
+        "theme": {
+          "background": "#ff6154",
+          "surface": "#ff8a7f",
+          "foreground": "#ffffff",
+          "accent": "#1a1a1a",
+          "accent2": "#ffe600"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "techno-pulse"
+        }
+      },
+      "seoDescription": "A free 1:1 launch day template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "product-launch",
+        "social-ad",
+        "saas"
+      ],
+      "launch": true
+    },
+    {
+      "template": "releasenotes",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-13",
+      "id": "releasenotes-launch",
+      "title": "Release Notes",
+      "description": "A release notes video for a changelog page or YouTube. A version and date header, then up to six notes that type or slide in one per beat like a terminal or a document, then the CTA. Developer-friendly and calm.",
+      "purpose": "Product launch",
+      "style": [
+        "Tech",
+        "Minimal"
+      ],
+      "energy": 2,
+      "keywords": [
+        "release notes video",
+        "saas launch video",
+        "changelog video",
+        "product launch template",
+        "hyperframes template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Forge CLI",
+          "headline": "Release 0.9",
+          "date": "October 2026",
+          "list": "Faster cold starts on every runtime\nNew forge env pull command\nTypeScript config by default\nBetter error messages\nWindows ARM builds\nRemoved legacy flags",
+          "cta": "npm i forge@latest"
+        },
+        "theme": {
+          "background": "#0d1117",
+          "surface": "#161b22",
+          "foreground": "#e6edf3",
+          "accent": "#f78166",
+          "accent2": "#7ee787"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-window"
+        }
+      },
+      "seoDescription": "A free 16:9 release notes template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "saas",
+        "product-launch",
+        "youtube-intro"
+      ],
+      "launch": true
+    },
+    {
+      "template": "beforenow",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-13",
+      "id": "beforenow-launch",
+      "title": "Before and Now",
+      "description": "A before-and-now launch post. The old way (the subhead) sits on one side of a split, a wipe crosses the frame and reveals the new way (the headline), then the brand and CTA. Makes an improvement obvious.",
+      "purpose": "Product launch",
+      "style": [
+        "Editorial",
+        "Bold"
+      ],
+      "energy": 4,
+      "keywords": [
+        "before and now video",
+        "saas launch video",
+        "changelog video",
+        "product launch template",
+        "hyperframes template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Quill",
+          "subhead": "Before: 40 minutes to write a spec",
+          "headline": "Now: 4 minutes",
+          "cta": "Try Quill free"
+        },
+        "theme": {
+          "background": "#f6f2ea",
+          "surface": "#1e1e1e",
+          "foreground": "#1e1e1e",
+          "accent": "#ff4d2e",
+          "accent2": "#2ec27e"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-shipit"
+        }
+      },
+      "seoDescription": "A free 4:5 before and now template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "product-launch",
+        "saas",
+        "social-ad"
+      ],
+      "launch": true
+    },
+    {
+      "template": "customerquote",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-13",
+      "id": "customerquote-launch",
+      "title": "Customer Quote Launch",
+      "description": "A social-proof post for a launch. A short customer quote lands word by word, the author and their company appear, then the brand and CTA. Warm and credible, not a generic testimonial card.",
+      "purpose": "Testimonial",
+      "style": [
+        "Editorial",
+        "Minimal"
+      ],
+      "energy": 2,
+      "keywords": [
+        "customer quote launch video",
+        "saas launch video",
+        "changelog video",
+        "product launch template",
+        "hyperframes template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Relay",
+          "quote": "We cut our support backlog in half the first week we used Relay.",
+          "author": "Maya Chen, Head of Support at Pylon",
+          "cta": "Start free"
+        },
+        "theme": {
+          "background": "#eef4ff",
+          "surface": "#d9e6ff",
+          "foreground": "#0f1a33",
+          "accent": "#2563eb",
+          "accent2": "#f97316"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-rooftop"
+        }
+      },
+      "seoDescription": "A free 1:1 customer quote launch template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "testimonial",
+        "saas",
+        "social-ad"
+      ],
+      "launch": true
     }
   ]
 }

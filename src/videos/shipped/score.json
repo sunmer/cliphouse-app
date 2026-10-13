@@ -1,0 +1,30 @@
+{
+  "beatFrames": 14,
+  "scenes": [
+    {"type": "announcement", "bars": 1, "focusBeat": 3, "roles": ["brand"], "energy": 1},
+    {"type": "title-reveal", "bars": 2, "focusBeat": 10, "roles": ["brand", "headline", "subhead"], "energy": 2},
+    {"type": "end-screen", "bars": 1, "focusBeat": 13, "roles": ["brand", "headline", "subhead", "cta"], "energy": 3}
+  ],
+  "cues": [
+    {"id": "step1", "beat": 0, "sound": "tom", "velocity": 0.6},
+    {"id": "step2", "beat": 1, "sound": "tom", "velocity": 0.65},
+    {"id": "step3", "beat": 2, "sound": "tom", "velocity": 0.7},
+    {"id": "step4", "beat": 3, "sound": "snap", "velocity": 0.8},
+    {"id": "flood", "beat": 4, "sound": "zap", "velocity": 0.8},
+    {"id": "shipped", "beat": 5, "sound": "stamp", "velocity": 0.9},
+    {"id": "stampStep", "beat": 6, "sound": "snap", "velocity": 0.5},
+    {"id": "headline", "beat": 6.5, "sound": "pluck", "role": "headline", "velocity": 0.7},
+    {"id": "checks", "beat": 7, "sound": "clap", "velocity": 0.6},
+    {"id": "subhead", "beat": 8, "sound": "blip", "role": "subhead", "velocity": 0.6},
+    {"id": "rule", "beat": 9, "sound": "pluck", "velocity": 0.5},
+    {"id": "fill", "beat": 10, "sound": "zap", "velocity": 0.6},
+    {"id": "ruler", "beat": 11, "sound": "pluck", "velocity": 0.5},
+    {"id": "cta", "beat": 12, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "click", "beat": 13, "sound": "snap", "velocity": 0.7},
+    {"id": "reset", "beat": 14, "sound": "blip", "velocity": 0.5},
+    {"id": "loopFlood", "beat": 15, "sound": "zap", "velocity": 0.7}
+  ],
+  "risers": [
+    {"beat": 10, "beats": 2}
+  ]
+}

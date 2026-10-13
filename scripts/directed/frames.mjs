@@ -56,6 +56,20 @@ const MEASURE = `(() => {
             let box = {l: c.left, t: c.top, r: c.right, b: c.bottom};
             // inset(top right bottom left) clip-paths shrink the box; percentages are of the element size.
             const cp = css.clipPath;
+            // polygon() clip-paths: the glyph centre must be inside the polygon (even-odd for a hole).
+            if (cp.startsWith('polygon(')) {
+              const body = cp.slice(8, cp.lastIndexOf(')'));
+              const evenodd = body.startsWith('evenodd');
+              const pts = body.replace(/^(evenodd|nonzero),/, '').split(',').map((q) => q.trim().split(' ').filter(Boolean).map((x, i) => x.endsWith('%') ? parseFloat(x) / 100 * (i ? c.height : c.width) : parseFloat(x)));
+              const cx = (g.l + g.r) / 2 - c.left, cy = (g.t + g.b) / 2 - c.top;
+              let inside = false;
+              for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+                const [xi, yi] = pts[i], [xj, yj] = pts[j];
+                if ((yi > cy) !== (yj > cy) && cx < (xj - xi) * (cy - yi) / (yj - yi) + xi) inside = !inside;
+              }
+              void evenodd;
+              if (!inside) { vis = {l: 0, t: 0, r: 0, b: 0}; break; }
+            }
             if (cp.startsWith('inset(')) {
               const v = cp.slice(6, cp.indexOf(')')).split(' ').filter(Boolean).slice(0, 4).map((x, i) => x.endsWith('%') ? parseFloat(x) / 100 * (i % 2 ? c.width : c.height) : parseFloat(x) || 0);
               const [it, ir = it, ib = it, il = ir] = v;
@@ -73,7 +87,7 @@ const MEASURE = `(() => {
         left = Math.min(left, vis.l); top = Math.min(top, vis.t); right = Math.max(right, vis.r); bottom = Math.max(bottom, vis.b);
       }
     }
-    if (chars) out.push({role: el.dataset.textRole, left, top, right, bottom, clipped, text: el.textContent.trim()});
+    if (chars) out.push({role: el.dataset.textRole, copy: !!el.closest('[data-text-copy]'), item: el.closest('[data-list-item]')?.dataset.listItem ?? el.dataset.listItem ?? null, left, top, right, bottom, clipped, text: el.textContent.trim()});
   }
   return out;
 })()`;
@@ -123,6 +137,8 @@ export async function openTemplate(browser, id, props) {
 /** Grab a frame: a small grayscale thumbnail for motion checks, and the text boxes. */
 export async function grab(t, frame, {png} = {}) {
   await t.seek(frame);
+  // Film grain changes every frame; hide it so motion checks see only the design.
+  await t.page.evaluate(() => { for (const el of document.querySelectorAll('[data-grain]')) el.style.visibility = 'hidden'; });
   const boxes = await t.page.evaluate(MEASURE);
   const shot = await t.page.screenshot({type: 'png', ...(png ? {path: png} : {})});
   return {boxes, shot};

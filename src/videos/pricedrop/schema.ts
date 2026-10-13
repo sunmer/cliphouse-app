@@ -1,5 +1,8 @@
-import {z} from 'zod';
-import {textsSchema, themeSchema} from '../contract';
+import type {z} from 'zod';
+import {beatSchema} from '../beat/schema.ts';
+import type {BeatScore} from '../beat/score.ts';
+import scoreJson from './score.json';
 
-export const pricedropSchema = z.object({texts: textsSchema(['brand', 'headline', 'priceNote', 'price', 'cta'] as const), theme: themeSchema});
+export const pricedropScore = scoreJson as unknown as BeatScore;
+export const pricedropSchema = beatSchema(pricedropScore, ['brand', 'headline', 'priceNote', 'price', 'cta'] as const);
 export type PricedropProps = z.infer<typeof pricedropSchema>;

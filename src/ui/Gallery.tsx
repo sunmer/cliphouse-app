@@ -1,5 +1,5 @@
 import {Pencil, Search, SlidersHorizontal, Star, Wand2, X} from 'lucide-react';
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {galleryVariants, searchText, templates, variants, vocab, type Format, type Tone, type Variant} from '../catalog/catalog';
 import {SCENE_TYPES} from '../videos/vocab';
 import {applyKit, kitActive, useBrandKit} from './brandKit';
@@ -24,6 +24,14 @@ export const energyOf = (n: number): Energy => (n <= 2 ? 'Calm' : n === 3 ? 'Med
 const FORMATS: Format[] = ['16:9', '9:16', '1:1', '4:5'];
 const SCENE_FILTERS = Object.entries(SCENE_TYPES).filter(([k]) => k !== 'transition');
 
+// The gallery remounts on every visit, so its view state lives in this tab's session storage:
+// opening a video and coming back keeps the sort, search, and filters.
+const VIEW_KEY = 'cliphouse:gallery-view';
+type View = {sort: Sort; q: string; f: Omit<Filters, 'template'>};
+function readView(): Partial<View> {
+  try { return JSON.parse(sessionStorage.getItem(VIEW_KEY) ?? '{}') as Partial<View>; } catch { return {}; }
+}
+
 function matches(v: Variant, f: Filters, skip?: keyof Filters) {
   if (skip !== 'template' && f.template && v.template !== f.template) return false;
   if (skip !== 'purpose' && f.purpose && v.purpose !== f.purpose) return false;
@@ -41,10 +49,16 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
   const kit = useBrandKit();
   const applied = kitActive(kit);
   const [kitOpen, setKitOpen] = useState(false);
-  const [q, setQ] = useState('');
-  const [sort, setSort] = useState<Sort>('featured');
+  const saved = useMemo(readView, []);
+  const [q, setQ] = useState(saved.q ?? '');
+  const [sort, setSort] = useState<Sort>(saved.sort === 'new' ? 'new' : 'featured');
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [f, setF] = useState<Filters>({template: initialTemplate, purpose: null, formats: [], styles: [], tones: [], energy: null, scenes: []});
+  const [f, setF] = useState<Filters>({purpose: null, formats: [], styles: [], tones: [], energy: null, scenes: [], ...saved.f, template: initialTemplate});
+  useEffect(() => {
+    const {template: _template, ...rest} = f;
+    void _template;
+    try { sessionStorage.setItem(VIEW_KEY, JSON.stringify({sort, q, f: rest} satisfies View)); } catch { /* Storage is unavailable. */ }
+  }, [sort, q, f]);
 
   const set = <K extends keyof Filters>(k: K, v: Filters[K]) => setF((s) => ({...s, [k]: v}));
   const toggle = <K extends 'formats' | 'styles' | 'tones' | 'scenes'>(k: K, v: Filters[K][number]) =>

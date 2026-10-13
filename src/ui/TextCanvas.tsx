@@ -1,7 +1,8 @@
-import {Check, X} from 'lucide-react';
-import {useCallback, useEffect, useRef, useState, type ReactNode, type RefObject} from 'react';
+import {Check, ListPlus, X} from 'lucide-react';
+import {useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode, type RefObject} from 'react';
 import {flushSync} from 'react-dom';
 import {ROLES, roleError, roleHint, type Role, type VideoProps} from '../videos/vocab';
+import {groupOf, listItems, listLabel, listProblems, listRoles, parseLines, type ListGroup} from '../poc/lists';
 import type {VideoPlayerRef} from './VideoPlayer';
 
 type Target = {role: Role; left: number; top: number; width: number; height: number; fontFamily: string; fontWeight: string; rects: DOMRect[]};
@@ -67,7 +68,7 @@ function targetsIn(root: HTMLElement, source: HTMLElement | Document = root): Ta
   return result;
 }
 
-export function TextCanvas({ref, children, player, props, playing, onCommit, onEditing}: {
+export function TextCanvas({ref, children, player, props, playing, onCommit, onEditing, lists = [], onCommitList}: {
   ref?: RefObject<HTMLDivElement | null>;
   children: ReactNode;
   player: RefObject<VideoPlayerRef | null>;
@@ -75,6 +76,9 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
   playing: boolean;
   onCommit: (role: Role, value: string) => void;
   onEditing: (role: Role | null) => void;
+  /** Declared list groups. Tapping any member opens the whole list as one item per line. */
+  lists?: ListGroup[];
+  onCommitList?: (group: ListGroup, items: string[]) => void;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const setRoot = useCallback((node: HTMLDivElement | null) => {
@@ -85,6 +89,7 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
   const [targets, setTargets] = useState<Target[]>([]);
   const [active, setActive] = useState<Target | null>(null);
   const [draft, setDraft] = useState('');
+  const group = active ? groupOf(lists, active.role) : undefined;
   const [size, setSize] = useState({width: 0, height: 0});
   const [viewport, setViewport] = useState({top: 0, bottom: Infinity});
   const measure = useCallback(() => {
@@ -130,33 +135,63 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
 
   const begin = (target: Target) => {
     player.current?.pause();
+    const g = groupOf(lists, target.role);
     // Synchronous focus keeps the keyboard gesture valid on iOS.
     flushSync(() => {
       setActive(target);
-      setDraft(props.texts[target.role] ?? '');
+      setDraft(g ? listItems(g, props).join('\n') : props.texts[target.role] ?? '');
       if (root.current) setSize({width: root.current.clientWidth, height: root.current.clientHeight});
       onEditing(target.role);
     });
     input.current?.focus({preventScroll: true});
-    input.current?.select();
+    if (!g) input.current?.select();
   };
-  const problem = active ? roleError(active.role, draft) : null;
+  const items = group ? parseLines(draft) : [];
+  const listProblem = group ? listProblems(group, items)[0]?.message ?? null : null;
+  const problem = group ? listProblem : active ? roleError(active.role, draft) : null;
   const valid = active && !problem;
   const finish = (save: boolean) => {
     if (save && !valid) return;
-    if (save && active && draft !== props.texts[active.role]) onCommit(active.role, draft.trim());
+    if (save && group) {
+      if (items.join('\n') !== listItems(group, props).join('\n')) onCommitList?.(group, items);
+    } else if (save && active && draft !== props.texts[active.role]) onCommit(active.role, draft.trim());
     setActive(null);
     onEditing(null);
     root.current?.focus({preventScroll: true});
   };
-  const width = active ? Math.min(Math.max(active.width + 16, 220), Math.max(1, size.width - 16)) : 0;
+  // Removed items keep their text, so they can come back within the list's capacity.
+  const removed = group && group.storage.kind === 'roles'
+    ? listRoles(group).slice(listItems(group, props).length).map((r) => props.texts[r] ?? '').filter(Boolean) : [];
+  const restorable = removed.slice(0, Math.max(0, (group?.max ?? 0) - items.length)).filter((t) => !items.includes(t));
+  const width = active ? Math.min(Math.max(active.width + 16, group ? 300 : 220), Math.max(1, size.width - 16)) : 0;
   const left = active ? Math.max(8, Math.min(active.left - 8, size.width - width - 8)) : 0;
   const availableTop = Math.max(8, viewport.top + 8);
   const availableBottom = Math.min(size.height - 8, viewport.bottom - 8);
-  const height = active ? Math.min(Math.max(active.height + 12, 60), Math.max(60, Math.min(220, availableBottom - availableTop - 48))) : 0;
+  const listHeight = group ? 18 + 30 * Math.max(group.max, draft.split('\n').length) : 0;
+  const height = active ? Math.min(Math.max(group ? listHeight : active.height + 12, 60), Math.max(60, Math.min(260, availableBottom - availableTop - 48))) : 0;
   const top = active ? Math.max(availableTop, Math.min(active.top - 6, availableBottom - height - 48)) : 0;
+  const label = group ? listLabel(group) : active ? ROLES[active.role].label : '';
+  // While the video plays, the hit targets are not rendered and the player iframe owns the cursor.
+  // Track hover over live text so the text cursor and a hint still show that text is editable.
+  const [hovering, setHovering] = useState(false);
+  const hoverFrame = useRef(0);
+  const onHover = (event: ReactPointerEvent) => {
+    if (!playing || active || !root.current) { if (hovering) setHovering(false); return; }
+    const {clientX: x, clientY: y} = event;
+    cancelAnimationFrame(hoverFrame.current);
+    hoverFrame.current = requestAnimationFrame(() => {
+      if (!root.current) return;
+      const hit = targetsIn(root.current, player.current?.textRoot() ?? root.current).some((t) => t.rects.some((r) =>
+        x >= r.left - 4 && x <= r.right + 4 && y >= r.top - 4 && y <= r.bottom + 4));
+      setHovering(hit);
+    });
+  };
+  // The line under the caret, so its length shows while typing a list item.
+  const [caretLine, setCaretLine] = useState(0);
+  const lineText = group ? (draft.split('\n')[caretLine] ?? '').trim() : '';
   return (
-    <div ref={setRoot} className={`text-canvas ${active ? 'is-editing' : ''}`} tabIndex={-1}
+    <div ref={setRoot} className={`text-canvas ${active ? 'is-editing' : ''} ${hovering ? 'over-text' : ''}`} tabIndex={-1}
+      onPointerMove={onHover} onPointerLeave={() => setHovering(false)}
       onClickCapture={(event) => {
         if ((event.target as Element).closest('.inline-editor, .text-hit')) return;
         if (active) { finish(true); return; }
@@ -170,6 +205,8 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
         }
       }}>
       {children}
+      {/* The player's iframe swallows pointer events; this layer keeps hover and click on the canvas. */}
+      {!active && <div className="text-capture" aria-hidden="true" />}
       {!playing && !active && <div className="text-targets">
         {targets.map((target, i) => (
           <button key={`${target.role}-${i}`} type="button" className="text-hit"
@@ -178,21 +215,32 @@ export function TextCanvas({ref, children, player, props, playing, onCommit, onE
             onClick={() => begin(target)} />
         ))}
       </div>}
-      {active && <div className="inline-editor" role="group" aria-label={`Edit ${ROLES[active.role].label}`} style={{left, top, width}}>
-        <textarea ref={input} aria-label={ROLES[active.role].label} aria-invalid={!valid} value={draft}
-          style={{height, fontFamily: active.fontFamily, fontWeight: active.fontWeight, fontSize: Math.max(20, Math.min(42, active.height * 0.55))}}
-          onChange={(e) => setDraft(e.target.value.replace(/[\r\n]+/g, ' '))}
+      {active && <div className={`inline-editor ${group ? 'list-editor' : ''}`} role="group" aria-label={`Edit ${label}`} style={{left, top, width}}>
+        <textarea ref={input} aria-label={label} aria-invalid={!valid} value={draft}
+          enterKeyHint={group ? 'enter' : 'done'}
+          style={group ? {height, fontSize: 20, lineHeight: '30px'} : {height, fontFamily: active.fontFamily, fontWeight: active.fontWeight, fontSize: Math.max(20, Math.min(42, active.height * 0.55))}}
+          onSelect={(e) => { if (group) setCaretLine(e.currentTarget.value.slice(0, e.currentTarget.selectionStart).split('\n').length - 1); }}
+          onChange={(e) => {
+            setDraft(group ? e.target.value : e.target.value.replace(/[\r\n]+/g, ' '));
+            if (group) setCaretLine(e.target.value.slice(0, e.target.selectionStart).split('\n').length - 1);
+          }}
           onKeyDown={(e) => {
             e.stopPropagation();
             if (e.nativeEvent.isComposing) return;
             if (e.key === 'Escape') { e.preventDefault(); finish(false); }
-            if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+            // In a list, Enter starts a new item; Cmd or Ctrl+Enter saves.
+            if (e.key === 'Enter' && (!group || e.metaKey || e.ctrlKey)) { e.preventDefault(); finish(true); }
           }} />
         <div className="inline-actions">
-          <span className={!valid ? 'error' : ''}>{ROLES[active.role].label} <span className="counter">{draft.length}/{ROLES[active.role].max}</span>
-            {problem && problem === roleHint(active.role) && <span className="counter"> {problem}</span>}</span>
+          {group ? <span className={!valid ? 'error' : ''}>{label} <span className="counter">{items.length}/{group.max}</span>
+            {!problem && <span className={`counter ${lineText.length > group.itemMax ? 'error' : ''}`}> · line {lineText.length}/{group.itemMax}</span>}
+            {problem && <span className="counter"> {problem}</span>}</span>
+            : <span className={!valid ? 'error' : ''}>{label} <span className="counter">{draft.length}/{ROLES[active.role].max}</span>
+            {problem && problem === roleHint(active.role) && <span className="counter"> {problem}</span>}</span>}
+          {restorable.length > 0 && <button className="icon-btn" title="Restore removed items" aria-label="Restore removed items"
+            onClick={() => { setDraft([...items, ...restorable].join('\n')); input.current?.focus({preventScroll: true}); }}><ListPlus size={17} /></button>}
           <button className="icon-btn" title="Cancel edit" aria-label="Cancel edit" onClick={() => finish(false)}><X size={17} /></button>
-          <button className="icon-btn confirm" title="Save text" aria-label="Save text" disabled={!valid} onClick={() => finish(true)}><Check size={17} /></button>
+          <button className="icon-btn confirm" title={group ? 'Save list' : 'Save text'} aria-label={group ? 'Save list' : 'Save text'} disabled={!valid} onClick={() => finish(true)}><Check size={17} /></button>
         </div>
       </div>}
     </div>

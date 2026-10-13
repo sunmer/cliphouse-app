@@ -7,8 +7,15 @@ import {ROLES, SCENE_TYPES, THEME_ROLES, roleHint, type Role, type VideoProps} f
 import {mediaOf, mediaSlots, slotOptions} from '../videos/media/catalog.ts';
 import {hideableRoles, isMusicSchema, scoreOf} from '../videos/music/schema.ts';
 import {durationSeconds, scoreScenes} from '../videos/music/score.ts';
-import {SOUND_ENABLED} from '../site/flags.ts';
+import {scoreOf as beatScoreOf, songDataOf} from '../videos/beat/schema.ts';
+import {bpmOf, durationSeconds as beatSeconds, totalBars} from '../videos/beat/score.ts';
+import {isBeatSchema} from './handoff.ts';
 import {MAX_HANDOFF_CHARS, REPOSITORY, TEMPLATE_LICENSE, handoffPath, sourcePath, templateVersion} from './versions.ts';
+import {MUSIC_LICENSE, TRACKS, FADE_IN, FADE_OUT, trackPath} from '../music/library.ts';
+import {usesLibrary} from '../music/schema.ts';
+
+/** The attribution line agents are asked to keep when they publish a video made from this template. Optional. */
+export const CREDIT = 'Made with cliphou.se';
 
 type SpecInput = {
   site: string;
@@ -23,8 +30,10 @@ type SpecInput = {
 };
 
 export function renderCommand(template: string) {
+  // Library templates render silent, then mux the bundled track with its fades.
+  if (usesLibrary(schemas[template])) return 'node music/render.mjs';
   // Music packages render silent video with their engine, then mux the generated score.
-  if (scoreOf(templateMeta[template])) return engineOf(template) === 'hyperframes' ? 'node music/render.mjs' : 'npm ci && node music/render.mjs';
+  if (scoreOf(templateMeta[template]) || beatScoreOf(templateMeta[template])) return engineOf(template) === 'hyperframes' ? 'node music/render.mjs' : 'npm ci && node music/render.mjs';
   return engineOf(template) === 'hyperframes'
     ? 'npx --yes hyperframes@0.8.146 render --variables-file variables.json --strict-variables -o out/video.mp4'
     : `npm ci && npx remotion render src/index.ts ${template} out/video.mp4 --props=props.json`;
@@ -42,8 +51,11 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
     [role, {label: ROLES[role].label, maxLength: ROLES[role].max, ...(roleHint(role) ? {format: roleHint(role)} : {}), current: props.texts[role]}]));
   const pkg = `${site}${sourcePath(variant.template, pinned.version)}`;
   const slots = mediaSlots(schema);
-  const score = scoreOf(meta);
+  const beat = beatScoreOf(meta);
+  const score = beat ? undefined : scoreOf(meta);
   const music = isMusicSchema(schema);
+  const beatProps = isBeatSchema(schema);
+  const library = usesLibrary(schema);
   const generation = manifest.templates.find((t) => t.id === variant.template)?.generation;
   if (!generation) throw new Error(`Missing generation metadata for template ${variant.template}.`);
   const old = pinned.version !== latest.version ? `&v=${pinned.version}` : '';
@@ -54,6 +66,10 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
     generation,
     ...(siteCommit ? {siteCommit} : {}),
     license: TEMPLATE_LICENSE, licenseUrl: `${site}/license/`, price: 'Free', attributionRequired: false,
+    credit: {
+      text: CREDIT, url: `${site}/?ref=agent`,
+      note: 'Not required. When you post or publish a video made from this template, please keep this line in the caption, description, or credits, and link the URL.',
+    },
     format: {
       aspectRatio: ratio > 1.2 ? '16:9' : ratio < 0.7 ? '9:16' : ratio < 0.9 ? '4:5' : '1:1',
       width: meta.width, height: meta.height, fps: meta.fps, durationInFrames: meta.durationInFrames,
@@ -67,14 +83,37 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
       ...(slots.length ? {media: Object.fromEntries(slots.map((slot) => [slot, {
         format: 'Image ID', options: slotOptions(schema, slot), current: mediaOf(props)?.[slot],
       }]))} : {}),
-      ...(music ? {
+      ...(library ? {
+        audio: {format: '{"enabled": boolean, "track": "<track id>"}', current: (props as {audio?: object}).audio,
+          options: TRACKS.map((t) => ({id: t.id, title: t.title, genre: t.genre, bpm: t.bpm})),
+          note: `The track plays from its start, is cut to the video length, and fades in over ${FADE_IN} s and out over ${FADE_OUT} s. When enabled, the MP4 includes it as AAC 48 kHz stereo.`},
+      } : beatProps ? {
+        audio: {format: '{"enabled": boolean}', current: (props as {audio?: {enabled: boolean}}).audio ?? {enabled: true},
+          note: 'When enabled, the MP4 includes the generated score as AAC 48 kHz stereo audio.'},
+      } : music ? {
         hidden: {format: 'List of optional text roles', options: hideableRoles(schema), current: (props as {hidden?: string[]}).hidden ?? [],
           note: 'Hidden roles disappear with their accent notes. brand, headline, and cta cannot be hidden.'},
         audio: {format: '{"enabled": boolean}', current: (props as {audio?: {enabled: boolean}}).audio ?? {enabled: true},
-          note: SOUND_ENABLED ? 'When enabled, the MP4 includes the generated score as AAC 48 kHz stereo audio.' : 'Sound is turned off on cliphou.se for now: hosted MP4 exports are silent. The source package can still render the score locally.'},
+          note: 'When enabled, the MP4 includes the generated score as AAC 48 kHz stereo audio.'},
       } : {}),
     },
-    ...(score ? {
+    ...(library ? {
+      music: {
+        library: TRACKS.map((t) => ({id: t.id, title: t.title, genre: t.genre, bpm: t.bpm, seconds: t.seconds, url: `${site}${trackPath(t.id)}`})),
+        license: MUSIC_LICENSE, loudness: '-14 LUFS integrated', sampleRate: 48000,
+        note: 'Any track fits any length: the video cuts it and fades it in and out. Picture timing never depends on the track.',
+      },
+    } : beat ? {
+      music: {
+        hasMusic: !!songDataOf(meta), genre: (songDataOf(meta) as {genre?: string} | undefined)?.genre ?? null,
+        bpm: Math.round(bpmOf(beat) * 10) / 10, meter: '4/4', bars: totalBars(beat), seconds: beatSeconds(beat),
+        ...(beat.list ? {list: {role: 'list', minItems: beat.list.min, maxItems: beat.list.max, maxItemLength: beat.list.itemMax,
+          format: beat.list.format === 'chart' ? 'One "Label 42" item per line' : 'One item per line',
+          note: 'Each item reveals on its own beat with its own note. Removing items reflows the list; the length never changes.'}} : {}),
+        loudness: '-14 LUFS integrated, -1 dBTP ceiling', sampleRate: 48000,
+        note: 'Only the list item count changes the music. Wording, colors, and images never change it.',
+      },
+    } : score ? {
       music: {
         bpm: score.bpm, meter: `${score.meter}/4`, bars: score.scenes.reduce((n, s) => n + s.bars, 0), seconds: durationSeconds(score),
         scenes: scoreScenes(score).map((s, i) => ({type: s.type, bars: score.scenes[i].bars, roles: s.roles})),
@@ -103,13 +142,16 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
     },
     instructions: [
       'For text, color, and image edits, change only props.texts, props.theme, and props.media when present. Keep each text within maxLength, each color as #RRGGBB, and each image as one of its listed options.',
-      ...(music ? ['For music templates, props.hidden lists optional roles to remove and props.audio.enabled turns the score on or off in the MP4.'] : []),
+      ...(music && !beatProps ? ['For music templates, props.hidden lists optional roles to remove and props.audio.enabled turns the score on or off in the MP4.'] : []),
+      ...(library ? ['props.audio.track picks the music: use one of editableFields.audio.options. props.audio.enabled turns music on or off in the MP4.'] : []),
+      ...(beat?.list ? [`props.texts.list holds ${beat.list.min} to ${beat.list.max} items, one per line, each up to ${beat.list.itemMax} characters.`] : []),
       'Return text and color edits as handoff.urlTemplate with the props JSON URL-encoded.',
       'For layout, motion, timing, or scene edits, download source.package, extract it, and edit the code.',
       engine === 'hyperframes'
         ? 'Render the source package with source.renderCommand. Edit variables.json to change text and colors.'
         : 'Render the source package with source.renderCommand. Edit props.json to change text and colors.',
       'Never send code through the handoff URL. It accepts props only.',
+      `When you publish the result, please credit it as "${CREDIT}" with a link to ${site}/?ref=agent. This is optional.`,
     ],
   };
 }

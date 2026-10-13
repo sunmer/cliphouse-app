@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+    /* Stacked copy sizes to its content, so its masks must not hang below the line box. */
+    .stack .wmask { padding-bottom:0; margin-bottom:0; }
+
+    /* Prongs sit under the socket, so they vanish into it when the plug drives in. */
+    .prongs { position:absolute; left:1100px; top:0; width:160px; height:1080px; z-index:1; }
+    .prong { position:absolute; left:0; width:160px; height:64px; background:var(--theme-foreground); transform-origin:0 50%; }
+    .prong.p1 { top:380px; }
+    .prong.p2 { top:636px; }
+
+    .socket { position:absolute; left:1340px; top:0; width:580px; height:1080px; background:var(--theme-accent); z-index:2; }
+    .slot { position:absolute; left:0; width:200px; height:72px; background:var(--theme-foreground); overflow:hidden; }
+    .slot.s1 { top:376px; }
+    .slot.s2 { top:632px; }
+    .slot i, .led i, .cable i { position:absolute; display:block; background:var(--theme-accent2); }
+    .slot i { inset:0; transform-origin:0 50%; }
+    .led { position:absolute; top:860px; width:72px; height:72px; background:var(--theme-surface); }
+    .led i { inset:0; }
+    .led.l1 { left:50px; } .led.l2 { left:146px; } .led.l3 { left:242px; }
+    .btn { position:absolute; left:50px; top:70px; width:480px; height:270px; background:var(--theme-accent2); border-radius:10px; clip-path:inset(0% 0% 0% 100%); }
+    .cta { position:absolute; left:40px; top:30px; width:400px; height:210px; color:var(--theme-foreground); line-height:.95; align-content:center; visibility:hidden; }
+
+    .plug { position:absolute; left:0; top:0; width:1340px; height:1080px; z-index:3; }
+    .cable { position:absolute; left:-2400px; top:520px; width:2540px; height:40px; background:var(--theme-foreground); overflow:hidden; }
+    .cable i { right:0; top:0; width:400px; height:100%; transform-origin:0 50%; }
+    .neck { position:absolute; left:140px; top:380px; width:120px; height:320px; background:var(--theme-foreground); border-radius:6px 0 0 6px; }
+    .body { position:absolute; left:260px; top:190px; width:840px; height:700px; background:var(--theme-foreground); border-radius:14px; }
+    .face { position:absolute; right:0; top:0; width:28px; height:100%; background:var(--theme-accent2); border-radius:0 14px 14px 0; }
+    .brand { position:absolute; left:72px; top:120px; width:660px; height:460px; color:var(--theme-background); line-height:.95; align-content:center; }
+
+    .flood { position:absolute; inset:0; background:var(--theme-accent); z-index:4; clip-path:circle(0px at 1340px 540px); }
+    .stack { position:absolute; left:120px; top:0; width:1680px; height:1080px; display:flex; flex-direction:column; justify-content:center; gap:48px; z-index:5; }
+    .headline { flex:none; width:1680px; max-height:396px; color:var(--theme-background); line-height:1.12; visibility:hidden; }
+    .row { flex:none; display:flex; align-items:center; height:180px; }
+    .rule { flex:1; height:26px; margin-right:48px; background:var(--theme-accent2); overflow:hidden; transform-origin:0 50%; clip-path:inset(0% 0% 0% 0%); }
+    .packet { position:absolute; left:0; top:0; width:140px; height:100%; background:var(--theme-background); }
+    .plus { flex:none; position:relative; width:180px; height:180px; }
+    .plus .a, .plus .b { position:absolute; inset:0; }
+    .plus .a::before, .plus .a::after, .plus .b::before, .plus .b::after { content:""; position:absolute; background:var(--theme-accent2); }
+    .plus .b::before, .plus .b::after { background:var(--theme-background); }
+    .plus .a::before, .plus .b::before { left:0; top:70px; width:180px; height:40px; }
+    .plus .a::after, .plus .b::after { left:70px; top:0; width:40px; height:180px; }
+    .plus .b { clip-path:inset(100% 0% 0% 0%); }
+    .subhead { flex:none; width:1400px; max-height:184px; color:var(--theme-background); font-weight:500; line-height:1.25; visibility:hidden; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1920" data-height="1080">
+    <section id="integration-main" class="scene" data-start="0" data-duration="8" data-track-index="0">
+      <div class="prongs"><div class="prong p1"></div><div class="prong p2"></div></div>
+
+      <div class="socket">
+        <div class="slot s1"><i></i></div>
+        <div class="slot s2"><i></i></div>
+        <div class="btn">
+          <div class="cta display fit" data-fit-max="96" data-fit-min="48" data-text-role="cta" data-beat-text="cta">Connect now</div>
+        </div>
+        <div class="led l1"><i></i></div>
+        <div class="led l2"><i></i></div>
+        <div class="led l3"><i></i></div>
+      </div>
+
+      <div class="plug">
+        <div class="cable" data-layout-allow-overflow><i></i></div>
+        <div class="neck"></div>
+        <div class="body">
+          <div class="face"></div>
+          <div class="brand display fit" data-fit-max="200" data-fit-min="80" data-text-role="brand" data-beat-text="brand">Relay</div>
+        </div>
+      </div>
+
+      <div class="flood"></div>
+      <div class="stack">
+        <h1 class="headline display fit" data-fit-max="176" data-fit-min="100" data-text-role="headline" data-beat-text="headline">Relay + Linear</h1>
+        <div class="row">
+          <div class="rule"><div class="packet"></div></div>
+          <div class="plus"><div class="a"></div><div class="b"></div></div>
+        </div>
+        <p class="subhead fit" data-fit-max="72" data-fit-min="44" data-text-role="subhead" data-beat-text="subhead">Turn any thread into an issue in one click.</p>
+      </div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const IR = {immediateRender: false};
+      // Words rise through masks on eighth notes; later words share the last slot so long copy settles early.
+      const rise = (el, start, cap = 2, gap = 0.5, dur = 0.75) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, start + Math.min(i, cap) * B(gap)));
+      const sink = (el, start, to = 125) => {
+        const s = m.spans(el);
+        if (s.length) tl.fromTo(s, {yPercent: 0}, {yPercent: to, duration: B(0.4), ease: 'power3.in', ...IR}, start);
+      };
+      const rig = ['.plug', '.prongs'];
+
+      // Exactly one live copy per role: off-scene roles are hidden while covered or masked.
+      tl.set(['.headline', '.subhead', '.cta'], {visibility: 'hidden'}, 0);
+      tl.set(['.headline', '.subhead'], {visibility: 'visible'}, t('headline'));
+      tl.set('.brand', {visibility: 'hidden'}, t('headline'));
+      tl.set(['.headline', '.subhead'], {visibility: 'hidden'}, t('reveal'));
+      tl.set('.brand', {visibility: 'visible'}, t('reveal'));
+      tl.set('.cta', {visibility: 'visible'}, t('ctaStamp'));
+
+      // Beat 0: prongs extend. Beat 1: brand. Beat 2: wind-up. Beat 3: snap into the socket.
+      tl.fromTo('.prong', {scaleX: 0}, {scaleX: 1, duration: B(0.6), ease: 'expo.out', stagger: B(0.125)}, t('prongs'));
+      rise(q('.brand'), t('brand'));
+      tl.fromTo(rig, {x: 0}, {x: -50, duration: B(0.5), ease: 'power3.out'}, t('windup'));
+      tl.fromTo(rig, {x: -50}, {x: 240, duration: B(0.5), ease: 'power3.in', ...IR}, t('plugIn') - B(0.5));
+      tl.fromTo('.slot i', {scaleX: 0}, {scaleX: 1, duration: B(0.35), ease: 'expo.out'}, t('plugIn'));
+      tl.fromTo('.socket', {x: 18}, {x: 0, duration: B(0.75), ease: 'expo.out', ...IR}, t('plugIn'));
+
+      // Beat 4: the socket's color floods from the joint to the farthest corner in 10 frames.
+      tl.fromTo('.flood', {clipPath: 'circle(0px at 1340px 540px)'},
+        {clipPath: 'circle(1460px at 1340px 540px)', duration: B(2 / 3), ease: 'power3.out'}, t('flood'));
+
+      // Beats 4.5-7: the headline rises, the cable draws, the plus sign snaps in, the subhead rises.
+      rise(q('.headline'), t('headline'));
+      tl.fromTo('.rule', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('rule'));
+      tl.fromTo('.plus', {scale: 0, rotation: -90}, {scale: 1, rotation: 0, duration: B(0.75), ease: 'back.out(1.2)'}, t('plus'));
+      rise(q('.subhead'), t('subhead'), 1);
+
+      // Beats 8-10: three data packets hit the plus sign, each punching it a quarter turn.
+      const rw = q('.rule').offsetWidth;
+      ['sync1', 'sync2', 'plusFlip'].forEach((id, i) => {
+        tl.fromTo('.packet', {x: -160}, {x: rw + 20, duration: B(0.75), ease: 'power3.in', ...(i ? IR : {})}, t(id) - B(0.75));
+        tl.fromTo('.plus', {scale: 1.16, rotation: 90 * i}, {scale: 1, rotation: 90 * (i + 1), duration: B(0.75), ease: 'expo.out', ...IR}, t(id));
+      });
+      tl.fromTo('.plus .b', {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.35), ease: 'expo.out'}, t('plusFlip'));
+
+      // Beat 11: copy lifts out, the cable wipes away, the plus sign spins out.
+      sink(q('.headline'), t('clear'), -125);
+      sink(q('.subhead'), t('clear'), -125);
+      tl.fromTo('.rule', {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 100%)', duration: B(0.4), ease: 'power3.in', ...IR}, t('clear'));
+      tl.fromTo('.plus', {scale: 1, rotation: 270}, {scale: 0, rotation: 360, duration: B(0.4), ease: 'power3.in', ...IR}, t('clear'));
+
+      // Beat 11.5: the flood wipes off and reveals the plug still seated in the socket.
+      tl.fromTo('.flood', {clipPath: 'inset(0px 0px 0px 0px)'},
+        {clipPath: 'inset(0px 0px 0px 1920px)', duration: B(0.5), ease: 'power3.out', ...IR}, t('reveal'));
+
+      // Beat 12: the CTA button stamps onto the socket.
+      tl.set('.btn', {clipPath: 'inset(0% 0% 0% 0%)'}, t('ctaStamp'));
+      tl.fromTo('.btn', {scale: 1.22}, {scale: 1, duration: B(0.6), ease: 'expo.out'}, t('ctaStamp'));
+      rise(q('.cta'), t('ctaStamp'), 1, 0.25, 0.5);
+
+      // Beats 13-14: status lights come on, power runs along the cable.
+      const leds = qa('.led i');
+      ['led1', 'led2', 'led3'].forEach((id, i) =>
+        tl.fromTo(leds[i], {scale: 0}, {scale: 1, duration: B(0.4), ease: 'expo.out'}, t(id)));
+      tl.fromTo('.cable i', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('led3'));
+
+      // Beat 15: unplug back to the first frame.
+      tl.fromTo('.slot i', {scaleX: 1}, {scaleX: 0, duration: B(0.35), ease: 'power3.in', ...IR}, t('unplug'));
+      tl.fromTo('.led i', {scale: 1}, {scale: 0, duration: B(0.3), ease: 'power3.in', ...IR}, t('unplug'));
+      tl.fromTo('.cable i', {scaleX: 1}, {scaleX: 0, duration: B(0.4), ease: 'power3.in', ...IR}, t('unplug'));
+      tl.fromTo(rig, {x: 240}, {x: 0, duration: B(0.75), ease: 'expo.out', ...IR}, t('unplug'));
+      sink(q('.brand'), t('unplug') + B(0.25));
+      tl.fromTo('.prong', {scaleX: 1}, {scaleX: 0, duration: B(0.4), ease: 'power3.in', ...IR}, t('unplug') + B(0.5));
+      sink(q('.cta'), t('unplug') + B(0.5));
+      tl.fromTo('.btn', {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 100%)', duration: B(0.4), ease: 'power3.in', ...IR}, t('unplug') + B(0.5));
+      tl.set('.cta', {visibility: 'hidden'}, t('unplug') + B(0.9));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

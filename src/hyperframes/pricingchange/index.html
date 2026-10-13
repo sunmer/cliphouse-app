@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+
+    .stage { z-index:1; clip-path:inset(550px 0px 530px 0px); }
+    .card { position:absolute; left:40px; top:40px; width:1000px; height:1000px; background:var(--theme-surface); }
+    .dot { position:absolute; left:96px; top:102px; width:28px; height:28px; background:var(--theme-accent2); }
+    .hair { position:absolute; left:96px; width:888px; height:3px; background:var(--theme-foreground); opacity:.2; transform-origin:0 50%; }
+    .hair-top { top:160px; }
+    .hair-foot { top:1004px; }
+    .brand { position:absolute; left:144px; top:90px; width:700px; height:52px; font-size:40px; line-height:52px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; white-space:nowrap; color:var(--theme-foreground); }
+    .headline { position:absolute; left:96px; top:176px; width:888px; height:370px; font-size:150px; line-height:.94; color:var(--theme-foreground); align-content:center; text-wrap:balance; transform-origin:0 0; }
+
+    .band { position:absolute; left:40px; top:0; width:1000px; height:1080px; background:var(--theme-accent); z-index:2; clip-path:inset(544px 0px 524px 0px); }
+    .pg { position:absolute; left:0; top:452px; width:1080px; height:260px; z-index:3; }
+    .price { position:absolute; left:96px; top:0; width:740px; height:204px; font-size:200px; line-height:1; white-space:nowrap; color:var(--theme-background); }
+    .note { position:absolute; left:96px; top:208px; width:740px; height:52px; font-size:44px; line-height:52px; font-weight:600; white-space:nowrap; color:var(--theme-surface); }
+    .badge { position:absolute; left:880px; top:50px; width:104px; height:104px; font-size:104px; background:var(--theme-accent2); display:grid; place-items:center; }
+    .tick { display:block; width:.5em; height:.26em; border-left:.13em solid var(--theme-background); border-bottom:.13em solid var(--theme-background); transform:translateY(-.08em) rotate(-45deg); }
+
+    .list { position:absolute; left:96px; top:740px; width:888px; height:250px; display:flex; flex-direction:column; justify-content:center; gap:calc(60px - var(--count, 3) * 12px); }
+    .row { display:flex; align-items:center; gap:.5em; font-size:calc(84px - var(--count, 3) * 12px); }
+    .box { flex:none; width:1em; height:1em; background:var(--theme-accent2); display:grid; place-items:center; }
+    .item { display:block; width:740px; height:1.3em; line-height:1.2; font-weight:600; white-space:nowrap; color:var(--theme-foreground); }
+
+    .cta-block { position:absolute; left:40px; top:720px; width:1000px; height:320px; background:var(--theme-foreground); visibility:hidden; clip-path:circle(0px at 890px 170px); }
+    .cta { position:absolute; left:56px; top:40px; width:720px; height:240px; font-size:104px; line-height:.95; color:var(--theme-background); align-content:center; text-wrap:balance; }
+    .arrow { position:absolute; left:828px; top:140px; width:116px; height:60px; }
+    .shaft { position:absolute; left:0; top:22px; width:84px; height:16px; background:var(--theme-accent2); }
+    .head { position:absolute; right:0; top:0; width:44px; height:60px; background:var(--theme-accent2); clip-path:polygon(0 0, 100% 50%, 0 100%); }
+
+    .cursor { position:absolute; left:930px; top:890px; width:64px; height:92px; z-index:3; background:var(--theme-foreground); transform-origin:0 0;
+      clip-path:polygon(0 0, 0 75%, 26% 60%, 46% 94%, 66% 89%, 46% 56%, 80% 56%); }
+    .cursor i { position:absolute; left:5px; top:11px; width:48px; height:68px; background:var(--theme-background);
+      clip-path:polygon(0 0, 0 75%, 26% 60%, 46% 94%, 66% 89%, 46% 56%, 80% 56%); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1080" data-height="1080">
+    <section id="pricingchange-card" class="scene stage" data-start="0" data-duration="8" data-track-index="0">
+      <div class="card"></div>
+      <div class="dot"></div>
+      <div class="hair hair-top"></div>
+      <div class="hair hair-foot"></div>
+      <div class="brand" data-fit-max="40" data-fit-min="28" data-text-role="brand" data-beat-text="brand">Stackwise</div>
+      <h1 class="headline display" data-fit-max="150" data-fit-min="46" data-text-role="headline" data-beat-text="headline">New Team plan</h1>
+      <div class="list" data-list>
+        <template data-list-row>
+          <div class="row"><span class="box"><span class="tick"></span></span><span class="item" data-list-text data-words></span></div>
+        </template>
+      </div>
+      <div class="cta-block">
+        <div class="cta display" data-fit-max="104" data-fit-min="44" data-text-role="cta" data-beat-text="cta">Compare plans</div>
+        <div class="arrow"><span class="shaft"></span><span class="head"></span></div>
+      </div>
+      <div class="cursor" data-layout-allow-overflow><i></i></div>
+    </section>
+    <div class="band" data-layout-allow-overflow></div>
+    <div class="pg">
+      <div class="price display" data-fit-max="200" data-fit-min="72" data-text-role="price" data-beat-text="price">$12</div>
+      <div class="note" data-fit-max="44" data-fit-min="30" data-text-role="priceNote" data-beat-text="priceNote">per seat / month</div>
+      <div class="badge"><span class="tick"></span></div>
+    </div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      // Band shapes: the first-frame rule, the rule at the card base, the full price panel, the price strip.
+      const RULE = 'inset(544px 0px 524px 0px)';
+      const BASE = 'inset(934px 0px 134px 0px)';
+      const PANEL = 'inset(440px 0px 40px 0px)';
+      const STRIP = 'inset(440px 0px 360px 0px)';
+      const CLOSED = 'inset(550px 0px 530px 0px)';
+      const words = (el, start, step = 0.25, cap = 2, dur = 0.75) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, start + Math.min(i, cap) * B(step)));
+      const draw = (el, at, dur = 0.25) => tl.fromTo(el, {clipPath: 'inset(0% 100% 0% 0%)'},
+        {clipPath: 'inset(0% 0% 0% 0%)', duration: B(dur), ease: 'power3.out'}, at);
+      const rule = (el, at) => tl.fromTo(el, {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, at);
+      const press = (at) => {
+        tl.to('.cursor', {scale: 0.82, duration: B(0.125), ease: 'power3.in'}, at - B(0.125));
+        tl.to('.cursor', {scale: 1, duration: B(0.375), ease: 'expo.out'}, at);
+      };
+
+      // Included rows size by count, then refit so the longest item always stays on one line.
+      const n = m.items.length;
+      document.querySelectorAll('.list .item').forEach((el) => { el.dataset.fitMax = String(84 - n * 12); el.dataset.fitMin = '34'; });
+      window.cliphouseFitText?.();
+
+      // Beat 0: the rule splits the card open from its centre line, then drops to the card base.
+      tl.fromTo('.stage', {clipPath: CLOSED}, {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.6), ease: 'expo.out'}, t('open'));
+      tl.fromTo('.band', {clipPath: RULE}, {clipPath: BASE, duration: B(1), ease: 'expo.out'}, t('open'));
+
+      // Beat 0.5: the headline rises big in the card. Beat 1: the brand rises in the header.
+      words(q('.headline'), t('headline'), 0.125, 2, 0.6);
+      words(q('.brand'), t('brand'), 0.125, 1, 0.5);
+
+      // Beat 2: the brand mark snaps, and the header hairline draws from it.
+      tl.fromTo('.dot', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('mark'));
+      rule('.hair-top', t('mark'));
+
+      // Beat 3: the base rule floods up into the price panel and pushes the headline into the header.
+      tl.fromTo('.headline', {y: 174, scale: 1}, {y: 0, scale: 0.7, duration: B(0.75), ease: 'expo.out'}, t('push'));
+      tl.to('.band', {clipPath: PANEL, duration: B(0.75), ease: 'expo.out'}, t('push'));
+
+      // Beats 4-5: the price lands centred in the panel, then the billing unit.
+      tl.set('.pg', {visibility: 'hidden'}, 0);
+      tl.set('.pg', {visibility: 'visible'}, t('price'));
+      tl.fromTo('.pg', {y: 160}, {y: 0, duration: B(0.75), ease: 'expo.out'}, t('lift'));
+      words(q('.price'), t('price'), 0.125, 2, 0.6);
+      words(q('.note'), t('priceNote'), 0.125, 2, 0.6);
+
+      // Beat 6: the panel rolls up to its strip, carrying the price, and uncovers the list area.
+      tl.to('.band', {clipPath: STRIP, duration: B(0.75), ease: 'expo.out'}, t('lift'));
+
+      // Beat 7: the footer hairline closes the card.
+      rule('.hair-foot', t('footer'));
+
+      // Included items: box lands, check draws, words rise, all on the scheduled beat.
+      tl.set('.list', {visibility: 'hidden'}, 0);
+      if (m.items.length) tl.set('.list', {visibility: 'visible'}, m.items[0].start);
+      m.items.forEach((it) => {
+        const row = q(`.list [data-list-item="${it.index}"]`);
+        if (!row) return;
+        tl.fromTo(row.querySelector('.box'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, it.start);
+        draw(row.querySelector('.tick'), it.start + B(0.25));
+        words(row.querySelector('.item'), it.start, 0.125, 2, 0.5);
+      });
+
+      // Beat 9: the selected-plan check snaps onto the price strip.
+      tl.fromTo('.badge', {scale: 0}, {scale: 1, duration: B(0.6), ease: 'back.out(1.2)'}, t('badge'));
+      draw('.badge .tick', t('badge') + B(0.25));
+
+      // Beats 10-11: the cursor glides in from the corner, then aims at the button spot.
+      tl.fromTo('.cursor', {x: 240, y: 260}, {x: 100, y: 90, duration: B(0.75), ease: 'expo.out'}, t('cursor'));
+      tl.to('.cursor', {x: 0, y: 0, duration: B(0.75), ease: 'expo.out'}, t('aim'));
+
+      // Beat 12: click. The button floods from the cursor tip to the block's farthest corner.
+      press(t('click'));
+      tl.set('.cta-block', {visibility: 'visible'}, t('click'));
+      tl.fromTo('.cta-block', {clipPath: 'circle(0px at 890px 170px)'},
+        {clipPath: 'circle(920px at 890px 170px)', duration: B(0.75), ease: 'expo.out'}, t('click'));
+      tl.set(['.list', '.hair-foot'], {visibility: 'hidden'}, t('click') + B(0.75));
+      words(q('.cta'), t('click') + B(0.25), 0.125, 1, 0.5);
+      // Beat 12.5: the button stamps down.
+      tl.fromTo('.cta-block', {scale: 1.03, transformOrigin: '890px 170px'}, {scale: 1, duration: B(0.375), ease: 'expo.out'}, t('ctaStamp'));
+
+      // Beat 13: the arrow draws. Beat 14: the cursor presses it forward.
+      tl.fromTo('.arrow', {clipPath: 'inset(0% 100% 0% 0%)', x: -24}, {clipPath: 'inset(0% 0% 0% 0%)', x: 0, duration: B(0.5), ease: 'expo.out'}, t('arrow'));
+      press(t('press'));
+      tl.to('.arrow', {x: 16, duration: B(0.5), ease: 'expo.out'}, t('press'));
+
+      // Beat 15: the price drops out, the card closes to its centre line, the strip collapses to the first-frame rule.
+      const close = t('close');
+      tl.to(m.spans(q('.price')).concat(m.spans(q('.note'))), {yPercent: 125, duration: B(0.375), ease: 'power3.in'}, close);
+      tl.to('.badge', {scale: 0, duration: B(0.375), ease: 'power3.in'}, close);
+      tl.to('.stage', {clipPath: CLOSED, duration: B(0.75), ease: 'power3.inOut'}, close);
+      tl.to('.band', {clipPath: RULE, duration: B(0.75), ease: 'power3.inOut'}, close);
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

@@ -3,6 +3,7 @@
 // `kit: false` roles hold per-video content, so the shared brand kit skips them.
 // `pattern` roles hold structured text that templates parse (see shared/data.ts).
 // `example` is a valid value used by tests and shown as a hint when a value does not match.
+// `list` holds one item per line. Its count and item limits come from the template's score.
 type RoleDef = {label: string; max: number; kit: boolean; pattern?: RegExp; hint?: string; example?: string};
 
 const CHART_ITEM = String.raw`[^,]*[^,\d\s][^,]*?\s+-?\d+(?:\.\d+)?[%kKmMbB]?`;
@@ -11,6 +12,7 @@ export const ROLES = {
   brand: {label: 'Brand', max: 18, kit: true},
   headline: {label: 'Headline', max: 24, kit: true},
   subhead: {label: 'Subhead', max: 52, kit: true},
+  // Deprecated: point1-3, items, and chart are replaced by `list`. They stay until every template is converted.
   point1: {label: 'Point 1', max: 16, kit: true},
   point2: {label: 'Point 2', max: 16, kit: true},
   point3: {label: 'Point 3', max: 16, kit: true},
@@ -24,6 +26,7 @@ export const ROLES = {
   stat: {label: 'Stat', max: 12, kit: false, pattern: /\d/, hint: 'Include a number, for example 12.4k or 98%.', example: '12.4k'},
   items: {label: 'List', max: 120, kit: false, pattern: /^[^,]*[^,\s][^,]*(,[^,]*[^,\s][^,]*){1,5}$/, hint: 'Separate 2 to 6 items with commas.', example: 'Design, Build, Launch'},
   chart: {label: 'Chart data', max: 96, kit: false, pattern: new RegExp(`^\\s*${CHART_ITEM}(\\s*,\\s*${CHART_ITEM}){1,5}\\s*$`), hint: 'Use 2 to 6 "Label 42" pairs separated by commas.', example: 'Q1 12, Q2 18, Q3 27'},
+  list: {label: 'List items', max: 400, kit: false},
 } satisfies Record<string, RoleDef>;
 
 export type Role = keyof typeof ROLES;

@@ -11,6 +11,7 @@ import {directionSchema, REQUIRED_GATES} from '../src/direction/schema.ts';
 import {templateMeta} from '../src/videos/meta.ts';
 import {engineOf} from '../src/videos/engine.ts';
 import {scoreOf} from '../src/videos/music/schema.ts';
+import {scoreOf as beatScoreOf} from '../src/videos/beat/schema.ts';
 import {scoreErrors} from '../src/videos/music/check.ts';
 import {beatFrame, totalBeats} from '../src/videos/music/score.ts';
 
@@ -21,7 +22,8 @@ const args = process.argv.slice(2);
 const recordsOnly = args.includes('--records');
 const sheetsAt = args.includes('--sheets') ? args[args.indexOf('--sheets') + 1] : null;
 const only = new Set(args.filter((a, i) => !a.startsWith('--') && args[i - 1] !== '--sheets'));
-const music = manifest.templates.filter((t) => t.music && (!only.size || only.has(t.id)));
+// Beat templates (score.json with beatFrames) have their own gates in beat-direction.mjs; this covers the older music scores.
+const music = manifest.templates.filter((t) => t.music && !beatScoreOf(templateMeta[t.id]) && (!only.size || only.has(t.id)));
 const errors = [];
 const fail = (id, message) => errors.push(`${id}: ${message}`);
 

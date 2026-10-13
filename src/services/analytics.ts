@@ -39,7 +39,7 @@ export function startAnalytics() {
 }
 
 type EventName = 'page_view' | 'bookmark_add' | 'bookmark_remove' | 'login' | 'share_publish' | 'editor_open' | 'text_edit' | 'color_edit' | 'image_edit' | 'save_video' | 'agent_link_copy' | 'template_brief_copy' | 'agent_handoff_open' | 'agent_handoff_reject' | 'source_download' | 'mp4_export'
-  | 'sound_toggle' | 'role_toggle' | 'sound_play' | 'audio_export' | 'return_visit';
+  | 'sound_toggle' | 'role_toggle' | 'sound_play' | 'audio_export' | 'return_visit' | 'music_pick' | 'share_social' | 'panel_open';
 
 const VISIT_KEY = 'cliphouse:visits';
 /**

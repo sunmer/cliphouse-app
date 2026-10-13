@@ -1,3 +1,5 @@
+import {HYPERFRAMES_TEMPLATES} from '../videos/engine.ts';
+
 export const reviewedAt = '2026-10-08';
 
 export const useCases = [
@@ -375,7 +377,7 @@ export const editorialPages = [
     h1: 'HyperFrames templates',
     description: 'Browse finished HyperFrames templates, edit text and colors in the browser, or download a native HTML, CSS, and GSAP project.',
     intro: 'Free HyperFrames templates for humans and coding agents. Edit the copy and colors in cliphou.se, then download a native project for HyperFrames Studio or the CLI.',
-    match: (v) => ['signal', 'ringstat', 'eventpass', 'pullquote', 'pricedrop', 'featuredrop', 'eventcountdown'].includes(v.template),
+    match: (v) => HYPERFRAMES_TEMPLATES.includes(v.template),
     sections: [
       ['What you get', 'Each template is a HyperFrames HTML composition with declared variables, a paused GSAP timeline, local fonts, and scene metadata used by the cliphou.se editor.'],
       ['How to use a template', 'Open a template, edit text in the preview, and choose colors. Download the source package, then run npx hyperframes check and npx hyperframes render with variables.json.'],

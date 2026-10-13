@@ -33,7 +33,8 @@ function hyperframesDocument(c: Extract<CompositionDef, {engine: 'hyperframes'}>
   return html.replace('<head>', `<head><script>window.__hfVariables=${values};</script>`);
 }
 
-type MusicWindow = Window & {cliphouseFitText?: () => void; cliphouseMusicUpdate?: (vars: Record<string, unknown>) => void; __hfVariables?: Record<string, unknown>};
+type MusicWindow = Window & {cliphouseFitText?: () => void; cliphouseMusicUpdate?: (vars: Record<string, unknown>) => void;
+  cliphouseBeatUpdate?: (vars: Record<string, unknown>) => void; __hfVariables?: Record<string, unknown>};
 function applyLive(doc: Document, props: VideoProps, meta: CompositionDef) {
   const values = hyperframesVariables(props, meta);
   const win = doc.defaultView as MusicWindow | null;
@@ -43,12 +44,13 @@ function applyLive(doc: Document, props: VideoProps, meta: CompositionDef) {
   }
   const root = doc.querySelector<HTMLElement>('[data-composition-id]');
   for (const [key, value] of Object.entries(values)) if (key.startsWith('theme_')) root?.style.setProperty(`--${key.replace('_', '-')}`, String(value));
-  // Music templates rebuild word masks and the timeline from the new text and hidden roles.
-  if (win?.cliphouseMusicUpdate) {
+  // Music and beat templates rebuild word masks, list rows, and the timeline from the new text.
+  const rebuild = win?.cliphouseBeatUpdate ?? win?.cliphouseMusicUpdate;
+  if (win && rebuild) {
     const key = JSON.stringify(values);
     if (JSON.stringify(win.__hfVariables) !== key) {
       win.__hfVariables = values;
-      win.cliphouseMusicUpdate(values);
+      rebuild(values);
     }
   } else win?.cliphouseFitText?.();
 }
@@ -69,7 +71,10 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, {
     play: () => { wantsPlay.current = true; if (c.engine === 'remotion') remotion.current?.play(); else hyper.current?.play(); },
     pause: () => { wantsPlay.current = false; if (c.engine === 'remotion') remotion.current?.pause(); else hyper.current?.pause(); },
     toggle: () => {
-      if (c.engine === 'remotion') remotion.current?.toggle();
+      if (c.engine === 'remotion') {
+        wantsPlay.current = !remotion.current?.isPlaying();
+        remotion.current?.toggle();
+      }
       else if (hyper.current?.paused) { wantsPlay.current = true; hyper.current.play(); }
       else { wantsPlay.current = false; hyper.current?.pause(); }
     },
@@ -80,7 +85,9 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, {
         requestAnimationFrame(() => emit('seeked', frame));
       }
     },
-    isPlaying: () => c.engine === 'remotion' ? !!remotion.current?.isPlaying() : !hyper.current?.paused,
+    // HyperFrames updates `paused` a moment after play() or pause(), so report the requested state;
+    // audio that follows the player must not restart in that window.
+    isPlaying: () => c.engine === 'remotion' ? !!remotion.current?.isPlaying() : wantsPlay.current && !hyper.current?.paused,
     currentTime: () => c.engine === 'remotion' ? (remotion.current?.getCurrentFrame() ?? 0) / c.fps : hyper.current?.currentTime ?? 0,
     addEventListener: (type, listener) => {
       if (c.engine === 'remotion') { if (type !== 'ready') remotion.current?.addEventListener(type, listener as never); }
@@ -108,6 +115,7 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, {
       emit('ready', Math.round(p.currentTime * c.fps));
       emit('seeked', Math.round(p.currentTime * c.fps));
     };
+    // The runtime pauses and plays on its own around loops; only explicit calls change wantsPlay.
     const play = () => emit('play');
     const pause = () => { emit('pause'); emit('seeked', Math.round(p.currentTime * c.fps)); };
     const time = (event: Event) => emit('frameupdate', Math.round(((event as CustomEvent<{currentTime: number}>).detail.currentTime ?? p.currentTime) * c.fps));
@@ -122,6 +130,25 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, {
       p.removeEventListener('pause', pause);
       p.removeEventListener('timeupdate', time);
     };
+  }, [c]);
+
+  // Remotion's autoPlay sometimes starts with a stalled clock: isPlaying() is true but the frame never
+  // advances, so the editor shows Pause on a frozen picture. A short watchdog restarts a stalled player.
+  useEffect(() => {
+    if (c.engine !== 'remotion') return;
+    const r = remotion.current;
+    if (!r) return;
+    let last = r.getCurrentFrame();
+    let still = 0;
+    const timer = window.setInterval(() => {
+      // Only a player that claims to play is checked, so pauses from scrubbing or editing are left alone.
+      if (document.hidden || !r.isPlaying()) { still = 0; last = r.getCurrentFrame(); return; }
+      const now = r.getCurrentFrame();
+      still = now === last ? still + 1 : 0;
+      last = now;
+      if (still >= 2) { still = 0; r.pause(); r.play(); }
+    }, 200);
+    return () => clearInterval(timer);
   }, [c]);
 
   useEffect(() => {

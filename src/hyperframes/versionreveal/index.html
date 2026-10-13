@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+    .band { position:absolute; inset:0; background:var(--theme-surface); z-index:1; }
+    .rect { position:absolute; left:0; top:0; width:100px; height:100px; transform-origin:0 0; }
+    .cap { background:var(--theme-accent2); z-index:3; }
+    .slot { background:var(--theme-accent); z-index:4; }
+    .rule { background:var(--theme-foreground); z-index:4; }
+    .ruler { position:absolute; left:0; top:1006px; width:2880px; height:44px; z-index:2; }
+    .tick { position:absolute; bottom:0; width:3px; height:16px; background:color-mix(in srgb, var(--theme-foreground) 30%, transparent); }
+    .tick.major { height:44px; background:color-mix(in srgb, var(--theme-foreground) 75%, transparent); }
+    .mark { position:absolute; left:100px; top:72px; width:28px; height:28px; background:var(--theme-accent); z-index:6; }
+    .brand { position:absolute; left:148px; top:56px; width:740px; height:60px; font-size:52px; line-height:60px; text-transform:uppercase; color:var(--theme-foreground); z-index:6; }
+    .stat { position:absolute; left:100px; top:150px; width:1720px; height:440px; font-size:420px; font-weight:900; line-height:1; white-space:nowrap; text-align:center; align-content:center; font-variant-numeric:tabular-nums; color:var(--theme-foreground); z-index:6; }
+    .stat[data-tone="live"] { color:var(--theme-accent); }
+    .cm { display:inline-block; overflow:hidden; height:1em; vertical-align:top; padding:0 .015em; }
+    .c { position:relative; display:block; height:1em; }
+    .c::before { content:attr(data-roll); position:absolute; left:0; right:0; bottom:100%; white-space:pre; text-align:center; }
+    .headline { position:absolute; left:100px; top:636px; width:1720px; height:300px; font-size:140px; line-height:.98; text-align:center; align-content:center; color:var(--theme-foreground); z-index:6; }
+    .list { position:absolute; left:980px; top:150px; width:840px; height:780px; display:flex; flex-direction:column; justify-content:center; gap:var(--gap); --chip:72px; --h:170px; --gap:28px; visibility:hidden; z-index:6; }
+    .list[data-count="2"] { --chip:84px; --h:212px; --gap:52px; }
+    .list[data-count="1"] { --chip:100px; --h:272px; --gap:0px; }
+    .row { position:relative; display:grid; grid-template-columns:var(--chip) 1fr; column-gap:32px; align-items:center; padding-bottom:30px; }
+    .chip { position:relative; width:var(--chip); height:var(--chip); background:var(--theme-surface); display:grid; place-items:center; }
+    .fill { position:absolute; inset:0; background:var(--theme-accent); }
+    .num { position:relative; font-size:34px; font-weight:700; color:var(--theme-foreground); }
+    .list[data-done="1"] .num { color:var(--theme-background); }
+    .itext { height:var(--h); font-size:80px; line-height:1.04; font-weight:800; align-content:center; color:var(--theme-foreground); }
+    .hair { position:absolute; left:0; right:0; bottom:0; height:3px; background:color-mix(in srgb, var(--theme-foreground) 24%, transparent); }
+    .cta { position:absolute; left:1010px; top:250px; width:820px; height:400px; font-size:170px; line-height:.95; color:var(--theme-background); align-content:center; visibility:hidden; z-index:6; }
+    .arrow { position:absolute; left:1010px; top:700px; width:240px; height:64px; overflow:hidden; z-index:6; }
+    .arrow-in { position:absolute; inset:0; background:var(--theme-background); clip-path:polygon(0 38%, 72% 38%, 72% 6%, 100% 50%, 72% 94%, 72% 62%, 0 62%); transform:translateX(-105%); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="9.333" data-width="1920" data-height="1080">
+    <section id="versionreveal-main" class="scene" data-start="0" data-duration="9.333" data-track-index="0">
+      <div class="band" data-layout-allow-overflow></div>
+      <div class="ruler" data-layout-allow-overflow></div>
+      <div class="rect cap capL" data-layout-allow-overflow></div>
+      <div class="rect cap capR" data-layout-allow-overflow></div>
+      <div class="rect rule" data-layout-allow-overflow></div>
+      <div class="rect slot" data-layout-allow-overflow></div>
+      <div class="mark"></div>
+      <div class="brand display fit" data-fit-max="52" data-fit-min="34" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="stat display" data-tone="base" data-fit-max="420" data-fit-min="200" data-text-role="stat">3.0</div>
+      <h1 class="headline display fit" data-fit-max="140" data-fit-min="80" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <div class="list" data-list data-done="0" data-count="3">
+        <template data-list-row>
+          <div class="row">
+            <div class="chip"><span class="fill"></span><span class="num mono" data-list-number>01</span></div>
+            <div class="itext display fit" data-list-text data-words data-fit-max="80" data-fit-min="48">Item</div>
+            <span class="hair"></span>
+          </div>
+        </template>
+      </div>
+      <div class="cta display fit" data-fit-max="170" data-fit-min="84" data-text-role="cta" data-beat-text="cta">CTA</div>
+      <div class="arrow"><div class="arrow-in"></div></div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const X = 'expo.out';
+      // Frame-0 state: applied now (timeline sets do not render at time 0) and recorded at 0 for the loop.
+      const init = (target, vars) => { gsap.set(target, vars); tl.set(target, vars, 0); };
+      // Hard-edged rectangles: a 100px base box placed and sized by transform.
+      const R = (x, y, w, h) => ({x, y, scaleX: w / 100, scaleY: h / 100});
+      const PANEL = 900, CAP = 24;
+      const BAND0 = 'inset(180px 0px 520px 0px)', BAND = 'inset(140px 0px 480px 0px)';
+      const LINE0 = R(0, 552, 1920, 8);
+      const rise = (el, start, step, cap, dur) => m.spans(el).forEach((w, i) => {
+        init(w, {yPercent: 125});
+        tl.to(w, {yPercent: 0, duration: B(dur), ease: X}, start + B(Math.min(i, cap) * step));
+      });
+      const drop = (el, at) => tl.to(m.spans(el), {yPercent: -125, duration: B(0.4), ease: 'power3.in'}, at);
+
+      // The counter ruler: one notch per beat, five full pattern periods per loop.
+      const ruler = q('.ruler');
+      if (!ruler.children.length) for (let k = 0; k < 72; k++) {
+        const d = document.createElement('i');
+        d.className = k % 4 ? 'tick' : 'tick major';
+        d.style.left = (k * 40 + 18) + 'px';
+        ruler.append(d);
+      }
+
+      // The version number: one reel per character; each locks on its own beat between 1 and 3.
+      const stat = q('.stat');
+      const raw = m.text('stat').trim().replace(/\s+/g, ' ');
+      stat.textContent = '';
+      const cols = [];
+      for (const ch of raw) {
+        if (ch === ' ') { stat.append(' '); continue; }
+        const cm = document.createElement('span'); cm.className = 'cm';
+        const c = document.createElement('span'); c.className = 'c'; c.textContent = ch;
+        cm.append(c); stat.append(cm); cols.push({c, cm, reel: /[0-9A-Za-z]/.test(ch)});
+      }
+      const n = cols.length;
+      const spread = n >= 3 ? 2 : Math.max(0, n - 1);
+      cols.forEach((o, i) => {
+        o.land = n > 1 ? 3 - Math.round(spread * (n - 1 - i) / (n - 1) * 2) / 2 : 3;
+        o.depth = o.reel ? 4 + Math.round(o.land * 2) : 0;
+        const lines = [];
+        for (let k = o.depth; k >= 1; k--) lines.push(String((o.c.textContent.charCodeAt(0) * 7 + i * 3 + k * 5) % 10));
+        o.c.dataset.roll = lines.join('\n');
+      });
+
+      // Reflow the list for its count, then refit everything before measuring.
+      const host = q('.list');
+      const count = m.items.length;
+      host.dataset.count = String(count);
+      const fitFor = {1: [124, 64], 2: [100, 56], 3: [80, 48]}[count] || [80, 48];
+      host.querySelectorAll('[data-list-text]').forEach((el) => { el.dataset.fitMax = String(fitFor[0]); el.dataset.fitMin = String(fitFor[1]); });
+      window.cliphouseFitText?.();
+
+      // Geometry from layout (offsets ignore transforms).
+      const fs = parseFloat(getComputedStyle(stat).fontSize);
+      const SX = stat.offsetLeft, SY = stat.offsetTop, SW = stat.offsetWidth, SH = stat.offsetHeight;
+      const first = cols[0] && cols[0].cm, last = cols.length ? cols[cols.length - 1].cm : null;
+      const ux = first ? SX + first.offsetLeft : 760;
+      const uw = first ? last.offsetLeft + last.offsetWidth - first.offsetLeft : 400;
+      const uy = SY + (first ? first.offsetTop : 0) + fs * 0.9;
+      const hl = q('.headline');
+      const HX = hl.offsetLeft, HY = hl.offsetTop, HW = hl.offsetWidth, HH = hl.offsetHeight;
+      const masks = [...hl.querySelectorAll('.wmask')];
+      const hw = masks.length ? Math.max(...masks.map((w) => w.offsetLeft + w.offsetWidth)) - Math.min(...masks.map((w) => w.offsetLeft)) : 800;
+      const sS = Math.min(0.5, 740 / Math.max(uw, 1));
+      const sH = Math.min(0.5, 740 / Math.max(hw, 1));
+      const capLX = Math.max(80, ux - 100), capRX = Math.min(1816, ux + uw + 76);
+      const rows = [...host.querySelectorAll('[data-list-item]')];
+      const listX = host.offsetLeft, listW = host.offsetWidth;
+      const rowBottom = rows.map((r) => host.offsetTop + r.offsetTop + r.offsetHeight);
+      const ruleY = rows.length ? host.offsetTop + rows[0].offsetTop - 24 : 200;
+      const lastY = rowBottom.length ? rowBottom[rowBottom.length - 1] - 15 : 600;
+
+      // Frame 0: the empty housing band with its lime edge; the brand bug stays for the whole loop.
+      init('.band', {clipPath: BAND0});
+      init('.slot', LINE0);
+      init('.capL', R(-CAP, 140, CAP, 460));
+      init('.capR', R(1920, 140, CAP, 460));
+      init('.rule', R(100, 966, 0, 4));
+      init('.ruler', {x: 0});
+      init(stat, {x: 0, y: 0, scale: 1, transformOrigin: '50% 50%', attr: {'data-tone': 'base'}});
+      init(hl, {x: 0, y: 0, scale: 1, transformOrigin: '50% 50%'});
+      init(host, {visibility: 'hidden', attr: {'data-done': '0'}});
+      init('.cta', {visibility: 'hidden', scale: 1, transformOrigin: '0% 50%'});
+      init('.arrow-in', {xPercent: -105, x: 0});
+
+      const beats = Math.round(m.duration / B(1));
+      for (let k = 0; k < beats; k++) tl.to('.ruler', {x: -40 * (k + 1), duration: B(0.55), ease: X}, B(k));
+
+      // Beat 0: the band steps open, the edge rides it, and the reels start spinning.
+      const H0 = t('housing');
+      tl.to('.band', {clipPath: BAND, duration: B(0.75), ease: X}, H0);
+      tl.to('.slot', {...R(0, 592, 1920, 8), duration: B(0.75), ease: X}, H0);
+      cols.forEach((o) => {
+        const land = B(o.land);
+        if (o.reel) {
+          init(o.c, {yPercent: 100 * (o.depth + 1)});
+          tl.to(o.c, {yPercent: 0, duration: land - H0, ease: 'back.out(1.2)'}, H0);
+        } else {
+          init(o.c, {yPercent: 110});
+          tl.to(o.c, {yPercent: 0, duration: B(0.5), ease: X}, land - B(0.5));
+        }
+      });
+
+      // Beat 3: the slam; the edge locks into a slot under the number.
+      const lock = t('lock');
+      tl.to('.slot', {...R(ux, uy, uw, 20), duration: B(0.6), ease: X}, lock);
+      tl.set(stat, {scale: 1.06}, lock);
+      tl.to(stat, {scale: 1, duration: B(0.75), ease: X}, lock);
+
+      // Beats 4-7: headline, caps, rule, caps frame the number.
+      rise(hl, t('headline'), 0.5, 2, 0.75);
+      tl.to('.capL', {...R(80, 140, CAP, 460), duration: B(0.5), ease: X}, t('caps'));
+      tl.to('.capR', {...R(1816, 140, CAP, 460), duration: B(0.5), ease: X}, t('caps'));
+      tl.to('.rule', {...R(100, 966, 1720, 4), duration: B(0.75), ease: X}, t('rule'));
+      tl.to('.capL', {...R(capLX, 140, CAP, 460), duration: B(0.5), ease: X}, t('narrow'));
+      tl.to('.capR', {...R(capRX, 140, CAP, 460), duration: B(0.5), ease: X}, t('narrow'));
+
+      // Beat 8: the band becomes the left panel; number and headline scale into it.
+      const S = t('stage');
+      tl.to('.band', {clipPath: 'inset(0px 1020px 0px 0px)', duration: B(0.75), ease: X}, S);
+      tl.to(stat, {x: 450 - (SX + SW / 2), y: 410 - (SY + SH / 2), scale: sS, duration: B(0.75), ease: X}, S);
+      tl.to(hl, {x: 450 - (HX + HW / 2), y: 690 - (HY + HH / 2), scale: sH, duration: B(0.75), ease: X}, S);
+      tl.to('.capL', {...R(-CAP - 40, 0, CAP, 1080), duration: B(0.75), ease: X}, S);
+      tl.to('.capR', {...R(PANEL, 0, CAP, 1080), duration: B(0.75), ease: X}, S);
+      tl.to('.rule', {...R(listX, ruleY, listW, 4), duration: B(0.75), ease: X}, S);
+      tl.to('.slot', {...R(listX, ruleY - 6, 16, 16), duration: B(0.75), ease: X}, S);
+      tl.set(host, {visibility: 'visible'}, S + B(0.5));
+
+      // Highlights: divider draws, chip pops, words rise, the slot settles under the row on the accent.
+      m.items.forEach((it, i) => {
+        const row = rows[i];
+        if (!row) return;
+        const chip = row.querySelector('.chip'), hair = row.querySelector('.hair');
+        init(chip, {scale: 0, transformOrigin: '50% 50%'});
+        init(hair, {scaleX: 0, transformOrigin: '0% 50%'});
+        init(row.querySelector('.fill'), {scaleY: 0, transformOrigin: '50% 100%'});
+        tl.to(hair, {scaleX: 1, duration: B(0.6), ease: X}, it.start);
+        tl.to(chip, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, it.start);
+        rise(row.querySelector('[data-list-text]'), it.start, 0.125, 2, 0.5);
+        tl.to('.slot', {...R(listX, rowBottom[i] - 15, listW, 12), duration: it.accent - it.start, ease: X}, it.start);
+      });
+
+      // Beat 13: chips confirm. Beat 14: the version goes live.
+      tl.set(host, {attr: {'data-done': '1'}}, t('chips'));
+      tl.to(host.querySelectorAll('.fill'), {scaleY: 1, duration: B(0.4), ease: X}, t('chips'));
+      tl.set(stat, {attr: {'data-tone': 'live'}, scale: sS * 1.06}, t('live'));
+      tl.to(stat, {scale: sS, duration: B(0.6), ease: X}, t('live'));
+
+      // Beat 15: the slot stretches to the edge, rows clear on the offbeat.
+      tl.to('.slot', {...R(listX, lastY, 1920 - listX, 12), duration: B(0.5), ease: X}, t('extend'));
+      const out = t('extend') + B(0.5);
+      rows.forEach((row) => drop(row.querySelector('[data-list-text]'), out));
+      tl.to(host.querySelectorAll('.chip'), {scale: 0, duration: B(0.4), ease: 'power3.in'}, out);
+      tl.to(host.querySelectorAll('.hair'), {scaleX: 0, duration: B(0.4), ease: 'power3.in'}, out);
+      tl.to('.rule', {...R(listX + listW, ruleY, 0, 4), duration: B(0.4), ease: 'power3.in'}, out);
+
+      // Beat 16: the slot floods the right half and the CTA stamps.
+      const K = t('cta');
+      tl.set(host, {visibility: 'hidden'}, K);
+      tl.to('.slot', {...R(PANEL + CAP, 0, 1920 - PANEL - CAP, 1080), duration: B(0.75), ease: X}, K);
+      tl.set('.cta', {visibility: 'visible', scale: 1.1}, K + B(0.125));
+      tl.to('.cta', {scale: 1, duration: B(0.6), ease: X}, K + B(0.125));
+      rise(q('.cta'), K + B(0.125), 0.125, 1, 0.5);
+
+      // Beats 17-18: the arrow slides out, then nudges forward.
+      tl.to('.arrow-in', {xPercent: 0, duration: B(0.6), ease: X}, t('arrow'));
+      tl.to('.arrow-in', {x: 28, duration: B(0.5), ease: X}, t('nudge'));
+
+      // Beat 19: panel and flood fold back into the housing band of frame 0.
+      const L = t('loop');
+      tl.to('.arrow-in', {xPercent: 110, duration: B(0.4), ease: 'power3.in'}, L);
+      const E = L + B(0.25);
+      drop(q('.cta'), E);
+      drop(hl, E);
+      tl.to(cols.map((o) => o.c), {yPercent: -110, duration: B(0.4), ease: 'power3.in'}, E);
+      tl.to('.capR', {...R(PANEL, 540, CAP, 0), duration: B(0.5), ease: 'power3.in'}, E);
+      tl.to('.slot', {...LINE0, duration: B(0.7), ease: 'power3.inOut'}, E);
+      tl.to('.band', {clipPath: BAND0, duration: B(0.7), ease: 'power3.inOut'}, E);
+      tl.set('.cta', {visibility: 'hidden'}, E + B(0.45));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+    // Rebuild once webfonts are ready, so slot and row geometry use the real metrics.
+    document.fonts?.ready.then(() => window.cliphouseBeatUpdate?.({}));
+  </script>
+</body>
+</html>

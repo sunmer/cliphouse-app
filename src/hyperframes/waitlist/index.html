@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1920" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1920px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; white-space:nowrap; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+    .layer { position:absolute; inset:0; }
+
+    /* Scene 1: dark field, the calendar page above the progress track. Locked-off camera. */
+    .s1 { z-index:1; }
+    .slot { position:absolute; left:80px; top:0; width:920px; height:1500px; overflow:hidden; }
+    .card { position:absolute; left:0; top:220px; width:920px; height:1260px; background:var(--theme-surface); overflow:hidden; visibility:hidden; }
+    .card-head { position:absolute; left:0; top:0; width:920px; height:160px; background:color-mix(in srgb, var(--theme-foreground) 14%, var(--theme-surface)); overflow:hidden; }
+    .head-fill { position:absolute; inset:0; background:var(--theme-accent); transform-origin:0 50%; }
+    .ring { position:absolute; top:48px; width:64px; height:64px; margin-left:-32px; border-radius:50%; background:var(--theme-background); }
+    .cdate { position:absolute; left:60px; top:220px; width:800px; height:380px; font-size:180px; line-height:.92; color:var(--theme-foreground); }
+    .cells { position:absolute; left:60px; top:640px; width:800px; height:560px; display:grid; grid-template-columns:repeat(7, 1fr); grid-template-rows:repeat(5, 1fr); gap:16px; }
+    .cells i { display:block; position:relative; background:color-mix(in srgb, var(--theme-foreground) 26%, var(--theme-surface)); }
+    .cells b { position:absolute; inset:0; background:var(--theme-accent2); }
+    .headline { position:absolute; left:60px; top:220px; width:800px; height:760px; font-size:200px; line-height:.92; color:var(--theme-foreground); visibility:hidden; }
+    .subhead { position:absolute; left:60px; top:1010px; width:800px; height:210px; font-size:64px; line-height:1.15; font-weight:600; color:var(--theme-foreground); visibility:hidden; }
+    .track { position:absolute; left:80px; top:1640px; width:920px; height:160px; background:var(--theme-surface); overflow:hidden; }
+    .fill { position:absolute; inset:0; background:var(--theme-accent); transform-origin:0 50%; }
+    .ticks { position:absolute; inset:0; display:flex; justify-content:space-evenly; }
+    .ticks i { display:block; width:6px; height:160px; background:var(--theme-background); }
+
+    /* Scene 2: the bar's pink flood, then the page returns as the Join button */
+    .s2 { z-index:2; background:var(--theme-accent); visibility:hidden; }
+    .button { position:absolute; left:80px; top:220px; width:920px; height:1260px; background:var(--theme-background); }
+    .cta { position:absolute; left:60px; top:100px; width:800px; height:700px; font-size:200px; line-height:.92; color:var(--theme-foreground); }
+    .arrow-wrap { position:absolute; left:60px; bottom:80px; width:420px; height:260px; overflow:hidden; }
+    .arrow { position:absolute; inset:0; background:var(--theme-accent2); clip-path:polygon(0 36%, 62% 36%, 62% 0, 100% 50%, 62% 100%, 62% 64%, 0 64%); }
+    .track2 { transform-origin:0 50%; }
+
+    /* Persistent chrome: one real brand and one date label, inked dark once the flood passes under them */
+    .chrome { z-index:3; }
+    .brand { position:absolute; left:80px; top:96px; width:920px; height:100px; font-size:80px; line-height:1.1; text-transform:uppercase; color:var(--theme-foreground); }
+    .brand[data-tone="ink"] { color:var(--theme-background); }
+    .dlabel { position:absolute; left:80px; top:1510px; width:920px; height:110px; font-size:64px; line-height:1.2; font-weight:700; text-transform:uppercase; color:var(--theme-accent2); visibility:hidden; }
+    .dlabel[data-tone="ink"] { color:var(--theme-background); }
+
+    /* Loop: the button opens back into the dark field with the empty track */
+    .wipe { z-index:4; background:var(--theme-background); visibility:hidden; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1080" data-height="1920">
+    <section id="waitlist-count" class="scene layer s1" data-start="0" data-duration="8" data-track-index="0">
+      <div class="slot">
+        <div class="card">
+          <div class="card-head"><div class="head-fill"></div><div class="ring" style="left:230px"></div><div class="ring" style="left:690px"></div></div>
+          <div class="cdate display fit" data-fit-max="180" data-fit-min="84" data-text-role="date" data-beat-text="date">Launching Nov 4</div>
+          <div class="cells">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i class="day"><b></b></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <h1 class="headline display fit" data-fit-max="200" data-fit-min="100" data-text-role="headline" data-beat-text="headline">Your inbox, made quiet</h1>
+          <p class="subhead display fit" data-fit-max="64" data-fit-min="40" data-text-role="subhead" data-beat-text="subhead">An email client that reads first.</p>
+        </div>
+      </div>
+      <div class="track"><div class="fill"></div><div class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    </section>
+
+    <section id="waitlist-join" class="scene layer s2" data-start="0" data-duration="8" data-track-index="1">
+      <div class="button">
+        <div class="cta display fit" data-fit-max="200" data-fit-min="96" data-text-role="cta" data-beat-text="cta">Join the waitlist</div>
+        <div class="arrow-wrap"><div class="arrow"></div></div>
+      </div>
+      <div class="track track2"><div class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    </section>
+
+    <div class="layer chrome">
+      <div class="brand display" data-tone="light" data-fit-max="80" data-fit-min="48" data-text-role="brand" data-beat-text="brand">Halo</div>
+      <div class="dlabel mono fit" data-tone="light" data-fit-max="64" data-fit-min="40" data-text-role="date" data-beat-text="date">Launching Nov 4</div>
+    </div>
+
+    <div class="layer wipe">
+      <div class="track"><div class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    </div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      // Words rise through masks; later words share the last slot so long text settles early.
+      const rise = (sel, start, step, cap, dur) => m.spans(q(sel)).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, start + Math.min(i, cap) * B(step)));
+      const show = (sel, at) => tl.set(sel, {visibility: 'visible'}, at);
+      const hide = (sel, at) => tl.set(sel, {visibility: 'hidden'}, at);
+
+      // Frame 0: empty track, full page header (the page is still below the slot).
+      tl.set('.s1 .fill', {scaleX: 0}, 0);
+      tl.set('.head-fill', {scaleX: 1}, 0);
+
+      // Beat 0: the calendar page rises out of the slot above the track.
+      show('.card', t('page'));
+      tl.fromTo('.card', {y: 1500}, {y: 0, duration: B(1), ease: 'expo.out'}, t('page'));
+      // Beat 0.5: the date rises on the page. Beat 1: the brand rises at the top.
+      rise('.cdate', t('date'), 0.25, 1, 0.6);
+      rise('.brand', t('brand'), 0.25, 1, 0.6);
+      // Beat 2: the cells cascade and the binder holes punch through.
+      tl.fromTo('.cells i', {scale: 0}, {scale: 1, duration: B(0.6), ease: 'expo.out', stagger: {amount: B(0.25), grid: [5, 7], from: 'start'}}, t('cells'));
+      tl.fromTo('.ring', {scale: 0}, {scale: 1, duration: B(0.6), ease: 'expo.out'}, t('cells'));
+      // Beat 2.5: the launch day stamps. Beat 3: every other day shrinks back.
+      tl.fromTo('.cells b', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('dayMark'));
+      tl.to('.cells i:not(.day)', {scale: 0.42, duration: B(0.6), ease: 'expo.out'}, t('dayFocus'));
+
+      // Beats 3.5-4: the date drops out of the page into the bar.
+      tl.to('.cdate', {y: 1300, duration: B(0.5), ease: 'power3.in'}, t('feed') - B(0.5));
+      hide('.cdate', t('feed'));
+      // Beat 4: the cells collapse as the bar takes the first step.
+      tl.to('.cells i', {scaleY: 0, duration: B(0.5), ease: 'expo.out', stagger: {amount: B(0.25), grid: [5, 7], from: 'end'}}, t('feed'));
+
+      // The bar and the page header step together on every landing, tightening toward the flood.
+      [['feed', 0.2, 0.75], ['step1', 0.4, 0.75], ['step2', 0.58, 0.75], ['step3', 0.74, 0.75], ['step4', 0.88, 0.5], ['step5', 1, 0.5]]
+        .forEach(([id, v, d]) => tl.to('.s1 .fill, .head-fill', {scaleX: v, duration: B(d), ease: 'expo.out'}, t(id)));
+
+      // Beat 4: the date lands as the bar's label.
+      show('.dlabel', t('dateLabel'));
+      rise('.dlabel', t('dateLabel'), 0.125, 3, 0.6);
+      // Beats 4.5-5: the headline rises on the emptied page, still by 5.75.
+      show('.headline', t('headline'));
+      rise('.headline', t('headline'), 0.25, 2, 0.75);
+      // Beat 7: the subhead rises, still by 7.75.
+      show('.subhead', t('subhead'));
+      rise('.subhead', t('subhead'), 0.125, 2, 0.5);
+
+      // Beat 11: the full bar floods to the farthest corner in about 10 frames.
+      show('.s2', t('flood'));
+      tl.fromTo('.s2', {clipPath: 'inset(1640px 80px 120px 80px)'},
+        {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.7), ease: 'power3.out'}, t('flood'));
+      tl.set('.dlabel', {attr: {'data-tone': 'ink'}}, t('flood') + B(0.125));
+      tl.set('.brand', {attr: {'data-tone': 'ink'}}, t('flood') + B(0.5));
+      hide('.s1', t('flood') + B(0.75));
+
+      // Beat 12: the page returns as the Join button, slams up and stamps; the CTA rises inside it.
+      tl.fromTo('.button', {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.35), ease: 'power3.out'}, t('ctaStamp'));
+      tl.fromTo('.button', {scale: 1.12, transformOrigin: '50% 100%'}, {scale: 1, duration: B(0.6), ease: 'expo.out'}, t('ctaStamp'));
+      rise('.cta', t('ctaStamp'), 0.125, 1, 0.5);
+
+      // Beat 13: the arrow slides out. Beat 14: a fresh empty track draws.
+      tl.fromTo('.arrow', {xPercent: -101}, {xPercent: 0, duration: B(1), ease: 'expo.out'}, t('arrow'));
+      tl.fromTo('.track2', {scaleX: 0}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('track'));
+
+      // Beat 15: the button opens into the dark field with the empty track, which is frame 0.
+      show('.wipe', t('loopWipe'));
+      tl.fromTo('.wipe', {clipPath: 'inset(220px 80px 440px 80px)'},
+        {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.7), ease: 'power3.out'}, t('loopWipe'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

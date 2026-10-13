@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .1em; margin-bottom:-.1em; }
+    .w { display:inline-block; }
+    .wrapfit { overflow-wrap:normal; text-wrap:balance; }
+
+    /* Scene 1: the editor, header left, document right */
+    .s1 { z-index:1; }
+    .brand { position:absolute; left:170px; top:120px; width:690px; height:64px; font-size:48px; line-height:1.25; white-space:nowrap; color:var(--theme-accent); }
+    .headline { position:absolute; left:170px; top:220px; width:690px; height:520px; font-size:156px; line-height:.95; align-content:center; color:var(--theme-foreground); }
+    .date { position:absolute; left:170px; top:780px; width:690px; height:120px; font-size:52px; line-height:1.1; align-content:end; color:var(--theme-accent2); }
+    .panel { position:absolute; left:940px; top:120px; width:860px; height:780px; background:var(--theme-surface); }
+    .gutter { position:absolute; left:0; top:0; width:8px; height:100%; background:var(--theme-accent2); transform-origin:50% 0%; transform:scaleY(0); }
+    .notes { position:absolute; left:48px; right:40px; top:40px; bottom:40px; display:flex; flex-direction:column; justify-content:center; --rh: min(300px, calc(700px / var(--count, 6))); }
+    .row { position:relative; flex:none; height:var(--rh); display:flex; align-items:center; }
+    .hl { position:absolute; left:-40px; right:-40px; top:6px; bottom:6px; background:color-mix(in srgb, var(--theme-accent2) 14%, transparent); transform-origin:0% 50%; transform:scaleX(0); }
+    .nummask { position:relative; display:block; flex:none; width:72px; overflow:hidden; font-size:clamp(28px, calc(var(--rh) * .2), 40px); line-height:1.2; color:var(--theme-foreground); opacity:.45; }
+    .num { display:block; }
+    .plus { position:relative; flex:none; width:28px; height:28px; margin-right:30px; }
+    .plus::before, .plus::after { content:""; position:absolute; background:var(--theme-accent2); }
+    .plus::before { left:0; top:11px; width:28px; height:6px; }
+    .plus::after { left:11px; top:0; width:6px; height:28px; }
+    .rtext { position:relative; flex:1; min-width:0; height:calc(var(--rh) - 14px); font-size:44px; line-height:1.1; font-weight:500; align-content:center; color:var(--theme-foreground); }
+
+    /* Scene 2: the surface floods out from the diff gutter */
+    .s2 { z-index:2; background:var(--theme-surface); clip-path:inset(120px 980px 180px 940px); }
+    .headline2 { position:absolute; left:120px; top:150px; width:1680px; height:220px; font-size:170px; line-height:1.1; white-space:nowrap; color:var(--theme-foreground); }
+    .rule { position:absolute; left:120px; top:770px; width:1680px; height:6px; background:var(--theme-accent2); transform-origin:0% 50%; transform:scaleX(0); }
+    .brand2 { position:absolute; left:120px; top:806px; width:700px; height:70px; font-size:52px; line-height:1.25; white-space:nowrap; color:var(--theme-accent2); }
+    .date2 { position:absolute; left:860px; top:806px; width:940px; height:70px; font-size:52px; line-height:1.25; white-space:nowrap; text-align:right; color:var(--theme-foreground); }
+
+    /* Loop reset: the empty editor of frame 0 */
+    .wipe { position:absolute; inset:0; z-index:3; background:var(--theme-background); clip-path:circle(0px at 129px 480px); }
+    .wpanel { position:absolute; left:940px; top:120px; width:860px; height:780px; background:var(--theme-surface); }
+
+    /* Build rail: lives above both scenes, so it carries the build into the end screen */
+    .rail { position:absolute; left:120px; top:956px; width:1680px; height:12px; z-index:4; display:grid; grid-template-columns:repeat(var(--steps, 12), 1fr); gap:12px; }
+    .seg { position:relative; background:color-mix(in srgb, var(--theme-foreground) 16%, transparent); }
+    .seg i { position:absolute; inset:0; background:var(--theme-accent2); transform-origin:0% 50%; transform:scaleX(0); }
+
+    /* The caret: one block for the whole loop */
+    .caret { position:absolute; left:120px; top:430px; width:1680px; height:250px; z-index:5; background:var(--theme-accent); transform-origin:0 0; transform:translate(0px, -25px) scale(0.0107143, 0.6); }
+    .ctalayer { position:absolute; inset:0; z-index:6; pointer-events:none; }
+    .cta { position:absolute; left:200px; top:455px; width:1540px; height:200px; font-size:150px; line-height:1.1; font-weight:700; white-space:nowrap; align-content:center; color:var(--theme-background); --cur:0; }
+    .cta::after { content:""; display:inline-block; vertical-align:top; width:.5em; height:.78em; margin:.17em 0 0 .14em; background:var(--theme-background); opacity:var(--cur); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="12" data-width="1920" data-height="1080">
+    <section id="releasenotes-doc" class="scene s1" data-start="0" data-duration="12" data-track-index="0">
+      <div class="brand mono" data-fit-max="48" data-fit-min="32" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="headline display wrapfit" data-fit-max="156" data-fit-min="44" data-text-role="headline" data-beat-text="headline">Headline</div>
+      <div class="date mono wrapfit" data-fit-max="52" data-fit-min="34" data-text-role="date" data-beat-text="date">Date</div>
+      <div class="panel">
+        <div class="gutter"></div>
+        <div class="notes" data-list>
+          <template data-list-row>
+            <div class="row">
+              <div class="hl"></div>
+              <span class="nummask mono"><span class="num" data-list-number>01</span></span>
+              <span class="plus"></span>
+              <div class="rtext mono wrapfit" data-list-text data-words data-fit-max="44" data-fit-min="32"></div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </section>
+    <section id="releasenotes-end" class="scene s2" data-start="0" data-duration="12" data-track-index="1">
+      <div class="headline2 display" data-fit-max="170" data-fit-min="60" data-text-role="headline" data-beat-text="headline">Headline</div>
+      <div class="rule"></div>
+      <div class="brand2 mono" data-fit-max="52" data-fit-min="32" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="date2 mono" data-fit-max="52" data-fit-min="32" data-text-role="date" data-beat-text="date">Date</div>
+    </section>
+    <div class="wipe" data-layout-allow-overflow><div class="wpanel"></div></div>
+    <div class="rail"></div>
+    <div class="caret" data-layout-allow-overflow></div>
+    <div class="ctalayer">
+      <div class="cta mono" data-fit-max="150" data-fit-min="64" data-text-role="cta" data-beat-text="cta">CTA</div>
+    </div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const cueBeat = (id) => m.score.cues.find((c) => c.id === id).beat;
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+
+      // Words rise through masks on eighth notes; later words share the last slot.
+      const words = (el, start, cap = 1) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 120}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, start + Math.min(i, cap) * B(0.5)));
+      const out = (el, at) => tl.to(m.spans(el), {yPercent: -120, duration: B(0.5), ease: 'power3.in'}, at);
+
+      // Reflow the notes per count: fewer notes get larger type, then refit.
+      const n = m.items.length;
+      const fitMax = [44, 76, 68, 60, 54, 48, 44][n] || 44;
+      qa('.notes .rtext').forEach((el) => { el.dataset.fitMax = String(fitMax); });
+      window.cliphouseFitText?.();
+
+      // Build rail: one segment per beat of the list scene, from the score.
+      const rail = q('.rail');
+      rail.textContent = '';
+      const steps = m.score.scenes[1].bars * 4;
+      rail.style.setProperty('--steps', String(steps));
+      for (let i = 0; i < steps; i++) {
+        const seg = document.createElement('div');
+        seg.className = 'seg';
+        seg.append(document.createElement('i'));
+        rail.append(seg);
+      }
+      const fills = qa('.rail .seg i');
+
+      // The caret: frame 0 and the last frame share this pose, centered on the headline slot.
+      const caret = q('.caret');
+      const CW = 1680, CH = 250;
+      const CARET = {x: 0, y: -25, scaleX: 18 / CW, scaleY: 150 / CH};
+      tl.set(caret, {transformOrigin: '0 0', ...CARET}, 0);
+
+      // Beat 0: brand. Beat 1: headline rises, the caret grows into the full headline bar.
+      words(q('.s1 .brand'), t('brand'));
+      words(q('.s1 .headline'), t('headline'), 2);
+      tl.to(caret, {y: -210, scaleY: 520 / CH, duration: B(0.75), ease: 'expo.out'}, t('headline'));
+
+      // Beat 2: the date rises in one move, still before the scene focus.
+      words(q('.s1 .date'), t('date'), 0);
+
+      // Beat 3: the diff gutter draws down the document.
+      tl.fromTo('.gutter', {scaleY: 0}, {scaleY: 1, duration: B(0.75), ease: 'expo.out'}, t('gutter'));
+
+      // Each beat of the list scene lights one rail segment; the last lands on "shipped".
+      fills.forEach((fill, i) => {
+        const at = i === steps - 1 ? t('shipped') : m.scene(1, i);
+        tl.fromTo(fill, {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, at);
+      });
+
+      // Notes commit: highlight, marker, number, words; the highlight settles back out.
+      m.items.forEach((it) => {
+        const row = q(`.notes [data-list-item="${it.index}"]`);
+        if (!row) return;
+        const hl = row.querySelector('.hl');
+        tl.fromTo(hl, {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, it.start);
+        tl.to(hl, {scaleX: 0, duration: B(0.75), ease: 'power3.inOut'}, it.start + B(1.5));
+        tl.fromTo(row.querySelector('.num'), {yPercent: 110}, {yPercent: 0, duration: B(0.5), ease: 'expo.out'}, it.start);
+        tl.fromTo(row.querySelector('.plus'), {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, it.start);
+        words(row.querySelector('.rtext'), it.start, 1);
+      });
+
+      // Beat 16: the surface floods out from the gutter line; the caret drops to the command line.
+      tl.fromTo('.s2', {clipPath: 'inset(120px 980px 180px 940px)'}, {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.6), ease: 'power3.out'}, t('flood'));
+      tl.set('.s1', {visibility: 'hidden'}, t('flood') + B(0.75));
+      tl.to(caret, {y: 0, scaleY: 1, duration: B(0.75), ease: 'expo.out'}, t('flood'));
+
+      // Beat 17: the caret sweeps open into the CTA bar; the command rises.
+      const cta = q('.cta');
+      tl.to(caret, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('ctaStamp'));
+      words(cta, t('ctaStamp'), 1);
+
+      // Beats 18-20: headline, then brand and date, then the rule.
+      words(q('.s2 .headline2'), t('endHeadline'), 2);
+      words(q('.s2 .brand2'), t('endBrand'), 0);
+      words(q('.s2 .date2'), t('endBrand'), 0);
+      tl.fromTo('.rule', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('rule'));
+
+      // The terminal cursor blinks: on at every whole beat, off at every half beat.
+      for (let b = cueBeat('ctaStamp') + 1, k = 0; b < cueBeat('collapse'); b += 0.5, k++) {
+        tl.set(cta, {'--cur': k % 2 ? 0 : 1}, B(b));
+      }
+
+      // Beat 22: text exits up, the rule retracts, the lit rail drains back to dim.
+      out(cta, t('collapse'));
+      out(q('.s2 .headline2'), t('collapse'));
+      out(q('.s2 .brand2'), t('collapse'));
+      out(q('.s2 .date2'), t('collapse'));
+      tl.set(cta, {'--cur': 0}, t('collapse'));
+      tl.to('.rule', {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.5), ease: 'power3.in'}, t('collapse'));
+      tl.to(fills, {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.5), ease: 'power3.in'}, t('collapse'));
+
+      // Beat 23: the bar folds back into the caret while the empty editor floods out from it.
+      tl.to(caret, {...CARET, duration: B(0.75), ease: 'expo.out'}, t('loopFold'));
+      tl.fromTo('.wipe', {clipPath: 'circle(0px at 129px 480px)'},
+        {clipPath: 'circle(1960px at 129px 480px)', duration: B(0.6), ease: 'power3.out'}, t('loopFold'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

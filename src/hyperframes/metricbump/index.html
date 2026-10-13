@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1350" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1350px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+    .c { display:inline-block; }
+
+    /* Chart grid, shared by frame 0 and the loop wipe so the loop is exact. Gridlines every 152 px up from 1250. */
+    .grid { position:absolute; inset:0; }
+    .gl { position:absolute; left:80px; width:920px; height:2px; margin-top:-1px; background:var(--theme-surface); }
+    .baseline { position:absolute; left:80px; top:1250px; width:920px; height:4px; background:var(--theme-foreground); }
+    .tick { position:absolute; top:1262px; width:4px; height:18px; background:color-mix(in srgb, var(--theme-foreground) 45%, transparent); }
+
+    /* Scene 1: the chart. The last history bar is one gridline (2,000); the tall column is five (10k). */
+    .bar { position:absolute; transform-origin:50% 100%; }
+    .bar-tall { left:800px; top:490px; width:200px; height:760px; background:var(--theme-accent); }
+    .hist { width:140px; background:var(--theme-accent2); }
+    .h1 { left:80px;  top:1190px; height:60px; }
+    .h2 { left:260px; top:1160px; height:90px; }
+    .h3 { left:440px; top:1130px; height:120px; }
+    .h4 { left:620px; top:1098px; height:152px; }
+    .level { position:absolute; left:80px; top:487px; width:920px; height:6px; background:var(--theme-accent); transform-origin:100% 50%; }
+    .chart { position:absolute; left:0; top:0; width:1080px; height:1350px; overflow:visible; }
+    .trend { stroke:var(--theme-foreground); stroke-width:6; fill:none; stroke-linejoin:round; stroke-linecap:round; stroke-dasharray:1; stroke-dashoffset:1; }
+    .fromline { position:absolute; left:620px; top:1094px; width:380px; height:8px; background:var(--theme-foreground); transform-origin:0 50%; }
+    .gain { position:absolute; left:960px; top:490px; width:10px; height:608px; background:var(--theme-background); transform-origin:50% 100%; }
+    .chev { position:absolute; left:845px; top:524px; width:80px; height:64px; background:var(--theme-background); clip-path:polygon(50% 0, 100% 100%, 0 100%); transform-origin:50% 100%; }
+    .dot { position:absolute; width:32px; height:32px; margin:-16px 0 0 -16px; border-radius:50%; background:var(--theme-accent2); border:7px solid var(--theme-background); }
+    .headline { position:absolute; left:80px; top:520px; width:680px; height:250px; line-height:.95; color:var(--theme-foreground); }
+    .subhead { position:absolute; left:80px; top:790px; width:560px; height:280px; line-height:1.2; font-weight:600; color:color-mix(in srgb, var(--theme-foreground) 82%, transparent); }
+
+    /* Scene 2: the column's color becomes the card. */
+    .end { background:var(--theme-accent); clip-path:circle(0px at 900px 490px); }
+    .erule { position:absolute; left:80px; top:486px; width:920px; height:8px; background:var(--theme-background); transform-origin:0 50%; }
+    .ebrand { position:absolute; left:80px; top:520px; width:920px; height:300px; line-height:.95; color:var(--theme-background); }
+    .button { position:absolute; left:80px; top:880px; width:920px; height:240px; background:var(--theme-background); }
+    .btext { position:absolute; left:60px; top:30px; width:680px; height:180px; line-height:1; color:var(--theme-accent); align-content:center; }
+    .barrow { position:absolute; right:70px; top:80px; width:80px; height:80px; background:var(--theme-accent2); clip-path:polygon(50% 0, 100% 100%, 0 100%); transform-origin:50% 100%; }
+    .ebase { position:absolute; left:80px; top:1246px; width:920px; height:8px; background:var(--theme-background); transform-origin:0 50%; }
+    .etick { position:absolute; top:1262px; width:4px; height:18px; background:var(--theme-background); transform-origin:50% 0; }
+
+    /* The stat survives the flood and changes ink with it. */
+    .statwrap { position:absolute; left:80px; top:70px; width:920px; height:390px; }
+    .stat { display:block; width:920px; height:390px; line-height:1; color:var(--theme-foreground); }
+    .statwrap[data-ink="end"] .stat { color:var(--theme-background); }
+
+    .loop { position:absolute; inset:0; background:var(--theme-background); clip-path:circle(0px at 890px 1000px); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1080" data-height="1350">
+    <section id="metricbump-chart" class="scene s1" data-start="0" data-duration="8" data-track-index="0">
+      <div class="grid"></div>
+      <div class="bar hist h1"></div>
+      <div class="bar hist h2"></div>
+      <div class="bar hist h3"></div>
+      <div class="bar hist h4"></div>
+      <div class="bar bar-tall"></div>
+      <div class="gain"></div>
+      <div class="level"></div>
+      <svg class="chart" viewBox="0 0 1080 1350" width="1080" height="1350"><polyline class="trend" points="150,1190 330,1160 510,1130 690,1098 900,490" pathLength="1" /></svg>
+      <div class="fromline"></div>
+      <div class="chev"></div>
+      <div class="dot" style="left:150px; top:1190px"></div>
+      <div class="dot" style="left:330px; top:1160px"></div>
+      <div class="dot" style="left:510px; top:1130px"></div>
+      <div class="dot" style="left:690px; top:1098px"></div>
+      <div class="dot" style="left:900px; top:490px"></div>
+      <h2 class="headline display fit" data-fit-max="124" data-fit-min="72" data-text-role="headline" data-beat-text="headline">Headline</h2>
+      <p class="subhead fit" data-fit-max="60" data-fit-min="44" data-text-role="subhead" data-beat-text="subhead">Subhead</p>
+    </section>
+    <section id="metricbump-end" class="scene end" data-start="0" data-duration="8" data-track-index="1">
+      <div class="erule"></div>
+      <div class="ebrand display fit" data-fit-max="150" data-fit-min="76" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="button display">
+        <div class="btext fit" data-fit-max="104" data-fit-min="52" data-text-role="cta" data-beat-text="cta">CTA</div>
+        <div class="barrow"></div>
+      </div>
+      <div class="ebase"></div>
+      <div class="eticks"></div>
+    </section>
+    <div class="statwrap" data-ink="start">
+      <div class="stat display fit" data-fit-max="380" data-fit-min="120" data-text-role="stat" data-beat-text="stat">10k</div>
+    </div>
+    <div class="loop" data-layout-allow-overflow><div class="grid"></div></div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    // Static chart paper: gridlines every 152 px up from the baseline, and axis ticks.
+    const tickX = (i) => 80 + 91.6 * i;
+    for (const host of document.querySelectorAll('.grid')) {
+      host.textContent = '';
+      for (let i = 1; i <= 7; i++) {
+        const l = document.createElement('div'); l.className = 'gl'; l.style.top = (1250 - 152 * i) + 'px'; host.append(l);
+      }
+      const base = document.createElement('div'); base.className = 'baseline'; host.append(base);
+      for (let i = 0; i < 11; i++) {
+        const k = document.createElement('div'); k.className = 'tick'; k.style.left = tickX(i) + 'px'; host.append(k);
+      }
+    }
+    const eticks = document.querySelector('.eticks');
+    eticks.textContent = '';
+    for (let i = 0; i < 11; i++) {
+      const k = document.createElement('div'); k.className = 'etick'; k.style.left = tickX(i) + 'px'; eticks.append(k);
+    }
+
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const words = (el, start, cap = 2) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, start + Math.min(i, cap) * B(0.5)));
+      const pop = (el, at) => tl.fromTo(el, {scale: 0}, {scale: 1, duration: B(0.75), ease: 'back.out(1.2)'}, at);
+
+      // Beat 0: the tall column climbs. Beat 1: the history bars rise left to right.
+      tl.fromTo('.bar-tall', {scaleY: 0}, {scaleY: 1, duration: B(1.5), ease: 'expo.out'}, t('rise'));
+      document.querySelectorAll('.hist').forEach((b, i) =>
+        tl.fromTo(b, {scaleY: 0}, {scaleY: 1, duration: B(0.75), ease: 'expo.out'}, t('before') + i * B(0.125)));
+
+      // Beat 2: the stat snaps in, character by character, like an odometer settling.
+      const chars = [];
+      m.spans(q('.stat')).forEach((w) => {
+        const txt = w.textContent;
+        w.textContent = '';
+        [...txt].forEach((ch) => {
+          const c = document.createElement('span');
+          c.className = 'c';
+          c.textContent = ch;
+          w.append(c);
+          chars.push(c);
+        });
+      });
+      const step = Math.min(B(0.25), B(1) / Math.max(1, chars.length));
+      chars.forEach((c, i) => tl.fromTo(c, {yPercent: 110}, {yPercent: 0, duration: B(0.75), ease: 'back.out(1.2)'}, t('stat') + i * step));
+
+      // Beat 3: the column top extends left as the level line under the number.
+      tl.fromTo('.level', {scaleX: 0}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('level'));
+
+      // Beats 4-5: headline and note rise through masks.
+      words(q('.headline'), t('headline'));
+      words(q('.subhead'), t('subhead'));
+
+      // Beat 6: the trend draws through every bar top. Beat 7: points and chevron pop.
+      tl.fromTo('.trend', {strokeDashoffset: 1}, {strokeDashoffset: 0, duration: B(1), ease: 'expo.out'}, t('trend'));
+      document.querySelectorAll('.dot').forEach((d, i) => pop(d, t('points') + i * B(0.0625)));
+      pop('.chev', t('points'));
+
+      // Beat 8: the "from" marker draws at the old height and the gain bracket measures up to the top.
+      tl.fromTo('.fromline', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('fromLine'));
+      tl.fromTo('.gain', {scaleY: 0}, {scaleY: 1, duration: B(1), ease: 'expo.out'}, t('fromLine') + B(0.25));
+
+      // Beat 9: the tall column floods its color from its top to the farthest corner.
+      tl.fromTo('.end', {clipPath: 'circle(0px at 900px 490px)'},
+        {clipPath: 'circle(1290px at 900px 490px)', duration: B(2 / 3), ease: 'power3.out'}, t('flood'));
+      tl.set('.statwrap', {attr: {'data-ink': 'end'}}, t('flood') + B(0.25));
+      tl.set('.s1', {visibility: 'hidden'}, t('flood') + B(0.75));
+
+      // Beat 10: brand rises. Beat 11: CTA wipes open and stamps.
+      words(q('.ebrand'), t('brand'));
+      tl.fromTo('.button', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('ctaStamp') - B(0.5));
+      tl.fromTo('.button', {scale: 1.12, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.75), ease: 'expo.out'}, t('ctaStamp'));
+      words(q('.btext'), t('ctaStamp'), 1);
+
+      // Beats 12-14: the card settles while small chart echoes keep landing.
+      tl.fromTo('.erule', {scaleX: 0}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('rule'));
+      tl.fromTo('.ebase', {scaleX: 0}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('base'));
+      document.querySelectorAll('.etick').forEach((k, i) =>
+        tl.fromTo(k, {scaleY: 0}, {scaleY: 1, duration: B(0.5), ease: 'expo.out'}, t('base') + i * B(0.0625)));
+      pop('.barrow', t('arrow'));
+
+      // Beat 15: the empty chart grid floods back from the arrow, matching frame 0.
+      tl.fromTo('.loop', {clipPath: 'circle(0px at 890px 1000px)'},
+        {clipPath: 'circle(1360px at 890px 1000px)', duration: B(2 / 3), ease: 'power3.out'}, t('loop'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

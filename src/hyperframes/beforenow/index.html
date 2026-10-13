@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1350" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1350px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .06em .1em; margin-bottom:-.1em; }
+    .w { display:inline-block; position:relative; white-space:nowrap; }
+    .strike { position:absolute; left:-.05em; right:-.05em; top:48%; height:.11em; background:var(--theme-accent); transform:scaleX(0); transform-origin:0 50%; }
+
+    /* Before: a ruled page with a red margin line */
+    .page { background:var(--theme-background); z-index:1; }
+    .rl { position:absolute; left:0; width:1080px; height:2px; background:color-mix(in srgb, var(--theme-foreground) 11%, transparent); }
+    .margin { position:absolute; left:40px; top:0; width:3px; height:1350px; background:var(--theme-accent); }
+    .copy { position:absolute; left:96px; width:888px; padding:.14em 0; }
+    .sub { top:220px; height:740px; align-content:safe center; font-style:italic; font-weight:400; line-height:1.06; color:var(--theme-foreground); }
+    .track { position:absolute; left:96px; top:1079px; width:888px; height:120px; background:color-mix(in srgb, var(--theme-foreground) 13%, transparent); }
+    .fill { position:absolute; inset:0; background:var(--theme-foreground); transform-origin:0 50%; }
+    .stall { position:absolute; inset:0; background:var(--theme-accent); }
+
+    /* Now: the finished side, revealed by the slider */
+    .now { background:var(--theme-accent2); z-index:2; clip-path:inset(0px 0px 0px 1032px); }
+    .now .rl { background:color-mix(in srgb, var(--theme-foreground) 8%, transparent); }
+    .old { top:216px; height:140px; padding-top:0; font-style:italic; font-weight:400; line-height:1.1; color:color-mix(in srgb, var(--theme-foreground) 72%, transparent); }
+    .head { top:392px; height:580px; align-content:safe center; line-height:.92; color:var(--theme-foreground); }
+    .now .track { background:color-mix(in srgb, var(--theme-foreground) 18%, transparent); }
+    .btn { position:absolute; left:96px; top:1024px; width:888px; height:230px; background:var(--theme-foreground); clip-path:inset(55px 888px 55px 0px); }
+    .hot { position:absolute; inset:0; background:var(--theme-accent); }
+    .cta { position:absolute; left:56px; top:40px; width:640px; height:150px; padding:.1em 0; line-height:1; color:var(--theme-background); align-content:safe center; }
+    .arrow { position:absolute; left:744px; top:85px; width:100px; height:60px; overflow:hidden; }
+    .arr { position:absolute; left:0; top:0; width:72px; height:60px; background:var(--theme-background); clip-path:polygon(0 38%, 58% 38%, 58% 8%, 100% 50%, 58% 92%, 58% 62%, 0 62%); }
+
+    /* The slider: one handle that splits before from now */
+    .slider { position:absolute; left:0; top:0; width:0; height:1350px; z-index:3; }
+    .handle { position:absolute; left:-6px; top:0; width:12px; height:1350px; background:var(--theme-surface); }
+    .knob { position:absolute; left:-48px; top:627px; width:96px; height:96px; border-radius:50%; background:var(--theme-surface); }
+    .knob:before, .knob:after { content:""; position:absolute; top:34px; width:16px; height:28px; background:var(--theme-background); }
+    .knob:before { left:22px; clip-path:polygon(100% 0, 0 50%, 100% 100%); }
+    .knob:after { right:22px; clip-path:polygon(0 0, 100% 50%, 0 100%); }
+
+    /* Brand chip, above both sides */
+    .chip { position:absolute; left:96px; top:96px; height:84px; max-width:888px; padding:0 32px 0 28px; display:flex; align-items:center; gap:18px; background:var(--theme-surface); color:var(--theme-background); z-index:4; }
+    .dot { position:relative; flex:none; width:22px; height:22px; border-radius:50%; background:var(--theme-accent); }
+    .dot-on { position:absolute; inset:0; border-radius:50%; background:var(--theme-accent2); }
+    .brand { font-size:46px; line-height:1; white-space:nowrap; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="9.333" data-width="1080" data-height="1350">
+    <section id="beforenow-before" class="scene page" data-start="0" data-duration="9.333" data-track-index="0">
+      <i class="rl" style="top:240px"></i><i class="rl" style="top:310px"></i><i class="rl" style="top:380px"></i><i class="rl" style="top:450px"></i>
+      <i class="rl" style="top:520px"></i><i class="rl" style="top:590px"></i><i class="rl" style="top:660px"></i><i class="rl" style="top:730px"></i>
+      <i class="rl" style="top:800px"></i><i class="rl" style="top:870px"></i><i class="rl" style="top:940px"></i><i class="rl" style="top:1010px"></i>
+      <i class="rl" style="top:1080px"></i><i class="rl" style="top:1150px"></i><i class="rl" style="top:1220px"></i><i class="rl" style="top:1290px"></i>
+      <div class="margin"></div>
+      <p class="copy sub serif fit" data-fit-max="140" data-fit-min="64" data-text-role="subhead" data-beat-text="subhead">Before</p>
+      <div class="track"><div class="fill"><div class="stall"></div></div></div>
+    </section>
+
+    <section id="beforenow-now" class="scene now" data-start="0" data-duration="9.333" data-track-index="1">
+      <i class="rl" style="top:240px"></i><i class="rl" style="top:310px"></i><i class="rl" style="top:380px"></i><i class="rl" style="top:450px"></i>
+      <i class="rl" style="top:520px"></i><i class="rl" style="top:590px"></i><i class="rl" style="top:660px"></i><i class="rl" style="top:730px"></i>
+      <i class="rl" style="top:800px"></i><i class="rl" style="top:870px"></i><i class="rl" style="top:940px"></i><i class="rl" style="top:1010px"></i>
+      <i class="rl" style="top:1080px"></i><i class="rl" style="top:1150px"></i><i class="rl" style="top:1220px"></i><i class="rl" style="top:1290px"></i>
+      <p class="copy old serif fit" data-fit-max="56" data-fit-min="40" data-text-role="subhead" data-beat-text="subhead">Before</p>
+      <h1 class="copy head display fit" data-fit-max="210" data-fit-min="60" data-text-role="headline" data-beat-text="headline">Now</h1>
+      <div class="track"></div>
+      <div class="btn display">
+        <div class="hot"></div>
+        <div class="cta fit" data-fit-max="84" data-fit-min="44" data-text-role="cta" data-beat-text="cta">CTA</div>
+        <div class="arrow"><div class="arr"></div></div>
+      </div>
+    </section>
+
+    <div class="slider"><div class="handle"></div><div class="knob"></div></div>
+
+    <div class="chip display">
+      <div class="dot"><div class="dot-on"></div></div>
+      <div class="brand" data-text-role="brand" data-beat-text="brand">Brand</div>
+    </div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const X0 = 1032;
+      const X1 = 48;
+      const end = B(19.75);
+      // Words rise through masks on eighth notes; later words share the last slot so long text settles early.
+      const words = (el, start, cap = 2) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, start + Math.min(i, cap) * B(0.5)));
+      // Critically damped pops from a set scale back to rest.
+      const pop = (sel, at, from) => tl.fromTo(sel, {scale: from}, {scale: 1, duration: B(0.75), ease: 'expo.out', immediateRender: false}, at);
+
+      // A strike bar inside every word of the small old-way copy. fill() rebuilds the words, so these never pile up.
+      const oldWords = m.spans(q('.old'));
+      const strikes = oldWords.map((w) => { const s = document.createElement('i'); s.className = 'strike'; w.append(s); return s; });
+
+      // Loop state: the full before page, the slider parked at the right edge, and the green sliver.
+      tl.set('.old, .head, .cta, .stall, .dot-on, .hot', {visibility: 'hidden'}, 0);
+      tl.set('.sub', {visibility: 'visible'}, 0);
+      tl.set('.fill', {scaleX: 0, transformOrigin: '0% 50%'}, 0);
+      tl.set('.slider', {x: X0}, 0);
+      tl.set('.now', {clipPath: `inset(0px 0px 0px ${X0}px)`}, 0);
+      tl.set('.btn', {clipPath: 'inset(55px 888px 55px 0px)'}, 0);
+      tl.set('.arr', {x: -100}, 0);
+
+      // Beats 0-5: the old progress bar crawls, slower every beat.
+      let prev = 0;
+      [['tickA', 0.1], ['tickB', 0.16], ['tickC', 0.21], ['tickD', 0.25], ['tickE', 0.28], ['tickF', 0.3]].forEach(([id, v]) => {
+        tl.fromTo('.fill', {scaleX: prev}, {scaleX: v, duration: B(0.5), ease: 'expo.out', immediateRender: false}, t(id));
+        prev = v;
+      });
+
+      // Beat 6: the bar stalls red and the track jolts. Beat 7: the knob is grabbed.
+      tl.set('.stall', {visibility: 'visible'}, t('stall'));
+      tl.fromTo('.page .track', {scaleY: 1.35}, {scaleY: 1, duration: B(0.75), ease: 'expo.out', immediateRender: false}, t('stall'));
+      pop('.knob', t('grab'), 1.3);
+
+      // Beat 8: the slider wipes across and reveals the finished side.
+      tl.to('.slider', {x: X1, duration: B(1), ease: 'power4.out'}, t('wipe'));
+      tl.to('.now', {clipPath: `inset(0px 0px 0px ${X1}px)`, duration: B(1), ease: 'power4.out'}, t('wipe'));
+
+      // Beat 9: the covered page resets while the old way rises small on the new side.
+      tl.set('.sub, .stall', {visibility: 'hidden'}, t('oldWay'));
+      tl.set('.fill', {scaleX: 0}, t('oldWay'));
+      tl.set('.old', {visibility: 'visible'}, t('oldWay'));
+      words(q('.old'), t('oldWay'), 3);
+
+      // Beat 10: the headline rises at hero size.
+      tl.set('.head', {visibility: 'visible'}, t('headline'));
+      words(q('.head'), t('headline'));
+
+      // Beat 11: a red strike draws through the old way, word by word.
+      strikes.forEach((s, i) => tl.fromTo(s, {scaleX: 0}, {scaleX: 1, duration: B(0.375), ease: 'power3.out'},
+        t('strike') + B(0.5) * i / Math.max(1, strikes.length)));
+
+      // Beat 12: the new bar fills at once and the status dot turns green.
+      tl.to('.btn', {clipPath: 'inset(55px 0px 55px 0px)', duration: B(0.5), ease: 'expo.out'}, t('fill'));
+      tl.set('.dot-on', {visibility: 'visible'}, t('fill'));
+      pop('.dot-on', t('fill'), 0);
+
+      // Beat 13: the full bar grows into the button and the CTA rises.
+      tl.to('.btn', {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.75), ease: 'expo.out'}, t('cta'));
+      tl.set('.cta', {visibility: 'visible'}, t('cta'));
+      words(q('.cta'), t('cta') + B(0.25), 1);
+
+      // Beat 14: the stamp. The button presses down, flips to the accent, and the arrow slides out.
+      tl.set('.hot', {visibility: 'visible'}, t('stamp'));
+      pop('.btn', t('stamp'), 1.1);
+      tl.to('.arr', {x: 0, duration: B(0.75), ease: 'expo.out'}, t('stamp'));
+
+      // Beats 15-17: small landings while the final message holds.
+      tl.to('.arr', {x: 18, duration: B(0.5), ease: 'expo.out'}, t('nudge'));
+      pop('.dot-on', t('dot'), 1.8);
+      pop('.knob', t('regrab'), 1.3);
+
+      // Beat 18: the struck old way drops out through its masks.
+      if (oldWords.length) tl.fromTo(oldWords, {yPercent: 0}, {yPercent: 125, duration: B(0.5), ease: 'power3.in', immediateRender: false}, t('oldExit'));
+      tl.set('.old', {visibility: 'hidden'}, t('oldExit') + B(0.5));
+
+      // Beat 19: the slider sweeps back to the full before page of frame 0, and the dot flips red.
+      tl.set('.sub', {visibility: 'visible'}, t('wipeBack'));
+      tl.set('.dot-on', {visibility: 'hidden'}, t('wipeBack'));
+      tl.to('.slider', {x: X0, duration: B(0.75), ease: 'power4.out'}, t('wipeBack'));
+      tl.to('.now', {clipPath: `inset(0px 0px 0px ${X0}px)`, duration: B(0.75), ease: 'power4.out'}, t('wipeBack'));
+
+      // Covered resets so the last frame matches the first.
+      tl.set('.head, .cta, .hot', {visibility: 'hidden'}, end);
+      const spans = [...m.spans(q('.head')), ...m.spans(q('.cta'))];
+      if (spans.length) tl.set(spans, {yPercent: 125}, end);
+      tl.set('.btn', {clipPath: 'inset(55px 888px 55px 0px)'}, end);
+      tl.set('.arr', {x: -100}, end);
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

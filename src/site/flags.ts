@@ -1,3 +1,3 @@
-// Sound is off site-wide until there is a better music strategy. The editor shows no sound button and
-// MP4 exports carry no audio track, even for presets and saved videos with audio.enabled set.
-export const SOUND_ENABLED = false;
+// Sound is on: every template with music plays a royalty-free track from the music library (src/music).
+// The generated scores that prompted the earlier site-wide switch-off no longer play anywhere.
+export const SOUND_ENABLED = true;

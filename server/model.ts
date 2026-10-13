@@ -7,9 +7,8 @@ import type {VideoProps} from '../src/videos/vocab.ts';
 import {currentVersion, templateVersion} from '../src/agent/versions.ts';
 import {agentSpec} from '../src/agent/spec.ts';
 import {validateProps} from '../src/agent/handoff.ts';
-import {propKeys} from '../src/agent/handoff.ts';
+import {isBeatSchema, propKeys} from '../src/agent/handoff.ts';
 import {schemas} from '../src/videos/schemas.ts';
-import {legacySchemas} from '../src/videos/legacy-schemas.ts';
 
 export class HttpError extends Error {
   constructor(public status: number, message: string) { super(message); }
@@ -28,7 +27,7 @@ export function validateShare(body: unknown) {
   const version = Object.hasOwn(body, 'templateVersion') ? body.templateVersion : currentVersion(variant.template);
   if (typeof version !== 'number' || !Number.isInteger(version)) throw new HttpError(400, 'Invalid template version.');
   try { templateVersion(variant.template, version); } catch { throw new HttpError(400, 'Unknown template version.'); }
-  const schema = version === currentVersion(variant.template) ? schemas[variant.template] : legacySchemas[variant.template]?.[version];
+  const schema = version === currentVersion(variant.template) ? schemas[variant.template] : undefined;
   if (!schema) throw new HttpError(400, 'Unknown template version.');
   const slots = mediaSlots(schema);
   const keys = propKeys(schema);
@@ -42,7 +41,7 @@ export function validateShare(body: unknown) {
   }
   for (const role of roles) {
     const text = texts[role];
-    if (typeof text !== 'string' || !text.trim() || text.length > ROLES[role].max || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(text)) {
+    if (typeof text !== 'string' || !text.trim() || text.length > ROLES[role].max || /[\u0000-\u0009\u000b\u000c\u000e-\u001f]/.test(text)) {
       throw new HttpError(400, 'Video text is invalid or too long.');
     }
   }
@@ -57,7 +56,9 @@ export function validateShare(body: unknown) {
     theme: Object.fromEntries(THEME_ROLES.map((role) => [role, theme[role]])),
     ...(slots.length ? {media: Object.fromEntries(slots.map((s) => [s, (media as Record<string, unknown>)[s]]))} : {}),
     // Hidden roles keep the score's role order, so equal sets give the same fingerprint.
-    ...(music ? {hidden: roles.filter((r) => (hidden as string[]).includes(r)), audio: {enabled: (audio as {enabled: boolean}).enabled}} : {}),
+    ...(music && !isBeatSchema(schema) ? {hidden: roles.filter((r) => (hidden as string[]).includes(r))} : {}),
+    ...(music ? {audio: {enabled: (audio as {enabled: boolean}).enabled,
+      ...(Object.hasOwn(audio as object, 'track') ? {track: (audio as {track: string}).track} : {})}} : {}),
   } as VideoProps;
   return {variantId: variant.id, template: variant.template, templateVersion: version, props,
     composition: version === currentVersion(variant.template) ? variant.template : `${variant.template}-v${version}`,

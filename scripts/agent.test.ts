@@ -25,7 +25,8 @@ test('every template spec exports a JSON Schema that matches the zod schema', ()
     assert.deepEqual(generationErrors(v.template, s.generation), [], v.id);
     assert.equal(s.engine, engineOf(v.template), v.id);
     const music = (manifest.templates.find((t) => t.id === v.template) as {music?: boolean}).music;
-    assert.match(s.source.renderCommand, music ? /node music\/render\.mjs/ : s.engine === 'hyperframes' ? /hyperframes@0\.8\.146 render/ : /remotion render/);
+    const library = (v as {launch?: boolean}).launch;
+    assert.match(s.source.renderCommand, music || library ? /node music\/render\.mjs/ : s.engine === 'hyperframes' ? /hyperframes@0\.8\.146 render/ : /remotion render/);
     const roles = Object.keys(schemas[v.template].shape.texts.shape);
     assert.deepEqual(s.jsonSchema.properties.texts.required, roles, v.id);
     assert.equal(s.jsonSchema.properties.texts.additionalProperties, false);
@@ -116,30 +117,30 @@ test('versions are immutable, sequential, and match their committed packages', (
   execFileSync(process.execPath, [path.join(root, 'scripts/build-sources.mjs'), '--check'], {cwd: root, stdio: 'pipe'});
   for (const [template, list] of Object.entries(versions)) {
     list.forEach((entry, i) => {
-      assert.equal(entry.version, i + 1);
+      // Only the current package is kept, so a list can start above 1; versions still rise by one.
+      if (i) assert.equal(entry.version, list[i - 1].version + 1, template);
       const file = path.join(root, 'public/source', template, `v${entry.version}.tar.gz`);
       assert.equal(createHash('sha256').update(fs.readFileSync(file)).digest('hex'), entry.sha256, `${template} v${entry.version}`);
     });
   }
 });
 
-test('a template change creates a new version and keeps the old one renderable', () => {
+test('a template change replaces the package with the next version', () => {
   // Work on a copy so the real catalog is untouched.
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cliphouse-version-'));
-  for (const p of ['LICENSE', 'scripts/build-sources.mjs', 'scripts/source-template', 'src/catalog/manifest.json', 'src/videos', 'src/hyperframes', 'src/legacy', 'public/source', 'node_modules/gsap/dist/gsap.min.js', 'node_modules/@fontsource-variable']) {
+  for (const p of ['LICENSE', 'scripts/build-sources.mjs', 'scripts/source-template', 'src/catalog/manifest.json', 'src/videos', 'src/hyperframes', 'src/music', 'public/source', 'public/music', 'node_modules/gsap/dist/gsap.min.js', 'node_modules/@fontsource-variable']) {
     if (fs.existsSync(path.join(root, p))) fs.cpSync(path.join(root, p), path.join(dir, p), {recursive: true});
   }
+  // Beat packages render their WAV by importing source modules, which need the real dependencies.
+  fs.symlinkSync(path.join(root, 'node_modules/zod'), path.join(dir, 'node_modules/zod'), 'dir');
   const tmpl = 'stack';
   const before = JSON.parse(fs.readFileSync(path.join(dir, 'src/videos/versions.json'), 'utf8'))[tmpl].at(-1).version;
   fs.appendFileSync(path.join(dir, `src/videos/${tmpl}/meta.ts`), '\n// changed\n');
   execFileSync(process.execPath, ['scripts/build-sources.mjs'], {cwd: dir, stdio: 'pipe'});
   const after = JSON.parse(fs.readFileSync(path.join(dir, 'src/videos/versions.json'), 'utf8'))[tmpl];
-  assert.equal(after.at(-1).version, before + 1);
+  assert.deepEqual(after.map((v: {version: number}) => v.version), [before + 1]);
   assert.ok(fs.existsSync(path.join(dir, `public/source/${tmpl}/v${before + 1}.tar.gz`)));
-  assert.equal(createHash('sha256').update(fs.readFileSync(path.join(dir, `public/source/${tmpl}/v${before}.tar.gz`))).digest('hex'), after[before - 1].sha256);
-  assert.ok(fs.existsSync(path.join(dir, `src/legacy/${tmpl}/v${before}/${tmpl}/Stack.tsx`)));
-  assert.match(fs.readFileSync(path.join(dir, 'src/videos/legacy.ts'), 'utf8'), new RegExp(`${tmpl}: \\{[^\\n]*\\b${before}: `));
-  assert.match(fs.readFileSync(path.join(dir, 'src/videos/legacy-schemas.ts'), 'utf8'), new RegExp(`${tmpl}: \\{[^\\n]*\\b${before}: `));
+  assert.ok(!fs.existsSync(path.join(dir, `public/source/${tmpl}/v${before}.tar.gz`)));
   execFileSync(process.execPath, ['scripts/build-sources.mjs', '--check'], {cwd: dir, stdio: 'pipe'});
   fs.rmSync(dir, {recursive: true, force: true});
 });

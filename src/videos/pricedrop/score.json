@@ -1,0 +1,40 @@
+{
+  "beatFrames": 14,
+  "scenes": [
+    {
+      "type": "price-reveal",
+      "bars": 3,
+      "focusBeat": 8,
+      "roles": ["brand", "headline", "priceNote", "price"],
+      "energy": 2
+    },
+    {
+      "type": "end-screen",
+      "bars": 1,
+      "focusBeat": 14,
+      "roles": ["headline", "cta"],
+      "energy": 3
+    }
+  ],
+  "cues": [
+    {"id": "bands", "beat": 0, "sound": "impact", "velocity": 0.8},
+    {"id": "brand", "beat": 1, "sound": "blip", "role": "brand", "velocity": 0.6},
+    {"id": "headline", "beat": 2, "sound": "pluck", "role": "headline", "velocity": 0.7},
+    {"id": "priceNote", "beat": 3, "sound": "blip", "role": "priceNote", "velocity": 0.6},
+    {"id": "tagLand", "beat": 4, "sound": "snap", "velocity": 0.9},
+    {"id": "price", "beat": 5, "sound": "stab", "role": "price", "velocity": 0.9},
+    {"id": "priceBar", "beat": 6, "sound": "pluck", "velocity": 0.5},
+    {"id": "panelStep", "beat": 7, "sound": "tom", "velocity": 0.6},
+    {"id": "slabStep", "beat": 8, "sound": "tom", "velocity": 0.7},
+    {"id": "flood", "beat": 9, "sound": "zap", "velocity": 0.8},
+    {"id": "finaleHeadline", "beat": 10, "sound": "lead", "role": "headline", "velocity": 0.7},
+    {"id": "ctaStamp", "beat": 11, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "rule", "beat": 12, "sound": "pluck", "velocity": 0.6},
+    {"id": "punch", "beat": 13, "sound": "snap", "velocity": 0.6},
+    {"id": "panelReturn", "beat": 14, "sound": "clap", "velocity": 0.6},
+    {"id": "loopFlood", "beat": 15, "sound": "zap", "velocity": 0.7}
+  ],
+  "risers": [
+    {"beat": 6, "beats": 3}
+  ]
+}
