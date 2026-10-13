@@ -80,6 +80,7 @@ Rules:
 - Every text role must stay readable for any length up to its max. Each list item must be fully readable and still for at least 30 frames.
 - Decorative repeats of a text role (marquee bands, echoes) carry data-text-copy; exactly one real copy of each role at a time does not.
 - Each list item element carries data-text-role="list" and data-list-item="<index>".
+- Every visual repeated per item carries data-list-part="<name>" and data-list-item="<index>", one element per shown item, timed to that item's start or accent. Parts drawn before the items carry data-list-group="scaffold"; deliberate group moments carry data-list-group="finale". Parts that sit on their item carry data-list-align="y" or "x".
 - Follow docs/direction.md, including its banned list.
 - The score is a timing score only: never write a "sound" block. A separate music stage composes to your beats, cues, list accents, and risers.
 

@@ -203,6 +203,27 @@ h1, h2, h3 { margin: 0; }
 .inline-actions .counter { opacity: 0.7; margin-left: 4px; }
 .inline-actions .icon-btn { width: 36px; height: 36px; }
 .inline-actions .confirm { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.list-editor { display: flex; flex-direction: column; }
+.list-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 8px 10px 4px; font-size: 12px; font-weight: 600; }
+.list-head .counter { font-weight: 500; opacity: 0.7; font-variant-numeric: tabular-nums; }
+.list-rows { list-style: none; margin: 0; padding: 4px; overflow-y: auto; }
+.list-row { display: grid; grid-template-columns: 22px minmax(0, 1fr) 44px 30px 30px 30px; align-items: center; gap: 4px; height: 44px; padding: 0 4px; border-radius: 4px; }
+@media (max-width: 480px) {
+  .list-row { grid-template-columns: 18px minmax(0, 1fr) 38px 28px 28px 28px; gap: 2px; padding: 0 2px; }
+  .list-row .row-btn { width: 28px; height: 28px; }
+}
+.list-row.selected { background: #ffffff0f; box-shadow: inset 2px 0 var(--accent); }
+.list-num { font-size: 11px; opacity: 0.55; font-variant-numeric: tabular-nums; }
+.list-row input { width: 100%; min-width: 0; height: 34px; padding: 0 8px; border: 1px solid #ffffff1f; border-radius: 4px; outline: 0; background: #0e0f12; color: #fff; font-size: 16px; letter-spacing: 0; }
+.list-row input:focus { border-color: var(--accent); }
+.list-row input[aria-invalid="true"] { border-color: var(--danger); }
+.list-row .row-count { font-size: 11px; text-align: right; opacity: 0.7; font-variant-numeric: tabular-nums; }
+.list-row .row-count.error { color: var(--danger); opacity: 1; }
+.list-row .row-btn { width: 30px; height: 30px; padding: 0; }
+.list-row .row-btn:disabled { opacity: 0.3; }
+.list-editor .inline-actions { border-top: 1px solid #ffffff14; }
+.list-editor .inline-actions > span { color: var(--danger); }
+.list-focus { position: absolute; z-index: 5; pointer-events: none; border: 2px solid var(--accent); border-radius: 4px; background: #4ade8014; }
 .editor-theme { max-width: 1200px; margin: 0 auto; padding: 20px 24px 32px; border-top: 1px solid var(--line); }
 .theme-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .theme-heading h2 { font-size: 14px; }

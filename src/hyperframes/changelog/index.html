@@ -21,8 +21,6 @@
     .head::after { content:""; position:absolute; left:15px; top:15px; width:14px; height:14px; border-radius:50%; background:var(--theme-foreground); }
     .ghost { position:absolute; left:190px; height:36px; background:var(--theme-background); transform-origin:0 50%; }
     .gdot { position:absolute; left:118px; width:20px; height:20px; border-radius:50%; background:var(--theme-background); }
-    .g1 { top:334px; width:620px; } .g2 { top:509px; width:470px; } .g3 { top:684px; width:560px; } .g4 { top:860px; width:400px; } .g5 { top:1035px; width:520px; }
-    .d1 { top:342px; } .d2 { top:517px; } .d3 { top:692px; } .d4 { top:868px; } .d5 { top:1043px; }
 
     .prog { position:absolute; left:126px; top:172px; width:4px; height:978px; background:var(--theme-accent); transform-origin:50% 0; transform:scaleY(0); }
     .conn { position:absolute; left:150px; top:170px; width:40px; height:4px; background:var(--theme-accent2); transform-origin:0 50%; transform:scaleX(0); }
@@ -76,10 +74,7 @@
       <div id="prog" class="prog"></div>
       <div class="hair hair-top"></div>
       <div class="hair hair-foot"></div>
-      <div id="ghosts">
-        <i class="ghost g1"></i><i class="ghost g2"></i><i class="ghost g3"></i><i class="ghost g4"></i><i class="ghost g5"></i>
-        <i class="gdot d1"></i><i class="gdot d2"></i><i class="gdot d3"></i><i class="gdot d4"></i><i class="gdot d5"></i>
-      </div>
+      <div id="ghosts"></div>
       <div id="conn" class="conn"></div>
       <div id="chip" class="chip mono" data-fit-max="52" data-fit-min="26" data-text-role="date" data-beat-text="date">Date</div>
 
@@ -88,7 +83,7 @@
 
       <div id="list" class="list" data-list>
         <template data-list-row>
-          <div class="row"><i class="ph"></i><i class="node"><i class="check"><i class="tick"></i></i></i><div class="rtext" data-list-text data-words data-fit-max="128" data-fit-min="34"></div><i class="rrule"></i></div>
+          <div class="row"><i class="ph" data-list-part="placeholder" data-list-group="scaffold"></i><i class="node" data-list-part="node" data-list-align="y"><i class="check" data-list-part="check" data-list-align="y"><i class="tick"></i></i></i><div class="rtext" data-list-text data-words data-fit-max="128" data-fit-min="34"></div><i class="rrule" data-list-part="rule" data-list-group="scaffold"></i></div>
         </template>
       </div>
 
@@ -110,8 +105,7 @@
         <div class="track"></div>
         <div class="hair hair-top"></div>
         <div class="hair hair-foot"></div>
-        <i class="ghost g1"></i><i class="ghost g2"></i><i class="ghost g3"></i><i class="ghost g4"></i><i class="ghost g5"></i>
-        <i class="gdot d1"></i><i class="gdot d2"></i><i class="gdot d3"></i><i class="gdot d4"></i><i class="gdot d5"></i>
+        <div id="restGhosts"></div>
         <div class="head"></div>
       </div>
     </section>
@@ -132,7 +126,7 @@
         tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, at + B(Math.min(i, cap) * stag)));
 
       // Prefixes such as New: / Improved: / Fixed: become colored mono pills.
-      const rows = qa('#list [data-list-item]');
+      const rows = qa('#list > [data-list-item]');
       rows.forEach((row, i) => {
         row.querySelector('.ph').style.width = `${PH[i % PH.length]}px`;
         const first = row.querySelector('.w');
@@ -153,14 +147,33 @@
         window.cliphouseFitText?.();
       }
 
+      // The blank log of frame 0 and of the loop: one placeholder bar and one rail stop per item, centered on its row.
+      const host = q('#list');
+      const rowY = rows.map((r) => host.offsetTop + r.offsetTop + r.offsetHeight / 2);
+      const blank = (box, prefix, group) => {
+        const make = (cls, top, width) => (item) => {
+          const el = document.createElement('i');
+          el.className = cls;
+          el.dataset.listGroup = group;
+          el.dataset.listAlign = 'y';
+          el.style.top = `${rowY[item.index] - top}px`;
+          if (width) el.style.width = `${PH[item.index % PH.length]}px`;
+          return el;
+        };
+        return {bars: m.parts(box, `${prefix}placeholder`, make('ghost', 18, true)), stops: m.parts(box, `${prefix}stop`, make('gdot', 10, false))};
+      };
+      const ghosts = blank(q('#ghosts'), 'blank-', 'scaffold');
+      blank(q('#restGhosts'), 'loop-', 'finale');
+
       // Footer pips: one per shipped item.
       const pips = q('#pips');
-      pips.textContent = '';
-      const pipEls = m.items.map(() => {
+      const pipEls = m.parts(pips, 'pip', () => {
         const p = document.createElement('i'); p.className = 'pip';
+        p.dataset.listGroup = 'scaffold';
         const f = document.createElement('i'); f.className = 'pfill';
-        p.append(f); pips.append(p); return p;
+        p.append(f); return p;
       });
+      pipEls.forEach((p, i) => m.tag(p.firstChild, 'pip-fill', m.items[i].index));
 
       // Rules sit under the last line of the headline and the CTA.
       const h = q('#headline');
@@ -176,8 +189,8 @@
       tl.fromTo('#chip', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.75), ease: 'expo.out'}, t('chip'));
       tl.fromTo('#conn', {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('chip'));
       rise(q('#chip'), t('date'), 0.125, 3);
-      qa('#ghosts .ghost').forEach((g, i) => tl.to(g, {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.25), ease: 'power3.in'}, t('date') + B(i * 0.0625)));
-      qa('#ghosts .gdot').forEach((d, i) => tl.to(d, {scale: 0, duration: B(0.25), ease: 'power3.in'}, t('date') + B(i * 0.0625)));
+      ghosts.bars.forEach((g, i) => tl.to(g, {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.25), ease: 'power3.in'}, t('date') + B(i * 0.0625)));
+      ghosts.stops.forEach((d, i) => tl.to(d, {scale: 0, duration: B(0.25), ease: 'power3.in'}, t('date') + B(i * 0.0625)));
 
       // Beat 1: headline; beat 2: brand; beat 3: rule under the headline.
       rise(h, t('headline'));
@@ -195,14 +208,14 @@
       });
       pipEls.forEach((p, i) => tl.fromTo(p, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('logOpen') + B(0.5 + i * 0.0625)));
 
-      // Each item prints as the head reaches its row: the placeholder retracts, the node pops, the text rises.
-      const host = q('#list');
-      const rowY = rows.map((r) => host.offsetTop + r.offsetTop + r.offsetHeight / 2);
+      // Each item prints as the head reaches its row: the placeholder retracts, the node pops, the text rises,
+      // and on the accent its check and its footer pip land together.
       m.plan.items.forEach((it, i) => {
         const row = rows[i];
         tl.to(row.querySelector('.ph'), {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.25), ease: 'power3.in'}, B(it.start));
         tl.fromTo(row.querySelector('.node'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, B(it.start));
         rise(row.querySelector('.rtext'), B(it.start));
+        tl.fromTo(row.querySelector('.check'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, B(it.accent));
         tl.fromTo(pipEls[i].firstChild, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, B(it.accent));
       });
 
@@ -232,8 +245,8 @@
         }
       });
 
-      // Beat 10: every node gets its shipped check.
-      rows.forEach((row, i) => tl.fromTo(row.querySelector('.check'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('shipped') + B(i * 0.0625)));
+      // Beat 10: a group moment. Every checked node stamps once; each check already landed with its own row.
+      rows.forEach((row, i) => tl.fromTo(row.querySelector('.node'), {scale: 1.3}, {scale: 1, duration: B(0.5), ease: 'expo.out', immediateRender: false}, t('shipped') + B(i * 0.0625)));
 
       // Beat 12: the head floods the frame in accent; the dark slab rises with it and lands on beat 13.
       tl.fromTo('#flood', {clipPath: 'circle(0px at 128px 1150px)'}, {clipPath: 'circle(1510px at 128px 1150px)', duration: B(0.75), ease: 'power2.out'}, t('flood'));

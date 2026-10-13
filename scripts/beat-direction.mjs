@@ -1,6 +1,9 @@
 // Visual direction gates for beat templates, in either engine. For every list count and for short,
 // typical, and max-length text: readability, clipping, overlap, frame bounds, motion on every beat,
 // idle holds, loop match, and each list item landing on its planned frame. Writes review sheets.
+// List parts (data-list-part + data-list-item): every part name has one element per item, aligned parts
+// sit on their item's row or column, and parts first show inside their item's window unless they are
+// grouped as `scaffold` (drawn before the items) or `finale` (a group moment after them).
 // Usage: node --import tsx scripts/beat-direction.mjs [--sheets <dir>] [--json <file>] template ...
 import fs from 'node:fs';
 import os from 'node:os';
@@ -13,7 +16,8 @@ import {beatPlan} from '../src/videos/beat/plan.ts';
 import {beatFrame, totalBeats} from '../src/videos/beat/score.ts';
 import {parseLines} from '../src/videos/beat/list.ts';
 import {ROLES} from '../src/videos/vocab.ts';
-import {launch, openTemplate, grab, closeServer} from './directed/frames.mjs';
+import {launch, openTemplate, grab, listParts, closeServer} from './directed/frames.mjs';
+import {engineOf} from '../src/videos/engine.ts';
 
 const args = process.argv.slice(2);
 const opt = (name) => args.includes(name) ? args[args.indexOf(name) + 1] : null;
@@ -25,6 +29,10 @@ const READ_FRAMES = 30;
 const BEAT_MOTION = 0.0004;
 const IDLE_MOTION = 0.0001;
 const LOOP_DIFF = 0.012;
+// Default alignment tolerance in pixels between an item-aligned part and its row's text.
+const ALIGN_PX = {changelog: 24, featurelist: 24, versionreveal: 40, releasenotes: 30, pricingchange: 24, barchart: 4, stack: 140};
+// Share of a part's box that must show before it counts as having appeared.
+const PART_SHOWN = 0.3;
 
 const WORDS = 'Northwind Studio Weekly Creative Session Launch Report Insight Better Design Signal Moment'.split(' ');
 const longText = (max) => { let s = ''; for (let i = 0; s.length < max; i++) s += (s ? ' ' : '') + WORDS[i % WORDS.length]; return s.slice(0, max).trim(); };
@@ -43,6 +51,30 @@ function textSet(kind, props, score) {
   return {...props, texts};
 }
 const withCount = (props, n) => ({...props, texts: {...props.texts, list: parseLines(props.texts.list).slice(0, n).join('\n')}});
+
+/** Count, index, and alignment errors for the list parts at one frame. */
+// Aligned parts are measured against their own item's row part (its layout box) or, without one, its list text.
+function partErrors(parts, boxes, n, tol) {
+  const out = [];
+  const names = [...new Set(parts.map((p) => p.part))];
+  for (const name of names) {
+    const of = parts.filter((p) => p.part === name);
+    const idx = of.map((p) => p.item).sort((a, b) => a - b);
+    if (of.length !== n) out.push(`part "${name}" has ${of.length} elements for ${n} items`);
+    const bad = idx.filter((i, k) => i !== k);
+    if (bad.length || new Set(idx).size !== idx.length) out.push(`part "${name}" has item indices ${idx.join(',')}, expected 0-${n - 1}`);
+  }
+  for (const p of parts.filter((x) => x.align && x.shown >= PART_SHOWN)) {
+    const row = parts.find((x) => x.part === 'row' && x.item === p.item);
+    const text = boxes.find((b) => b.role === 'list' && Number(b.item) === p.item && !b.clipped);
+    const ref = row ? {x: row.cx, y: row.cy} : text ? {x: (text.left + text.right) / 2, y: (text.top + text.bottom) / 2} : null;
+    if (!ref) continue;
+    const limit = p.tolerance ?? tol;
+    const off = p.align === 'x' ? Math.abs(p.cx - ref.x) : Math.abs(p.cy - ref.y);
+    if (off > limit) out.push(`part "${p.part}" of item ${p.item + 1} is ${Math.round(off)}px off its item (${p.align}), tolerance ${limit}px`);
+  }
+  return out;
+}
 
 async function thumb(png) {
   const img = sharp(png);
@@ -86,12 +118,22 @@ for (const id of ids) {
       const firstSeen = {};
       const overlaps = {};
       const beatFiles = [];
+      const partFirst = {};
+      const partFaults = new Set();
       for (let f = 0; f < total; f++) {
         const onBeat = f % score.beatFrames === 0 || f === total - 1;
         const png = onBeat ? path.join(dir, `b-${n}-${String(f).padStart(4, '0')}.png`) : undefined;
         const {boxes: all, shot} = await grab(tpl, f, {png});
         // Decorative repeats (marquee bands) are marked data-text-copy and exempt from text checks.
         const boxes = all.filter((b) => !b.copy);
+        if (score.list) {
+          const parts = await listParts(tpl);
+          for (const e of partErrors(parts, boxes, n, ALIGN_PX[id] ?? 24)) {
+            const key = e.replace(/\d+px off/, 'off');
+            if (!partFaults.has(key)) { partFaults.add(key); fail(`${tag}: ${e} at frame ${f}`); }
+          }
+          for (const p of parts) if (p.shown >= PART_SHOWN) partFirst[`${p.part}#${p.item}`] ??= {f, ...p};
+        }
         if (png) beatFiles.push(png);
         shots.push(await thumb(shot));
         const want = (role) => role === 'list' ? null : String(props.texts[role] ?? '');
@@ -144,6 +186,15 @@ for (const id of ids) {
         if (at === undefined) fail(`${tag}: list item ${it.index + 1} never shows its full text`);
         else if (at < it.startFrame || at > it.accentFrame + score.beatFrames) fail(`${tag}: list item ${it.index + 1} is first readable at frame ${at}, planned ${it.startFrame}-${it.accentFrame + score.beatFrames}`);
       }
+      // Item-scoped parts first show inside their item's window: from one beat before its start to one beat after its accent.
+      for (const p of Object.values(partFirst)) {
+        // Rows are containers; their text has its own timing check above.
+        if (p.group || p.part === 'row') continue;
+        const it = plan.items[p.item];
+        if (!it) continue;
+        if (p.f < it.startFrame - score.beatFrames || p.f > it.accentFrame + score.beatFrames)
+          fail(`${tag}: part "${p.part}" of item ${p.item + 1} first shows at frame ${p.f}, planned ${it.startFrame - score.beatFrames}-${it.accentFrame + score.beatFrames}`);
+      }
       const motion = shots.slice(1).map((s, i) => diff(s, shots[i]));
       // Something lands on every beat: the change at the beat is at least twice the change between beats,
       // and above a small absolute floor, so a held frame with a steady drift does not count.
@@ -168,6 +219,24 @@ for (const id of ids) {
       for (const f of beatFiles) fs.rmSync(f);
     }
     // 2. Short and max text at each scene focus, for the largest and smallest list.
+    // Count changes in place: walk max -> min -> max on one page and check every part at the list focus.
+    // HyperFrames rebuilds through the editor's update path; Remotion rerenders from props, so it reopens.
+    if (score.list) {
+      const listScene = meta.scenes[score.list.scene];
+      const f = listScene.from + listScene.duration - score.beatFrames;
+      const walk = [...counts, ...counts.slice(0, -1).reverse()];
+      const live = engineOf(id) === 'hyperframes' ? await openTemplate(browser, id, variant.props) : null;
+      for (const n of walk) {
+        const props = withCount(variant.props, n);
+        const tpl = live ?? await openTemplate(browser, id, props);
+        if (live) await live.setList(props.texts.list);
+        const {boxes} = await grab(tpl, f);
+        const parts = await listParts(tpl);
+        for (const e of partErrors(parts, boxes.filter((b) => !b.copy), n, ALIGN_PX[id] ?? 24)) fail(`count change to ${n}: ${e} at frame ${f}`);
+        if (!live) await tpl.close();
+      }
+      await live?.close();
+    }
     const focus = meta.scenes.map((s) => s.focus);
     for (const kind of ['short', 'max']) for (const n of [...new Set([counts[0], counts.at(-1)])]) {
       const props = textSet(kind, score.list ? withCount(variant.props, n) : variant.props, score);

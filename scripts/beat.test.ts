@@ -16,6 +16,7 @@ import {beatFrame, durationInFrames, sceneStartBeat, type BeatScore} from '../sr
 import {varietyErrors} from '../src/videos/beat/variety.ts';
 import {musicOf} from '../src/videos/song/index.ts';
 import {validateShare} from '../server/model.ts';
+import {currentVersion} from '../src/agent/versions.ts';
 import {countErrors} from './beat-gates.ts';
 import {songErrors} from './song-gates.ts';
 import {usesLibrary} from '../src/music/schema.ts';
@@ -109,12 +110,31 @@ test('beat templates accept only texts, theme, audio, and valid list text', () =
     );
     for (const b of bad) assert.equal(validateProps(schema, b).ok, false, `${id}: ${JSON.stringify(b).slice(0, 120)}`);
     const v = preset(id);
-    assert.deepEqual(validateShare({variantId: v.id, props: v.props, templateVersion: 1}).props, v.props, id);
+    assert.deepEqual(validateShare({variantId: v.id, props: v.props, templateVersion: currentVersion(id)}).props, v.props, id);
   }
 });
 
 test('no two templates sound alike', () => {
   assert.deepEqual(varietyErrors(Object.fromEntries(beats.map((id) => [id, score(id)]))), []);
+});
+
+test('list contract: item-scoped parts live in the row template or are generated from the items', () => {
+  const root = path.resolve(import.meta.dirname, '..');
+  for (const id of all.filter((x) => score(x).list)) {
+    const html = path.join(root, 'src/hyperframes', id, 'index.html');
+    if (fs.existsSync(html)) {
+      const text = fs.readFileSync(html, 'utf8');
+      const row = text.match(/<template data-list-row>([\s\S]*?)<\/template>/);
+      assert.ok(row, `${id}: has a <template data-list-row>`);
+      // Outside the row template, markup must not hardcode one element per item: parts come from m.parts.
+      const outside = text.replace(row[0], '').replace(/<script>[\s\S]*?<\/script>/g, '');
+      assert.doesNotMatch(outside, /data-list-part=/, `${id}: item-scoped parts outside the row template must be generated`);
+      assert.doesNotMatch(outside, /data-list-item=/, `${id}: no hardcoded data-list-item in markup`);
+      continue;
+    }
+    const tsx = fs.readdirSync(path.join(root, 'src/videos', id)).filter((f) => f.endsWith('.tsx')).map((f) => fs.readFileSync(path.join(root, 'src/videos', id, f), 'utf8')).join('\n');
+    assert.match(tsx, /data-list-part="row"/, `${id}: Remotion list rows carry data-list-part="row"`);
+  }
 });
 
 void fs; void path; void createHash;

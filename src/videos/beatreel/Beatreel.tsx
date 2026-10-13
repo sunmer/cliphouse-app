@@ -133,12 +133,12 @@ export const Beatreel: React.FC<BeatreelProps> = (props) => {
         const color = [theme.accent, theme.foreground, theme.accent2][i];
         const textClip = i === 0 ? prog(frame, sc(2), 8, easeIn) : 1 - width / INNER;
         return (
-          <div key={role} data-role-block={role}>
-            {i > 0 && <div style={box({...listBar(i), w: width}, color)} />}
+          <div key={role} data-role-block={role} data-list-part="row" data-list-item={i}>
+            {i > 0 && <div data-list-part="bar" data-list-item={i} style={box({...listBar(i), w: width}, color)} />}
             <div style={{position: 'absolute', left: PAD + 48, top: rowY(i), width: INNER - 48, height: rowH, display: 'flex', alignItems: 'center', gap: 40,
               color: theme.background, clipPath: `inset(0 ${Math.max(0, textClip) * 100}% 0 0)`,
               transform: `translateX(${reading && readRow === i ? 28 * (1 - readStep) + 12 : 0}px)`}}>
-              <span style={{fontFamily: MONO_FONT, fontSize: 30, fontWeight: 700}}>{`0${i + 1}`}</span>
+              <span data-list-part="number" data-list-item={i} style={{fontFamily: MONO_FONT, fontSize: 30, fontWeight: 700}}>{`0${i + 1}`}</span>
               <MaskWords role={role} text={texts[role].toUpperCase()} size={pointSize} lineHeight={1.08} at={(w) => word(role, w) - 4}
                 style={{fontWeight: 850, whiteSpace: 'nowrap'}} />
             </div>

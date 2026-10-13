@@ -188,8 +188,8 @@ export const Stack: React.FC<StackProps> = (props) => {
           const colH = lerp(STUB, H, grow);
           rect = {x: lerp(W - COL_W, PAD, p), y: lerp(0, y, p), w: lerp(COL_W, CW, p), h: lerp(colH, cardH, p), r: lerp(0, 24, p)};
         } else {
-          if (frame < t.startFrame) return null;
           const dir = i % 2 ? 1 : -1;
+          // Before its start the slab waits offscreen, so every item keeps its parts mounted.
           rect = {x: PAD + dir * W * (1 - p), y, w: CW, h: cardH, r: 24};
         }
         const text = b.list[i] ?? '';
@@ -203,19 +203,20 @@ export const Stack: React.FC<StackProps> = (props) => {
         const k = Math.floor(el / B);
         const fill = el < 0 ? 0 : Math.min(1, (k * B + B * prog(el - k * B, 0, RISE)) / span);
         return (
-          <div key={i} style={{position: 'absolute', left: rect.x, top: rect.y, width: rect.w, height: rect.h, borderRadius: rect.r, background: pal.bg, overflow: 'hidden',
+          // The first slab is the title's column, so it exists before its item: a deliberate intro moment.
+          <div key={i} data-list-part="row" data-list-item={i} data-list-group={i === 0 ? 'scaffold' : undefined}
+            style={{position: 'absolute', left: rect.x, top: rect.y, width: rect.w, height: rect.h, borderRadius: rect.r, background: pal.bg, overflow: 'hidden',
             border: pal.edge ? `2px solid ${pal.edge}` : undefined, boxSizing: 'border-box'}}>
             <div style={{position: 'absolute', left: 0, top: 0, width: CW, height: cardH, display: 'flex', alignItems: 'center', gap: GAP, padding: `0 ${CARD_PAD}px`, boxSizing: 'border-box'}}>
               <div style={{width: NUM_W, height: 72, overflow: 'hidden', flexShrink: 0, fontFamily: MONO_FONT, fontSize: 64, fontWeight: 700, lineHeight: '72px', color: pal.num}}>
-                <div style={{transform: `translateY(${(1 - tn) * 105}%)`}}>{String(i + 1).padStart(2, '0')}</div>
+                <div data-list-part="number" data-list-item={i} data-list-align="y" style={{transform: `translateY(${(1 - tn) * 105}%)`}}>{String(i + 1).padStart(2, '0')}</div>
               </div>
               <Words role="list" item={i} text={text} at={textAt} stagger={1} size={size} weight={800} color={pal.ink} width={TEXT_W} style={{letterSpacing: '-0.01em'}} />
             </div>
-            {el >= 0 && (
-              <div style={{position: 'absolute', left: CARD_PAD, width: CW - CARD_PAD * 2, top: cardH - 30, height: 6, background: `${pal.rule}2e`}}>
-                <div style={{width: `${fill * 100}%`, height: '100%', background: pal.rule}} />
-              </div>
-            )}
+            <div data-list-part="progress" data-list-item={i} style={{position: 'absolute', left: CARD_PAD, width: CW - CARD_PAD * 2, top: cardH - 30, height: 6, background: `${pal.rule}2e`,
+              visibility: el >= 0 ? 'visible' : 'hidden'}}>
+              <div style={{width: `${fill * 100}%`, height: '100%', background: pal.rule}} />
+            </div>
           </div>
         );
       })}
