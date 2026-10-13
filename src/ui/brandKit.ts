@@ -1,31 +1,38 @@
 import {useSyncExternalStore} from 'react';
-import {ROLES, type Role, type Theme, type VideoProps} from '../videos/vocab';
+import {THEME_ROLES, type Theme, type VideoProps} from '../videos/vocab';
 
-// One set of brand values, applied to every template through the shared roles.
+// Brand colors only: one 5-color theme, previewed on every template while the kit is on.
 export type BrandKit = {
   enabled: boolean;
-  texts: Partial<Record<Role, string>>;
   theme: Theme | null;
 };
 
-const KEY = 'voodoo:brandkit';
-const empty: BrandKit = {enabled: false, texts: {}, theme: null};
+// A new key: kits saved under the old `voodoo:brandkit` key (text and colors) are ignored.
+const KEY = 'cliphouse:brandkit:colors';
+const empty: BrandKit = {enabled: false, theme: null};
+export const isHex = (value: string) => /^#[0-9a-f]{6}$/i.test(value);
+
+function isTheme(value: unknown): value is Theme {
+  return !!value && typeof value === 'object' && THEME_ROLES.every((r) => isHex(String((value as Record<string, unknown>)[r])));
+}
 
 function load(): BrandKit {
   try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? {...empty, ...JSON.parse(raw)} : empty;
+    const raw = JSON.parse(localStorage.getItem(KEY) ?? 'null') as Partial<BrandKit> | null;
+    if (!raw) return empty;
+    const theme = isTheme(raw.theme) ? raw.theme : null;
+    return {enabled: raw.enabled === true && !!theme, theme};
   } catch {
     return empty;
   }
 }
 
-let current = load();
+let current = typeof window === 'undefined' ? empty : load();
 const listeners = new Set<() => void>();
 
 export function setBrandKit(next: BrandKit | ((k: BrandKit) => BrandKit)) {
   current = typeof next === 'function' ? next(current) : next;
-  localStorage.setItem(KEY, JSON.stringify(current));
+  try { localStorage.setItem(KEY, JSON.stringify(current)); } catch { /* Storage is unavailable. */ }
   listeners.forEach((l) => l());
 }
 
@@ -39,16 +46,9 @@ export function useBrandKit() {
   );
 }
 
-export const kitHasValues = (k: BrandKit) => Boolean(k.theme) || Object.values(k.texts).some((v) => v?.trim());
-export const kitActive = (k: BrandKit) => k.enabled && kitHasValues(k);
+export const kitActive = (k: BrandKit): k is BrandKit & {theme: Theme} => k.enabled && !!k.theme;
 
-// Fill only roles the template uses; skip values that exceed that role's limit.
-export function applyKit(props: VideoProps, kit: BrandKit): VideoProps {
-  const texts = {...props.texts};
-  for (const role of Object.keys(texts) as Role[]) {
-    const v = ROLES[role].kit ? kit.texts[role]?.trim() : undefined;
-    if (v && v.length <= ROLES[role].max) texts[role] = v;
-  }
-  // Keep image choices, hidden roles, and the sound switch; the kit only sets text and color.
-  return {...props, texts, theme: kit.theme ?? props.theme};
+// The kit replaces only the theme. Text, images, hidden roles, and sound stay as they are.
+export function applyKit<P extends VideoProps>(props: P, kit: BrandKit): P {
+  return kitActive(kit) ? {...props, theme: {...kit.theme}} : props;
 }

@@ -1,9 +1,9 @@
-import {Pencil, Search, SlidersHorizontal, Star, Wand2, X} from 'lucide-react';
+import {Pencil, Search, SlidersHorizontal, Star, X} from 'lucide-react';
 import {useEffect, useMemo, useState} from 'react';
 import {galleryVariants, searchText, templates, variants, vocab, type Format, type Tone, type Variant} from '../catalog/catalog';
 import {SCENE_TYPES} from '../videos/vocab';
 import {applyKit, kitActive, useBrandKit} from './brandKit';
-import {BrandKitPanel} from './BrandKitPanel';
+import {BrandStrip} from './BrandStrip';
 import {Header} from './Header';
 import {Media} from './Media';
 import {StarButton, useAccount} from './Account';
@@ -48,7 +48,6 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
   const [savedOnly, setSavedOnly] = useState(false);
   const kit = useBrandKit();
   const applied = kitActive(kit);
-  const [kitOpen, setKitOpen] = useState(false);
   const saved = useMemo(readView, []);
   const [q, setQ] = useState(saved.q ?? '');
   const [sort, setSort] = useState<Sort>(saved.sort === 'new' ? 'new' : 'featured');
@@ -107,14 +106,9 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
             </button>
           )}
         </label>
-        <button className={`kit-btn ${kitOpen ? 'open' : ''} ${applied ? 'applied' : ''}`} onClick={() => setKitOpen((o) => !o)} title="Brand kit">
-          <Wand2 size={16} />
-          <span className="kit-btn-label">Brand kit</span>
-          {applied && <span className="dot" />}
-        </button>
       </Header>
 
-      {kitOpen && <BrandKitPanel />}
+      <BrandStrip />
 
       <div className="gallery-layout">
         <aside className={`filters ${filtersOpen ? 'open' : ''}`}>

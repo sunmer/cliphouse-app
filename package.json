@@ -7,7 +7,7 @@
     "test": "node scripts/smoke-account.cjs",
     "test:rules": "firebase emulators:exec --project demo-cliphouse --only firestore \"node --import tsx --test --test-concurrency=1 scripts/rules.test.mjs server/store.integration.ts\"",
     "test:sharing": "node --import tsx --test server/*.test.ts",
-    "test:agent": "node --import tsx --test scripts/agent.test.ts",
+    "test:agent": "node --import tsx --test scripts/agent.test.ts scripts/brandkit.test.ts",
     "test:source-render": "node scripts/source-render.test.mjs",
     "sources": "node scripts/build-sources.mjs",
     "previews:hyperframes": "node --import tsx scripts/hyperframes-previews.mjs",

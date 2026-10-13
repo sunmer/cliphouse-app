@@ -19,7 +19,7 @@ export function PrivacyPage() {
       <p>Google sign-in uses Firebase Authentication. It provides your account identifier, name, email address, and profile picture. Your starred video IDs and save times are stored in Cloud Firestore under your account. Stars are private, not public ratings.</p>
       <p>Signing out does not delete stars. Unstar a video to remove its bookmark. Account deletion requests must be handled by the service operator.</p>
       <h2>Your edits</h2>
-      <p>Anonymous text edits, colors, and your brand kit stay in this browser's local storage. Clearing site data removes them from this device. Save stores a private copy of your edited text, colors, title, and save time in Cloud Firestore under your account. Delete it from Saved videos in your account.</p>
+      <p>Anonymous text edits, colors, and your brand colors stay in this browser's local storage. Clearing site data removes them from this device. Save stores a private copy of your edited text, colors, title, and save time in Cloud Firestore under your account. Delete it from Saved videos in your account.</p>
       <p>When you publish a share link, a copy of the edited text and colors and a preview image are stored on Google Cloud. The link is attached to your account. Anyone with the link can view and edit that published copy without signing in. Your Google account details are not included in the public page.</p>
       <p>Later edits do not change an existing link. You can remove a link from Published links in your account. Our cached copies can remain available for up to one minute. Other apps, recipients, and search services may retain their own copies.</p>
       <h2>Analytics</h2>

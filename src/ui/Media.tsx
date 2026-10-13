@@ -31,7 +31,7 @@ export function Media({variant, props, autoplay = true}: {variant: Variant; prop
     <div ref={box} className="media" style={{background: bg}}>
       <div className="media-inner" style={{aspectRatio: `${c.width} / ${c.height}`, ...inner}}>
         {props ? (
-          // Brand kit previews: one static Remotion frame per card, only while on screen.
+          // Brand color previews: one static Remotion frame per card, only while on screen.
           visible && (
             <VideoThumbnail composition={c} props={props} style={{width: '100%', height: '100%'}} />
           )

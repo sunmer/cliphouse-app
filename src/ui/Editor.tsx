@@ -1,15 +1,16 @@
-import {ArrowLeft, Bot, Check, Copy, Download, Eye, EyeOff, FileCode, LoaderCircle, Maximize, Minimize, Music, Palette, Pause, Play, Redo2, RefreshCw, RotateCcw, Save, Share2, Undo2, Volume2, VolumeX, Wand2, X} from 'lucide-react';
+import {ArrowLeft, Bot, Check, Copy, Download, Eye, EyeOff, FileCode, LoaderCircle, Maximize, Minimize, Music, Palette, Pause, Play, Redo2, RefreshCw, RotateCcw, Save, Share2, Undo2, Volume2, VolumeX, X} from 'lucide-react';
 import {useCallback, useEffect, useMemo, useRef, useState, type CSSProperties} from 'react';
 import type {Variant} from '../catalog/catalog';
 import {generationLabel} from '../catalog/generation';
-import {ROLES, THEME_LABELS, THEME_ROLES, type Role, type VideoProps} from '../videos/contract';
+import {ROLES, type Role, type VideoProps} from '../videos/contract';
 import {ENGINE_LABELS} from '../videos/engine';
 import {mediaOf, mediaSlots, slotOptions} from '../videos/media/catalog';
 import {hideableRoles, isMusicSchema, scoreOf} from '../videos/music/schema';
 import {compositionFor} from '../videos/registry';
 import {currentVersion, handoffPath, sourcePath, specPath} from '../agent/versions';
 import {readHandoff} from '../agent/handoff';
-import {applyKit, kitHasValues, useBrandKit} from './brandKit';
+import {applyKit, useBrandKit} from './brandKit';
+import {ThemeControls} from './ThemeControls';
 import {derivePalettes, generatePalettes} from './palettes';
 import {TextCanvas} from './TextCanvas';
 import {ImagePicker} from './ImagePicker';
@@ -83,14 +84,18 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
   const c = poc ? poc.composition : compositionFor(variant.template, version);
   const kit = useBrandKit();
   const incoming = useMemo(() => handoff === undefined ? null : readHandoff(handoff, c.schema), [handoff, c]);
+  // A video without a local edit, draft, share, or agent handoff opens in the brand kit colors. POC entries skip the kit.
+  // The kit is read once per opened video, so changing it elsewhere does not rewrite an open edit.
+  const fresh = useMemo(() => poc ? variant.props : applyKit(variant.props, kit), [variant, poc]);
   const initial = useMemo(() => {
     if (sharedProps) return sharedProps;
     if (incoming?.ok) return incoming.props;
     try {
       const result = c.schema.safeParse(JSON.parse(localStorage.getItem(storageKey(localKey)) ?? 'null'));
-      return result.success ? result.data as VideoProps : variant.props;
-    } catch { return variant.props; }
-  }, [c, variant, sharedProps, incoming, localKey]);
+      // Earlier versions stored every opened video. A stored copy of the template's own props is not an edit.
+      return result.success && JSON.stringify(result.data) !== JSON.stringify(variant.props) ? result.data as VideoProps : fresh;
+    } catch { return fresh; }
+  }, [c, variant, fresh, sharedProps, incoming, localKey]);
   const h = useHistory(initial);
   const {props} = h;
   const player = useRef<VideoPlayerRef>(null);
@@ -102,7 +107,6 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
   const [copied, setCopied] = useState(false);
   const [briefCopied, setBriefCopied] = useState(false);
   const [notice, setNotice] = useState(() => versionError || (incoming && !incoming.ok ? `Agent link rejected. ${incoming.error} The video was not changed.` : ''));
-  const [hexes, setHexes] = useState(props.theme);
   // One side panel at a time slides in from the right over the stage: music or theme.
   const compact = useMediaQuery(COMPACT_QUERY);
   const [panel, setPanel] = useState<'music' | 'theme' | null>(null);
@@ -127,9 +131,6 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
   const palettes = generatedPalettes ?? defaultPalettes;
   const slots = mediaSlots(c.schema);
   const media = mediaOf(props);
-  // The brand kit never fills list members, so it cannot undo a list edit. POC entries skip it.
-  const kitProps = !poc && kitHasValues(kit) ? applyKit(props, kit) : null;
-  const kitDiffers = kitProps && JSON.stringify(kitProps) !== JSON.stringify(props);
   // Music templates: sound starts muted in the editor and only plays after the user turns it on.
   // Beat templates: the score sets the music and the list. Their sound is on by default in the MP4.
   const beat = beatScoreOf(c);
@@ -194,12 +195,15 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
     if (incoming.ok) history.replaceState(null, '', `${location.pathname}${location.search}#/v/${variant.id}${version === latest ? '' : `?v=${version}`}`);
   }, [incoming, variant.id, version, latest]);
   useEffect(() => {
-    setHexes(props.theme);
     // Account drafts remain private; do not copy them into anonymous browser storage.
     if (draftId) return;
-    try { localStorage.setItem(storageKey(shareId ? `share:${shareId}` : localKey), JSON.stringify(props)); }
-    catch { setNotice('Changes could not be saved on this device. Save this edit to keep a copy.'); }
-  }, [props, localKey, shareId, draftId]);
+    const key = storageKey(shareId ? `share:${shareId}` : localKey);
+    try {
+      // An untouched video is not a local edit, so the next visit opens it in the current brand kit colors.
+      if (!shareId && JSON.stringify(props) === JSON.stringify(fresh)) localStorage.removeItem(key);
+      else localStorage.setItem(key, JSON.stringify(props));
+    } catch { setNotice('Changes could not be saved on this device. Save this edit to keep a copy.'); }
+  }, [props, localKey, shareId, draftId, fresh]);
   const save = async () => {
     const user = await account.requireSignIn();
     if (draft.current?.uid !== user.uid) draft.current = {uid: user.uid, id: crypto.randomUUID().replaceAll('-', '')};
@@ -355,13 +359,6 @@ For text and color edits, return a link in the spec's handoff format. For code e
     } catch (e) { setNotice((e as Error).message); }
     finally { setExporting(false); }
   };
-  const changeHex = (key: typeof THEME_ROLES[number], value: string) => {
-    setHexes((old) => ({...old, [key]: value}));
-    if (/^#[0-9a-f]{6}$/i.test(value) && value.toLowerCase() !== props.theme[key].toLowerCase()) {
-      h.set({...props, theme: {...props.theme, [key]: value}});
-      track('color_edit', {variant_id: variant.id, color_role: key});
-    }
-  };
 
   // The playback bar: attached under the video on desktop, floating at the stage edge on phones.
   const playbar = (kind: "attached" | "floating") => (
@@ -404,8 +401,6 @@ For text and color edits, return a link in the spec's handoff format. For code e
             disabled={!!editing} onClick={() => togglePanel('theme')}><Palette size={20} /></button>
           {music && <button className={`overlay-btn ${panel === 'music' ? 'on' : ''}`} title="Music" aria-label="Music" aria-pressed={panel === 'music'} aria-controls="editor-panel"
             disabled={!!editing} onClick={() => togglePanel('music')}><Music size={20} /></button>}
-          {kitDiffers && <button className="overlay-btn kit-apply" title="Apply brand kit" aria-label="Apply brand kit"
-            disabled={!!editing} onClick={() => h.set(kitProps!)}><Wand2 size={20} /></button>}
           <button className="overlay-btn" title="Reset to original" aria-label="Reset to original"
             disabled={!!editing || JSON.stringify(props) === JSON.stringify(variant.props)} onClick={() => h.set(variant.props)}><RotateCcw size={20} /></button>
           {!poc && <>
@@ -462,27 +457,11 @@ For text and color edits, return a link in the spec's handoff format. For code e
             {library && <p className="music-facts">Royalty-free</p>}
           </div>}
           {panel === 'theme' && <div className="panel-body">
-            <div className="palettes" role="group" aria-label="Palettes">
-              {palettes.map((p) => <button key={p.name} className={`palette-btn ${JSON.stringify(p.colors) === JSON.stringify(props.theme) ? 'on' : ''}`}
-                title={p.name} aria-label={p.name} aria-pressed={JSON.stringify(p.colors) === JSON.stringify(props.theme)}
-                disabled={!!editing} onClick={() => { h.set({...props, theme: p.colors}); track('color_edit', {variant_id: variant.id, color_role: 'palette'}); }}>
-                {THEME_ROLES.map((role) => <span key={role} style={{background: p.colors[role]}} />)}
-              </button>)}
-            </div>
-            <h3 className="panel-sub">Customize</h3>
-            <div className="theme-colors">
-              {THEME_ROLES.map((key) => (
-                <div className="theme-color" key={key}>
-                  <label className="swatch" style={{background: props.theme[key]}} title={`Pick ${THEME_LABELS[key]}`}>
-                    <input type="color" aria-label={`Pick ${THEME_LABELS[key]}`} value={props.theme[key]} disabled={!!editing} onChange={(e) => changeHex(key, e.target.value)} />
-                  </label>
-                  <label htmlFor={`hex-${key}`}>{THEME_LABELS[key]}</label>
-                  <input id={`hex-${key}`} className="hex" aria-label={`${THEME_LABELS[key]} hex`} value={hexes[key]} spellCheck={false} disabled={!!editing}
-                    aria-invalid={!/^#[0-9a-f]{6}$/i.test(hexes[key])} onChange={(e) => changeHex(key, e.target.value.trim())}
-                    onBlur={() => setHexes((old) => ({...old, [key]: props.theme[key]}))} />
-                </div>
-              ))}
-            </div>
+            <ThemeControls theme={props.theme} palettes={palettes} disabled={!!editing}
+              heading="Customize" onChange={(theme, change) => {
+                h.set({...props, theme});
+                track('color_edit', {variant_id: variant.id, color_role: change.kind === 'palette' ? 'palette' : change.role});
+              }} />
           </div>}
         </aside>}
       </div>
