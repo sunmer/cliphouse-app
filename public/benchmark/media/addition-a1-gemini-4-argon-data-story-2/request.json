@@ -1,0 +1,52 @@
+{
+  "addition": {
+    "id": "A1",
+    "baselineVersion": "1.1",
+    "edition": "2026-10",
+    "date": "2026-10-13",
+    "policy": "Late addition to the October 2026 edition. It uses the protocol 1.1 contract, briefs, palette, fonts, token limit, renderer image, single repair rule, and provider selection rule. The original 60 runs are unchanged. Automated recovery R1 does not apply to this addition.",
+    "models": [
+      {
+        "key": "gemini-4-argon",
+        "name": "Gemini 4 Argon",
+        "author": "Google",
+        "id": "google/gemini-4-argon",
+        "tier": "Mid-range",
+        "weights": "Closed",
+        "reasoning": "high"
+      }
+    ]
+  },
+  "additionHash": "e38d1a3d58adb126bf9017b7214e51971bcb8fd7aa39f983db4e804bd9a76bca",
+  "imageId": "sha256:5422533513fcbdefee76eec4a00a4a09985401b88485c33e54afa2afc1a8a0af",
+  "requests": [
+    {
+      "model": "google/gemini-4-argon",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You write a complete Remotion 4 composition.\nReturn one JSON object with exactly one string property: \"source\".\nThe source must be a complete TSX module exporting a named React component called BenchmarkVideo.\nOnly import from \"react\", \"remotion\", and \"./contract\".\nDo not register a composition or change the project configuration.\nThe wrapper supplies 1920 x 1080, 30 fps, and 360 frames.\nUse useCurrentFrame(), interpolate(), spring(), and Sequence for frame-based motion.\nEvery frame must be deterministic. No Math.random(), dates, timers, network requests, audio, or external assets.\nThe wrapper loads Archivo locally. Use the font family \"Archivo\" for all text.\nImport palette from \"./contract\": background #101114, foreground #F5F5F2, accent #B8F36B, secondary #78B9ED, muted #B1B4BC.\nUse these colors. Alpha variants are permitted.\nKeep text inside an 80-pixel safe margin on every side.\nNo existing video examples are provided. Make all design decisions yourself.\nDo not include model names, provider names, explanations, markdown fences, or other files."
+        },
+        {
+          "role": "user",
+          "content": "Create a silent, 12-second data-story video for \"Relay\". Use Remotion, 1920 x 1080, 30 fps.\nFrom 0-3 seconds, introduce \"A week with more focus\" and \"Illustrative data\".\nFrom 3-9 seconds, animate a bar chart of focus hours: \"Monday\" 2, \"Tuesday\" 3, \"Wednesday\" 4, \"Thursday\" 3, \"Friday\" 5. Use a common zero baseline and a linear scale. Every day label and exact value must be readable together for at least two seconds after the animation settles.\nFrom 9-12 seconds, show \"17 hours of focused work\" and \"Relay\". Keep this final message fully readable for at least two seconds.\nUse the supplied fonts and palette. Do not imply these are measured customer results. Include no other claims, external assets, or audio. Return a complete composition that follows the supplied component contract."
+        }
+      ],
+      "max_tokens": 32000,
+      "reasoning": {
+        "effort": "high"
+      },
+      "provider": {
+        "only": [
+          "google-vertex/global"
+        ],
+        "allow_fallbacks": false,
+        "require_parameters": true,
+        "max_price": {
+          "prompt": 2,
+          "completion": 10
+        }
+      }
+    }
+  ]
+}

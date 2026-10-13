@@ -22,14 +22,19 @@ async function check(browser, viewport, prefix) {
   await page.goto(`${base}benchmark/`, {waitUntil: 'networkidle'});
   const original = await (await context.request.get(`${base}benchmark/results.json`)).json();
   const protocol = await (await context.request.get(`${base}benchmark/protocol.json`)).json();
+  assert.equal(protocol.models.length, 10, 'the frozen protocol keeps its original ten models');
   const recoveries = await (await context.request.get(`${base}benchmark/recovery.json`)).json();
   const timings = await (await context.request.get(`${base}benchmark/timings.json`)).json();
+  const additions = await (await context.request.get(`${base}benchmark/addition-results.json`)).json();
+  protocol.models = [...additions.addition.models, ...protocol.models];
+  const cards = protocol.models.length;
   const results = {...original, entries: original.entries.map((entry) => {
     const repair = recoveries.entries.find((item) => item.model === entry.model && item.brief === entry.brief && item.run === entry.run);
     return repair ? {...entry, ...repair, generationMs: entry.generationMs + repair.generationMs, renderMs: entry.renderMs + repair.renderMs} : entry;
-  })};
+  }).concat(additions.entries)};
   await page.locator('.benchmark-card').first().waitFor();
-  assert.equal(await page.locator('.benchmark-card').count(), 10);
+  assert.equal(await page.locator('.benchmark-card').count(), cards);
+  assert.equal(await page.locator('.benchmark-card h3').first().innerText(), 'Gemini 4 Argon', 'the late addition is listed first');
   assert.equal(await page.locator('.filters').count(), 0);
   assert.equal(await page.getByRole('heading', {level: 1}).count(), 1);
   assert.equal(await page.locator('.benchmark-progress, .benchmark-recovery-summary').count(), 0);
@@ -47,10 +52,10 @@ async function check(browser, viewport, prefix) {
       await page.getByRole('button', {name: `Run ${run}`, exact: true}).click();
       const entries = results.entries.filter((entry) => entry.brief === brief && entry.run === run);
       const rendered = entries.filter((entry) => entry.status === 'rendered');
-      assert.equal(await page.locator('.benchmark-card').count(), 10);
+      assert.equal(await page.locator('.benchmark-card').count(), cards);
       assert.equal(await page.locator('.benchmark-card-media video').count(), rendered.length);
       assert.equal(await page.locator('.benchmark-pending.is-failed').count(), entries.length - rendered.length);
-      assert.equal(await page.locator('.benchmark-pending:not(.is-failed)').count(), 10 - entries.length);
+      assert.equal(await page.locator('.benchmark-pending:not(.is-failed)').count(), cards - entries.length);
       const actualVideos = await page.locator('.benchmark-card-media video').evaluateAll((videos) =>
         videos.map((video) => new URL(video.dataset.videoSrc, location.href).pathname).sort());
       assert.deepEqual(actualVideos, rendered.map((entry) => new URL(entry.video, base).pathname).sort(), 'each selection shows its recorded videos');
@@ -64,7 +69,7 @@ async function check(browser, viewport, prefix) {
   }
   await page.getByRole('button', {name: 'Data story', exact: true}).click();
   await page.getByRole('button', {name: 'Run 2', exact: true}).click();
-  const selected = results.entries.find((entry) => entry.model === 'opus-5-5' && entry.brief === 'data-story' && entry.run === 2);
+  const selected = results.entries.find((entry) => entry.model === protocol.models[0].key && entry.brief === 'data-story' && entry.run === 2);
   if (!selected) assert.equal(await page.locator('.benchmark-card-media').first().innerText(), 'Not run\nData story / Run 2');
   else if (selected.status === 'rendered') assert.equal(await page.locator('.benchmark-card-media').first().locator('video').count(), 1);
   else assert.match(await page.locator('.benchmark-card-media').first().innerText(), /Render failed|Token limit reached|Invalid response format/);
@@ -127,12 +132,12 @@ async function check(browser, viewport, prefix) {
   await video.evaluate((el) => el.pause());
   const response = await context.request.get(`${base}benchmark/protocol.json`);
   assert.equal(response.status(), 200);
-  assert.equal((await response.json()).models.length, 10);
+  assert.equal(response.ok(), true);
   assert.match(await (await context.request.get(`${base}benchmark/contract.txt`)).text(), /BenchmarkVideo/);
   await page.goto(`${base}benchmark/2026-10/`, {waitUntil: 'networkidle'});
   assert.match(await page.title(), /October 2026/);
   assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'), 'https://cliphou.se/benchmark/2026-10/');
-  assert.equal(await page.locator('.benchmark-card').count(), 10);
+  assert.equal(await page.locator('.benchmark-card').count(), cards);
   await page.getByRole('link', {name: 'Templates', exact: true}).click();
   await page.locator('.card').first().waitFor();
   await page.getByRole('link', {name: /New monthly benchmark:.*Compare models/}).click();
@@ -148,7 +153,7 @@ async function check(browser, viewport, prefix) {
     const context = await browser.newContext({javaScriptEnabled: false, viewport: {width: 1280, height: 900}});
     const page = await context.newPage();
     await page.goto(`${base}benchmark/`);
-    assert.equal(await page.locator('.benchmark-card').count(), 10, 'all models are server rendered');
+    assert.equal(await page.locator('.benchmark-card').count(), 11, 'all models are server rendered');
     assert.equal(await page.locator('script[type="application/ld+json"]').count(), 1);
     await page.locator('.benchmark-prompt summary').click();
     assert.equal(await page.locator('.benchmark-prompt').getAttribute('open'), '');

@@ -12,6 +12,7 @@ async function check(engine, viewport, name) {
     const baseline = await (await page.request.get(`${base}benchmark/results.json`)).json();
     const repairs = await (await page.request.get(`${base}benchmark/recovery.json`)).json();
     const protocol = await (await page.request.get(`${base}benchmark/protocol.json`)).json();
+    const additions = await (await page.request.get(`${base}benchmark/addition-results.json`)).json();
     assert.equal(repairs.entries.length, baseline.entries.filter(entry => entry.status === 'failed').length);
     assert.equal(await page.locator('.benchmark-recovery-summary, .benchmark-progress').count(), 0);
     const originalLink = await page.getByRole('link', {name: 'Original results', exact: true}).getAttribute('href');
@@ -22,8 +23,9 @@ async function check(engine, viewport, name) {
         await page.getByRole('button', {name: `Run ${run}`, exact: true}).click();
         const originals = baseline.entries.filter(entry => entry.brief === brief.id && entry.run === run);
         const recoveries = repairs.entries.filter(entry => entry.brief === brief.id && entry.run === run);
+        const added = additions.entries.filter(entry => entry.brief === brief.id && entry.run === run && entry.status === 'rendered');
         assert.equal(await page.locator('.benchmark-card-media video').count(),
-          originals.filter(entry => entry.status === 'rendered').length + recoveries.filter(entry => entry.status === 'rendered').length);
+          originals.filter(entry => entry.status === 'rendered').length + recoveries.filter(entry => entry.status === 'rendered').length + added.length);
         assert.equal(await page.locator('.benchmark-recovery-label').count(), recoveries.length);
         for (const original of originals) {
           const recovery = recoveries.find(entry => entry.model === original.model);

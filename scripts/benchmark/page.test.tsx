@@ -19,7 +19,7 @@ const timingFixture: BenchmarkTimings = {version: 1, metric: 'generation_time', 
 }]};
 const render = (entry: BenchmarkResult, timings = timingFixture) => {
   const data: BenchmarkResults = {version: '1.0', edition: '2026-10', updatedAt: '2026-10-08', status: 'in-progress', entries: [entry]};
-  return renderToString(<BenchmarkPage base="/voodoo/" data={data} timings={timings} />);
+  return renderToString(<BenchmarkPage base="/voodoo/" data={data} additions={{id: 'A1', edition: '2026-10', updatedAt: '2026-10-13', entries: []}} timings={timings} />);
 };
 test('real rendered entry shows video, actual metrics, and base-aware downloads', () => {
   const html = render(sample());

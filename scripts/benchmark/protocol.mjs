@@ -9,10 +9,14 @@ export const hash = (value) => createHash('sha256').update(value).digest('hex');
 export const contract = JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/contract.json'), 'utf8')).system;
 
 export const digest = hash(JSON.stringify(protocol) + contract);
+// Late additions reuse protocol 1.1 unchanged; their hash binds the addition to the baseline digest.
+export const addition = JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/addition.json'), 'utf8'));
+export const additionDigest = hash(JSON.stringify(addition) + digest);
+export const allModels = [...addition.models, ...protocol.models];
 const localAsset = z.string().regex(/^benchmark\/media\/[a-z0-9-]+\/[a-z0-9-]+\.(mp4|jpg|tsx|json)$/);
 const scores = z.object(Object.fromEntries(protocol.rubric.map((criterion) => [criterion.id, z.number().min(1).max(5)]))).strict();
-export const resultSchema = z.object({
-  model: z.enum(protocol.models.map((model) => model.key)),
+const entrySchema = (models) => z.object({
+  model: z.enum(models.map((model) => model.key)),
   brief: z.enum(protocol.briefs.map((brief) => brief.id)),
   run: z.number().int().min(1).max(protocol.runs),
   status: z.enum(['rendered', 'failed']),
@@ -35,6 +39,34 @@ export const resultSchema = z.object({
   if (entry.reviews.length === 1 || new Set(entry.reviews.map((review) => review.reviewer)).size !== entry.reviews.length) ctx.addIssue({code: 'custom', message: 'Publish either zero reviews or two distinct reviewers.'});
   if (entry.firstAttemptPassed !== (entry.status === 'rendered' && entry.attempts === 1)) ctx.addIssue({code: 'custom', message: 'First-attempt status does not match the result.'});
 });
+export const resultSchema = entrySchema(protocol.models);
+
+function checkAssets(entries, assetRoot) {
+  for (const entry of entries) {
+    for (const field of ['video', 'poster', 'source', 'request']) {
+      if (entry[field]) {
+        const file = path.join(assetRoot, entry[field]);
+        if (!fs.existsSync(file) || !fs.lstatSync(file).isFile() || !fs.statSync(file).size) throw new Error(`Missing benchmark artifact: ${entry[field]}`);
+        const relative = path.relative(fs.realpathSync(assetRoot), fs.realpathSync(file));
+        if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('Benchmark artifact escapes the public directory.');
+      }
+    }
+  }
+}
+
+export function validateAddition(data, baseline, assetRoot) {
+  const validated = z.object({
+    id: z.literal(addition.id), edition: z.literal(addition.edition), updatedAt: z.iso.date(),
+    entries: z.array(entrySchema(addition.models)),
+  }).strict().parse(data);
+  const keys = validated.entries.map((entry) => `${entry.model}/${entry.brief}/${entry.run}`);
+  if (new Set(keys).size !== keys.length) throw new Error('Duplicate addition entries.');
+  if (validated.entries.some((entry) => entry.reviews.length)) throw new Error('Addition entries are not reviewed.');
+  const media = new Set(baseline.entries.flatMap((entry) => [entry.video, entry.source, entry.request]).filter(Boolean));
+  if (validated.entries.some((entry) => [entry.video, entry.source, entry.request].some((file) => file && media.has(file)))) throw new Error('Addition media must not overwrite original assets.');
+  if (assetRoot) checkAssets(validated.entries, assetRoot);
+  return validated;
+}
 
 export function validateResults(data, assetRoot) {
   const validated = z.object({
@@ -50,16 +82,7 @@ export function validateResults(data, assetRoot) {
   const expected = protocol.models.length * protocol.briefs.length * protocol.runs;
   const expectedStatus = !keys.length ? 'awaiting-runs' : keys.length < expected ? 'in-progress' : rendered.some((entry) => entry.reviews.length < 2) ? 'reviewing' : 'complete';
   if (validated.status !== expectedStatus) throw new Error(`Expected benchmark status ${expectedStatus}.`);
-  if (assetRoot) for (const entry of validated.entries) {
-    for (const field of ['video', 'poster', 'source', 'request']) {
-      if (entry[field]) {
-        const file = path.join(assetRoot, entry[field]);
-        if (!fs.existsSync(file) || !fs.lstatSync(file).isFile() || !fs.statSync(file).size) throw new Error(`Missing benchmark artifact: ${entry[field]}`);
-        const relative = path.relative(fs.realpathSync(assetRoot), fs.realpathSync(file));
-        if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('Benchmark artifact escapes the public directory.');
-      }
-    }
-  }
+  if (assetRoot) checkAssets(validated.entries, assetRoot);
   return validated;
 }
 

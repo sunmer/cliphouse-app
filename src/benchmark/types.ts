@@ -1,6 +1,7 @@
 import protocol from './protocol.json';
+import addition from './addition.json';
 
-export type BenchmarkModel = typeof protocol.models[number];
+export type BenchmarkModel = typeof protocol.models[number] | typeof addition.models[number];
 export type BenchmarkBrief = typeof protocol.briefs[number];
 export type BenchmarkResult = {
   model: string;
@@ -43,6 +44,7 @@ export type BenchmarkResults = {
   status: string;
   entries: BenchmarkResult[];
 };
+export type BenchmarkAdditionResults = {id: string; edition: string; updatedAt: string; entries: BenchmarkResult[]};
 
 export function withRecovery(original: BenchmarkResult, recovery?: BenchmarkRecovery): BenchmarkResult {
   if (!recovery || original.status !== 'failed') return original;

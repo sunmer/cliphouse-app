@@ -42,8 +42,8 @@ h1, h2, h3, button, a { letter-spacing: 0; }
 .benchmark-contents a { display: inline-flex; align-items: center; gap: 9px; font-size: 13px; text-decoration: none; color: var(--article-muted); }
 .benchmark-contents a:first-child { color: var(--article-green); }
 .benchmark-status-dot { display: inline-block; vertical-align: middle; width: 6px; height: 6px; border-radius: 50%; background: #eec77e; margin-right: 9px; }
-.benchmark-recovery-label { color: var(--article-green); }
-.benchmark-recovery-label { font-size: 11px; line-height: 1.5; margin-top: 8px; }
+.benchmark-recovery-label, .benchmark-addition-label { color: var(--article-green); }
+.benchmark-recovery-label, .benchmark-addition-label { font-size: 11px; line-height: 1.5; margin-top: 8px; }
 .benchmark-comparison, .benchmark-section { padding: 44px 0; border-bottom: 1px solid var(--article-line); }
 .benchmark-section-heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 25px; }
 .section-number { display: block; font-size: 11px; color: var(--article-muted); margin-bottom: 12px; }
