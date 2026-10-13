@@ -209,10 +209,10 @@
   ],
   "barchart": [
     {
-      "version": 1,
-      "hash": "16f1ec4e1e47618c",
-      "sha256": "4ec27abfcbb1d9d88c9d0dd787ce1e6cd0d1a8406117ce9e8747b162d72e8450",
-      "createdAt": "2026-10-12"
+      "version": 2,
+      "hash": "4cf024e9f8a337a2",
+      "sha256": "2048b1a973bd76c6c9f6a62a9321fb051fe519d4b95e42af66281b3bf4aa5641",
+      "createdAt": "2026-10-13"
     }
   ],
   "counter": [
@@ -721,10 +721,10 @@
   ],
   "pricedrop": [
     {
-      "version": 1,
-      "hash": "b005406c9c32d4c3",
-      "sha256": "324eb2952d35c9e6c0748acccb7268e17fca0af61c18ef0dab9d2ba33473445c",
-      "createdAt": "2026-10-12"
+      "version": 2,
+      "hash": "d6bf10d19ae34fc0",
+      "sha256": "2e8205089c05467c1775cb38241aa1065924fcc07eaccd6f0b2ab9bb872e4c3d",
+      "createdAt": "2026-10-13"
     }
   ],
   "featuredrop": [
@@ -745,10 +745,10 @@
   ],
   "ticker": [
     {
-      "version": 1,
-      "hash": "c9bad546644000c4",
-      "sha256": "fecce5ae73ed7dd9a2662b33f1f61d13e0b6cf430b365841f6001bb4dcd57e79",
-      "createdAt": "2026-10-12"
+      "version": 2,
+      "hash": "1f45a9826b26bdfc",
+      "sha256": "a0a9d5b7341fa8f587f2fc3f7cca07cf1b34e9324837f9813bc1acff80d16ce3",
+      "createdAt": "2026-10-13"
     }
   ],
   "beatreel": [
@@ -769,10 +769,10 @@
   ],
   "stack": [
     {
-      "version": 1,
-      "hash": "b264e2fbb61f2956",
-      "sha256": "9442506ad749a80cf8994235bf5741833a0921f57a4d1c22e0fef76fe49cbf8d",
-      "createdAt": "2026-10-12"
+      "version": 2,
+      "hash": "f879fc214ae858ac",
+      "sha256": "cfa09fde6bcfc50622282107e0bc19a3147f6f3c5f82ca30965b41f2ab98240f",
+      "createdAt": "2026-10-13"
     }
   ],
   "changelog": [
