@@ -140,7 +140,7 @@ async function check(browser, viewport, prefix) {
   assert.equal(await page.locator('.benchmark-card').count(), cards);
   await page.getByRole('link', {name: 'Templates', exact: true}).click();
   await page.locator('.card').first().waitFor();
-  await page.getByRole('link', {name: /New monthly benchmark:.*Compare models/}).click();
+  await page.getByRole('link', {name: /New: Gemini 4 Argon benchmarked\..*Compare now/}).click();
   await page.locator('.benchmark-card').first().waitFor();
   assert.deepEqual(errors, [], 'no runtime or hydration errors');
   await context.close();
