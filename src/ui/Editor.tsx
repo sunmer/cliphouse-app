@@ -6,6 +6,7 @@ import {ROLES, THEME_LABELS, THEME_ROLES, type Role, type VideoProps} from '../v
 import {ENGINE_LABELS} from '../videos/engine';
 import {mediaOf, mediaSlots, slotOptions} from '../videos/media/catalog';
 import {hideableRoles, isMusicSchema, scoreOf} from '../videos/music/schema';
+import {SOUND_ENABLED} from '../videos/music/flags';
 import {compositionFor} from '../videos/registry';
 import {currentVersion, handoffPath, sourcePath, specPath} from '../agent/versions';
 import {readHandoff} from '../agent/handoff';
@@ -87,14 +88,16 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
   const media = mediaOf(props);
   const kitProps = kitHasValues(kit) ? applyKit(props, kit) : null;
   const kitDiffers = kitProps && JSON.stringify(kitProps) !== JSON.stringify(props);
-  // Music templates: sound starts muted in the editor and only plays after the user turns it on.
+  // Sound is switched off site-wide until there is a music strategy: no sound button, no sound in MP4 exports.
+  // Music templates keep their optional-text toggles.
   const music = isMusicSchema(c.schema);
+  const sound = SOUND_ENABLED && music;
   const score = scoreOf(c);
   const optional = hideableRoles(c.schema);
   const hidden = (props as {hidden?: Role[]}).hidden ?? [];
-  const exportSound = !!(props as {audio?: {enabled: boolean}}).audio?.enabled;
+  const exportSound = sound && !!(props as {audio?: {enabled: boolean}}).audio?.enabled;
   const [listening, setListening] = useState(false);
-  const audio = useScoreAudio({score, fps: c.fps, props, player, enabled: music && listening});
+  const audio = useScoreAudio({score: sound ? score : undefined, fps: c.fps, props, player, enabled: sound && listening});
   const soundPlayed = useRef(false);
   const toggleSound = () => {
     const next = !listening;
@@ -282,7 +285,7 @@ For text and color edits, return a link in the spec's handoff format. For code e
       setExportedKey(JSON.stringify(props));
       setNotice('Your MP4 is downloading.');
       track('mp4_export', {variant_id: variant.id, template_kind: templateKind(variant.tmpl)});
-      if (music && exportSound) track('audio_export', {variant_id: variant.id});
+      if (exportSound) track('audio_export', {variant_id: variant.id});
     } catch (e) { setNotice((e as Error).message); }
     finally { setExporting(false); }
   };
@@ -339,14 +342,14 @@ For text and color edits, return a link in the spec's handoff format. For code e
         <div className="editor-bottom">
           <button className="overlay-btn playback-btn" title={playing ? 'Pause' : 'Play'} aria-label={playing ? 'Pause' : 'Play'}
             disabled={!!editing} onClick={() => player.current?.toggle()}>{playing ? <Pause size={20} /> : <Play size={20} />}</button>
-          {music && <button className={`overlay-btn sound-btn ${listening ? 'on' : ''}`} title={listening ? 'Mute sound' : 'Play sound'} aria-label={listening ? 'Mute sound' : 'Play sound'}
+          {sound && <button className={`overlay-btn sound-btn ${listening ? 'on' : ''}`} title={listening ? 'Mute sound' : 'Play sound'} aria-label={listening ? 'Mute sound' : 'Play sound'}
             aria-pressed={listening} data-audio-ready={audio.ready ? 'true' : 'false'} onClick={toggleSound}>{listening ? <Volume2 size={20} /> : <VolumeX size={20} />}</button>}
           <Timeline meta={c} player={player} focusRole={editing} disabled={!!editing} />
         </div>
       </div>
-      {music && <section className="editor-theme editor-music" aria-labelledby="music-heading">
-        <div className="theme-heading"><h2 id="music-heading">Text and sound</h2>
-          {score && <span className="music-facts">{score.bpm} BPM · {score.scenes.reduce((n, s) => n + s.bars, 0)} bars</span>}</div>
+      {music && optional.length > 0 && <section className="editor-theme editor-music" aria-labelledby="music-heading">
+        <div className="theme-heading"><h2 id="music-heading">{sound ? 'Text and sound' : 'Optional text'}</h2>
+          {sound && score && <span className="music-facts">{score.bpm} BPM · {score.scenes.reduce((n, s) => n + s.bars, 0)} bars</span>}</div>
         <div className="music-controls">
           <div className="role-toggles" role="group" aria-label="Optional text">
             {optional.map((role) => {
@@ -356,10 +359,10 @@ For text and color edits, return a link in the spec's handoff format. For code e
                 onClick={() => toggleRole(role)}>{shown ? <Eye size={16} /> : <EyeOff size={16} />}<span>{ROLES[role].label}</span></button>;
             })}
           </div>
-          <label className="export-sound">
+          {sound && <label className="export-sound">
             <input type="checkbox" checked={exportSound} disabled={!!editing} onChange={(e) => setExportSound(e.target.checked)} />
             <span>Include sound in MP4</span>
-          </label>
+          </label>}
         </div>
       </section>}
       <section className="editor-theme" aria-labelledby="theme-heading">

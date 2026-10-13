@@ -7,6 +7,7 @@ import {ROLES, SCENE_TYPES, THEME_ROLES, roleHint, type Role, type VideoProps} f
 import {mediaOf, mediaSlots, slotOptions} from '../videos/media/catalog.ts';
 import {hideableRoles, isMusicSchema, scoreOf} from '../videos/music/schema.ts';
 import {durationSeconds, scoreScenes} from '../videos/music/score.ts';
+import {SOUND_ENABLED} from '../videos/music/flags.ts';
 import {MAX_HANDOFF_CHARS, REPOSITORY, TEMPLATE_LICENSE, handoffPath, sourcePath, templateVersion} from './versions.ts';
 
 type SpecInput = {
@@ -70,7 +71,7 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
         hidden: {format: 'List of optional text roles', options: hideableRoles(schema), current: (props as {hidden?: string[]}).hidden ?? [],
           note: 'Hidden roles disappear with their accent notes. brand, headline, and cta cannot be hidden.'},
         audio: {format: '{"enabled": boolean}', current: (props as {audio?: {enabled: boolean}}).audio ?? {enabled: true},
-          note: 'When enabled, the MP4 includes the generated score as AAC 48 kHz stereo audio.'},
+          note: SOUND_ENABLED ? 'When enabled, the MP4 includes the generated score as AAC 48 kHz stereo audio.' : 'Sound is turned off on cliphou.se for now: hosted MP4 exports are silent. The source package can still render the score locally.'},
       } : {}),
     },
     ...(score ? {

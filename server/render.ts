@@ -5,6 +5,7 @@ import {makeCancelSignal, openBrowser, renderMedia, renderStill, selectCompositi
 import {engineOf} from '../src/videos/engine.ts';
 import {scoreOf} from '../src/videos/music/schema.ts';
 import {addScore} from './audio.ts';
+import {SOUND_ENABLED} from '../src/videos/music/flags.ts';
 import {renderHyperframes, stillFromVideo, writeHyperframesProject} from './hyperframes.ts';
 import type {Snapshot} from './model.ts';
 
@@ -13,7 +14,7 @@ export const MAX_VIDEO_BYTES = 60_000_000;
 // Music templates render silent video in either engine, then mux the generated score when sound is on.
 async function withScore(value: Snapshot, video: string, signal?: AbortSignal) {
   const score = scoreOf(value.meta);
-  if (score && (value.props as {audio?: {enabled: boolean}}).audio?.enabled) await addScore(video, score, value.props, signal);
+  if (SOUND_ENABLED && score && (value.props as {audio?: {enabled: boolean}}).audio?.enabled) await addScore(video, score, value.props, signal);
 }
 
 async function renderHyperframesThumbnail(value: Snapshot) {
