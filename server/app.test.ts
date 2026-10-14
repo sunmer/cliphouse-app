@@ -281,6 +281,11 @@ test('MCP lists three read-only tools and answers from the catalog', async () =>
   assert.ok(found.data.some((t: {id: string}) => t.id === variant.id));
   assert.ok(found.data.length <= 20);
   assert.equal(found.data[0].spec.startsWith('https://cliphou.se/templates/'), true);
+  const vertical = await call('search_templates', {query: 'app promo', aspect: '9:16', maxSeconds: 12, limit: 4});
+  assert.ok(vertical.data.length > 0 && vertical.data.every((t: {aspect: string; seconds: number}) => t.aspect === '9:16' && t.seconds <= 12));
+  assert.match(vertical.data[0].preview, /^https:\/\/cliphou.se\/previews\/.+\.mp4$/);
+  assert.equal((await call('search_templates', {query: 'logo intro', limit: 1})).data[0].id, 'wordmark-reveal');
+  assert.match((await init.clone().json()).result.instructions, /search_templates/);
   const spec = await call('get_template_spec', {variantId: variant.id});
   assert.equal(spec.data.kind, 'template');
   assert.deepEqual(spec.data.props, variant.props);
