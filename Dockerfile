@@ -14,6 +14,7 @@ RUN node scripts/build-share.mjs && npx remotion browser ensure && HYPERFRAMES_N
     && ln -s "$(HYPERFRAMES_NO_TELEMETRY=1 npx hyperframes browser path)" /usr/local/bin/hyperframes-chrome \
     && chmod -R a+rX /root/.cache/hyperframes && chmod a+x /root && npm prune --omit=dev
 COPY server ./server
+COPY server.json ./server.json
 COPY dist ./dist
 ENV NODE_ENV=production PORT=8080 HYPERFRAMES_NO_TELEMETRY=1 HYPERFRAMES_BROWSER_PATH=/usr/local/bin/hyperframes-chrome
 USER node

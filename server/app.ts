@@ -3,6 +3,7 @@ import type {IncomingMessage, ServerResponse} from 'node:http';
 import {pipeline} from 'node:stream/promises';
 import {TIERS, clientIp, createLimiter} from './limits.ts';
 import {handleMcp} from './mcp.ts';
+import {REGISTRY_AUTH, discovery} from './discovery.ts';
 import {hashKey} from './store.ts';
 import {HttpError, byteRange, exportFilename, fingerprint, publicExport, publicVideo, shareHtml, shareSpec, validId, validateShare} from './model.ts';
 import type {Exported, Published} from './model.ts';
@@ -130,6 +131,15 @@ export function createHandler(deps: Dependencies) {
         // EDGE_CHECK=1 reports only whether the edge header arrived (never its value), to confirm that
         // Firebase Hosting forwards it before EDGE_SECRET is enabled. Remove EDGE_CHECK afterwards.
         json(200, {ok: true, ...(process.env.EDGE_CHECK === '1' ? {edgeHeader: Boolean(req.headers['x-cliphouse-edge'])} : {})}); return;
+      }
+      // Public, static MCP metadata. Served before the edge check so the registry and directories can always read it.
+      if ((pathname === '/.well-known/mcp-registry-auth' || pathname === '/.well-known/mcp.json') && ['GET', 'HEAD'].includes(req.method || '')) {
+        const body = pathname.endsWith('auth') ? `${REGISTRY_AUTH}\n` : `${JSON.stringify(discovery(deps.origin), null, 2)}\n`;
+        res.setHeader('Content-Type', pathname.endsWith('auth') ? 'text/plain; charset=utf-8' : 'application/json; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=300');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Content-Length', Buffer.byteLength(body));
+        res.end(req.method === 'HEAD' ? undefined : body); return;
       }
       const readOnly = ['GET', 'HEAD'].includes(req.method || '');
       const edgeOnly = pathname === '/mcp' || (readOnly && (/^\/s\//.test(pathname) || /^\/api\/shares\/[^/]+$/.test(pathname)));

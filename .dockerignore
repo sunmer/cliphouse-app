@@ -9,6 +9,7 @@
 !scripts/build-share.mjs
 !server
 !server/**
+!server.json
 !dist
 !dist/**
 !dist/.vite

@@ -8,6 +8,7 @@ import {engineOf} from '../src/videos/engine.ts';
 import {agentSpec} from '../src/agent/spec.ts';
 import {handoffPath, specPath} from '../src/agent/versions.ts';
 import {HttpError, validateShare} from './model.ts';
+import {MCP_VERSION} from './discovery.ts';
 
 const visible = manifest.variants.filter((v) => !('hidden' in v && v.hidden));
 const aspect = (template: string) => {
@@ -46,7 +47,7 @@ export function editLink(origin: string, variantId: string, props: unknown, temp
 }
 
 function createServer(origin: string) {
-  const server = new McpServer({name: 'cliphouse', version: '1.0.0'});
+  const server = new McpServer({name: 'cliphouse', version: MCP_VERSION});
   const readOnly = {readOnlyHint: true, openWorldHint: false};
   server.registerTool('search_templates', {
     description: 'Search the cliphou.se motion graphics template catalog. Returns template ids, spec URLs, and editor URLs.',
