@@ -46,6 +46,23 @@ Every response carries `RateLimit-Limit`, `RateLimit-Remaining`, and `RateLimit-
 
 A signed-in user creates keys in the account dialog (MCP API keys). Each account may hold two keys. A key is shown once. Firestore stores only its SHA-256 in `apiKeys/{hash}` (`id`, `owner`, `createdAt`, `revoked`) and the owner's index in `users/{uid}/apiKeys/{id}` (`createdAt`, `last4`, `hash`). Clients cannot read `apiKeys` at all, and owners can only read their own index. The server endpoints are `POST /api/keys`, `GET /api/keys`, and `DELETE /api/keys/<id>`, and each requires a verified Google token. Key lookups are cached for 5 minutes per instance; revocation clears the cache on the instance that handled it, so another instance may accept a revoked key for up to 5 minutes.
 
+### MCP Registry
+
+The server is listed in the official MCP Registry as `se.cliphou/templates`. That is the reverse-DNS form of `cliphou.se`, proven with HTTP domain authentication. `server.json` in the repository root is the published metadata, and its `version` also sets the server's `serverInfo.version`.
+
+- `/.well-known/mcp-registry-auth` serves the Ed25519 public key in `server/discovery.ts` (`REGISTRY_AUTH`). The private key is kept outside the repository, in `~/.config/cliphouse-mcp/key.pem` on the publishing machine.
+- `/.well-known/mcp.json` is a discovery document with the endpoint, tools, and rate limits.
+- Firebase Hosting does not deploy dotfiles, so the share service serves both paths through Hosting rewrites. They are exempt from the edge-secret check.
+
+To publish a new version:
+1. Bump `version` in `server.json`.
+2. Deploy.
+3. Run `mcp-publisher validate`.
+4. Log in with `mcp-publisher login http --domain cliphou.se --private-key <hex>`.
+5. Run `mcp-publisher publish`.
+
+The Registry does not allow a version to be re-published. A remote URL can belong to only one server name.
+
 ## Versioning
 
 - `src/videos/versions.json` lists the versions of each template. Packages in `public/source` are immutable.

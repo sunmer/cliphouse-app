@@ -333,3 +333,18 @@ test('API keys require a Google identity, are capped at 2, and can be revoked', 
   assert.equal((await fetch(`${origin}/api/keys/${first.id}`, {method: 'DELETE', headers: auth})).status, 200);
   assert.equal((await mcp(rpc('tools/list'), {token: first.key, ip: '10.2.2.2'})).status, 401, 'revoked key is rejected immediately');
 });
+test('MCP registry proof and discovery document are public, cacheable, and bypass the edge check', async () => {
+  for (const base of [origin, edgeOrigin]) {
+    const auth = await fetch(`${base}/.well-known/mcp-registry-auth`);
+    assert.equal(auth.status, 200);
+    assert.match(await auth.text(), /^v=MCPv1; k=ed25519; p=[A-Za-z0-9+/]{43}=\n$/);
+    const doc = await fetch(`${base}/.well-known/mcp.json`);
+    assert.equal(doc.status, 200);
+    assert.match(doc.headers.get('cache-control') || '', /max-age=300/);
+    const body = await doc.json();
+    assert.equal(body.name, 'se.cliphou/templates');
+    assert.deepEqual(body.remotes, [{type: 'streamable-http', url: 'https://cliphou.se/mcp'}]);
+  }
+  const init = await (await mcp(rpc('initialize', {protocolVersion: '2025-06-18', capabilities: {}, clientInfo: {name: 't', version: '1'}}), {ip: '10.3.3.3'})).json();
+  assert.equal(init.result.serverInfo.version, (await import('../server.json', {with: {type: 'json'}})).default.version);
+});
