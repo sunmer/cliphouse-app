@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:.02em .04em .14em; margin:-.02em 0 -.14em; }
+    .w { display:inline-block; }
+
+    /* Slide layer: the cream title slide. */
+    .slide { z-index:1; }
+    .gutter { position:absolute; left:96px; top:200px; width:16px; height:720px; background:var(--theme-accent); }
+    .foot { position:absolute; left:152px; top:956px; width:1032px; height:6px; background:var(--theme-foreground); opacity:.16; }
+    .headline { position:absolute; left:152px; top:200px; width:1032px; height:720px; font-size:168px; line-height:.98; color:var(--theme-foreground); align-content:center; }
+
+    /* Deck layer: the navy editor column that floods into the speaker slide. */
+    .deck { z-index:2; background:var(--theme-surface); }
+    .sel { position:absolute; left:1296px; top:212px; width:576px; height:44px; background:var(--theme-accent); }
+    .code { position:absolute; left:1336px; top:224px; width:520px; height:360px; }
+    .cl { position:absolute; height:20px; display:flex; gap:12px; }
+    .seg { display:block; height:20px; border-radius:3px; background:var(--theme-background); }
+    .seg-c { opacity:.92; }
+    .seg-m { opacity:.5; }
+    .seg-a { background:var(--theme-accent); }
+    .author { position:absolute; left:152px; top:196px; width:1080px; height:380px; font-size:112px; line-height:1; color:var(--theme-background); align-content:center; }
+
+    /* Band layer: an underline that becomes the ticket, then the CTA button. */
+    .band { z-index:3; background:var(--theme-accent); }
+    .attr { position:absolute; left:152px; top:680px; width:980px; height:260px; font-size:76px; line-height:1.02; color:var(--theme-foreground); align-content:center; }
+    .date { position:absolute; left:1240px; top:680px; width:600px; height:260px; font-size:80px; font-weight:700; line-height:1.05; color:var(--theme-foreground); align-content:center; }
+    .perf { position:absolute; left:1182px; top:648px; width:0; height:384px; border-left:4px dashed var(--theme-accent2); }
+    .notch { position:absolute; left:1152px; width:64px; height:64px; border-radius:50%; background:var(--theme-accent2); }
+    .n1 { top:568px; }
+    .n2 { top:1048px; }
+    .barcode { position:absolute; left:1240px; top:962px; width:600px; height:58px; }
+    .bar { position:absolute; top:0; height:58px; background:var(--theme-accent2); }
+
+    .cta { position:absolute; z-index:4; left:1368px; top:716px; width:464px; height:188px; font-size:72px; line-height:1; text-align:center; align-content:center; color:var(--theme-foreground); }
+
+    /* Chrome: the brand chip and the slide pips. */
+    .chip { position:absolute; z-index:5; left:96px; top:80px; padding:12px 24px 8px; max-width:820px; white-space:nowrap; background:var(--theme-accent); color:var(--theme-foreground); font-size:40px; font-weight:700; line-height:1.1; text-transform:uppercase; }
+    .pips { position:absolute; z-index:5; right:96px; top:92px; display:flex; gap:16px; }
+    .pip { position:relative; width:32px; height:32px; border:4px solid var(--theme-background); }
+    .pip i { position:absolute; inset:4px; display:block; background:var(--theme-accent); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="9.333" data-width="1920" data-height="1080">
+    <section id="devtalk-slide" class="scene slide" data-start="0" data-duration="9.333" data-track-index="0">
+      <div class="gutter"></div>
+      <div class="foot"></div>
+      <h1 class="headline display fit" data-fit-max="168" data-fit-min="88" data-text-role="headline" data-beat-text="headline">Shipping agents safely</h1>
+    </section>
+    <section id="devtalk-deck" class="scene deck" data-start="0" data-duration="9.333" data-track-index="1">
+      <div class="sel"></div>
+      <div class="code"></div>
+      <p class="author display fit" data-fit-max="112" data-fit-min="60" data-text-role="author" data-beat-text="author">Ines Ruiz, Staff Engineer at Forge</p>
+    </section>
+    <section id="devtalk-band" class="scene band" data-start="0" data-duration="9.333" data-track-index="2">
+      <p class="attr display fit" data-fit-max="76" data-fit-min="40" data-text-role="attribution" data-beat-text="attribution">NodeConf EU, Main Stage</p>
+      <div class="perf"></div>
+      <p class="date mono fit" data-fit-max="80" data-fit-min="40" data-text-role="date" data-beat-text="date">Nov 6, 14:30</p>
+      <div class="barcode"></div>
+      <div class="notch n1"></div>
+      <div class="notch n2" data-layout-allow-overflow></div>
+    </section>
+    <div class="cta display fit" data-fit-max="72" data-fit-min="40" data-text-role="cta" data-beat-text="cta">Add to schedule</div>
+    <div class="chip mono"><span class="brand" data-text-role="brand" data-beat-text="brand">Forge</span></div>
+    <div class="pips"><div class="pip"><i></i></div><div class="pip"><i></i></div><div class="pip"><i></i></div><div class="pip"><i></i></div></div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const ft = (target, from, to, at) => tl.fromTo(target, from, {...to, immediateRender: false}, at);
+
+      // Abstract code lines in the editor column: fixed shapes, no text.
+      const LH = 46;
+      const LINES = [
+        [0, [[90, 'a'], [160, 'c']]],
+        [1, [[60, 'm'], [180, 'c'], [70, 'a']]],
+        [1, [[130, 'c'], [100, 'm']]],
+        [2, [[80, 'a'], [200, 'c']]],
+        [2, [[160, 'm'], [90, 'c']]],
+        [1, [[70, 'a'], [120, 'c'], [100, 'm']]],
+        [0, [[200, 'c'], [80, 'm']]],
+        [0, [[110, 'a'], [180, 'c']]],
+      ];
+      const code = q('.code');
+      code.textContent = '';
+      LINES.forEach(([indent, segs], i) => {
+        const line = document.createElement('div');
+        line.className = 'cl';
+        line.style.top = `${i * LH}px`;
+        line.style.left = `${indent * 40}px`;
+        segs.forEach(([w, k]) => {
+          const s = document.createElement('span');
+          s.className = `seg seg-${k}`;
+          s.style.width = `${w}px`;
+          line.append(s);
+        });
+        code.append(line);
+      });
+
+      // A fixed barcode on the ticket stub: deterministic bar widths, no randomness.
+      const barcode = q('.barcode');
+      barcode.textContent = '';
+      const BW = [4, 10, 4, 6, 14, 4, 8, 4, 12, 6, 4, 10];
+      const BG = [6, 4, 8, 6, 4, 10, 4, 6, 8, 4, 6, 4];
+      for (let x = 0, i = 0; x + BW[i % BW.length] <= 600; i++) {
+        const b = document.createElement('span');
+        b.className = 'bar';
+        b.style.left = `${x}px`;
+        b.style.width = `${BW[i % BW.length]}px`;
+        barcode.append(b);
+        x += BW[i % BW.length] + BG[i % BG.length];
+      }
+
+      const hl = q('.headline'), au = q('.author'), at = q('.attr'), dt = q('.date'), cta = q('.cta'), br = q('.brand');
+      const hlW = m.spans(hl), auW = m.spans(au), atW = m.spans(at), dtW = m.spans(dt), ctaW = m.spans(cta), brW = m.spans(br);
+      const cl = qa('.cl');
+      const pips = qa('.pip i');
+      const sel = q('.sel');
+      const SEL_H = 44;
+      const CLOSED_BAND = 'inset(600px 1920px 472px 0px)';
+      const FOLDING = 'inset(660px 24px 130px 1296px)';
+      const BUTTON = 'inset(700px 48px 160px 1328px)';
+      const BUTTON_SHUT = 'inset(700px 592px 160px 1328px)';
+
+      // Frame 0: the empty title slide (cream with the navy editor column). The last frame returns here.
+      const firstFrame = (at0) => {
+        tl.set([...hlW, ...auW, ...atW, ...dtW, ...ctaW, ...brW], {yPercent: 125}, at0);
+        tl.set('.band', {clipPath: CLOSED_BAND}, at0);
+        tl.set('.notch', {scale: 0}, at0);
+        tl.set('.perf', {clipPath: 'inset(0% 0% 100% 0%)'}, at0);
+        tl.set(barcode, {clipPath: 'inset(0% 100% 0% 0%)'}, at0);
+        tl.set(au, {y: 170, visibility: 'hidden'}, at0);
+        tl.set([at, dt], {visibility: 'hidden'}, at0);
+        tl.set(cta, {visibility: 'hidden', scale: 1}, at0);
+        tl.set(sel, {scaleX: 0, y: LH, height: SEL_H, transformOrigin: '0% 50%'}, at0);
+      };
+      firstFrame(0);
+      tl.set('.deck', {clipPath: 'inset(0px 0px 0px 1280px)'}, 0);
+      tl.set('.gutter', {scaleY: 0, transformOrigin: '50% 0%'}, 0);
+      tl.set('.foot', {scaleX: 0, transformOrigin: '0% 50%'}, 0);
+      tl.set('.chip', {clipPath: 'inset(0% 100% 0% 0%)'}, 0);
+      tl.set(pips, {scale: 0}, 0);
+      tl.set(cl, {clipPath: 'inset(0% 100% 0% 0%)'}, 0);
+      tl.set(hl, {visibility: 'visible'}, 0);
+
+      // Words rise through masks on the grid; long text shares the last slot so it settles early.
+      const rise = (els, start, {step = 0.5, cap = 2, dur = 0.75} = {}) => els.forEach((w, i) =>
+        ft(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, start + B(Math.min(i, cap) * step)));
+      const pip = (i, at0) => ft(pips[i], {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, at0);
+      const draw = (els, at0) => ft(els, {clipPath: 'inset(0% 100% 0% 0%)'},
+        {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.75), ease: 'expo.out', stagger: B(0.25)}, at0);
+
+      // Beat 0: the gutter bar and the footer rule draw, and the first slide pip fills.
+      ft('.gutter', {scaleY: 0, transformOrigin: '50% 0%'}, {scaleY: 1, duration: B(1), ease: 'expo.out'}, t('open'));
+      ft('.foot', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('open'));
+      pip(0, t('open'));
+
+      // Beat 0.5: the brand chip wipes open.
+      ft('.chip', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('brand'));
+      rise(brW, t('brand'), {step: 0.25, cap: 1});
+
+      // Beats 1-2: the talk title rises.
+      rise(hlW, t('headline'));
+
+      // Beats 3-7: code types in, and a solid selection bar wipes across a line on beat 6.
+      draw(cl.slice(0, 2), t('lines1'));
+      draw(cl.slice(2, 4), t('lines2'));
+      draw(cl.slice(4, 6), t('lines3'));
+      ft(sel, {scaleX: 0, y: LH, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('select'));
+      draw(cl.slice(6, 8), t('lines4'));
+
+      // The selection steps down one line on each quiet landing.
+      let line = 1;
+      [['lines4', 2], ['select2', 3], ['select3', 4], ['step1', 5]].forEach(([id, n]) => {
+        ft(sel, {y: LH * line}, {y: LH * n, duration: B(0.5), ease: 'expo.out'}, t(id));
+        line = n;
+      });
+      // Beats 18-19: shift-select. The selection grows one line per beat, ending well above the button.
+      ft(sel, {height: SEL_H}, {height: SEL_H + LH, duration: B(0.5), ease: 'expo.out'}, t('step2'));
+      ft(sel, {height: SEL_H + LH}, {height: SEL_H + LH * 2, duration: B(0.5), ease: 'expo.out'}, t('step3'));
+
+      // Beat 8: click. The editor column floods left across the frame.
+      ft('.deck', {clipPath: 'inset(0px 0px 0px 1280px)'}, {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.75), ease: 'power3.out'}, t('deck'));
+      pip(1, t('deck'));
+      tl.set(au, {visibility: 'visible'}, t('deck'));
+      tl.set(hl, {visibility: 'hidden'}, t('deck') + B(0.75));
+      tl.set(hlW, {yPercent: 125}, t('deck') + B(0.75));
+
+      // Beats 9-10: the speaker lands large in the middle of the frame.
+      rise(auW, t('author'));
+
+      // Beat 11: the author steps up while an underline draws beneath it.
+      ft(au, {y: 170}, {y: 0, duration: B(0.75), ease: 'expo.out'}, t('line'));
+      ft('.band', {clipPath: CLOSED_BAND}, {clipPath: 'inset(600px 0px 472px 0px)', duration: B(0.75), ease: 'expo.out'}, t('line'));
+
+      // Beat 12: click. The underline drops into the ticket band.
+      tl.set([at, dt], {visibility: 'visible'}, t('ticket'));
+      ft('.band', {clipPath: 'inset(600px 0px 472px 0px)'}, {clipPath: 'inset(600px 0px 0px 0px)', duration: B(0.75), ease: 'power3.out'}, t('ticket'));
+      pip(2, t('ticket'));
+      rise(atW, t('ticket'));
+      rise(dtW, t('date'), {step: 0.25});
+
+      // Beats 13-15: the perforation draws, the notches punch, and the barcode prints on the stub.
+      ft('.perf', {clipPath: 'inset(0% 0% 100% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.75), ease: 'expo.out'}, t('perf'));
+      ft('.notch', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('punch'));
+      ft(barcode, {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.75), ease: 'expo.out'}, t('select3'));
+
+      // Beat 16: click. The deck retracts, the ticket text exits, the ticket folds toward the button, and the title returns.
+      const D = B(0.375);
+      ft('.deck', {clipPath: 'inset(0px 0px 0px 0px)'}, {clipPath: 'inset(0px 0px 0px 1280px)', duration: B(0.75), ease: 'expo.out'}, t('fold'));
+      ft([...atW, ...dtW], {yPercent: 0}, {yPercent: -115, duration: D, ease: 'power3.in'}, t('fold'));
+      ft('.band', {clipPath: 'inset(600px 0px 0px 0px)'}, {clipPath: FOLDING, duration: B(0.5), ease: 'expo.out'}, t('fold'));
+      pip(3, t('fold'));
+      tl.set(hl, {visibility: 'visible'}, t('fold'));
+      rise(hlW, t('fold'), {step: 0.25});
+      tl.set([at, dt], {visibility: 'hidden'}, t('ctaStamp'));
+      tl.set(au, {visibility: 'hidden'}, t('fold') + B(0.75));
+
+      // Beat 16.5: the button stamps to size and the CTA rises.
+      ft('.band', {clipPath: FOLDING}, {clipPath: BUTTON, duration: B(0.5), ease: 'expo.out'}, t('ctaStamp'));
+      tl.set(cta, {visibility: 'visible'}, t('ctaStamp'));
+      ft(cta, {scale: 1.1}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('ctaStamp'));
+      rise(ctaW, t('ctaStamp'), {step: 0.25, cap: 1, dur: 0.5});
+
+      // Beat 19.5: everything wipes out to the empty title slide.
+      const out = t('loop');
+      ft('.chip', {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 100%)', duration: D, ease: 'power3.in'}, out);
+      ft([...brW, ...hlW, ...ctaW], {yPercent: 0}, {yPercent: -115, duration: D, ease: 'power3.in'}, out);
+      ft('.band', {clipPath: BUTTON}, {clipPath: BUTTON_SHUT, duration: D, ease: 'power3.in'}, out);
+      ft(cl, {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 100%)', duration: D, ease: 'power3.in'}, out);
+      ft(sel, {scaleX: 1}, {scaleX: 0, duration: D, ease: 'power3.in'}, out);
+      ft('.gutter', {scaleY: 1, transformOrigin: '50% 100%'}, {scaleY: 0, duration: D, ease: 'power3.in'}, out);
+      ft('.foot', {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: D, ease: 'power3.in'}, out);
+      ft(pips, {scale: 1}, {scale: 0, duration: D, ease: 'power3.in'}, out);
+
+      // Restore the hidden first-frame states, so the last frame matches frame 0 exactly.
+      firstFrame(out + D);
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

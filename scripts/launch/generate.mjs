@@ -75,7 +75,7 @@ const system = [
 ].join('\n');
 
 const listSpec = b.list
-  ? `The list role "list" holds 1 to ${b.list.max} items, one per line, each up to ${b.list.itemMax} characters (score.list: role "list", label "${b.list.label}", min 1, max ${b.list.max}, itemMax ${b.list.itemMax}). Author a schedule for every count from 1 to ${b.list.max}, reflow the layout per count with --count, and keep every count looking designed. The last item must land at least 2 beats before its scene ends.`
+  ? `The list role "list" holds 1 to ${b.list.max} items, one per line, each up to ${b.list.itemMax} characters (score.list: role "list", label "${b.list.label}", min 1, max ${b.list.max}, itemMax ${b.list.itemMax}${b.list.format ? `, format "${b.list.format}"` : ''}). Author a schedule for every count from 1 to ${b.list.max}, reflow the layout per count with --count, and keep every count looking designed. The last item must land at least 2 beats before its scene ends.${b.list.format === 'chart' ? ' Each item reads "Label 42": parse the trailing number at runtime and size each bar from it, relative to the largest value.' : ''}`
   : 'This template has no list.';
 const spec = [
   `Create the new template "${id}" (${b.name}).`,
@@ -89,7 +89,9 @@ const spec = [
   'What to do:',
   '1. score.json: choose beatFrames (13-16) to fit the energy (calm editorial 16 or 15, punchy launches 14 or 13). Scenes are whole bars with energy levels, building to energy 3 in the last third. Cues mark the fixed landings; one impact, stamp, crash, or stab cue sits in the last third. Risers are optional.',
   `2. index.html: keep data-composition-variables='[]' (the build fills it), __ASSET_BASE__ for assets, <style>__BASE_CSS__ ...</style>, <script>__BASE_JS__</script>, then <script>__BEAT_JS__</script>, then build on CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {...}) and register window.__timelines.main = tl. The root is <div id="root" data-composition-id="main" data-start="0" data-duration="<seconds>" data-width="${w}" data-height="${h}">. Set :root { --w: ${w}px; --h: ${h}px; } and <meta name="viewport" content="width=${w}, height=${h}">. Fixed text uses data-text-role="<role>" with data-beat-text="<role>" for word masks, or data-var-text="text_<role>". Fonts: "Archivo HF" (.display), "Fraunces HF" (.serif), "Inter HF" (body), "Mono HF" (.mono). Only local assets: no images, no network.`,
-  '3. Make it unmistakably a launch asset for a software product: the clip a founder posts on X or LinkedIn on launch day. One strong concept, continuity between scenes, studio polish.',
+  `3. ${b.angle ?? (b.developer
+    ? 'Make it unmistakably a developer asset: the clip a devrel team or maintainer posts on X, LinkedIn, or GitHub. It must read as made by engineers for engineers. One strong concept, continuity between scenes, studio polish.'
+    : 'Make it unmistakably a launch asset for a software product: the clip a founder posts on X or LinkedIn on launch day. One strong concept, continuity between scenes, studio polish.')}`,
   `4. Fill the frame. This is seen on a phone in a feed: the hero text (headline, stat, or price) should be large, roughly 9-16% of the frame height per line, and the layout should use the whole ${w}x${h} canvas at every beat, with no large flat empty bands and nothing crammed into one corner. Secondary text must still read at thumbnail size (at least about 3% of the frame height).`,
 ].join('\n');
 
@@ -116,7 +118,7 @@ if (step === 'plan') {
 }
 
 const t0 = Date.now();
-const out = await message({model: MODEL, effort: EFFORT, system, messages, maxTokens: 64000});
+const out = await message({model: MODEL, effort: EFFORT, system, messages, maxTokens: Number(process.env.MAX_TOKENS || 128000)});
 const ms = Date.now() - t0;
 messages.push({role: 'assistant', content: [{type: 'text', text: out.text}]});
 const attempt = log.attempts.length + 1;

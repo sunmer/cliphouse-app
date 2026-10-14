@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .12em; margin-bottom:-.12em; }
+    .w { display:inline-block; }
+    /* Fixed line-height boxes: the line itself is the mask. */
+    .line .wmask { padding:0 .04em; margin-bottom:0; }
+
+    .header { position:absolute; left:112px; top:80px; width:856px; height:56px; }
+    .mark { position:absolute; left:0; top:8px; width:40px; height:40px; border-radius:5px; background:var(--theme-accent2); }
+    .brand { position:absolute; left:62px; top:0; width:600px; height:56px; line-height:56px; font-size:48px; font-weight:600; white-space:nowrap; color:var(--theme-foreground); }
+    .legend { position:absolute; right:0; top:13px; display:flex; gap:6px; }
+    .legend i { display:block; width:30px; height:30px; border-radius:4px; background:var(--theme-surface); }
+    .legend i:nth-child(2) { background:color-mix(in srgb, var(--theme-accent2) 32%, var(--theme-surface)); }
+    .legend i:nth-child(3) { background:color-mix(in srgb, var(--theme-accent2) 52%, var(--theme-surface)); }
+    .legend i:nth-child(4) { background:color-mix(in srgb, var(--theme-accent2) 76%, var(--theme-surface)); }
+    .legend i:nth-child(5) { background:var(--theme-accent2); }
+
+    .statrow { position:absolute; left:112px; top:146px; width:856px; height:220px; }
+    .star { position:absolute; left:0; top:35px; width:150px; height:150px; }
+    .shape { position:absolute; inset:0; clip-path:polygon(50% 2%, 62% 36%, 98% 37%, 69% 59%, 80% 94%, 50% 73%, 20% 94%, 31% 59%, 2% 37%, 38% 36%); }
+    .star .base { background:color-mix(in srgb, var(--theme-foreground) 24%, transparent); }
+    .star .fillwrap { position:absolute; inset:0; clip-path:inset(100% 0% 0% 0%); }
+    .star .fill { background:var(--theme-accent); }
+    .stat { position:absolute; left:178px; top:0; width:678px; height:220px; line-height:220px; font-size:220px; white-space:nowrap; color:var(--theme-accent); }
+    .reel { position:absolute; left:178px; top:0; width:678px; height:220px; overflow:hidden; color:var(--theme-foreground); }
+    .reel-strip { position:absolute; left:0; top:0; width:100%; }
+    .reel-line { height:220px; line-height:220px; white-space:nowrap; padding-left:.04em; }
+
+    .headline { position:absolute; left:112px; top:376px; width:856px; height:104px; line-height:104px; font-size:100px; white-space:nowrap; color:var(--theme-foreground); }
+
+    .grid { position:absolute; left:111px; top:656px; width:858px; height:330px; }
+    .cell { position:absolute; width:42px; height:42px; border-radius:4px; background:var(--theme-surface); }
+    .cell b { position:absolute; inset:0; border-radius:4px; background:var(--theme-accent2); }
+
+    .caret { position:absolute; left:459px; top:622px; width:20px; height:20px; background:var(--theme-foreground); }
+    /* Built at the final button size; the tooltip phase clips 100px off the top (visible 496-632). */
+    .bubble { position:absolute; left:112px; top:396px; width:856px; height:236px; border-radius:8px; overflow:hidden; background:var(--theme-foreground); color:var(--theme-background); clip-path:inset(100px 0px 0px 0px round 8px); }
+    .bfill { position:absolute; inset:0; background:var(--theme-accent); clip-path:circle(0px at 99px 118px); }
+    .sub { position:absolute; left:28px; top:117px; width:800px; height:102px; font-size:44px; line-height:1.15; font-weight:600; }
+    .bstar { position:absolute; left:44px; top:63px; width:110px; height:110px; }
+    .bstar .shape { background:var(--theme-background); }
+    .cta { position:absolute; left:186px; top:0; width:626px; height:236px; line-height:236px; font-size:100px; white-space:nowrap; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1080" data-height="1080">
+    <section id="githubstars-graph" class="scene" data-start="0" data-duration="8" data-track-index="0">
+      <div class="header">
+        <div class="mark"></div>
+        <div class="brand mono line" data-fit-max="48" data-fit-min="32" data-text-role="brand" data-beat-text="brand">Brand</div>
+        <div class="legend"><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+
+      <div class="statrow">
+        <div class="star"><i class="shape base"></i><div class="fillwrap"><i class="shape fill"></i></div></div>
+        <div class="reel display" data-text-copy="stat" aria-hidden="true"><div class="reel-strip"></div></div>
+        <div class="stat display line" data-fit-max="220" data-fit-min="88" data-text-role="stat" data-beat-text="stat">25k</div>
+      </div>
+
+      <h1 class="headline display line" data-fit-max="100" data-fit-min="52" data-text-role="headline" data-beat-text="headline">Headline</h1>
+
+      <div class="grid"></div>
+
+      <div class="caret"></div>
+      <div class="bubble">
+        <div class="bfill"></div>
+        <p class="sub fit" data-fit-max="44" data-fit-min="30" data-text-role="subhead" data-beat-text="subhead">Subhead</p>
+        <div class="bstar"><i class="shape"></i></div>
+        <div class="cta display line" data-fit-max="100" data-fit-min="48" data-text-role="cta" data-beat-text="cta">CTA</div>
+      </div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    // Counter frames: the stat's own number at rising fractions, keeping prefix, suffix, decimals, and commas.
+    function ramp(stat, fracs) {
+      const mt = stat.match(/\d[\d,]*(?:\.\d+)?/);
+      if (!mt) return fracs.map(() => stat);
+      const raw = mt[0];
+      const dot = raw.indexOf('.');
+      const decs = dot < 0 ? 0 : raw.length - dot - 1;
+      const comma = raw.includes(',');
+      const v = Number(raw.replace(/,/g, ''));
+      const pre = stat.slice(0, mt.index);
+      const post = stat.slice(mt.index + raw.length);
+      return fracs.map((f) => {
+        if (f === 0) return pre + '0' + post.replace(/^[kKmMbB]/, '');
+        let n = (v * f).toFixed(decs);
+        if (comma) n = Number(n).toLocaleString('en-US', {minimumFractionDigits: decs, maximumFractionDigits: decs});
+        return pre + n + post;
+      });
+    }
+    // Seeded contribution levels (0-4): weekends quieter, the project busier over time.
+    const AC = 7, AR = 0;
+    function level(c, r) {
+      if (c === AC && r === AR) return 4;
+      let h = Math.imul(c + 1, 2654435761) ^ Math.imul(r + 1, 40503) ^ 0x9e37;
+      h = Math.imul(h ^ (h >>> 13), 1274126177);
+      h ^= h >>> 16;
+      const u = (h >>> 0) / 4294967296 + c * 0.012;
+      let lv = u < 0.2 ? 0 : u < 0.45 ? 1 : u < 0.68 ? 2 : u < 0.86 ? 3 : 4;
+      if (r === 0 || r === 6) lv = Math.max(0, lv - 1);
+      return lv;
+    }
+
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const rise = (el, at, cap = 2, gap = 0.5, dur = 0.6) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, at + Math.min(i, cap) * B(gap)));
+      const sink = (el, at, dir, dur = 0.35) =>
+        tl.to(m.spans(el), {yPercent: dir, duration: B(dur), ease: 'power3.in'}, at);
+      const punch = (sel, at, from) => {
+        tl.set(sel, {scale: from}, at);
+        tl.to(sel, {scale: 1, duration: B(0.5), ease: 'expo.out'}, at);
+      };
+      const COLS = 18, ROWS = 7, PITCH = 48, H = 220, OFF = 136;
+      const TIP = 'inset(100px 0px 0px 0px round 8px)';
+      const BUTTON = 'inset(0px 0px 0px 0px round 8px)';
+      const SHUT = 'inset(0px 428px 0px 428px round 8px)';
+
+      // The graph: 18 weeks x 7 days. Weeks 0-11 commit one per beat; the rest arrive with the flood.
+      const grid = q('.grid');
+      grid.textContent = '';
+      const ALPHA = [0, 0.32, 0.52, 0.76, 1];
+      const cells = [];
+      for (let c = 0; c < COLS; c++) for (let r = 0; r < ROWS; r++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.style.left = c * PITCH + 'px';
+        cell.style.top = r * PITCH + 'px';
+        const lit = document.createElement('b');
+        const lv = level(c, r);
+        lit.style.opacity = String(ALPHA[lv]);
+        cell.append(lit);
+        grid.append(cell);
+        gsap.set(lit, {scale: 0});
+        cells.push({c, r, lv, lit});
+      }
+      cells.forEach(({c, r, lv, lit}) => {
+        if (lv && c < 12) tl.fromTo(lit, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, B(c) + r * B(0.04));
+      });
+
+      // Frame 0: the unstarred star and a zero counter wait, stepped down to fill the upper frame.
+      tl.fromTo('.statrow', {y: OFF}, {y: 0, duration: B(0.75), ease: 'expo.out'}, t('headline'));
+      const statEl = q('.stat');
+      const strip = q('.reel-strip');
+      strip.textContent = '';
+      strip.style.fontSize = getComputedStyle(statEl).fontSize;
+      const vals = ramp(m.text('stat'), [0, 0.08, 0.2, 0.36, 0.54, 0.7, 0.84, 0.94]);
+      vals.forEach((v) => { const d = document.createElement('div'); d.className = 'reel-line'; d.textContent = v; strip.append(d); });
+      gsap.set(strip, {y: 0});
+      gsap.set('.bubble', {clipPath: TIP});
+
+      // Beat 0: the brand cell pops and the brand rises.
+      tl.fromTo('.mark', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('brand'));
+      rise(q('.brand'), t('brand'), 2, 0.25, 0.6);
+
+      // Beats 1-2.5: the counter ticks on sixteenths, slowing into the lock.
+      vals.forEach((_, i) => {
+        if (i) tl.to(strip, {y: -i * H, duration: B(0.2), ease: 'power3.out'}, t('star') + (i - 1) * B(0.25));
+      });
+      punch('.star', t('star'), 1.1);
+
+      // Beat 3: the reel rolls over into the real stat; the star fills gold and punches.
+      tl.to(strip, {y: -vals.length * H, duration: B(0.4), ease: 'expo.out'}, t('stat'));
+      rise(statEl, t('stat'), 1, 0.25, 0.5);
+      tl.fromTo('.star .fillwrap', {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('stat'));
+      punch('.star', t('stat'), 1.18);
+
+      // Beat 4: the headline rises under the stat.
+      rise(q('.headline'), t('headline'), 2, 0.5, 0.6);
+
+      // Beat 7: the tooltip grows from the anchor cell (week 7, top row); the subhead rises inside it.
+      tl.fromTo('.caret', {scale: 0, rotation: 45}, {scale: 1, rotation: 45, duration: B(0.5), ease: 'expo.out'}, t('bubble'));
+      tl.fromTo('.bubble', {scale: 0, transformOrigin: '357px 100%'}, {scale: 1, duration: B(0.6), ease: 'expo.out'}, t('bubble'));
+      rise(q('.sub'), t('subhead'), 3, 0.25, 0.6);
+
+      // Beat 12: the graph floods from the anchor cell; copy exits; the tooltip's clip opens up into the Star button.
+      cells.forEach(({c, r, lit}) => {
+        const d = Math.abs(c - AC) + Math.abs(r - AR);
+        tl.to(lit, {scale: 1, opacity: 1, duration: B(0.375), ease: 'power3.out'}, t('graphFull') + (d / 16) * B(0.6));
+      });
+      sink(q('.headline'), t('graphFull'), -125);
+      sink(q('.sub'), t('graphFull'), -125);
+      tl.to('.caret', {scale: 0, duration: B(0.25), ease: 'power3.in'}, t('graphFull'));
+      tl.fromTo('.bubble', {clipPath: TIP}, {clipPath: BUTTON, duration: B(0.5), ease: 'expo.out', immediateRender: false}, t('graphFull') + B(0.125));
+
+      // Beat 13: the star stamps into the button and the CTA rises.
+      tl.fromTo('.bstar', {scale: 0, rotation: -30, transformOrigin: '50% 50%'}, {scale: 1, rotation: 0, duration: B(0.5), ease: 'back.out(1.2)'}, t('cta'));
+      rise(q('.cta'), t('cta'), 2, 0.0625, 0.375);
+
+      // Beat 14: starred. Gold floods the button from its star; both stars punch.
+      tl.fromTo('.bfill', {clipPath: 'circle(0px at 99px 118px)'}, {clipPath: 'circle(800px at 99px 118px)', duration: B(0.6), ease: 'power3.out'}, t('starred'));
+      punch('.bstar', t('starred'), 1.25);
+      punch('.star', t('starred'), 1.14);
+
+      // Beat 15: the graph clears, the stat rolls out, the star drains, the button closes,
+      // and the row steps down as the counter rolls back to zero: frame 0 again.
+      cells.forEach(({c, lit}) => {
+        tl.to(lit, {scale: 0, duration: B(0.3), ease: 'power3.in'}, t('loop') + (c / (COLS - 1)) * B(0.4));
+      });
+      sink(statEl, t('loop'), -125, 0.4);
+      sink(q('.brand'), t('loop'), 125, 0.5);
+      tl.to('.mark', {scale: 0, duration: B(0.5), ease: 'power3.in'}, t('loop'));
+      tl.to('.star .fillwrap', {clipPath: 'inset(100% 0% 0% 0%)', duration: B(0.4), ease: 'power3.in'}, t('loop'));
+      tl.fromTo('.bubble', {clipPath: BUTTON}, {clipPath: SHUT, duration: B(0.25), ease: 'power3.in', immediateRender: false}, t('loop') + B(0.5));
+      tl.fromTo(strip, {y: H}, {y: 0, duration: B(0.5), ease: 'expo.out', immediateRender: false}, t('loop') + B(0.5));
+      tl.to('.statrow', {y: OFF, duration: B(0.5), ease: 'expo.out'}, t('loop') + B(0.5));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

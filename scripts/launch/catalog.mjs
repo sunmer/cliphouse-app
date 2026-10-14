@@ -13,19 +13,21 @@ export const presetProps = (b) => ({texts: Object.fromEntries(b.roles.map((r) =>
 
 const seo = (b) => {
   const format = b.size[0] === b.size[1] ? '1:1' : b.size[0] > b.size[1] ? '16:9' : b.size[0] / b.size[1] < 0.7 ? '9:16' : '4:5';
-  const text = `A free ${format} ${b.title.toLowerCase()} template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.`;
+  const text = `A free ${format} ${b.title.toLowerCase()} template for ${b.developer ? 'developer teams' : 'SaaS launches'}, with royalty-free music. Edit text, list items, colors, and the track online.`;
   return text.length <= 170 ? text : text.slice(0, 167) + '...';
 };
 
 export function entries(b) {
+  const createdAt = b.developer ? '2026-10-14' : '2026-10-13';
   return {
-    template: {id: b.id, title: b.name, creator: 'cliphouse.studio', prompt: b.brief, createdAt: '2026-10-13', license: 'MIT-0',
+    template: {id: b.id, title: b.name, creator: 'cliphouse.studio', prompt: b.brief, createdAt, license: 'MIT-0',
       generation: {model: 'Claude Opus 5.5', modelId: 'claude-opus-5-5', provider: 'Anthropic', effort: 'high'}},
-    variant: {template: b.id, creator: 'cliphouse.studio', stats: {exports: 0, remixes: 0}, createdAt: '2026-10-13',
+    variant: {template: b.id, creator: 'cliphouse.studio', stats: {exports: 0, remixes: 0}, createdAt,
       id: `${b.id}-launch`, title: b.title, description: b.brief.replace(/^A \S+ /, 'A '),
-      purpose: b.useCases.includes('testimonial') ? 'Testimonial' : b.useCases.includes('data-recap') ? 'Data recap' : 'Product launch',
+      purpose: b.developer || ['changelog', 'releasenotes'].includes(b.id) ? 'Developer'
+        : b.useCases.includes('testimonial') ? 'Testimonial' : b.useCases.includes('data-recap') ? 'Data recap' : 'Product launch',
       style: b.style, energy: b.energy,
-      keywords: [`${b.title.toLowerCase()} video`, 'saas launch video', 'changelog video', 'product launch template', 'hyperframes template'],
+      keywords: b.keywords ?? [`${b.title.toLowerCase()} video`, 'saas launch video', 'changelog video', 'product launch template', 'hyperframes template'],
       props: presetProps(b), seoDescription: seo(b), useCases: b.useCases, launch: true},
   };
 }

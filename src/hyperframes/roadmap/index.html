@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; --count: 5; }
+    #root { --colw: calc((1680px - 32px * (var(--count) - 1)) / var(--count)); }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+
+    .s1 { z-index:0; background:var(--theme-background); }
+    .mark { position:absolute; left:120px; top:106px; width:28px; height:28px; background:var(--theme-accent); }
+    .brand { position:absolute; left:168px; top:96px; width:600px; height:50px; font-size:40px; line-height:50px; text-transform:uppercase; white-space:nowrap; color:var(--theme-foreground); }
+    .hrule { position:absolute; left:120px; top:172px; width:1680px; height:4px; background:var(--theme-foreground); z-index:3; }
+    .headline { position:absolute; left:120px; top:230px; width:1680px; height:340px; font-size:168px; line-height:.92; color:var(--theme-foreground); z-index:7; }
+    .date { position:absolute; left:1200px; top:240px; width:600px; height:124px; font-size:56px; line-height:1.05; text-align:right; color:var(--theme-foreground); z-index:7; }
+    .qbar { position:absolute; left:1640px; top:384px; width:160px; height:12px; background:var(--theme-accent2); z-index:3; }
+
+    .holders, .ticks { position:absolute; inset:0; }
+    .holder { position:absolute; top:460px; height:540px; width:var(--colw); z-index:1;
+      left:calc(120px + var(--i) * (var(--colw) + 32px));
+      background:color-mix(in srgb, var(--theme-foreground) 7%, transparent); }
+    .tick { position:absolute; top:584px; width:6px; height:32px; z-index:3; background:var(--theme-foreground);
+      left:calc(120px + var(--i) * (var(--colw) + 32px) + var(--colw) / 2 - 3px); }
+    .track { position:absolute; left:120px; top:597px; width:1680px; height:6px; background:var(--theme-foreground); z-index:3; transform-origin:0 50%; }
+    .cap { position:absolute; left:1800px; top:584px; width:34px; height:32px; background:var(--theme-foreground); clip-path:polygon(0 0, 100% 50%, 0 100%); z-index:3; }
+
+    .rows { position:absolute; left:120px; top:460px; width:1680px; height:540px; display:grid;
+      grid-template-columns:repeat(var(--count), minmax(0, 1fr)); column-gap:32px; }
+    .row { position:relative; height:100%; }
+    .slot { position:absolute; inset:0; z-index:1; background:var(--theme-surface); }
+    .stop { position:absolute; left:calc(50% - 20px); top:120px; width:40px; height:40px; border-radius:50%; z-index:5;
+      background:var(--theme-background); border:6px solid var(--theme-foreground); }
+    .nummask { position:absolute; left:0; right:0; top:40px; height:40px; overflow:hidden; z-index:5; text-align:center; }
+    .num { display:inline-block; font-size:36px; line-height:40px; color:var(--theme-accent); }
+    .item { position:absolute; left:12px; right:12px; top:200px; height:240px; z-index:5; text-align:center;
+      font-family:"Archivo HF", "Arial Black", Arial, sans-serif; font-weight:650; font-size:56px; line-height:1.06;
+      color:var(--theme-foreground); text-wrap:balance; }
+
+    .band { position:absolute; left:120px; top:460px; width:var(--colw); height:16px; z-index:2; background:var(--theme-accent); }
+    .meter, .meterfill { position:absolute; left:148px; top:936px; width:calc(var(--colw) - 56px); height:14px; }
+    .meter { z-index:3; background:color-mix(in srgb, var(--theme-foreground) 12%, transparent); }
+    .meterfill { z-index:4; background:var(--theme-accent); }
+    .progress { position:absolute; left:120px; top:593px; height:14px; z-index:4; background:var(--theme-accent); width:calc(var(--colw) * 0.6); }
+    .core { position:absolute; left:calc(120px + var(--colw) / 2 - 20px); top:580px; width:40px; height:40px; border-radius:50%; background:var(--theme-accent); z-index:6; }
+
+    .s2 { z-index:1; background:var(--theme-accent); }
+    .rail { position:absolute; left:120px; top:597px; width:1680px; height:6px; background:color-mix(in srgb, var(--theme-background) 55%, transparent); }
+    .pips { position:absolute; inset:0; }
+    .pip { position:absolute; top:580px; width:40px; height:40px; border-radius:50%;
+      left:calc(120px + var(--i) * (var(--colw) + 32px) + var(--colw) / 2 - 20px);
+      border:6px solid var(--theme-background); background:var(--theme-accent); }
+    .pip:first-child { background:var(--theme-accent2); border-color:var(--theme-accent2); }
+    .brand2 { position:absolute; left:120px; top:96px; width:900px; height:60px; font-size:48px; line-height:60px; text-transform:uppercase; white-space:nowrap; color:var(--theme-background); }
+    .button { position:absolute; left:120px; top:290px; width:1680px; height:600px; z-index:1; }
+    .press { position:absolute; inset:0; background:var(--theme-surface); }
+    .cta { position:absolute; left:80px; top:60px; width:1520px; height:480px; font-size:160px; line-height:.94; text-align:center; align-content:center; color:var(--theme-foreground); }
+    .badge { position:absolute; left:1756px; top:246px; width:88px; height:88px; border-radius:50%; background:var(--theme-accent2); display:grid; place-items:center; z-index:2; }
+    .badge svg { width:60px; height:60px; }
+    .badge path { fill:none; stroke:var(--theme-foreground); stroke-width:7; stroke-linecap:square; stroke-dasharray:60; }
+    .cursor { position:absolute; left:1560px; top:730px; width:64px; height:64px; z-index:3; }
+    .cursor svg { width:64px; height:64px; display:block; }
+    .cursor path { fill:var(--theme-foreground); stroke:var(--theme-surface); stroke-width:3; stroke-linejoin:round; }
+
+    .wipe { position:absolute; inset:0; z-index:2; background:var(--theme-background); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10.667" data-width="1920" data-height="1080">
+    <section id="roadmap-board" class="scene s1" data-start="0" data-duration="10.667" data-track-index="0">
+      <div class="mark"></div>
+      <div class="brand display" data-fit-max="40" data-fit-min="26" data-text-role="brand" data-beat-text="brand">Relay</div>
+      <div class="hrule"></div>
+      <h1 class="headline display fit" data-fit-max="168" data-fit-min="96" data-text-role="headline" data-beat-text="headline">What we are building</h1>
+      <div class="date mono" data-fit-max="56" data-fit-min="32" data-text-role="date" data-beat-text="date">Q4 2026 roadmap</div>
+      <div class="qbar"></div>
+      <div class="holders"></div>
+      <div class="rows" data-list>
+        <template data-list-row>
+          <div class="row">
+            <span class="slot" data-list-part="slot"></span>
+            <span class="stop" data-list-part="stop" data-list-align="x"></span>
+            <span class="nummask"><span class="num mono" data-list-part="number" data-list-number>01</span></span>
+            <div class="item" data-list-text data-words>Item</div>
+          </div>
+        </template>
+      </div>
+      <div class="band"></div>
+      <div class="meter"></div>
+      <div class="meterfill"></div>
+      <div class="track"></div>
+      <div class="ticks"></div>
+      <div class="cap"></div>
+      <div class="progress"></div>
+      <div class="core"></div>
+    </section>
+    <section id="roadmap-vote" class="scene s2" data-start="0" data-duration="10.667" data-track-index="1">
+      <div class="rail"></div>
+      <div class="pips"></div>
+      <div class="brand2 display" data-fit-max="48" data-fit-min="30" data-text-role="brand" data-beat-text="brand">Relay</div>
+      <div class="button">
+        <div class="press">
+          <div class="cta display fit" data-fit-max="160" data-fit-min="80" data-text-role="cta" data-beat-text="cta">Vote on the roadmap</div>
+        </div>
+      </div>
+      <div class="badge"><svg viewBox="0 0 60 60"><path d="M15 31 L26 42 L46 20" /></svg></div>
+      <div class="cursor"><svg viewBox="0 0 64 64"><path d="M6 4 L6 54 L19 42 L28 60 L36 56 L27 39 L44 39 Z" /></svg></div>
+    </section>
+    <div class="wipe" data-layout-allow-overflow></div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const n = Math.max(1, m.items.length);
+      const colW = (1680 - 32 * (n - 1)) / n;
+      const center = (i) => 120 + i * (colW + 32) + colW / 2;
+      const c0 = center(0);
+      q('#root').style.setProperty('--count', String(n));
+
+      // Reset the date box, then reflow: wider columns at lower counts let the labels grow.
+      const dateEl = q('.date');
+      dateEl.style.left = '';
+      dateEl.style.width = '';
+      const FIT = {1: [104, 52], 2: [88, 44], 3: [76, 40], 4: [64, 36], 5: [56, 32]};
+      const [fmax, fmin] = FIT[n] || FIT[5];
+      qa('[data-list] .item').forEach((el) => { el.dataset.fitMax = String(fmax); el.dataset.fitMin = String(fmin); el.style.overflowWrap = ''; });
+      window.cliphouseFitText?.();
+      qa('[data-list] .item').forEach((el) => { if (el.scrollWidth > el.clientWidth + 1) el.style.overflowWrap = 'anywhere'; });
+
+      // Hug the date box to its right-aligned text, so its title position starts exactly on the left margin.
+      const masks = [...dateEl.querySelectorAll('.wmask')];
+      const minL = masks.length ? Math.max(0, Math.min(...masks.map((w) => w.offsetLeft)) - 2) : 0;
+      dateEl.style.left = `${1200 + minL}px`;
+      dateEl.style.width = `${600 - minL}px`;
+      const DS = 1.7;
+      const dateX = 120 - (1200 + minL);
+
+      // Words rise through masks; later words share the last slot so long text settles early.
+      const words = (el, start, step = 0.5, cap = 2, dur = 0.75) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 120}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, start + B(Math.min(i, cap) * step)));
+
+      // Beats 0-2: the track draws, the brand and headline rise, and the quarter rises big under the track.
+      tl.fromTo('.track', {scaleX: 0}, {scaleX: 1, duration: B(1.25), ease: 'expo.out'}, t('track'));
+      tl.fromTo('.mark', {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.75), ease: 'expo.out'}, t('track'));
+      words(q('.s1 .brand'), t('brand'), 0.25, 1);
+      words(q('.headline'), t('headline'), 0.5, 3);
+      tl.fromTo(dateEl, {x: dateX, y: 440, scale: DS, transformOrigin: '0% 0%'},
+        {x: 0, y: 0, scale: 1, duration: B(1), ease: 'expo.out'}, t('shift'));
+      words(dateEl, t('date'), 0.25, 2);
+
+      // Beat 3: the scaffold. One socket tick per item lands on the track.
+      const ticks = m.parts(q('.ticks'), 'tick', () => {
+        const d = document.createElement('div');
+        d.className = 'tick';
+        d.dataset.listGroup = 'scaffold';
+        d.dataset.listAlign = 'x';
+        return d;
+      });
+      ticks.forEach((k, i) => tl.fromTo(k, {scaleY: 0, transformOrigin: '50% 50%'}, {scaleY: 1, duration: B(0.5), ease: 'expo.out'}, t('ticks') + B(0.0625 * i)));
+
+      // Beat 4: the headline steps into the header, the date climbs to the header column, and empty slots drop from the track.
+      tl.fromTo('.headline', {scale: 1, transformOrigin: '0% 0%'}, {scale: 0.6, duration: B(1), ease: 'expo.out'}, t('shift'));
+      const holders = m.parts(q('.holders'), 'holder', () => {
+        const d = document.createElement('div');
+        d.className = 'holder';
+        d.dataset.listGroup = 'scaffold';
+        d.dataset.listAlign = 'x';
+        return d;
+      });
+      holders.forEach((h, i) => tl.fromTo(h, {clipPath: 'inset(140px 0px 400px 0px)'},
+        {clipPath: 'inset(0px 0px 0px 0px)', duration: B(1), ease: 'expo.out'}, t('shift') + B(0.0625 * i)));
+
+      // Beats 5-6: the header rule draws, then the quarter flag lands under the date.
+      tl.fromTo('.hrule', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('headerRule'));
+      tl.fromTo('.qbar', {scaleX: 0, transformOrigin: '100% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('dateFlag'));
+
+      // Items: the card opens from its socket with the pin and number on the start, and the label rises on the accent.
+      m.items.forEach((it) => {
+        const row = m.row(it.index);
+        if (!row) return;
+        tl.fromTo(row.querySelector('.slot'), {clipPath: 'inset(140px 0px 400px 0px)'}, {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.75), ease: 'expo.out'}, it.start);
+        tl.fromTo(row.querySelector('.stop'), {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.75), ease: 'back.out(1.2)'}, it.start);
+        tl.fromTo(row.querySelector('.num'), {yPercent: 110}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, it.start + B(0.25));
+        words(row.querySelector('.item'), it.accent, 0.125, 2, 0.625);
+      });
+
+      // Beat 9: the first pin fills, an accent band tops its card, and the end arrow shows the roadmap runs on.
+      tl.fromTo('.core', {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('nowPin'));
+      tl.fromTo('.band', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('nowPin'));
+      tl.fromTo('.cap', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('nowPin'));
+
+      // Beats 10-11: the in-progress meter appears in the first card and fills in two steps; the run draws on the track.
+      tl.fromTo('.meter', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('inProgress'));
+      tl.fromTo('.meterfill', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 0.3, duration: B(0.75), ease: 'expo.out'}, t('inProgress'));
+      tl.fromTo('.meterfill', {scaleX: 0.3}, {scaleX: 0.6, duration: B(0.75), ease: 'expo.out', immediateRender: false}, t('progress'));
+      tl.fromTo('.progress', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.875), ease: 'expo.out'}, t('progress'));
+
+      // Beat 12: the in-progress pin floods accent to the farthest corner in 10 frames.
+      const r = Math.round(Math.hypot(Math.max(c0, 1920 - c0), 600) + 4);
+      tl.fromTo('.s2', {clipPath: `circle(0px at ${c0}px 600px)`},
+        {clipPath: `circle(${r}px at ${c0}px 600px)`, duration: B(0.625), ease: 'power3.out'}, t('flood'));
+      tl.set('.s1', {visibility: 'hidden'}, B(12.75));
+
+      // Beat 13: the pins survive the flood and pack into a queue behind the first. The brand returns.
+      const pips = m.parts(q('.pips'), 'pip', () => {
+        const d = document.createElement('div');
+        d.className = 'pip';
+        d.dataset.listGroup = 'finale';
+        return d;
+      });
+      pips.forEach((p, i) => tl.fromTo(p, {x: 0},
+        {x: 140 + i * 60 - center(i), duration: B(0.75), ease: 'expo.out'}, t('pack')));
+      words(q('.brand2'), t('endBrand'), 0.25, 1);
+
+      // Beat 14: the rail drops to the bottom margin and the button opens out of its old line.
+      tl.fromTo(['.rail', '.pips'], {y: 0}, {y: 380, duration: B(0.75), ease: 'expo.out'}, t('button'));
+      tl.fromTo('.button', {scaleY: 0.01, transformOrigin: '50% 50%'}, {scaleY: 1, duration: B(0.75), ease: 'expo.out'}, t('button'));
+
+      // Beats 15-16: the CTA rises, the cursor arrives, and the vote stamps.
+      words(q('.cta'), t('cta'), 0.25, 2);
+      tl.fromTo('.cursor', {x: 520, y: 480}, {x: 0, y: 0, duration: B(0.875), ease: 'power3.out'}, t('cta'));
+      tl.to('.press', {scale: 0.96, transformOrigin: '50% 50%', duration: B(0.125), ease: 'power2.out'}, t('vote'));
+      tl.to('.press', {scale: 1, duration: B(0.625), ease: 'expo.out'}, t('vote') + B(0.125));
+      tl.to('.cursor', {scale: 0.85, transformOrigin: '10% 6%', duration: B(0.125), ease: 'power2.out'}, t('vote'));
+      tl.to('.cursor', {scale: 1, duration: B(0.625), ease: 'expo.out'}, t('vote') + B(0.125));
+
+      // Beats 17-18: the check badge lands on the corner and the cursor drifts.
+      tl.fromTo('.badge', {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.75), ease: 'back.out(1.2)'}, t('badge'));
+      tl.fromTo('.badge path', {strokeDashoffset: 60}, {strokeDashoffset: 0, duration: B(0.5), ease: 'power3.out'}, t('badge') + B(0.25));
+      tl.to('.cursor', {x: 36, y: 44, duration: B(1), ease: 'power3.out'}, t('drift'));
+
+      // Beat 19: the background floods from the button center back to the empty first frame.
+      tl.fromTo('.wipe', {clipPath: 'circle(0px at 960px 590px)'},
+        {clipPath: 'circle(1140px at 960px 590px)', duration: B(0.625), ease: 'power3.out'}, t('loopWipe'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "beatFrames": 14,
+  "scenes": [
+    {"type": "title-reveal", "bars": 2, "focusBeat": 4, "roles": ["brand", "headline"], "energy": 1},
+    {"type": "byline", "bars": 1, "focusBeat": 11, "roles": ["brand", "author"], "energy": 2},
+    {"type": "date-card", "bars": 1, "focusBeat": 14, "roles": ["brand", "author", "attribution", "date"], "energy": 2},
+    {"type": "end-screen", "bars": 1, "focusBeat": 18, "roles": ["brand", "headline", "cta"], "energy": 3}
+  ],
+  "cues": [
+    {"id": "open", "beat": 0, "sound": "impact", "velocity": 0.6},
+    {"id": "brand", "beat": 0.5, "sound": "blip", "role": "brand", "velocity": 0.6},
+    {"id": "headline", "beat": 1, "sound": "pluck", "role": "headline", "velocity": 0.7},
+    {"id": "lines1", "beat": 3, "sound": "snap", "velocity": 0.4},
+    {"id": "lines2", "beat": 4, "sound": "snap", "velocity": 0.45},
+    {"id": "lines3", "beat": 5, "sound": "snap", "velocity": 0.5},
+    {"id": "select", "beat": 6, "sound": "blip", "velocity": 0.55},
+    {"id": "lines4", "beat": 7, "sound": "snap", "velocity": 0.55},
+    {"id": "deck", "beat": 8, "sound": "zap", "velocity": 0.8},
+    {"id": "author", "beat": 9, "sound": "pluck", "role": "author", "velocity": 0.7},
+    {"id": "select2", "beat": 10, "sound": "blip", "velocity": 0.5},
+    {"id": "line", "beat": 11, "sound": "snap", "velocity": 0.6},
+    {"id": "ticket", "beat": 12, "sound": "tom", "role": "attribution", "velocity": 0.8},
+    {"id": "date", "beat": 12.5, "sound": "blip", "role": "date", "velocity": 0.6},
+    {"id": "perf", "beat": 13, "sound": "snap", "velocity": 0.6},
+    {"id": "punch", "beat": 14, "sound": "clap", "velocity": 0.6},
+    {"id": "select3", "beat": 15, "sound": "blip", "velocity": 0.5},
+    {"id": "fold", "beat": 16, "sound": "crash", "role": "headline", "velocity": 0.9},
+    {"id": "ctaStamp", "beat": 16.5, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "step1", "beat": 17, "sound": "blip", "velocity": 0.45},
+    {"id": "step2", "beat": 18, "sound": "blip", "velocity": 0.45},
+    {"id": "step3", "beat": 19, "sound": "blip", "velocity": 0.45},
+    {"id": "loop", "beat": 19.5, "sound": "zap", "velocity": 0.6}
+  ],
+  "risers": [
+    {"beat": 14, "beats": 2}
+  ]
+}

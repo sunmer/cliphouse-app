@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+
+    /* Layers: scenes, floods, the status-page header layer, the light, then persistent chrome. */
+    .s0 { z-index:1; }
+    .s1 { z-index:2; }
+    .s2 { z-index:3; background:var(--theme-surface); clip-path:circle(0px at 150px 872px); }
+    .wipe { position:absolute; inset:0; z-index:4; background:var(--theme-background); clip-path:circle(0px at 1590px 520px); }
+    .top { position:absolute; inset:0; z-index:5; pointer-events:none; }
+    .chrome { position:absolute; inset:0; z-index:7; pointer-events:none; }
+
+    /* The status light: the hero object that carries every scene. */
+    .dot { position:absolute; z-index:6; left:1410px; top:340px; width:360px; height:360px; border-radius:50%; overflow:hidden; background:var(--theme-accent); }
+    .dot-ok, .mini-ok, .node-ok, .term-ok { position:absolute; inset:0; border-radius:50%; background:var(--theme-accent2); }
+    .arr { position:absolute; left:92px; top:158px; width:176px; height:44px; clip-path:inset(0 100% 0 0); }
+    .aline { position:absolute; left:0; top:17px; width:150px; height:10px; background:var(--theme-background); }
+    .ahead { position:absolute; right:0; top:0; width:44px; height:44px; background:var(--theme-background); clip-path:polygon(0 0, 100% 50%, 0 100%); }
+
+    /* Chrome: brand, mini status light, header rule, uptime strip. */
+    .brand { position:absolute; left:120px; top:80px; width:1500px; height:64px; font-size:48px; line-height:1.3; text-transform:uppercase; white-space:nowrap; color:var(--theme-foreground); }
+    .mini { position:absolute; left:1764px; top:96px; width:36px; height:36px; border-radius:50%; overflow:hidden; background:var(--theme-accent); }
+    .hr { position:absolute; left:120px; top:168px; width:1680px; height:2px; background:color-mix(in srgb, var(--theme-foreground) 16%, transparent); }
+    .strip { position:absolute; left:120px; top:900px; width:1680px; height:72px; display:flex; gap:8px; }
+    .bar { position:relative; overflow:hidden; flex:1 1 0; height:100%; transform-origin:50% 100%; background:color-mix(in srgb, var(--theme-accent2) 80%, transparent); }
+    .bar.warn { background:var(--theme-accent); }
+    .today-ok { position:absolute; inset:0; background:var(--theme-accent2); transform-origin:50% 100%; }
+
+    /* Header layer: the incident window and the loading skeleton of the status page. */
+    .date { position:absolute; left:120px; top:210px; width:1220px; height:80px; font-size:64px; line-height:1.25; white-space:nowrap; color:color-mix(in srgb, var(--theme-foreground) 82%, transparent); }
+    .sk { position:absolute; left:120px; background:var(--theme-surface); }
+    .sk-d { top:224px; width:640px; height:52px; }
+    .sk-h1 { top:358px; width:860px; height:136px; }
+    .sk-h2 { top:522px; width:1100px; height:136px; }
+
+    /* Scene 0: the outcome. */
+    .headline { position:absolute; left:120px; top:340px; width:1220px; height:380px; font-size:172px; line-height:.95; color:var(--theme-foreground); }
+    .rule0 { position:absolute; left:120px; top:780px; width:1680px; height:8px; background:var(--theme-accent2); transform-origin:0 50%; }
+
+    /* Scene 1: the vertical log. Row height and gaps reflow from --count and --rh. */
+    .rail, .rail-ok { position:absolute; left:148px; top:356px; width:4px; height:496px; transform-origin:50% 0; }
+    .rail { background:color-mix(in srgb, var(--theme-foreground) 24%, transparent); }
+    .rail-ok { background:var(--theme-accent2); }
+    .log { position:absolute; left:120px; top:370px; width:1680px; height:490px; display:flex; flex-direction:column; --rh:104px;
+      --gap: calc((490px - var(--count, 4) * var(--rh)) / (var(--count, 4) + 1)); padding-top:var(--gap); gap:var(--gap); }
+    .row { position:relative; flex:none; width:1680px; height:var(--rh); }
+    .band { position:absolute; left:96px; top:6px; width:1584px; height:calc(var(--rh) - 12px); background:var(--theme-surface); }
+    .node { position:absolute; left:14px; top:calc(var(--rh) / 2 - 16px); width:32px; height:32px; border-radius:50%; overflow:hidden; background:var(--theme-accent); }
+    .tick { position:absolute; left:56px; top:calc(var(--rh) / 2 - 1px); width:40px; height:2px; background:color-mix(in srgb, var(--theme-foreground) 40%, transparent); transform-origin:0 50%; }
+    .entry { position:absolute; left:136px; top:0; width:1520px; height:var(--rh); line-height:var(--rh); white-space:nowrap; color:var(--theme-foreground); }
+    .terminal { position:absolute; left:130px; top:852px; width:40px; height:40px; border-radius:50%; overflow:hidden; background:var(--theme-background); border:4px solid var(--theme-accent2); }
+
+    /* Scene 2: the postmortem link. */
+    .cta { position:absolute; left:120px; top:340px; width:1220px; height:380px; font-size:172px; line-height:.95; color:var(--theme-foreground); }
+    .cta-rule { position:absolute; left:120px; top:780px; width:1680px; height:8px; background:var(--theme-accent2); transform-origin:0 50%; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10.667" data-width="1920" data-height="1080">
+    <section id="statusupdate-open" class="scene s0" data-start="0" data-duration="10.667" data-track-index="0">
+      <h1 class="headline display fit" data-fit-max="172" data-fit-min="96" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <div class="rule0"></div>
+    </section>
+
+    <section id="statusupdate-log" class="scene s1" data-start="0" data-duration="10.667" data-track-index="1">
+      <div class="rail"></div>
+      <div class="rail-ok"></div>
+      <div class="log" data-list>
+        <template data-list-row>
+          <div class="row">
+            <div class="band" data-list-part="band" data-list-align="y"></div>
+            <div class="node" data-list-part="node" data-list-align="y"><div class="node-ok" data-list-part="ok" data-list-group="finale"></div></div>
+            <div class="tick" data-list-part="tick" data-list-align="y"></div>
+            <div class="entry mono" data-list-text data-words data-fit-max="80" data-fit-min="44"></div>
+          </div>
+        </template>
+      </div>
+      <div class="terminal"><div class="term-ok"></div></div>
+    </section>
+
+    <section id="statusupdate-end" class="scene s2" data-start="0" data-duration="10.667" data-track-index="2">
+      <h2 class="cta display fit" data-fit-max="172" data-fit-min="96" data-text-role="cta" data-beat-text="cta">CTA</h2>
+      <div class="cta-rule"></div>
+    </section>
+
+    <div class="wipe" data-layout-allow-overflow></div>
+
+    <div class="top">
+      <div class="sk sk-d"></div>
+      <div class="sk sk-h1"></div>
+      <div class="sk sk-h2"></div>
+      <div class="date mono" data-fit-max="64" data-fit-min="40" data-text-role="date" data-beat-text="date">Date</div>
+    </div>
+
+    <div class="dot"><div class="dot-ok"></div><div class="arr"><div class="aline"></div><div class="ahead"></div></div></div>
+
+    <div class="chrome">
+      <div class="brand display" data-fit-max="48" data-fit-min="30" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="mini"><div class="mini-ok"></div></div>
+      <div class="hr"></div>
+      <div class="strip"></div>
+    </div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    // Decorative uptime history: fixed, not per list item, built once. Bar 23 is a past incident; the last bar is today.
+    const strip = document.querySelector('.strip');
+    if (!strip.children.length) for (let i = 0; i < 60; i++) {
+      const b = document.createElement('div');
+      b.className = 'bar' + (i === 23 || i === 59 ? ' warn' : '');
+      if (i === 59) { const ok = document.createElement('div'); ok.className = 'today-ok'; b.append(ok); }
+      strip.append(b);
+    }
+
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const later = {immediateRender: false};
+      const bars = [...document.querySelectorAll('.strip .bar')];
+
+      // Reflow the log per count: fewer entries get taller rows and larger type, then refit.
+      const n = m.items.length;
+      const RH = [104, 180, 150, 124, 104][n] || 104;
+      const FS = [80, 120, 104, 92, 80][n] || 80;
+      q('.log').style.setProperty('--rh', RH + 'px');
+      for (const e of document.querySelectorAll('.log .entry')) { e.dataset.fitMax = String(FS); e.dataset.fitMin = '44'; }
+      window.cliphouseFitText?.();
+
+      // Words rise through masks on eighth notes; later words share the last slot so long text settles early.
+      const words = (el, start, cap = 2, dur = 0.75) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, start + Math.min(i, cap) * B(0.5)));
+      const exit = (el, start) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 0}, {yPercent: -125, duration: B(0.5), ease: 'power3.out', ...later}, start + Math.min(i, 3) * B(0.125)));
+      const step = (s, at, k) => {
+        tl.fromTo(s, {scale: 1}, {scale: k, duration: B(0.25), ease: 'power3.out', ...later}, at);
+        tl.fromTo(s, {scale: k}, {scale: 1, duration: B(0.75), ease: 'power3.out', ...later}, at + B(0.25));
+      };
+      const unskel = (s, at) => tl.fromTo(s, {clipPath: 'inset(0 0% 0 0%)'}, {clipPath: 'inset(0 0% 0 100%)', duration: B(0.5), ease: 'expo.out'}, at);
+      const reskel = (s, at) => tl.fromTo(s, {clipPath: 'inset(0 100% 0 0%)'}, {clipPath: 'inset(0 0% 0 0%)', duration: B(0.5), ease: 'expo.out', ...later}, at);
+
+      // Beat 0: the alert light and the header mini light step once.
+      step('.dot', t('alert'), 1.08);
+      step('.mini', t('alert'), 1.2);
+
+      // Beats 1-2: the outcome replaces its skeleton, then the incident window replaces its skeleton.
+      unskel('.sk-h1', t('headline'));
+      unskel('.sk-h2', t('headline') + B(0.25));
+      words(q('.headline'), t('headline'));
+      unskel('.sk-d', t('date'));
+      words(q('.date'), t('date'));
+
+      // Beats 3-4: the light draws in, then settles green from its centre.
+      tl.fromTo('.dot', {scale: 1}, {scale: 0.9, duration: B(0.5), ease: 'power3.out', ...later}, t('hold'));
+      tl.fromTo('.dot', {scale: 0.9}, {scale: 1, duration: B(0.75), ease: 'back.out(1.2)', ...later}, t('resolve'));
+      tl.fromTo('.dot-ok', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('resolve'));
+      tl.fromTo('.mini-ok', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('resolve'));
+
+      // Beat 5: the resolution rule draws.
+      tl.fromTo('.rule0', {scaleX: 0}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('rule'));
+
+      // Beat 6: the headline exits through its masks, the rule folds right into the light.
+      exit(q('.headline'), t('exit'));
+      tl.fromTo('.rule0', {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.75), ease: 'expo.out', ...later}, t('exit'));
+
+      // Beats 7-7.5: the light flies to the head of the log, the rail draws down from it.
+      tl.fromTo('.dot', {x: 0, y: 0, scale: 1}, {x: -1440, y: -184, scale: 0.111, duration: B(1), ease: 'expo.out', ...later}, t('railHead'));
+      tl.fromTo('.rail', {scaleY: 0}, {scaleY: 1, duration: B(1), ease: 'expo.out'}, t('rail'));
+      tl.set('.s0', {visibility: 'hidden'}, m.scene(1));
+
+      // Beats 8-13: the uptime strip scans one block of history per beat, whatever the item count.
+      [0, 1, 2, 3, 4, 5].forEach((k) =>
+        tl.fromTo(bars.slice(k * 10, k * 10 + 10), {scaleY: 0.3}, {scaleY: 1, duration: B(0.75), ease: 'expo.out', ...later}, m.scene(1, k)));
+
+      // Items: band and node on start, words through masks, tick on accent; green flips nodes on the sweep.
+      m.items.forEach((item) => {
+        const row = m.row(item.index);
+        if (!row) return;
+        tl.fromTo(row.querySelector('.band'), {clipPath: 'inset(0 100% 0 0)'}, {clipPath: 'inset(0 0% 0 0)', duration: B(0.5), ease: 'expo.out'}, item.start);
+        tl.fromTo(row.querySelector('.node'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, item.start);
+        m.spans(row.querySelector('.entry')).forEach((w, i) =>
+          tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.5), ease: 'expo.out'}, item.start + B(0.125) + Math.min(i, 3) * B(0.125)));
+        tl.fromTo(row.querySelector('.tick'), {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, item.accent);
+        tl.fromTo(row.querySelector('.node-ok'), {scale: 0}, {scale: 1, duration: B(0.375), ease: 'expo.out'},
+          t('sweep') + item.index * B(0.125));
+        // Beat 15: the entries leave through their masks.
+        exit(row.querySelector('.entry'), t('charge'));
+      });
+
+      // Beats 12-14: end node lands; green runs down the log and the mini light steps; end node fills; the strip refreshes.
+      tl.fromTo('.terminal', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('terminal'));
+      tl.fromTo('.rail-ok', {scaleY: 0}, {scaleY: 1, duration: B(0.75), ease: 'expo.out'}, t('sweep'));
+      step('.mini', t('sweep'), 1.2);
+      tl.fromTo('.term-ok', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('terminalOk'));
+      tl.fromTo(bars, {scaleY: 0.3}, {scaleY: 1, duration: B(0.75), ease: 'expo.out', stagger: B(0.5) / 60, ...later}, t('terminalOk'));
+      tl.fromTo('.today-ok', {scaleY: 0}, {scaleY: 1, duration: B(0.5), ease: 'expo.out'}, t('terminalOk'));
+
+      // Beat 15: the incident window leaves with the log, the end node swells.
+      exit(q('.date'), t('charge'));
+      tl.fromTo('.terminal', {scale: 1}, {scale: 1.6, duration: B(0.5), ease: 'power3.out', ...later}, t('charge'));
+
+      // Beat 15.5: the end node floods the frame in 10 frames; the light flies home; the log scene is gone.
+      tl.fromTo('.s2', {clipPath: 'circle(0px at 150px 872px)'},
+        {clipPath: 'circle(2000px at 150px 872px)', duration: B(0.625), ease: 'power2.out'}, t('flood'));
+      tl.fromTo('.dot', {x: -1440, y: -184, scale: 0.111}, {x: 0, y: 0, scale: 1, duration: B(0.75), ease: 'expo.out', ...later}, t('flood'));
+      tl.set('.s1', {visibility: 'hidden'}, t('flood') + B(0.75));
+
+      // Beat 16: the CTA stamps.
+      words(q('.cta'), t('ctaStamp'), 1, 0.5);
+      tl.fromTo('.cta', {scale: 1.06, transformOrigin: '0% 50%'}, {scale: 1, duration: B(0.75), ease: 'expo.out'}, t('ctaStamp'));
+
+      // Beats 17-18: the underline, then the arrow draws inside the light, making it the link.
+      tl.fromTo('.cta-rule', {scaleX: 0}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('ctaRule'));
+      tl.fromTo('.arr', {clipPath: 'inset(0 100% 0 0%)'}, {clipPath: 'inset(0 0% 0 0%)', duration: B(0.75), ease: 'expo.out'}, t('arrow'));
+
+      // Beat 19: the arrow retracts, the light turns amber and floods the background, the skeleton returns.
+      tl.fromTo('.arr', {clipPath: 'inset(0 0% 0 0%)'}, {clipPath: 'inset(0 0% 0 100%)', duration: B(0.375), ease: 'power3.out', ...later}, t('loopFlood'));
+      tl.fromTo('.dot-ok', {scale: 1}, {scale: 0, duration: B(0.5), ease: 'power3.out', ...later}, t('loopFlood'));
+      tl.fromTo('.mini-ok', {scale: 1}, {scale: 0, duration: B(0.5), ease: 'power3.out', ...later}, t('loopFlood'));
+      tl.fromTo('.today-ok', {scaleY: 1}, {scaleY: 0, duration: B(0.5), ease: 'power3.out', ...later}, t('loopFlood'));
+      tl.fromTo('.wipe', {clipPath: 'circle(0px at 1590px 520px)'},
+        {clipPath: 'circle(1750px at 1590px 520px)', duration: B(0.625), ease: 'power2.out'}, t('loopFlood'));
+      reskel('.sk-d', t('loopFlood') + B(0.25));
+      reskel('.sk-h1', t('loopFlood') + B(0.25));
+      reskel('.sk-h2', t('loopFlood') + B(0.375));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

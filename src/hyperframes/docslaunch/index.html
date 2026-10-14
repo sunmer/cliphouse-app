@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; }
+    body { font-family: "Archivo HF", Arial, sans-serif; }
+    .fam { font-family: "Archivo HF", "Arial Black", Arial, sans-serif; letter-spacing: 0; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+
+    /* Top bar: the docs app chrome */
+    .topbar { position:absolute; left:0; top:0; width:1920px; height:120px; background:var(--theme-foreground); z-index:4; }
+    .logo { position:absolute; left:80px; top:38px; width:44px; height:44px; border-radius:5px; background:var(--theme-accent); }
+    .brand { position:absolute; left:148px; top:10px; width:500px; height:100px; font-size:56px; line-height:1.1; align-content:center; white-space:nowrap; overflow:hidden; color:var(--theme-background); }
+    .addr { position:absolute; left:680px; top:26px; width:1160px; height:68px; border-radius:6px; overflow:hidden; background:color-mix(in srgb, var(--theme-background) 12%, transparent); }
+    .addr-skel { position:absolute; left:28px; top:27px; width:340px; height:14px; border-radius:3px; background:color-mix(in srgb, var(--theme-background) 30%, transparent); }
+    .addr-text { position:absolute; left:28px; top:4px; width:1100px; height:60px; font-size:38px; line-height:1.2; align-content:center; font-weight:500; white-space:nowrap; overflow:hidden; color:var(--theme-background); }
+    .addr-load { position:absolute; left:0; bottom:0; width:100%; height:5px; background:var(--theme-accent2); }
+
+    /* Sidebar: the nav compiles */
+    .sidebar { position:absolute; left:0; top:120px; width:600px; height:960px; background:var(--theme-surface); }
+    .search { position:absolute; left:80px; top:150px; width:440px; height:58px; border-radius:6px; background:var(--theme-background); border:3px solid color-mix(in srgb, var(--theme-foreground) 22%, transparent); }
+    .search-skel { position:absolute; left:20px; top:20px; width:170px; height:12px; border-radius:3px; background:color-mix(in srgb, var(--theme-foreground) 25%, transparent); }
+    .kbd { position:absolute; right:10px; top:10px; width:58px; height:32px; border-radius:4px; background:var(--theme-foreground); }
+    .kbd::after { content:""; position:absolute; left:14px; top:13px; width:30px; height:6px; border-radius:2px; background:var(--theme-background); }
+    .nav { --row:200px; --lab:128px; position:absolute; left:0; top:230px; width:600px; height:830px; display:flex; flex-direction:column; justify-content:center; }
+    .tree { position:absolute; left:74px; top:0; width:2px; height:0; background:color-mix(in srgb, var(--theme-foreground) 18%, transparent); z-index:0; }
+    .hl { position:absolute; left:0; top:0; width:600px; height:0; z-index:0; background:color-mix(in srgb, var(--theme-accent) 13%, transparent); }
+    .hl::before { content:""; position:absolute; left:0; top:0; width:10px; height:100%; background:var(--theme-accent); }
+    /* The label sits on the row's center line, so the mark, number, and tick align with both the row and the label. */
+    .row { position:relative; z-index:1; flex:none; width:600px; height:var(--row); }
+    .mark { position:absolute; left:63px; top:calc(50% - 12px); width:24px; height:24px; border-radius:4px; background:var(--theme-surface); border:3px solid color-mix(in srgb, var(--theme-foreground) 45%, transparent); }
+    .tick { position:absolute; left:63px; top:calc(50% - 12px); width:24px; height:24px; border-radius:4px; background:var(--theme-accent); }
+    .tick::after { content:""; position:absolute; left:8px; top:3px; width:6px; height:11px; border:solid var(--theme-background); border-width:0 3px 3px 0; transform:rotate(45deg); }
+    .num { position:absolute; left:98px; top:calc(50% - 20px); height:40px; overflow:hidden; visibility:hidden; font-size:26px; line-height:40px; font-weight:600; color:var(--theme-accent); }
+    .num > span { display:inline-block; }
+    .nav-text { position:absolute; display:block; left:150px; top:calc(50% - var(--lab) / 2); width:420px; height:var(--lab); font-size:58px; line-height:1.05; font-weight:760; align-content:center; color:var(--theme-foreground); }
+    .subs { position:absolute; left:150px; top:calc(50% + var(--lab) / 2 + 8px); display:flex; gap:16px; visibility:hidden; }
+    .sub { display:block; height:14px; border-radius:3px; background:color-mix(in srgb, var(--theme-foreground) 16%, transparent); }
+    .sub:nth-child(1) { width:190px; }
+    .sub:nth-child(2) { width:120px; }
+
+    /* Page */
+    .guide-v { position:absolute; left:1720px; top:120px; width:2px; height:960px; background:color-mix(in srgb, var(--theme-foreground) 7%, transparent); }
+    .guide-h { position:absolute; left:600px; top:660px; width:1320px; height:2px; background:color-mix(in srgb, var(--theme-foreground) 7%, transparent); }
+    .crumb { position:absolute; top:150px; height:16px; border-radius:3px; }
+    .crumb-a { left:680px; width:120px; background:var(--theme-accent); }
+    .crumb-b { left:820px; width:180px; background:color-mix(in srgb, var(--theme-foreground) 24%, transparent); }
+    .sk { position:absolute; border-radius:6px; background:var(--theme-surface); }
+    .sk-body { background:color-mix(in srgb, var(--theme-foreground) 14%, var(--theme-background)); }
+    .anchor { position:absolute; left:632px; top:206px; width:12px; height:244px; background:var(--theme-accent); }
+    .headline { position:absolute; left:680px; top:190px; width:1040px; height:290px; font-size:150px; line-height:.94; align-content:center; color:var(--theme-foreground); }
+    .subhead { position:absolute; left:680px; top:512px; width:1040px; height:130px; font-size:54px; line-height:1.15; font-weight:500; align-content:center; color:var(--theme-foreground); }
+    .rail-head { position:absolute; left:1768px; top:156px; width:72px; height:14px; border-radius:3px; background:var(--theme-foreground); }
+    .rail-line { position:absolute; left:1768px; top:190px; width:4px; height:450px; background:color-mix(in srgb, var(--theme-foreground) 22%, transparent); }
+    .rail { position:absolute; left:1784px; top:190px; width:56px; display:flex; flex-direction:column; gap:22px; }
+    .pip { width:56px; height:14px; border-radius:3px; background:var(--theme-accent); }
+
+    /* Runnable example */
+    .code { position:absolute; left:680px; top:690px; width:1160px; height:300px; border-radius:8px; overflow:hidden; background:var(--theme-foreground); }
+    .gut { position:absolute; left:36px; width:26px; height:12px; border-radius:2px; background:color-mix(in srgb, var(--theme-background) 22%, transparent); }
+    .line { position:absolute; display:flex; gap:14px; height:18px; }
+    .tok { display:block; height:18px; border-radius:3px; }
+    .t-a { background:var(--theme-accent); }
+    .t-b { background:var(--theme-accent2); }
+    .t-c { background:color-mix(in srgb, var(--theme-background) 55%, transparent); }
+    .t-d { background:color-mix(in srgb, var(--theme-background) 25%, transparent); }
+    .split { position:absolute; left:720px; top:0; width:2px; height:100%; background:color-mix(in srgb, var(--theme-background) 14%, transparent); }
+    .out { position:absolute; left:760px; height:18px; border-radius:3px; }
+    .out1 { top:40px; width:240px; background:var(--theme-accent2); }
+    .out2 { top:86px; width:260px; background:color-mix(in srgb, var(--theme-background) 45%, transparent); }
+    .status { position:absolute; left:760px; top:128px; width:26px; height:26px; border-radius:50%; background:var(--theme-accent); }
+    .run { position:absolute; right:32px; top:32px; width:64px; height:64px; border-radius:8px; overflow:hidden; background:var(--theme-accent2); }
+    .run-fill { position:absolute; inset:0; background:var(--theme-accent); }
+    .run::after { content:""; position:absolute; left:24px; top:18px; border-left:22px solid var(--theme-foreground); border-top:14px solid transparent; border-bottom:14px solid transparent; z-index:1; }
+    .track { position:absolute; left:0; bottom:0; width:100%; height:8px; background:color-mix(in srgb, var(--theme-background) 14%, transparent); }
+    .prog { position:absolute; left:0; bottom:0; width:100%; height:8px; background:var(--theme-accent2); }
+
+    /* Finale: the example prints the address */
+    .slab { position:absolute; left:600px; top:660px; width:1320px; height:420px; background:var(--theme-accent); z-index:3; }
+    .cta { position:absolute; left:80px; top:50px; width:1160px; height:250px; font-size:150px; line-height:1.15; align-content:center; font-weight:700; white-space:nowrap; overflow:hidden; color:var(--theme-background); }
+    .rule { position:absolute; left:80px; top:320px; width:360px; height:14px; background:var(--theme-accent2); }
+    .wipe { position:absolute; inset:0; background:var(--theme-background); z-index:10; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+    <section id="docslaunch-site" class="scene" data-start="0" data-duration="10" data-track-index="0">
+      <div class="guide-v"></div>
+      <div class="guide-h"></div>
+
+      <div class="sidebar"></div>
+      <div class="search"><div class="search-skel"></div><div class="kbd"></div></div>
+      <div class="nav" data-list>
+        <div class="tree"></div>
+        <div class="hl"></div>
+        <template data-list-row>
+          <div class="row">
+            <span class="mark" data-list-part="mark" data-list-align="y"></span>
+            <span class="tick" data-list-part="tick" data-list-group="finale" data-list-align="y"></span>
+            <span class="num mono" data-list-part="num"><span data-list-number>01</span></span>
+            <span class="nav-text fam fit" data-list-text data-words data-fit-max="58" data-fit-min="30"></span>
+            <span class="subs" data-list-part="subs"><i class="sub"></i><i class="sub"></i></span>
+          </div>
+        </template>
+      </div>
+
+      <div class="crumb crumb-a"></div>
+      <div class="crumb crumb-b"></div>
+      <div class="sk sk-head" style="left:680px; top:206px; width:900px; height:112px;"></div>
+      <div class="sk sk-head" style="left:680px; top:338px; width:620px; height:112px;"></div>
+      <div class="sk sk-body" style="left:680px; top:540px; width:980px; height:32px;"></div>
+      <div class="sk sk-body" style="left:680px; top:596px; width:700px; height:32px;"></div>
+      <div class="anchor"></div>
+      <h1 class="headline display fit" data-fit-max="150" data-fit-min="96" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <p class="subhead fam fit" data-fit-max="54" data-fit-min="34" data-text-role="subhead" data-beat-text="subhead">Subhead</p>
+
+      <div class="rail-head"></div>
+      <div class="rail-line"></div>
+      <div class="rail"></div>
+
+      <div class="code">
+        <i class="gut" style="top:43px"></i>
+        <i class="gut" style="top:89px"></i>
+        <i class="gut" style="top:135px"></i>
+        <i class="gut" style="top:181px"></i>
+        <i class="gut" style="top:227px"></i>
+        <div class="line" style="top:40px; left:96px;"><i class="tok t-a" style="width:150px"></i><i class="tok t-c" style="width:110px"></i><i class="tok t-b" style="width:200px"></i></div>
+        <div class="line" style="top:86px; left:144px;"><i class="tok t-c" style="width:240px"></i><i class="tok t-a" style="width:130px"></i></div>
+        <div class="line" style="top:132px; left:144px;"><i class="tok t-b" style="width:170px"></i><i class="tok t-d" style="width:260px"></i></div>
+        <div class="line" style="top:178px; left:192px;"><i class="tok t-a" style="width:120px"></i><i class="tok t-c" style="width:180px"></i></div>
+        <div class="line" style="top:224px; left:96px;"><i class="tok t-d" style="width:90px"></i></div>
+        <div class="split"></div>
+        <i class="out out1"></i>
+        <i class="out out2"></i>
+        <i class="status"></i>
+        <div class="run"><div class="run-fill"></div></div>
+        <div class="track"></div>
+        <div class="prog"></div>
+      </div>
+
+      <div class="slab">
+        <div class="cta mono" data-fit-max="150" data-fit-min="64" data-text-role="cta" data-beat-text="cta">CTA</div>
+        <div class="rule"></div>
+      </div>
+
+      <div class="topbar">
+        <div class="logo"></div>
+        <div class="brand display" data-fit-max="56" data-fit-min="34" data-text-role="brand" data-beat-text="brand">Brand</div>
+        <div class="addr">
+          <div class="addr-skel"></div>
+          <div class="addr-text mono" data-fit-max="38" data-fit-min="24" data-text-copy="cta" data-beat-text="cta">CTA</div>
+          <div class="addr-load"></div>
+        </div>
+      </div>
+    </section>
+    <div class="wipe"></div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const OUT = 'expo.out';
+
+      // Shared moves. Words rise through masks on eighth notes; later words share the last slot.
+      const rise = (els, at, cap = 2, step = 0.5) => els.forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: OUT}, at + Math.min(i, cap) * B(step)));
+      const words = (el, at, cap, step) => rise(m.spans(el), at, cap, step);
+      const wipeX = (el, at, dur = 0.75) =>
+        tl.fromTo(el, {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(dur), ease: OUT}, at);
+      const wipeOff = (el, at, dur = 0.5) =>
+        tl.fromTo(el, {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 100%)', duration: B(dur), ease: 'power3.inOut', immediateRender: false}, at);
+      const drawX = (el, at, dur = 0.75, stagger = 0) =>
+        tl.fromTo(el, {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(dur), ease: OUT, stagger: B(stagger)}, at);
+      const drawY = (el, at, dur = 0.75) =>
+        tl.fromTo(el, {scaleY: 0, transformOrigin: '50% 0%'}, {scaleY: 1, duration: B(dur), ease: OUT}, at);
+      const pop = (el, at) =>
+        tl.fromTo(el, {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.75), ease: 'back.out(1.2)'}, at);
+
+      // Reflow the nav per count: fewer sections get taller rows and larger labels.
+      const nav = q('.nav');
+      const n = m.items.length;
+      const layout = {1: [76, 170, 340], 2: [72, 160, 320], 3: [64, 140, 250], 4: [58, 128, 200]};
+      const [fitMax, lab, rowH] = layout[n] || layout[4];
+      nav.style.setProperty('--row', rowH + 'px');
+      nav.style.setProperty('--lab', lab + 'px');
+      qa('.nav [data-list-text]').forEach((el) => el.setAttribute('data-fit-max', String(fitMax)));
+      if (window.cliphouseFitText) window.cliphouseFitText();
+      const rows = m.items.map((it) => m.row(it.index));
+      const hl = q('.hl');
+      const tree = q('.tree');
+      hl.style.height = rowH + 'px';
+      if (rows[0]) {
+        tree.style.top = rows[0].offsetTop + 'px';
+        tree.style.height = (n * rowH) + 'px';
+      }
+
+      // Beat 0: the app chrome wipes in, the sidebar drops, the grid draws, the heading skeleton draws.
+      const c0 = t('chrome');
+      wipeX('.topbar', c0, 1);
+      drawY('.sidebar', c0 + B(0.25), 1);
+      drawY('.guide-v', c0 + B(0.5), 1);
+      drawX('.guide-h', c0 + B(0.5), 1);
+      drawX('.sk-head', c0 + B(0.5), 0.75, 0.25);
+
+      // Beat 1: the brand, the address field, the breadcrumb, the body skeleton, and the nav tree.
+      const c1 = t('brand');
+      pop('.logo', c1);
+      words(q('.brand'), c1);
+      wipeX('.addr', c1);
+      drawX('.addr-skel', c1 + B(0.25));
+      drawX('.crumb', c1, 0.75, 0.125);
+      drawX('.sk-body', c1 + B(0.25), 0.75, 0.25);
+      drawY(tree, c1, 1);
+
+      // Beat 2: the example block wipes up.
+      tl.fromTo('.code', {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.75), ease: OUT}, t('codeBlock'));
+
+      // Beat 3: the search field, its key, and the "on this page" rail.
+      wipeX('.search', t('rail'));
+      pop('.kbd', t('rail'));
+      drawX('.rail-head', t('rail'), 0.5);
+      drawY('.rail-line', t('rail'), 1);
+
+      // Beats 4-7: code tokens, the output split and track, the run button, the load line.
+      drawX('.gut', t('tokens'), 0.5, 0.0625);
+      drawX('.tok', t('tokens'), 0.5, 0.0625);
+      drawY('.split', t('split'));
+      drawX('.track', t('split'), 1);
+      pop('.run', t('runButton'));
+      drawX('.addr-load', t('load'), 1);
+
+      // Nav items: mark, number, and words on the start; highlight and child pages on the accent.
+      m.items.forEach((it, k) => {
+        const row = rows[k];
+        if (!row) return;
+        pop(row.querySelector('.mark'), it.start);
+        tl.set(row.querySelector('.num'), {visibility: 'visible'}, it.start);
+        tl.fromTo(row.querySelector('[data-list-number]'), {yPercent: 110}, {yPercent: 0, duration: B(0.75), ease: OUT}, it.start);
+        words(row.querySelector('[data-list-text]'), it.start, 1);
+        const subs = row.querySelector('.subs');
+        tl.set(subs, {visibility: 'visible'}, it.accent);
+        drawX([...subs.children], it.accent, 0.5, 0.125);
+        const y = row.offsetTop;
+        if (k === 0) tl.fromTo(hl, {y, scaleX: 0, transformOrigin: '0% 50%'}, {y, scaleX: 1, duration: B(0.5), ease: OUT}, it.accent);
+        else tl.to(hl, {y, duration: B(0.5), ease: 'power3.out'}, it.accent);
+      });
+      if (rows.length > 1) tl.to(hl, {y: rows[0].offsetTop, duration: B(0.75), ease: 'power3.out'}, t('load'));
+
+      // "On this page" rail: one pip per section, on its accent.
+      const pips = m.parts(q('.rail'), 'pip', () => {
+        const d = document.createElement('div');
+        d.className = 'pip';
+        return d;
+      });
+      pips.forEach((p, i) => drawX(p, m.items[i].accent, 0.5));
+
+      // Beats 8-10: the headline and subhead replace their skeletons.
+      wipeOff('.sk-head', t('headline'), 0.75);
+      wipeOff('.addr-load', t('headline'));
+      words(q('.headline'), t('headline'), 3);
+      drawY('.anchor', t('anchor'));
+      wipeOff('.sk-body', t('subhead'), 0.75);
+      words(q('.subhead'), t('subhead'), 3);
+
+      // Beats 11-15: the example runs. A press, stepped progress, output, done, then a squeeze.
+      tl.to('.run', {scale: 0.84, duration: B(0.125), ease: 'power2.in'}, t('run') - B(0.125));
+      tl.to('.run', {scale: 1, duration: B(0.625), ease: OUT}, t('run'));
+      tl.fromTo('.prog', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1 / 3, duration: B(0.75), ease: OUT}, t('run'));
+      drawX('.out1', t('out1'), 0.5);
+      tl.to('.prog', {scaleX: 2 / 3, duration: B(0.75), ease: OUT}, t('out1'));
+      drawX('.out2', t('out2'), 0.5);
+      pop('.status', t('out2'));
+      tl.to('.prog', {scaleX: 1, duration: B(0.75), ease: OUT}, t('done'));
+      tl.fromTo('.run-fill', {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: OUT}, t('done'));
+      tl.to('.run', {scale: 0.72, duration: B(0.75), ease: 'power3.out'}, t('prime'));
+
+      // Beat 16: the run button floods accent over the example, and the address stamps in large.
+      const s = t('ctaStamp');
+      tl.fromTo('.slab', {clipPath: 'circle(0px at 1176px 94px)'}, {clipPath: 'circle(1240px at 1176px 94px)', duration: B(0.75), ease: 'power3.out'}, s);
+      words(q('.cta'), s, 2);
+      tl.fromTo('.cta', {scale: 1.08, transformOrigin: '0% 50%'}, {scale: 1, duration: B(0.75), ease: OUT}, s);
+
+      // Beat 17: every section is ticked, and the address bar resolves to the CTA.
+      const k17 = t('ticks');
+      rows.forEach((row, k) => { if (row) pop(row.querySelector('.tick'), k17 + k * B(0.125)); });
+      wipeOff('.addr-skel', k17);
+      words(q('.addr-text'), k17, 2);
+
+      // Beat 18: the rule draws under the address.
+      drawX('.rule', t('rule'));
+
+      // Beat 19: the rule floods the background back to the empty first frame.
+      tl.fromTo('.wipe', {clipPath: 'circle(0px at 680px 987px)'}, {clipPath: 'circle(1620px at 680px 987px)', duration: B(0.75), ease: 'power3.out'}, t('loopFlood'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

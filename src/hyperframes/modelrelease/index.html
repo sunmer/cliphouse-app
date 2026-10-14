@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1080px; }
+    .abs { position:absolute; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+
+    .brand { left:80px; top:70px; width:700px; height:60px; font-size:40px; line-height:1.2; text-transform:uppercase; white-space:nowrap; z-index:3; }
+    .hrule { left:80px; top:142px; width:920px; height:4px; background:var(--theme-foreground); }
+
+    .headline { left:80px; top:310px; width:920px; height:426px; font-size:210px; line-height:.9; align-content:safe end; z-index:3; }
+    .stat { left:80px; top:370px; width:920px; height:280px; font-size:250px; line-height:1; white-space:nowrap; align-content:safe center; z-index:3; color:var(--theme-foreground); }
+    #root[data-lock="1"] .stat { color:var(--theme-accent); }
+    .subhead { left:80px; top:668px; width:920px; height:132px; font-size:44px; line-height:1.25; visibility:hidden; z-index:3; }
+
+    .ticks { left:80px; top:850px; width:922px; height:56px; z-index:1; }
+    .tick { position:absolute; bottom:0; width:2px; height:20px; background:var(--theme-foreground); transform-origin:50% 100%; }
+    .tick.mid { height:36px; }
+    .tick.major { height:56px; }
+    .tick[data-on="1"] { background:var(--theme-accent); }
+    .track { left:80px; top:920px; width:920px; height:28px; background:var(--theme-surface); overflow:hidden; z-index:1; }
+    .fill { position:absolute; inset:0; background:var(--theme-accent); transform-origin:0% 50%; }
+    .pin { left:77px; top:826px; width:6px; height:134px; background:var(--theme-foreground); transform-origin:50% 100%; z-index:2; }
+    .pinhead { position:absolute; left:-9px; top:-24px; width:24px; height:24px; background:var(--theme-foreground); transform-origin:50% 50%; }
+    #root[data-lock="1"] .pinhead { background:var(--theme-accent); }
+
+    .listzone { left:80px; top:456px; width:920px; height:340px; z-index:2; }
+    .rail { position:absolute; left:14px; top:0; width:3px; height:464px; background:var(--theme-foreground); transform-origin:50% 100%; }
+    .railcap { position:absolute; left:3px; top:-18px; width:917px; height:12px; background:var(--theme-accent2); transform-origin:0% 50%; }
+    .stops { position:absolute; inset:0; }
+    .stop { position:absolute; left:6px; width:20px; height:20px; background:var(--theme-foreground); transform-origin:50% 50%; }
+    .stop[data-on="1"] { background:var(--theme-accent2); }
+    .rows { position:absolute; left:48px; top:0; right:0; bottom:0; display:grid; grid-template-rows:repeat(var(--count, 3), minmax(0, 1fr)); row-gap:14px; visibility:hidden; }
+    .row { position:relative; min-height:0; background:var(--theme-surface); display:grid; grid-template-columns:auto minmax(0, 1fr) auto; align-items:center; column-gap:28px; padding:0 30px 0 36px; overflow:hidden; }
+    .edge { position:absolute; left:0; top:0; bottom:0; width:12px; background:var(--theme-accent2); transform-origin:50% 0%; }
+    .nmask { display:block; overflow:hidden; }
+    .num { display:block; font-size:calc(32px + 4px * (3 - var(--count, 3))); line-height:1.2; color:var(--theme-foreground); }
+    .rtext { display:block; align-self:stretch; min-width:0; font-size:120px; line-height:1; white-space:nowrap; align-content:safe center; }
+    [data-list][style*="--count: 1"] .rtext, [data-list][style*="--count: 2"] .rtext { white-space:normal; }
+    .marker { width:calc(28px + 8px * (3 - var(--count, 3))); height:calc(28px + 8px * (3 - var(--count, 3))); background:var(--theme-accent2); transform-origin:50% 50%; }
+    .bar { position:absolute; left:0; bottom:0; width:100%; height:6px; background:var(--theme-accent2); transform-origin:0% 50%; }
+
+    .btn { left:80px; top:760px; width:920px; height:188px; background:var(--theme-accent); transform-origin:50% 100%; z-index:5; }
+    .ctawrap { left:80px; top:760px; width:920px; height:188px; transform-origin:50% 50%; z-index:6; color:var(--theme-background); }
+    .chevbox { position:absolute; left:34px; top:58px; width:72px; height:72px; transform-origin:50% 50%; }
+    .chev { position:absolute; left:12px; top:18px; width:36px; height:36px; border-right:9px solid var(--theme-background); border-bottom:9px solid var(--theme-background); transform:rotate(-45deg); }
+    .cta { position:absolute; left:124px; top:18px; width:640px; height:152px; font-size:84px; line-height:1; align-content:safe center; }
+    .amask { position:absolute; right:36px; top:64px; width:110px; height:60px; overflow:hidden; }
+    .arrow { position:absolute; left:24px; top:26px; width:56px; height:8px; background:var(--theme-background); }
+    .arrow::after { content:""; position:absolute; right:-3px; top:-6px; width:20px; height:20px; border-top:8px solid var(--theme-background); border-right:8px solid var(--theme-background); transform:rotate(45deg); }
+  </style>
+</head>
+<body>
+  <div id="root" data-lock="1" data-composition-id="main" data-start="0" data-duration="9.333" data-width="1080" data-height="1080">
+    <section id="modelrelease-card" class="scene" data-start="0" data-duration="9.333" data-track-index="0">
+      <div class="brand mono abs" data-fit-max="40" data-fit-min="28" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="hrule abs"></div>
+
+      <h1 class="headline display fit abs" data-fit-max="210" data-fit-min="88" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <div class="stat display abs" data-fit-max="250" data-fit-min="120" data-text-role="stat" data-beat-text="stat">92.4%</div>
+      <p class="subhead mono fit abs" data-fit-max="44" data-fit-min="30" data-text-role="subhead" data-beat-text="subhead">Subhead</p>
+
+      <div class="listzone abs">
+        <div class="rail"></div>
+        <div class="railcap"></div>
+        <div class="stops"></div>
+        <div class="rows" data-list>
+          <template data-list-row>
+            <div class="row">
+              <span class="edge" data-list-part="edge" data-list-group="finale"></span>
+              <span class="nmask" data-list-part="number"><span class="num mono" data-list-number></span></span>
+              <span class="rtext display" data-list-text data-words data-fit-max="120" data-fit-min="34"></span>
+              <span class="marker" data-list-part="marker"></span>
+              <span class="bar" data-list-part="bar" data-list-group="finale"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <div class="ticks abs"></div>
+      <div class="track abs"><div class="fill"></div></div>
+      <div class="pin abs"><div class="pinhead"></div></div>
+
+      <div class="btn abs"></div>
+      <div class="ctawrap abs">
+        <div class="chevbox"><div class="chev"></div></div>
+        <div class="cta display fit" data-fit-max="84" data-fit-min="44" data-text-role="cta" data-beat-text="cta">CTA</div>
+        <div class="amask"><div class="arrow"></div></div>
+      </div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    // The ruler: 47 static ticks, 20 px apart, majors every 10.
+    (() => {
+      const host = document.querySelector('.ticks');
+      for (let i = 0; i <= 46; i++) {
+        const k = document.createElement('i');
+        k.className = 'tick' + (i % 10 === 0 ? ' major' : i % 5 === 0 ? ' mid' : '');
+        k.style.left = `${i * 20}px`;
+        k.setAttribute('data-on', '0');
+        host.append(k);
+      }
+    })();
+
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const EX = 'expo.out';
+      const rise = (el, at, {gap = 0.5, cap = 2, dur = 0.75, ir = true} = {}) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: EX, immediateRender: ir}, at + Math.min(i, cap) * B(gap)));
+      const leave = (el, at, dir, dur = 0.5) => {
+        const s = m.spans(el);
+        if (s.length) tl.to(s, {yPercent: dir, duration: B(dur), ease: dir > 0 ? 'power3.in' : EX}, at);
+      };
+
+      const head = q('.headline'), stat = q('.stat'), sub = q('.subhead'), cta = q('.cta');
+      const ticks = qa('.tick');
+
+      // Frame 0 is the end card: the score sits small above the model name, and the track is full under the button.
+      gsap.set(head, {transformOrigin: '0% 100%', scale: 1, y: 0});
+      gsap.set(stat, {transformOrigin: '0% 0%', scale: 0.44, y: -200});
+      gsap.set('.fill', {scaleX: 1});
+
+      // The gauge reads the stat: a percentage fills to its value, any other number fills to a fixed mark.
+      const statText = m.text('stat');
+      const num = parseFloat((statText.match(/\d+(?:\.\d+)?/) || ['0'])[0]);
+      const pct = Math.min(1, Math.max(0.08, statText.includes('%') && num <= 100 ? num / 100 : 0.86));
+      const reach = 920 * pct;
+      const onTicks = ticks.filter((k, i) => i * 20 <= reach + 0.5);
+      const restTicks = ticks.filter((k, i) => i * 20 > reach + 0.5);
+
+      // Beat 0: the card folds. The CTA drops out and the button collapses into the full track.
+      const F = t('fold');
+      leave(cta, F, 125, 0.375);
+      tl.to('.chevbox', {scale: 0, duration: B(0.375), ease: 'power3.in'}, F);
+      tl.to('.arrow', {x: -90, duration: B(0.375), ease: 'power3.in'}, F);
+      tl.to('.btn', {scaleY: 28 / 188, duration: B(0.5), ease: 'expo.inOut'}, F);
+      tl.set(['.btn', '.ctawrap'], {visibility: 'hidden'}, F + B(0.5));
+
+      // Beat 1: the track drains to zero.
+      tl.fromTo('.fill', {scaleX: 1}, {scaleX: 0, duration: B(0.75), ease: 'power3.inOut', immediateRender: false}, t('drain'));
+      tl.set(ticks, {attr: {'data-on': '0'}}, t('drain'));
+
+      // Beat 2: the old reading clears while the ruler calibrates left to right.
+      const C = t('calibrate');
+      leave(stat, C, 125, 0.375);
+      tl.set(stat, {visibility: 'hidden', scale: 1, y: 0}, C + B(0.5));
+      tl.set('#root', {attr: {'data-lock': '0'}}, C + B(0.5));
+      ticks.forEach((k, i) => tl.fromTo(k, {scaleY: 0}, {scaleY: 1, duration: B(0.5), ease: EX}, C + (i / (ticks.length - 1)) * B(0.5)));
+
+      // Beat 3: the pin arms at zero.
+      tl.fromTo('.pin', {scaleY: 0, x: 0}, {scaleY: 1, x: 0, duration: B(0.75), ease: 'back.out(1.2)'}, t('arm'));
+
+      // Beat 4: the model name steps up into the header, and the score takes the hero slot.
+      tl.fromTo(head, {scale: 1, y: 0}, {scale: 0.38, y: -391, duration: B(1), ease: EX, immediateRender: false}, t('stat'));
+      tl.set(stat, {visibility: 'visible'}, t('stat'));
+      rise(stat, t('stat'), {gap: 0.25, ir: false});
+
+      // Beat 5: the fill and the pin sweep to the score.
+      tl.fromTo('.fill', {scaleX: 0}, {scaleX: pct, duration: B(1), ease: EX, immediateRender: false}, t('sweep'));
+      tl.to('.pin', {x: reach, duration: B(1), ease: EX}, t('sweep'));
+
+      // Beat 6: the score locks in.
+      tl.set('#root', {attr: {'data-lock': '1'}}, t('lock'));
+      tl.fromTo('.pinhead', {scale: 1.7}, {scale: 1, duration: B(0.75), ease: EX, immediateRender: false}, t('lock'));
+
+      // Beat 7: the subhead reads out as one line, settled by 7.375, and the ticks under the score light.
+      // Beat 7.5 is the counter focus. Beat 7.75: the model name leaves.
+      const R = t('subhead');
+      tl.set(sub, {visibility: 'visible'}, R);
+      rise(sub, R, {gap: 0, cap: 0, dur: 0.375});
+      onTicks.forEach((k, i) => tl.set(k, {attr: {'data-on': '1'}}, R + (i / Math.max(1, onTicks.length - 1)) * B(0.5)));
+      leave(head, R + B(0.75), -125, 0.25);
+
+      // Beat 8: the score and subhead step up into a header strip, and the rail draws up from the track.
+      tl.set(head, {visibility: 'hidden', scale: 1, y: 0}, t('step'));
+      tl.fromTo(stat, {scale: 1, y: 0}, {scale: 0.44, y: -200, duration: B(1), ease: EX, immediateRender: false}, t('step'));
+      tl.fromTo(sub, {y: 0}, {y: -363, duration: B(1), ease: EX, immediateRender: false}, t('step'));
+      tl.fromTo('.rail', {scaleY: 0}, {scaleY: 1, duration: B(1), ease: EX}, t('step'));
+
+      // Capabilities share one size, re-applied after the font refit.
+      const uniform = () => {
+        const els = qa('.rows [data-list-text]');
+        if (!els.length) return;
+        const size = Math.min(...els.map((el) => parseFloat(el.style.fontSize) || 120));
+        els.forEach((el) => { el.style.fontSize = `${size}px`; });
+      };
+      uniform();
+      if (document.fonts) document.fonts.ready.then(uniform);
+
+      const rows = m.items.map((it) => m.row(it.index));
+      const stops = m.parts(q('.stops'), 'stop', (item) => {
+        const el = document.createElement('i');
+        el.className = 'stop';
+        el.setAttribute('data-list-align', 'y');
+        el.setAttribute('data-on', '0');
+        const row = m.row(item.index);
+        el.style.top = row ? `${row.offsetTop + row.offsetHeight / 2 - 10}px` : '0px';
+        return el;
+      });
+      if (m.items.length) tl.set('.rows', {visibility: 'visible'}, m.items[0].start);
+      m.items.forEach((it, k) => {
+        const row = rows[k];
+        if (!row) return;
+        tl.fromTo(stops[k], {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, it.start);
+        tl.fromTo(row, {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: EX}, it.start);
+        tl.fromTo(row.querySelector('.num'), {yPercent: 125}, {yPercent: 0, duration: B(0.5), ease: EX}, it.start);
+        rise(row.querySelector('[data-list-text]'), it.start + B(0.125), {gap: 0.125, cap: 3, dur: 0.5});
+        tl.fromTo(row.querySelector('.marker'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, it.accent);
+        tl.set(stops[k], {attr: {'data-on': '1'}}, it.accent);
+        // Beat 10: each row's edge seals against the rail. Beat 11: the meters verify.
+        tl.fromTo(row.querySelector('.edge'), {scaleY: 0}, {scaleY: 1, duration: B(0.75), ease: EX}, t('railCap') + k * B(0.125));
+        tl.fromTo(row.querySelector('.bar'), {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: EX}, t('verify') + k * B(0.125));
+      });
+
+      // Beat 10: the header bar draws across the list from the rail.
+      tl.fromTo('.railcap', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: EX}, t('railCap'));
+
+      // Beat 12: the subhead exits, and the track completes to 100%.
+      leave(sub, t('complete'), -125);
+      tl.set(sub, {visibility: 'hidden'}, t('complete') + B(0.5));
+      tl.fromTo('.fill', {scaleX: pct}, {scaleX: 1, duration: B(1), ease: EX, immediateRender: false}, t('complete'));
+      tl.to('.pin', {x: 920, duration: B(1), ease: EX}, t('complete'));
+      restTicks.forEach((k, i) => tl.set(k, {attr: {'data-on': '1'}}, t('complete') + (i / Math.max(1, restTicks.length - 1)) * B(0.5)));
+
+      // Beat 13: the rows fall into the track, and the rail, stops, header bar, and pin retract.
+      const n = rows.length;
+      rows.forEach((row, k) => { if (row) tl.to(row, {clipPath: 'inset(100% 0% 0% 0%)', duration: B(0.375), ease: 'power3.in'}, t('collapse') + (n - 1 - k) * B(0.0625)); });
+      tl.set('.rows', {visibility: 'hidden'}, t('collapse') + B(0.5));
+      tl.to(stops, {scale: 0, duration: B(0.375), ease: 'power3.in'}, t('collapse'));
+      tl.to('.railcap', {scaleX: 0, duration: B(0.375), ease: 'power3.in'}, t('collapse'));
+      tl.to('.rail', {scaleY: 0, duration: B(0.5), ease: EX}, t('collapse'));
+      tl.to('.pin', {scaleY: 0, duration: B(0.5), ease: 'power3.in'}, t('collapse'));
+
+      // Beat 13.5: the model name returns at hero size under the locked score.
+      tl.set(head, {visibility: 'visible'}, t('headlineReturn'));
+      rise(head, t('headlineReturn'), {gap: 0.25, ir: false});
+
+      // Beat 14: the full track grows into the CTA button, and the CTA stamps.
+      tl.set(['.btn', '.ctawrap'], {visibility: 'visible'}, t('ctaStamp'));
+      tl.fromTo('.btn', {scaleY: 28 / 188}, {scaleY: 1, duration: B(0.75), ease: EX, immediateRender: false}, t('ctaStamp'));
+      tl.fromTo('.ctawrap', {scale: 1.12}, {scale: 1, duration: B(0.75), ease: EX, immediateRender: false}, t('ctaStamp'));
+      rise(cta, t('ctaStamp'), {gap: 0.25, ir: false});
+      tl.set(ticks, {scaleY: 0}, t('ctaStamp') + B(0.75));
+
+      // Beat 15: the chevron and the arrow land.
+      tl.fromTo('.chevbox', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)', immediateRender: false}, t('ctaArrow'));
+      tl.fromTo('.arrow', {x: -90}, {x: 0, duration: B(0.5), ease: EX, immediateRender: false}, t('ctaArrow'));
+
+      // Beats 16-19: the arrow nudges on each beat while the release card holds.
+      ['nudgeA', 'nudgeB', 'nudgeC', 'nudgeD'].forEach((id) => {
+        tl.to('.arrow', {x: 18, duration: B(0.25), ease: 'power3.out'}, t(id));
+        tl.to('.arrow', {x: 0, duration: B(0.5), ease: 'power3.out'}, t(id) + B(0.25));
+      });
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

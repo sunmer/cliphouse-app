@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+
+    /* Shell: the empty editor. It is the first and the last frame. */
+    .shell { position:absolute; inset:0; }
+    .pane { position:absolute; left:40px; right:40px; top:128px; bottom:40px; background:var(--theme-surface); }
+    .tab { position:absolute; left:40px; top:40px; width:480px; height:88px; background:var(--theme-surface); }
+    .edge { position:absolute; left:40px; top:128px; width:8px; bottom:40px; background:var(--theme-accent2); }
+    .dots { position:absolute; right:80px; top:74px; display:flex; gap:14px; }
+    .dots i { display:block; width:20px; height:20px; background:var(--theme-surface); }
+
+    /* Diff content */
+    .tabline { position:absolute; left:40px; top:40px; width:480px; height:6px; background:var(--theme-accent2); transform-origin:0 50%; }
+    .brand1 { position:absolute; left:80px; top:52px; width:420px; height:64px; font-size:40px; line-height:64px; white-space:nowrap; overflow:hidden; color:var(--theme-foreground); }
+    .col { position:absolute; left:80px; right:80px; top:168px; height:732px; display:flex; flex-direction:column; }
+    .headline { flex:1 1 0; min-height:0; width:100%; font-size:168px; line-height:.94; align-content:center; color:var(--theme-foreground); }
+    .hunkrow { flex:none; height:44px; margin-top:16px; display:flex; align-items:center; font-size:32px; white-space:nowrap; opacity:.7; color:var(--theme-foreground); }
+    .rows { flex:none; position:relative; --count:6; --f:40px; --row:calc(150px - var(--count) * 12px); height:calc(var(--count) * var(--row)); }
+    .row { position:relative; height:var(--row); display:flex; align-items:center; color:var(--theme-foreground); }
+    .ghost { position:absolute; left:-32px; right:-40px; top:3px; bottom:3px; display:block; background:var(--theme-foreground); opacity:.05; transform-origin:0 50%; }
+    .band { position:absolute; left:-32px; right:-40px; top:3px; bottom:3px; display:block; opacity:0; background:var(--theme-foreground); transform-origin:0 50%; }
+    .row[data-type="rem"] .band { background:var(--theme-accent); opacity:.16; }
+    .row[data-type="add"] .band { background:var(--theme-accent2); opacity:.16; }
+    .row[data-sel="1"] .band { background:var(--theme-accent2); }
+    .tick { position:absolute; left:-32px; top:3px; bottom:3px; width:12px; display:block; transform-origin:50% 50%; }
+    .row[data-type="rem"] .tick { background:var(--theme-accent); }
+    .row[data-type="add"] .tick { background:var(--theme-accent2); }
+    .row[data-type="ctx"] .tick { visibility:hidden; }
+    .num { position:relative; flex:none; width:44px; margin-right:8px; text-align:right; font-size:calc(var(--f) * .7); opacity:.55; }
+    .num + .num { margin-right:20px; }
+    .cell { position:relative; flex:1 1 0; min-width:0; height:var(--row); display:flex; align-items:center; overflow:hidden; white-space:nowrap; font-size:40px; line-height:1.2; }
+    .txt { display:block; flex:none; white-space:nowrap; }
+    .mark { position:relative; display:inline-block; width:1em; margin-right:.3em; text-align:center; font-weight:700; vertical-align:top; }
+    .row[data-type="rem"] .mark { color:var(--theme-accent); }
+    .row[data-type="add"] .mark { color:var(--theme-accent2); }
+    .cw { position:relative; display:inline-block; vertical-align:top; }
+    .code .wmask { padding:0 0 .08em; }
+    .strike { position:absolute; left:-.15em; right:-.15em; top:calc(50% - .06em); height:.12em; display:block; background:var(--theme-accent); transform-origin:0 50%; }
+    .row:not([data-type="rem"]) .strike { visibility:hidden; }
+    .caret { display:inline-block; width:.45em; height:1.05em; margin-left:.3em; vertical-align:-.2em; background:var(--theme-foreground); opacity:0; }
+    .row[data-ink="1"] .txt, .row[data-ink="1"] .mark, .row[data-ink="1"] .num { color:var(--theme-background); }
+    .row[data-ink="1"] .caret { background:var(--theme-background); }
+
+    .hair { position:absolute; left:80px; right:80px; top:916px; height:2px; background:var(--theme-foreground); opacity:.18; transform-origin:0 50%; }
+    .hairsel { position:absolute; left:80px; right:80px; top:910px; height:14px; background:var(--theme-accent2); transform:scaleX(0); transform-origin:0 50%; }
+    .ctrs { position:absolute; left:80px; top:932px; height:70px; display:flex; gap:28px; align-items:center; font-size:52px; font-weight:700; }
+    .cm { display:inline-block; overflow:hidden; height:64px; line-height:64px; }
+    .ctr { display:inline-block; }
+    .ctr-rem { color:var(--theme-accent); }
+    .ctr-add { color:var(--theme-accent2); }
+    .pips { position:absolute; right:80px; top:949px; height:36px; width:296px; }
+    .slot, .pip { position:absolute; top:0; left:calc(var(--i) * 52px); width:36px; height:36px; display:block; }
+    .slot { border:3px solid var(--theme-foreground); opacity:.3; }
+    .pip { background:var(--theme-foreground); }
+    .pip[data-type="ctx"] { opacity:.45; }
+    .pip[data-type="rem"] { background:var(--theme-accent); }
+    .pip[data-type="add"] { background:var(--theme-accent2); }
+
+    /* End screen: the kept line grown to fill the frame */
+    .s2 { background:var(--theme-accent2); color:var(--theme-background); clip-path:circle(0px at 50% 50%); }
+    .brand2 { position:absolute; left:80px; top:52px; width:640px; height:64px; font-size:40px; line-height:64px; white-space:nowrap; overflow:hidden; }
+    .netmark { position:absolute; left:80px; top:180px; width:300px; height:300px; }
+    .bar-h { position:absolute; left:0; top:118px; width:300px; height:64px; background:var(--theme-background); }
+    .bar-v { position:absolute; left:118px; top:0; width:64px; height:300px; background:var(--theme-background); }
+    .big { position:absolute; right:80px; top:180px; width:520px; height:300px; display:flex; flex-direction:column; align-items:flex-end; font-size:128px; font-weight:700; }
+    .big .cm { height:150px; line-height:150px; }
+    .slab { position:absolute; left:80px; right:80px; top:560px; height:440px; background:var(--theme-background); }
+    .cta { position:absolute; left:56px; right:56px; top:40px; bottom:40px; font-size:150px; line-height:.94; align-content:center; color:var(--theme-accent2); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="9.333" data-width="1080" data-height="1080">
+    <div class="shell">
+      <div class="pane"></div>
+      <div class="tab"></div>
+      <div class="edge"></div>
+      <div class="dots"><i></i><i></i><i></i></div>
+    </div>
+
+    <section id="codediff-diff" class="scene content" data-start="0" data-duration="9.333" data-track-index="0">
+      <div class="tabline"></div>
+      <div class="brand1 mono" data-fit-max="40" data-fit-min="26" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="col">
+        <h1 class="headline display fit" data-fit-max="168" data-fit-min="72" data-text-role="headline" data-beat-text="headline">Headline</h1>
+        <div class="hunkrow mono"><span class="hunk"></span></div>
+        <div class="rows mono" data-list>
+          <template data-list-row>
+            <div class="row" data-type="ctx" data-sel="0" data-ink="0">
+              <i class="ghost" data-list-part="ghost" data-list-group="scaffold" data-list-align="y"></i>
+              <i class="band" data-list-part="band" data-list-align="y"></i>
+              <i class="tick" data-list-part="tick" data-list-group="finale" data-list-align="y"></i>
+              <span class="num" data-list-part="old" data-list-group="scaffold" data-list-align="y"></span>
+              <span class="num" data-list-part="new" data-list-group="scaffold" data-list-align="y"></span>
+              <span class="cell" data-fit-max="44" data-fit-min="24"><span class="txt" data-list-text></span></span>
+            </div>
+          </template>
+        </div>
+      </div>
+      <div class="hair"></div>
+      <div class="hairsel"></div>
+      <div class="ctrs mono"><span class="cm"><span class="ctr ctr-rem"></span></span><span class="cm"><span class="ctr ctr-add"></span></span></div>
+      <div class="pips"></div>
+    </section>
+
+    <section id="codediff-end" class="scene s2" data-start="0" data-duration="9.333" data-track-index="1">
+      <div class="brand2 mono" data-fit-max="40" data-fit-min="26" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="netmark"><div class="bar-h"></div><div class="bar-v"></div></div>
+      <div class="big mono"><span class="cm"><span class="ctr big-rem"></span></span><span class="cm"><span class="ctr big-add"></span></span></div>
+      <div class="slab display">
+        <div class="cta fit" data-fit-max="150" data-fit-min="72" data-text-role="cta" data-beat-text="cta">CTA</div>
+      </div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const E = 'expo.out';
+      const PITCH = 52;
+      const fillWords = (el, text) => {
+        el.textContent = '';
+        text.split(/\s+/).filter(Boolean).forEach((word, i) => {
+          if (i) el.append(' ');
+          const mask = document.createElement('span');
+          mask.className = 'wmask';
+          const w = document.createElement('span');
+          w.className = 'w';
+          w.textContent = word;
+          mask.append(w);
+          el.append(mask);
+        });
+      };
+      const make = (tag, cls) => { const el = document.createElement(tag); el.className = cls; return el; };
+      const rise = (els, at, step, cap, dur) => els.forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 120}, {yPercent: 0, duration: B(dur), ease: E}, at + Math.min(i, cap) * B(step)));
+      const words = (el, at, step = 0.5, cap = 2, dur = 0.75) => rise(m.spans(el), at, step, cap, dur);
+      const abs = (el) => { let x = 0, y = 0; for (let e = el; e && e.id !== 'root'; e = e.offsetParent) { x += e.offsetLeft; y += e.offsetTop; } return {x, y}; };
+      // Find a row's part by name with a fixed selector, then match the attribute in script.
+      const partOf = (row, name) => Array.from(row.querySelectorAll('[data-list-part]')).find((el) => el.getAttribute('data-list-part') === name) || null;
+
+      // Read each line's marker from its text; leading spaces never matter.
+      const items = m.items.map((it) => {
+        const raw = it.text.trim();
+        const c = raw.charAt(0);
+        const type = c === '-' ? 'rem' : c === '+' ? 'add' : 'ctx';
+        const rest = type === 'ctx' ? raw : raw.slice(1);
+        return {...it, beat: m.plan.items[it.index].start, type, sign: type === 'ctx' ? '' : c, src: rest.trim()};
+      });
+      let o = 0, nn = 0;
+      items.forEach((it) => {
+        if (it.type !== 'add') o++;
+        if (it.type !== 'rem') nn++;
+        it.old = it.type === 'add' ? '' : String(o);
+        it.neu = it.type === 'rem' ? '' : String(nn);
+      });
+      const rems = items.filter((x) => x.type === 'rem');
+      const adds = items.filter((x) => x.type === 'add');
+      const remTxt = '\u2212' + rems.length;
+      const addTxt = '+' + adds.length;
+
+      // Build each row: marker, masked code with its strike, and the caret, all in the list text.
+      items.forEach((it) => {
+        const row = m.row(it.index);
+        row.dataset.type = it.type;
+        it.row = row;
+        it.ghost = partOf(row, 'ghost'); it.band = partOf(row, 'band'); it.tick = partOf(row, 'tick');
+        it.oldEl = partOf(row, 'old'); it.newEl = partOf(row, 'new');
+        it.oldEl.textContent = it.old;
+        it.newEl.textContent = it.neu;
+        it.cell = row.querySelector('.cell');
+        const txt = row.querySelector('[data-list-text]');
+        txt.textContent = '';
+        const mark = make('span', 'mark');
+        mark.textContent = it.sign;
+        const cw = make('span', 'cw');
+        const code = make('span', 'code');
+        fillWords(code, it.src);
+        const strike = make('i', 'strike');
+        cw.append(code, strike);
+        const caret = make('i', 'caret');
+        [mark, strike, caret].forEach((el) => el.setAttribute('data-list-align', 'y'));
+        m.tag(mark, 'mark', it.index);
+        m.tag(strike, 'strike', it.index);
+        strike.setAttribute('data-list-group', 'finale');
+        m.tag(caret, 'caret', it.index);
+        txt.append(mark, cw, caret);
+        it.markEl = mark; it.code = code; it.strike = strike; it.caret = caret;
+      });
+
+      // Scale the code to the row height, fit the longest line, and use one size for every row.
+      const rowsHost = q('.rows');
+      const rowPx = items[0].row.offsetHeight || 100;
+      const fmax = Math.round(Math.min(56, rowPx * 0.46));
+      items.forEach((it) => { it.cell.dataset.fitMax = String(fmax); it.cell.dataset.fitMin = '24'; });
+      q('.headline').dataset.fitMax = items.length <= 2 ? '184' : '168';
+      window.cliphouseFitText?.();
+      const f = Math.min(...items.map((it) => parseFloat(it.cell.style.fontSize) || fmax));
+      items.forEach((it) => { it.cell.style.fontSize = f + 'px'; });
+      rowsHost.style.setProperty('--f', f + 'px');
+
+      const hunk = q('.hunk');
+      fillWords(hunk, '@@ -' + (o ? 1 : 0) + ',' + o + ' +' + (nn ? 1 : 0) + ',' + nn + ' @@');
+      q('.ctr-rem').textContent = remTxt;
+      q('.ctr-add').textContent = addTxt;
+      q('.big-rem').textContent = remTxt;
+      q('.big-add').textContent = addTxt;
+      const grew = adds.length >= rems.length;
+      q('.bar-v').style.visibility = grew ? 'visible' : 'hidden';
+
+      const pipHost = q('.pips');
+      pipHost.style.width = (items.length * PITCH - 16) + 'px';
+      const slots = m.parts(pipHost, 'slot', () => { const el = make('i', 'slot'); el.dataset.listGroup = 'scaffold'; return el; });
+      const pips = m.parts(pipHost, 'pip', (item) => { const el = make('i', 'pip'); el.dataset.type = items[item.index].type; return el; });
+
+      // Beat 0: the active tab lights and the brand rises inside it.
+      tl.fromTo('.tabline', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: E}, t('brand'));
+      words(q('.brand1'), t('brand'), 0.25, 1, 0.5);
+      // Beat 0.5: the headline frames the change, word by word on eighths.
+      words(q('.headline'), t('headline'), 0.5, 2, 0.75);
+      // Beat 2: the old and new line-number gutters wipe up, row by row.
+      items.forEach((it, i) => [it.oldEl, it.newEl].forEach((el) =>
+        tl.fromTo(el, {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: E}, t('gutter') + i * B(0.0625))));
+      // Beat 3: empty editor lines, the diffstat rule, and empty pip slots.
+      items.forEach((it, i) => tl.fromTo(it.ghost, {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: E}, t('stat') + i * B(0.0625)));
+      tl.fromTo('.hair', {scaleX: 0}, {scaleX: 1, duration: B(1), ease: E}, t('stat'));
+      slots.forEach((el, i) => tl.fromTo(el, {scale: 0}, {scale: 1, duration: B(0.5), ease: E}, t('stat') + i * B(0.0625)));
+      // Beat 4: the hunk header.
+      words(hunk, t('hunk'), 0.125, 3, 0.5);
+
+      // Each line prints on its start; its marker and pip land on its accent.
+      items.forEach((it, i) => {
+        tl.fromTo(it.band, {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: E}, it.start);
+        words(it.code, it.start, 0.0625, 3, 0.375);
+        tl.fromTo(it.markEl, {scale: 0}, {scale: 1, duration: B(0.375), ease: 'back.out(1.2)'}, it.accent);
+        tl.fromTo(pips[i], {scale: 0}, {scale: 1, duration: B(0.5), ease: E}, it.accent);
+        tl.set(it.caret, {opacity: 1}, it.start + B(0.5625));
+        const next = items[i + 1];
+        if (next) tl.set(it.caret, {opacity: 0}, next.start);
+      });
+
+      // The survivor: the last added line, else the last context line, else the diffstat bar.
+      const last = items[items.length - 1];
+      const hero = [...adds].pop() || [...items].reverse().find((x) => x.type === 'ctx') || null;
+
+      // After the last line the caret relands on every whole beat, then hops to the survivor on beat 13.
+      const first = Math.floor(last.beat) + 1;
+      let car = last.caret;
+      if (first < 15) tl.set(car, {opacity: 0}, B(first - 0.25));
+      for (let b = first; b < 15; b++) {
+        if (b === 13 && hero && hero !== last) { tl.set(car, {opacity: 0}, B(13)); car = hero.caret; }
+        tl.set(car, {opacity: 1}, B(b));
+        tl.set(car, {opacity: 0}, B(b + 0.5));
+      }
+
+      // Beat 10: removals strike through; red ticks draw from their centers.
+      rems.forEach((it, k) => {
+        const at = t('strike') + Math.min(k, 5) * B(0.125);
+        tl.fromTo(it.strike, {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: E}, at);
+        tl.fromTo(it.tick, {scaleY: 0}, {scaleY: 1, duration: B(0.5), ease: E}, at);
+      });
+      tl.fromTo('.ctr-rem', {yPercent: 120}, {yPercent: 0, duration: B(0.5), ease: E}, t('strike'));
+      // Beat 11: additions settle in.
+      adds.forEach((it, k) => {
+        const at = t('settle') + Math.min(k, 5) * B(0.125);
+        tl.fromTo(it.tick, {scaleY: 0}, {scaleY: 1, duration: B(0.5), ease: E}, at);
+        tl.to(it.band, {opacity: 0.34, duration: B(0.5), ease: E}, at);
+      });
+      tl.fromTo('.ctr-add', {yPercent: 120}, {yPercent: 0, duration: B(0.5), ease: E}, t('settle'));
+      // Beat 12: removed rows recede (band and line number); their pips and slots drop out.
+      rems.forEach((it) => {
+        tl.to(it.band, {opacity: 0.05, duration: B(0.5), ease: E}, t('simplify'));
+        tl.to(it.oldEl, {opacity: 0.2, duration: B(0.5), ease: E}, t('simplify'));
+        tl.to([pips[it.index], slots[it.index]], {scaleY: 0, duration: B(0.5), ease: 'power3.out'}, t('simplify'));
+      });
+      // Beat 13: the kept pips close ranks.
+      const kept = items.filter((x) => x.type !== 'rem');
+      kept.forEach((it, j) => {
+        const dx = (items.length - kept.length + j - it.index) * PITCH;
+        if (dx) tl.to([pips[it.index], slots[it.index]], {x: dx, duration: B(0.75), ease: E}, t('compact'));
+      });
+
+      // Beat 14: the survivor wipes to solid green; its ink flips once the bar is opaque.
+      let cx, cy;
+      if (hero) {
+        tl.set(hero.row, {attr: {'data-sel': '1'}}, t('select'));
+        tl.set(hero.band, {opacity: 1}, t('select'));
+        tl.fromTo(hero.band, {scaleX: 0}, {scaleX: 1, duration: B(0.375), ease: E, immediateRender: false}, t('select'));
+        tl.set(hero.row, {attr: {'data-ink': '1'}}, t('select') + B(0.125));
+        const p = abs(hero.band);
+        cx = Math.round(p.x + hero.band.offsetWidth / 2);
+        cy = Math.round(p.y + hero.band.offsetHeight / 2);
+      } else {
+        const bar = q('.hairsel');
+        tl.fromTo(bar, {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: E}, t('select'));
+        const p = abs(bar);
+        cx = Math.round(p.x + bar.offsetWidth / 2);
+        cy = Math.round(p.y + bar.offsetHeight / 2);
+      }
+
+      // Beat 15: green floods from the survivor to the farthest corner.
+      const R = Math.ceil(Math.max(Math.hypot(cx, cy), Math.hypot(1080 - cx, cy), Math.hypot(cx, 1080 - cy), Math.hypot(1080 - cx, 1080 - cy))) + 4;
+      const at0 = ' at ' + cx + 'px ' + cy + 'px)';
+      tl.fromTo('.s2', {clipPath: 'circle(0px' + at0}, {clipPath: 'circle(' + R + 'px' + at0, duration: B(0.75), ease: 'power3.out'}, t('flood'));
+      tl.set('.content', {visibility: 'hidden'}, B(15.75));
+      words(q('.brand2'), B(15.75), 0.25, 1, 0.375);
+
+      // Beat 16: the CTA slab stamps.
+      tl.set('.s2', {clipPath: 'inset(0px 0px 0px 0px)'}, t('ctaStamp'));
+      tl.fromTo('.slab', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.375), ease: E}, t('ctaStamp'));
+      tl.fromTo('.slab', {scale: 1.06, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: E}, t('ctaStamp'));
+      words(q('.cta'), t('ctaStamp'), 0.125, 2, 0.375);
+      // Beat 17: the net mark builds: a plus when the diff grew, a minus when it shrank.
+      tl.fromTo('.bar-h', {scaleX: 0}, {scaleX: 1, duration: B(0.625), ease: E}, t('plus'));
+      if (grew) tl.fromTo('.bar-v', {scaleY: 0}, {scaleY: 1, duration: B(0.625), ease: E}, t('plus') + B(0.125));
+      // Beat 18: the line counts rise.
+      tl.fromTo('.big-rem', {yPercent: 120}, {yPercent: 0, duration: B(0.5), ease: E}, t('counts'));
+      tl.fromTo('.big-add', {yPercent: 120}, {yPercent: 0, duration: B(0.5), ease: E}, t('counts') + B(0.25));
+
+      // Beat 19: green folds back into the gutter rail, which is the first frame.
+      tl.fromTo('.s2', {clipPath: 'inset(0px 0px 0px 0px)'}, {clipPath: 'inset(128px 1032px 40px 40px)', duration: B(0.75), ease: 'power3.out', immediateRender: false}, t('fold'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

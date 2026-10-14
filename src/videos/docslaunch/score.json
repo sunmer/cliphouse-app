@@ -1,0 +1,67 @@
+{
+  "beatFrames": 15,
+  "scenes": [
+    {
+      "type": "list",
+      "bars": 2,
+      "focusBeat": 6,
+      "roles": ["brand", "list"],
+      "energy": 1
+    },
+    {
+      "type": "announcement",
+      "bars": 2,
+      "focusBeat": 12,
+      "roles": ["brand", "headline", "subhead"],
+      "energy": 2
+    },
+    {
+      "type": "end-screen",
+      "bars": 1,
+      "focusBeat": 18,
+      "roles": ["brand", "headline", "subhead", "cta"],
+      "energy": 3
+    }
+  ],
+  "cues": [
+    {"id": "chrome", "beat": 0, "sound": "impact", "velocity": 0.7},
+    {"id": "brand", "beat": 1, "sound": "blip", "role": "brand", "velocity": 0.6},
+    {"id": "codeBlock", "beat": 2, "sound": "tom", "velocity": 0.5},
+    {"id": "rail", "beat": 3, "sound": "snap", "velocity": 0.5},
+    {"id": "tokens", "beat": 4, "sound": "blip", "velocity": 0.5},
+    {"id": "split", "beat": 5, "sound": "pluck", "velocity": 0.5},
+    {"id": "runButton", "beat": 6, "sound": "snap", "velocity": 0.6},
+    {"id": "load", "beat": 7, "sound": "pluck", "velocity": 0.5},
+    {"id": "headline", "beat": 8, "sound": "lead", "role": "headline", "velocity": 0.7},
+    {"id": "anchor", "beat": 9, "sound": "tom", "velocity": 0.6},
+    {"id": "subhead", "beat": 10, "sound": "pluck", "role": "subhead", "velocity": 0.6},
+    {"id": "run", "beat": 11, "sound": "snap", "velocity": 0.7},
+    {"id": "out1", "beat": 12, "sound": "blip", "velocity": 0.5},
+    {"id": "out2", "beat": 13, "sound": "blip", "velocity": 0.6},
+    {"id": "done", "beat": 14, "sound": "clap", "velocity": 0.6},
+    {"id": "prime", "beat": 15, "sound": "tom", "velocity": 0.6},
+    {"id": "ctaStamp", "beat": 16, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "ticks", "beat": 17, "sound": "bell", "velocity": 0.6},
+    {"id": "rule", "beat": 18, "sound": "pluck", "velocity": 0.6},
+    {"id": "loopFlood", "beat": 19, "sound": "zap", "velocity": 0.7}
+  ],
+  "list": {
+    "role": "list",
+    "label": "Sections",
+    "scene": 0,
+    "min": 1,
+    "max": 4,
+    "itemMax": 22,
+    "schedules": {
+      "1": [3],
+      "2": [2, 4],
+      "3": [2, 3, 4],
+      "4": [2, 3, 4, 5]
+    },
+    "accentOffset": 0.5,
+    "voice": "marimba"
+  },
+  "risers": [
+    {"beat": 13, "beats": 3}
+  ]
+}

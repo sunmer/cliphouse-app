@@ -1,0 +1,47 @@
+{
+  "beatFrames": 14,
+  "scenes": [
+    {
+      "type": "title-reveal",
+      "bars": 2,
+      "focusBeat": 6,
+      "roles": ["brand", "headline", "date"],
+      "energy": 1
+    },
+    {
+      "type": "stat-cards",
+      "bars": 1,
+      "focusBeat": 10,
+      "roles": ["brand", "headline", "date", "stat"],
+      "energy": 2
+    },
+    {
+      "type": "end-screen",
+      "bars": 2,
+      "focusBeat": 17,
+      "roles": ["brand", "headline", "stat", "subhead", "date", "cta"],
+      "energy": 3
+    }
+  ],
+  "cues": [
+    {"id": "boot", "beat": 0, "sound": "tom", "velocity": 0.5},
+    {"id": "brand", "beat": 1, "sound": "blip", "role": "brand", "velocity": 0.6},
+    {"id": "headline", "beat": 2, "sound": "pluck", "role": "headline", "velocity": 0.75},
+    {"id": "date", "beat": 4, "sound": "blip", "role": "date", "velocity": 0.6},
+    {"id": "build", "beat": 5, "sound": "snap", "velocity": 0.5},
+    {"id": "slab", "beat": 8, "sound": "impact", "velocity": 0.8},
+    {"id": "stat", "beat": 9, "sound": "stab", "role": "stat", "velocity": 0.9},
+    {"id": "strip", "beat": 10, "sound": "snap", "velocity": 0.6},
+    {"id": "brackets", "beat": 11, "sound": "clap", "velocity": 0.6},
+    {"id": "flood", "beat": 12, "sound": "zap", "velocity": 0.8},
+    {"id": "posterHeadline", "beat": 12.5, "sound": "lead", "role": "headline", "velocity": 0.7},
+    {"id": "climb", "beat": 13, "sound": "blip", "role": "brand", "velocity": 0.6},
+    {"id": "subhead", "beat": 14, "sound": "pluck", "role": "subhead", "velocity": 0.7},
+    {"id": "finaleDate", "beat": 15, "sound": "blip", "role": "date", "velocity": 0.6},
+    {"id": "ctaStamp", "beat": 16, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "clear", "beat": 19, "sound": "zap", "velocity": 0.7}
+  ],
+  "risers": [
+    {"beat": 10, "beats": 2}
+  ]
+}

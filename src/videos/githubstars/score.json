@@ -1,0 +1,41 @@
+{
+  "beatFrames": 15,
+  "scenes": [
+    {
+      "type": "counter",
+      "bars": 1,
+      "focusBeat": 3.5,
+      "roles": ["brand", "stat"],
+      "energy": 1
+    },
+    {
+      "type": "announcement",
+      "bars": 2,
+      "focusBeat": 9,
+      "roles": ["brand", "stat", "headline", "subhead"],
+      "energy": 2
+    },
+    {
+      "type": "end-screen",
+      "bars": 1,
+      "focusBeat": 14,
+      "roles": ["brand", "stat", "cta"],
+      "energy": 3
+    }
+  ],
+  "cues": [
+    {"id": "brand", "beat": 0, "sound": "blip", "role": "brand", "velocity": 0.6},
+    {"id": "star", "beat": 1, "sound": "tom", "velocity": 0.6},
+    {"id": "stat", "beat": 3, "sound": "stab", "role": "stat", "velocity": 0.9},
+    {"id": "headline", "beat": 4, "sound": "pluck", "role": "headline", "velocity": 0.7},
+    {"id": "bubble", "beat": 7, "sound": "snap", "velocity": 0.6},
+    {"id": "subhead", "beat": 7.5, "sound": "keys", "role": "subhead", "velocity": 0.6},
+    {"id": "graphFull", "beat": 12, "sound": "crash", "velocity": 0.9},
+    {"id": "cta", "beat": 13, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "starred", "beat": 14, "sound": "bell", "velocity": 0.7},
+    {"id": "loop", "beat": 15, "sound": "zap", "velocity": 0.6}
+  ],
+  "risers": [
+    {"beat": 9, "beats": 3}
+  ]
+}

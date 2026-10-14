@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+
+    /* Header bar: always present, the loop frame is an empty editor */
+    .hbg { position:absolute; left:96px; top:80px; width:1728px; height:112px; background:var(--theme-surface); }
+    .caret0 { position:absolute; left:96px; top:80px; width:24px; height:112px; background:var(--theme-accent); }
+    .brand { position:absolute; left:152px; top:80px; width:860px; height:112px; line-height:112px; font-size:60px; font-weight:700; white-space:nowrap; overflow:hidden; color:var(--theme-foreground); }
+    .date { position:absolute; left:1032px; top:80px; width:760px; height:112px; line-height:112px; font-size:52px; font-weight:700; white-space:nowrap; overflow:hidden; text-align:right; color:var(--theme-accent); }
+
+    /* Editor pane */
+    .pane { position:absolute; left:96px; top:224px; width:1728px; height:776px; background:var(--theme-surface); }
+    .divider { position:absolute; left:0; top:120px; width:1728px; height:2px; background:color-mix(in srgb, var(--theme-foreground) 16%, transparent); transform-origin:0 50%; }
+    .dots { position:absolute; left:40px; top:49px; display:flex; gap:16px; }
+    .dots i { display:block; width:22px; height:22px; border-radius:50%; background:color-mix(in srgb, var(--theme-foreground) 30%, transparent); }
+    .tabline { position:absolute; left:168px; top:114px; width:540px; height:6px; background:var(--theme-accent); transform-origin:0 50%; }
+    .ci { position:absolute; left:860px; top:42px; width:800px; height:36px; background:color-mix(in srgb, var(--theme-foreground) 12%, transparent); transform-origin:100% 50%; transform:scaleX(0); }
+    .cifill { position:absolute; left:0; top:0; width:800px; height:36px; background:var(--theme-accent2); transform-origin:0 50%; transform:scaleX(0); }
+    .tick { position:absolute; top:0; width:8px; height:36px; margin-left:-4px; background:var(--theme-surface); }
+    .gutter { position:absolute; left:200px; top:122px; width:3px; height:654px; background:color-mix(in srgb, var(--theme-foreground) 14%, transparent); transform-origin:50% 0; }
+    .run { position:absolute; left:0; top:764px; width:1728px; height:12px; background:var(--theme-accent2); transform-origin:0 50%; }
+    .bigcaret { position:absolute; left:72px; top:348px; width:102px; height:154px; background:var(--theme-accent); transform-origin:50% 100%; }
+
+    /* Code rows: reflow by count */
+    .list { position:absolute; left:0; top:150px; width:1728px; height:588px; display:flex; flex-direction:column; justify-content:center; }
+    .row { position:relative; flex:none; width:1728px; height:min(196px, calc(588px / var(--count, 4))); }
+    .hl { position:absolute; left:0; top:8px; bottom:8px; width:1728px; background:color-mix(in srgb, var(--theme-accent) 10%, transparent); transform-origin:0 50%; }
+    .hl:before { content:""; position:absolute; left:0; top:0; bottom:0; width:8px; background:var(--theme-accent); }
+    .num { position:absolute; left:0; top:50%; width:164px; font-size:min(112px, calc(240px / var(--count, 4))); line-height:1.2; height:1.2em; margin-top:-.6em; overflow:hidden; text-align:right; color:color-mix(in srgb, var(--theme-foreground) 42%, transparent); visibility:hidden; }
+    .numt { display:inline-block; }
+    .code { position:absolute; left:240px; top:50%; width:1400px; height:128px; margin-top:-64px; line-height:128px; font-size:68px; font-weight:500; white-space:nowrap; overflow:hidden; color:var(--theme-foreground); }
+    .typed { position:relative; display:inline-block; vertical-align:top; }
+    .slot { position:absolute; left:0; top:50%; width:100%; height:.62em; margin-top:-.31em; background:color-mix(in srgb, var(--theme-foreground) 9%, transparent); transform-origin:0 50%; }
+    .txt { position:relative; display:inline-block; vertical-align:top; }
+    /* The caret is one monospace cell wide (.6em), so each xPercent step of 100 moves it one character. */
+    .caret { position:absolute; left:0; top:50%; width:.6em; height:.9em; margin-top:-.45em; background:var(--theme-accent); visibility:hidden; }
+    .pip { position:absolute; left:1660px; top:50%; width:24px; height:24px; margin-top:-12px; background:var(--theme-accent2); }
+    .str { color:var(--theme-accent2); }
+    .kw, .numv { color:var(--theme-accent); }
+
+    /* Headline: hero, then file tab, then hero */
+    .headline { position:absolute; left:72px; top:184px; width:1584px; height:360px; font-size:170px; line-height:1.02; font-weight:800; color:var(--theme-foreground); align-content:center; }
+    .rule { position:absolute; left:72px; top:528px; width:320px; height:12px; background:var(--theme-accent2); transform-origin:0 50%; }
+
+    /* Command bar */
+    .cmd { position:absolute; left:72px; top:592px; width:1584px; height:136px; background:var(--theme-foreground); }
+    .cfill { position:absolute; left:0; top:0; width:1584px; height:136px; background:var(--theme-accent); }
+    .chev { position:absolute; left:46px; top:50%; width:36px; height:36px; margin-top:-18px; border-right:10px solid var(--theme-background); border-top:10px solid var(--theme-background); transform:rotate(45deg); }
+    .cta-fit { position:absolute; left:136px; top:0; width:1340px; height:136px; line-height:136px; font-size:88px; font-weight:800; white-space:nowrap; overflow:hidden; color:var(--theme-background); }
+    .ctyped { position:relative; display:inline-block; vertical-align:top; }
+    .cta-t { display:inline-block; vertical-align:top; }
+    .cta-t .wmask { padding:0; margin:0; }
+    .ccaret { position:absolute; left:0; top:50%; width:.6em; height:.9em; margin-top:-.45em; background:var(--theme-background); visibility:hidden; }
+    .okbox { position:absolute; left:1500px; top:48px; width:40px; height:40px; background:var(--theme-background); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+    <section id="apirelease-main" class="scene" data-start="0" data-duration="10" data-track-index="0">
+      <div class="hbg"></div>
+      <div class="caret0"></div>
+      <div class="brand mono" data-fit-max="60" data-fit-min="34" data-text-role="brand" data-beat-text="brand">Parcel API</div>
+      <div class="date mono" data-fit-max="52" data-fit-min="30" data-text-role="date" data-beat-text="date">v2.0 / Oct 14</div>
+
+      <div class="pane">
+        <div class="divider"></div>
+        <div class="dots"><i></i><i></i><i></i></div>
+        <div class="gutter"></div>
+        <div class="tabline"></div>
+        <div class="ci"><div class="cifill"></div><i class="tick" style="left:25%"></i><i class="tick" style="left:50%"></i><i class="tick" style="left:75%"></i></div>
+        <div class="list" data-list>
+          <template data-list-row>
+            <div class="row">
+              <div class="hl" data-list-part="hl"></div>
+              <div class="num mono" data-list-part="num" data-list-align="y"><span class="numt" data-list-number>01</span></div>
+              <div class="code mono" data-fit-max="68" data-fit-min="40"><span class="typed"><i class="slot" data-list-part="slot" data-list-group="scaffold" data-list-align="y"></i><span class="txt" data-list-text></span><i class="caret" data-list-part="caret"></i></span></div>
+              <i class="pip" data-list-part="pip" data-list-align="y"></i>
+            </div>
+          </template>
+        </div>
+        <div class="rule"></div>
+        <div class="bigcaret"></div>
+        <h1 class="headline mono fit" data-fit-max="170" data-fit-min="96" data-text-role="headline" data-beat-text="headline">Webhooks v2</h1>
+        <div class="cmd">
+          <div class="cfill"></div>
+          <i class="chev"></i>
+          <div class="cta-fit mono" data-fit-max="88" data-fit-min="48"><span class="ctyped"><span class="cta-t" data-text-role="cta" data-beat-text="cta">Read the API docs</span><i class="ccaret"></i></span></div>
+          <i class="okbox"></i>
+        </div>
+        <div class="run"></div>
+      </div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const X = {immediateRender: false};
+      const rise = (el, at, cap = 3) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, at + Math.min(i, cap) * B(0.25)));
+      const drop = (el, at) => m.spans(el).forEach((w) =>
+        tl.fromTo(w, {yPercent: 0}, {yPercent: 125, duration: B(0.5), ease: 'power3.in', ...X}, at));
+      const esc = (s) => s.replace(/[&<>]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[c]));
+      const paint = (s) => s.split(/("[^"]*"|\b(?:GET|POST|PUT|PATCH|DELETE)\b|\b\d+(?:\.\d+)?\b)/).map((tok, i) => {
+        if (i % 2 === 0) return esc(tok);
+        const k = tok[0] === '"' ? 'str' : /\d/.test(tok[0]) ? 'numv' : 'kw';
+        return '<span class="' + k + '">' + esc(tok) + '</span>';
+      }).join('');
+
+      const head = q('.headline');
+      const rule = q('.rule');
+      const tabline = q('.tabline');
+      const gutter = q('.gutter');
+      const list = q('.list');
+      const cmd = q('.cmd');
+      const ctaT = q('.cta-t');
+      const ccaret = q('.ccaret');
+      const ci = q('.ci');
+      const cifill = q('.cifill');
+      const divider = q('.divider');
+      const bigcaret = q('.bigcaret');
+      const DOCK = 0.34;
+
+      // Code type scales with the count: fewer lines, bigger code. Long lines still fit down to 40 px.
+      const FMAX = [68, 100, 88, 76, 68][m.items.length] || 68;
+      for (const c of document.querySelectorAll('[data-list] .code')) c.dataset.fitMax = String(FMAX);
+      m.items.forEach((it) => {
+        const row = m.row(it.index);
+        if (row) row.querySelector('.txt').innerHTML = paint(it.text);
+      });
+      if (window.cliphouseFitText) window.cliphouseFitText();
+
+      // Size the tab underline to the docked headline before any tween touches it.
+      const range = document.createRange();
+      range.selectNodeContents(head);
+      const hw = range.getBoundingClientRect().width || 1584;
+      tabline.style.width = Math.round(Math.min(1584, hw) * DOCK) + 'px';
+
+      // Beat 0: the tab-bar divider draws across the empty editor. Beat 0.5: window dots pop.
+      tl.fromTo(divider, {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('bar'));
+      tl.fromTo('.dots i', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out', stagger: B(0.125)}, t('dots'));
+
+      // Beats 1-1.5: brand and date rise in the header.
+      rise(q('.brand'), t('brand'));
+      rise(q('.date'), t('date'));
+
+      // Beat 2: the waiting caret collapses and the headline rises in its place. Beat 3: the rule draws.
+      tl.fromTo(bigcaret, {scaleY: 1}, {scaleY: 0, duration: B(0.5), ease: 'power3.in'}, t('headline'));
+      rise(head, t('headline'));
+      tl.fromTo(rule, {scaleX: 0, y: 108, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('rule'));
+
+      // Beat 4: the headline docks into the file tab; the rule retracts. Beat 4.5: tab underline.
+      tl.fromTo(head, {x: 0, y: 60, scale: 1, transformOrigin: '0% 50%'}, {x: 96, y: -304, scale: DOCK, duration: B(1), ease: 'expo.out'}, t('dock'));
+      tl.fromTo(rule, {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('dock'));
+      tl.fromTo(tabline, {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('tabLine'));
+
+      // Beat 5: gutter drops, the CI track draws, and one skeleton placeholder per line draws in.
+      tl.fromTo(gutter, {scaleY: 0, transformOrigin: '50% 0%'}, {scaleY: 1, duration: B(0.75), ease: 'expo.out'}, t('gutter'));
+      tl.fromTo(ci, {scaleX: 0, transformOrigin: '100% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('gutter'));
+      m.items.forEach((it, i) => {
+        const row = m.row(it.index);
+        if (!row) return;
+        tl.fromTo(row.querySelector('.slot'), {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('gutter') + i * B(0.125));
+      });
+
+      // Code lines: each types over its placeholder. The caret is one mono cell wide, so it steps
+      // one cell (xPercent 100) per character as a transform, in lockstep with the clip.
+      m.items.forEach((it, i) => {
+        const row = m.row(it.index);
+        if (!row) return;
+        const txt = row.querySelector('.txt');
+        const slot = row.querySelector('.slot');
+        const caret = row.querySelector('.caret');
+        const hl = row.querySelector('.hl');
+        const pip = row.querySelector('.pip');
+        const numBox = row.querySelector('.num');
+        const num = row.querySelector('.numt');
+        const len = Math.max(1, it.text.length);
+        const steps = 'steps(' + len + ')';
+        const dur = it.accent - it.start;
+        tl.set(numBox, {visibility: 'visible'}, it.start);
+        tl.fromTo(num, {yPercent: 110}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, it.start);
+        tl.fromTo(hl, {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, it.start);
+        tl.fromTo(txt, {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: dur, ease: steps}, it.start);
+        tl.fromTo(slot, {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 100%)', duration: dur, ease: steps}, it.start);
+        tl.fromTo(caret, {xPercent: 0}, {xPercent: 100 * len, duration: dur, ease: steps}, it.start);
+        tl.set(caret, {visibility: 'visible'}, it.start);
+        tl.fromTo(pip, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, it.accent);
+        const next = m.items[i + 1];
+        const leave = next ? next.start : t('status');
+        tl.set(caret, {visibility: 'hidden'}, leave);
+        tl.fromTo(hl, {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.5), ease: 'expo.out', ...X}, leave);
+      });
+
+      // Beats 8-11: the CI meter steps through lint, build, run, pass.
+      [['lint', 0.25], ['build', 0.5], ['run', 0.75], ['status', 1]].reduce((prev, [id, v], i) => {
+        tl.fromTo(cifill, {scaleX: prev, transformOrigin: '0% 50%'}, {scaleX: v, duration: B(0.75), ease: 'expo.out', ...(i ? X : {})}, t(id));
+        return v;
+      }, 0);
+
+      // Beat 10: the run bar sweeps the pane floor.
+      tl.fromTo('.run', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('run'));
+
+      // Beat 12: the code wipes up, the headline grows back to hero, the command bar rises.
+      tl.fromTo(list, {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 100% 0%)', duration: B(0.5), ease: 'expo.out'}, t('undock'));
+      tl.fromTo(gutter, {scaleY: 1, transformOrigin: '50% 0%'}, {scaleY: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('undock'));
+      tl.fromTo(tabline, {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('undock'));
+      tl.fromTo(head, {x: 96, y: -304, scale: DOCK}, {x: 0, y: -48, scale: 1, duration: B(1), ease: 'expo.out', ...X}, t('undock') + B(0.25));
+      tl.fromTo(cmd, {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.75), ease: 'expo.out'}, t('undock') + B(0.5));
+
+      // Beat 13: the command types. Word masks join words with single spaces, so count that string.
+      const ctaLen = Math.max(1, m.text('cta').trim().split(/\s+/).join(' ').length);
+      const ctaSteps = 'steps(' + ctaLen + ')';
+      tl.fromTo(ctaT, {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(1), ease: ctaSteps}, t('cta'));
+      tl.fromTo(ccaret, {xPercent: 0}, {xPercent: 100 * ctaLen, duration: B(1), ease: ctaSteps}, t('cta'));
+      tl.set(ccaret, {visibility: 'visible'}, t('cta'));
+
+      // Beat 14: stamp. The bar floods accent from the prompt and punches.
+      tl.fromTo('.cfill', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.6), ease: 'expo.out'}, t('stamp'));
+      tl.fromTo(cmd, {scale: 1.05, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.75), ease: 'expo.out', ...X}, t('stamp'));
+
+      // Beats 15-17: the rule returns, the done block pops, the caret blinks on half beats.
+      tl.fromTo(rule, {scaleX: 0, y: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out', ...X}, t('underline'));
+      tl.fromTo('.okbox', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('ok'));
+      [14.5, 15, 15.5, 16, 16.5, 17, 17.5, 18].forEach((b, i) =>
+        tl.set(ccaret, {visibility: i % 2 ? 'visible' : 'hidden'}, B(b)));
+
+      // Beat 18: clear. Headline drops, command backspaces, marks retract.
+      drop(head, t('clear'));
+      tl.fromTo(ctaT, {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 100% 0% 0%)', duration: B(0.5), ease: ctaSteps, ...X}, t('clear'));
+      tl.fromTo(ccaret, {xPercent: 100 * ctaLen}, {xPercent: 0, duration: B(0.5), ease: ctaSteps, ...X}, t('clear'));
+      tl.set(ccaret, {visibility: 'hidden'}, t('clear') + B(0.5));
+      tl.fromTo(rule, {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('clear'));
+      tl.fromTo('.okbox', {scale: 1}, {scale: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('clear'));
+      tl.fromTo(ci, {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('clear'));
+      tl.fromTo('.run', {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('clear'));
+
+      // Beat 18.5: brand and date drop, the empty command bar collapses into its prompt.
+      drop(q('.brand'), t('clear') + B(0.5));
+      drop(q('.date'), t('clear') + B(0.5));
+      tl.fromTo(cmd, {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 100% 0% 0%)', duration: B(0.5), ease: 'expo.out', ...X}, t('clear') + B(0.5));
+
+      // Beat 19: divider and dots retract, the waiting caret grows back, matching frame 0.
+      tl.fromTo(divider, {scaleX: 1, transformOrigin: '0% 50%'}, {scaleX: 0, duration: B(0.75), ease: 'expo.out', ...X}, t('close'));
+      tl.fromTo('.dots i', {scale: 1}, {scale: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('close'));
+      tl.fromTo(bigcaret, {scaleY: 0}, {scaleY: 1, duration: B(0.5), ease: 'expo.out', ...X}, t('close'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

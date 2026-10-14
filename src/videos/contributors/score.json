@@ -1,0 +1,45 @@
+{
+  "beatFrames": 15,
+  "scenes": [
+    {"type": "title-reveal", "bars": 1, "focusBeat": 3, "roles": ["brand", "headline"], "energy": 1},
+    {"type": "list", "bars": 2, "focusBeat": 10, "roles": ["headline", "list"], "energy": 2},
+    {"type": "end-screen", "bars": 2, "focusBeat": 16, "roles": ["brand", "headline", "date", "cta"], "energy": 3}
+  ],
+  "cues": [
+    {"id": "rail", "beat": 0, "sound": "impact", "velocity": 0.7},
+    {"id": "headline", "beat": 1, "sound": "pluck", "role": "headline", "velocity": 0.7},
+    {"id": "headNode", "beat": 2, "sound": "blip", "velocity": 0.6},
+    {"id": "scaffold", "beat": 3, "sound": "snap", "velocity": 0.6},
+    {"id": "merged", "beat": 10, "sound": "marimba", "velocity": 0.6},
+    {"id": "hotRail", "beat": 11, "sound": "zap", "velocity": 0.7},
+    {"id": "date", "beat": 12, "sound": "bell", "role": "date", "velocity": 0.7},
+    {"id": "slot", "beat": 13, "sound": "blip", "velocity": 0.7},
+    {"id": "streak", "beat": 14, "sound": "tom", "velocity": 0.7},
+    {"id": "ctaStamp", "beat": 15, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "arrow", "beat": 16, "sound": "snap", "velocity": 0.6},
+    {"id": "tagPunch", "beat": 17, "sound": "clap", "velocity": 0.6},
+    {"id": "headFill", "beat": 18, "sound": "pluck", "velocity": 0.6},
+    {"id": "loopFlood", "beat": 19, "sound": "zap", "velocity": 0.7}
+  ],
+  "list": {
+    "role": "list",
+    "label": "Contributors",
+    "scene": 1,
+    "min": 1,
+    "max": 6,
+    "itemMax": 20,
+    "schedules": {
+      "1": [6],
+      "2": [5, 7.5],
+      "3": [4, 6, 8],
+      "4": [4, 5.5, 7, 8.5],
+      "5": [4, 5, 6, 7, 8],
+      "6": [4, 5, 6, 7, 8, 9]
+    },
+    "accentOffset": 0.5,
+    "voice": "marimba"
+  },
+  "risers": [
+    {"beat": 12, "beats": 3}
+  ]
+}

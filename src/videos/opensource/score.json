@@ -1,0 +1,30 @@
+{
+  "beatFrames": 15,
+  "scenes": [
+    {"type": "logo-lockup", "bars": 1, "focusBeat": 2, "roles": ["brand"], "energy": 1},
+    {"type": "title-reveal", "bars": 1, "focusBeat": 7, "roles": ["brand", "headline"], "energy": 2},
+    {"type": "announcement", "bars": 1, "focusBeat": 10.5, "roles": ["brand", "headline", "subhead"], "energy": 2},
+    {"type": "end-screen", "bars": 1, "focusBeat": 14, "roles": ["brand", "subhead", "cta"], "energy": 3}
+  ],
+  "cues": [
+    {"id": "keyTurn", "beat": 0, "sound": "snap", "velocity": 0.6},
+    {"id": "brand", "beat": 1, "sound": "blip", "role": "brand", "velocity": 0.6},
+    {"id": "toggle", "beat": 2, "sound": "snap", "velocity": 0.7},
+    {"id": "unlock", "beat": 3, "sound": "impact", "velocity": 0.7},
+    {"id": "open", "beat": 4, "sound": "zap", "velocity": 0.8},
+    {"id": "headline", "beat": 5, "sound": "pluck", "role": "headline", "velocity": 0.7},
+    {"id": "feet", "beat": 6, "sound": "tom", "velocity": 0.6},
+    {"id": "rule", "beat": 7, "sound": "pluck", "velocity": 0.5},
+    {"id": "lift", "beat": 8, "sound": "tom", "velocity": 0.6},
+    {"id": "subhead", "beat": 9, "sound": "blip", "role": "subhead", "velocity": 0.6},
+    {"id": "ruleExtend", "beat": 10, "sound": "marimba", "velocity": 0.5},
+    {"id": "feetRetract", "beat": 11, "sound": "snap", "velocity": 0.5},
+    {"id": "slam", "beat": 12, "sound": "stab", "role": "cta", "velocity": 1},
+    {"id": "shackleReturn", "beat": 13, "sound": "tom", "velocity": 0.7},
+    {"id": "star", "beat": 14, "sound": "bell", "velocity": 0.6},
+    {"id": "close", "beat": 15, "sound": "clap", "velocity": 0.7}
+  ],
+  "risers": [
+    {"beat": 10, "beats": 2}
+  ]
+}

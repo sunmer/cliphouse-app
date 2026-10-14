@@ -69,6 +69,19 @@ export const useCases = [
     ],
   },
   {
+    path: '/developer-video-templates/',
+    title: 'Developer Video Templates for Changelogs and Releases | cliphou.se',
+    h1: 'Developer video templates',
+    description: 'Free developer video templates for changelogs, API releases, migration guides, benchmarks, open source milestones, and devrel events.',
+    intro: 'Made for devrel teams and maintainers: show what shipped, what changed, and what developers should do next.',
+    match: (v) => v.useCases.includes('developer'),
+    faq: [
+      ['Can I show code in these templates?', 'Yes. Code Diff, API Release, and Release Notes print each line you type as its own animated row. Keep each line short so it reads on a phone.'],
+      ['Can I render the videos from my own CI?', 'Yes. Every template downloads as a source project with pinned dependencies, example props, and a render command, so a release script can render a changelog video.'],
+      ['Do the templates include music?', 'Yes. Developer templates use the royalty-free music library. You can choose a track or turn the sound off in the editor.'],
+    ],
+  },
+  {
     path: '/lower-thirds-templates/',
     title: 'Free Lower Thirds Templates | Editable Online | cliphou.se',
     h1: 'Lower thirds templates',
