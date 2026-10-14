@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node scripts/smoke-account.cjs",
     "test:rules": "firebase emulators:exec --project demo-cliphouse --only firestore \"node --import tsx --test --test-concurrency=1 scripts/rules.test.mjs server/store.integration.ts\"",
-    "test:sharing": "node --import tsx --test server/*.test.ts",
+    "test:sharing": "node --import tsx --test server/*.test.ts scripts/limits.test.ts scripts/gate.test.ts",
     "test:agent": "node --import tsx --test scripts/agent.test.ts scripts/brandkit.test.ts",
     "test:source-render": "node scripts/source-render.test.mjs",
     "sources": "node scripts/build-sources.mjs",
@@ -32,7 +32,8 @@
     "test:direction": "node --import tsx scripts/check-direction.mjs --sheets output/direction-gates",
     "test:music-export": "node scripts/build-share.mjs && node --import tsx scripts/music-export.mjs",
     "test:music-source": "node --import tsx scripts/music-source.test.mjs",
-    "test:music-browser": "node scripts/smoke-music.cjs"
+    "test:music-browser": "node scripts/smoke-music.cjs",
+    "test:gate": "node scripts/smoke-gate.cjs"
   },
   "keywords": [],
   "author": "",
@@ -47,6 +48,7 @@
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@hyperframes/player": "0.8.146",
+    "@modelcontextprotocol/sdk": "1.32.1",
     "@react-three/fiber": "^9.8.1",
     "@remotion/cli": "^4.0.534",
     "@remotion/fonts": "^4.0.534",

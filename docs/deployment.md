@@ -70,6 +70,53 @@ Wait until Firebase shows **Connected** and both domains pass HTTPS checks. Cert
 
 On October 8, 2026 (Europe/Stockholm), both domains passed strict Node TLS validation with Google Trust Services certificates listing their correct hostnames. `https://cliphou.se/` returned HTTP 200; `https://www.cliphou.se/` redirected to it over valid HTTPS. Firebase reported `HOST_ACTIVE`, `OWNERSHIP_ACTIVE`, and `CERT_PROPAGATING`; propagation can continue after one edge begins serving a valid certificate. No DNS or certificate configuration changes were needed.
 
+## Cloudflare Edge
+
+Cloudflare (free plan) sits in front of `cliphou.se` for caching, DDoS protection, and one rate-limit rule. Firebase Hosting remains the origin. Renders and other authenticated writes go straight to the Cloud Run origin, because Cloudflare ends proxied requests after 100 seconds.
+
+### Cutover
+
+1. Create the `cliphou.se` zone in Cloudflare. Add these records with the proxy **off** (DNS-only, grey cloud):
+   - `A @ 199.36.158.100`
+   - `CNAME www cliphouse-app.web.app`
+   - `TXT @ google-site-verification=9899XtPkcRUwwXvLv1nXrEcpl8NCS5eZUYf61ZrYHhc`
+   - `TXT @ hosting-site=cliphouse-app`
+   Check the Loopia zone for any other record first and copy it too. On October 14, 2026 there were no MX, AAAA, or other TXT records.
+2. At Loopia, replace `ns1.loopia.se` and `ns2.loopia.se` with the two Cloudflare nameservers. Wait until `dig +short NS cliphou.se` returns Cloudflare and `https://cliphou.se/` still loads with the Firebase certificate.
+3. SSL/TLS: set the mode to **Full (strict)**. Leave **Always Use HTTPS** off. Firebase already redirects HTTP to HTTPS, and Firebase certificate renewal needs `http://cliphou.se/.well-known/acme-challenge/*` to reach Firebase.
+4. Turn the proxy **on** (orange cloud) for `@` and `www`.
+5. Add the rules below, then run the post-cutover checks.
+
+### Rules
+
+- **Cache rule** "Static agent and media files": match `starts_with(http.request.uri.path, "/source/") or starts_with(http.request.uri.path, "/templates/") or starts_with(http.request.uri.path, "/previews/") or starts_with(http.request.uri.path, "/assets/") or http.request.uri.path eq "/llms.txt"`. Eligible for cache, edge TTL: use the origin cache-control header. Source packages and assets are immutable for a year; repeat downloads then never reach Firebase transfer.
+- **Rate limiting rule** (the free plan allows one): match `starts_with(http.request.uri.path, "/source/") or starts_with(http.request.uri.path, "/s/") or starts_with(http.request.uri.path, "/api/") or http.request.uri.path eq "/mcp"`. Counting characteristic: IP. 40 requests per 10 seconds. Action: block for 10 seconds.
+- **Transform rule** (request header modification) on all incoming requests: set static header `X-Cliphouse-Edge` to the edge secret. The value must equal the latest version of Secret Manager secret `cliphouse-edge-secret`. Generate it with `openssl rand -base64 32`.
+- **Bots:** leave Bot Fight Mode and "Block AI bots" off. Search crawlers and agents are wanted traffic. The rate-limit rule bounds them.
+
+### Edge-only enforcement
+
+The share service rejects public reads (`GET`/`HEAD` on `/s/*` and `/api/shares/<id>`, and every `/mcp` request) without the edge header when `EDGE_SECRET` is set. This closes the direct `*.run.app` bypass. Authenticated routes (`POST /api/shares`, `POST /api/exports`, `/api/keys`, `DELETE`) and `/health` stay open, because the browser calls them directly.
+
+1. Create the secret: `printf '%s' "$VALUE" | gcloud secrets create cliphouse-edge-secret --project cliphouse-app --data-file=-`. Grant `cliphouse-share@cliphouse-app.iam.gserviceaccount.com` `roles/secretmanager.secretAccessor` on it.
+2. Verify that Firebase Hosting forwards the header to Cloud Run. Deploy once with env var `EDGE_CHECK=1` and request `https://cliphou.se/api/health`. The response must contain `"edgeHeader": true`. It reports only presence, never the value. Remove `EDGE_CHECK` afterwards.
+3. If `edgeHeader` is `true`, set the GitHub Actions variable `EDGE_SECRET_ENABLED=true` and redeploy. The workflow then adds `--set-secrets EDGE_SECRET=cliphouse-edge-secret:latest`.
+4. If `edgeHeader` is `false`, Hosting strips the header. Do not enable `EDGE_SECRET`. The direct origin then stays reachable, bounded only by `--max-instances 2`, the per-instance lookup caches, and the MCP rate limits.
+
+To disable enforcement later, set `EDGE_SECRET_ENABLED=false` and run `gcloud run services update cliphouse-share --region europe-west1 --project cliphouse-app --remove-secrets EDGE_SECRET`. Rotate by adding a new secret version and updating the transform rule in the same change window.
+
+### Post-cutover checks
+
+- `curl -sI https://cliphou.se/source/beatreel/v1.tar.gz` twice. The second response shows `cf-cache-status: HIT`.
+- `/s/<id>`, `/templates/<id>/agent.json`, and `POST /mcp` work through `https://cliphou.se`.
+- With enforcement on, `https://<service>.run.app/s/<id>` returns 403 and `https://<service>.run.app/health` returns 200.
+- A burst of more than 40 requests in 10 seconds to `/source/` returns Cloudflare 429.
+- Firebase Hosting still shows both custom domains as **Connected**. Recheck when the certificate renews.
+
+### Rollback
+
+Switch `@` and `www` to DNS-only in Cloudflare. Traffic returns to Firebase directly within the record TTL. If edge-only enforcement is on, disable it first, or public share reads will fail. To leave Cloudflare entirely, restore the Loopia nameservers.
+
 ## Quotas
 
 This is a video gallery, so watch Hosting data transfer as well as Firestore reads. The free Spark plan can stop serving after its allowance is exhausted. Do not assume a social launch will remain inside that allowance. Enabling paid usage is a separate billing decision; configure budget alerts first. Budget alerts are not spending caps.

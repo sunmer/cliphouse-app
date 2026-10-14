@@ -1,7 +1,16 @@
-import {randomBytes} from 'node:crypto';
+import {createHash, randomBytes} from 'node:crypto';
 import {getFirestore} from 'firebase-admin/firestore';
 import {getStorage} from 'firebase-admin/storage';
 import {HttpError, type Exported, type Published, type Snapshot} from './model.ts';
+
+// storage-lifecycle.json deletes exports/ objects after 7 days. Stop reusing an export a day earlier
+// so a reused record never points at a deleted file.
+export const EXPORT_REUSE_MS = 6 * 24 * 60 * 60 * 1000;
+// Signed download links are short so a leaked link stops working quickly.
+export const EXPORT_URL_MS = 10 * 60 * 1000;
+export const MAX_API_KEYS = 2;
+export const hashKey = (key: string) => createHash('sha256').update(key).digest('hex');
+export type ApiKeyInfo = {id: string; createdAt: number; last4: string};
 
 export function createStore(bucketName: string) {
   const db = getFirestore();
@@ -21,6 +30,39 @@ export function createStore(bucketName: string) {
     return () => { tx.set(userRef, {count: userCount + 1}); tx.set(globalRef, {count: globalCount + 1}); };
   };
   return {
+    // Keys are shown once. Only their SHA-256 is stored, so a database leak does not expose usable keys.
+    async createApiKey(owner: string) {
+      const key = `chk_${randomBytes(24).toString('base64url')}`;
+      const id = randomBytes(12).toString('base64url');
+      const hash = hashKey(key);
+      const info: ApiKeyInfo = {id, createdAt: Date.now(), last4: key.slice(-4)};
+      await db.runTransaction(async (tx) => {
+        const active = await tx.get(db.collection(`users/${owner}/apiKeys`));
+        if (active.size >= MAX_API_KEYS) throw new HttpError(409, `You can have ${MAX_API_KEYS} API keys. Revoke one first.`);
+        tx.set(db.doc(`apiKeys/${hash}`), {id, owner, createdAt: info.createdAt, revoked: false});
+        tx.set(db.doc(`users/${owner}/apiKeys/${id}`), {createdAt: info.createdAt, last4: info.last4, hash});
+      });
+      return {key, ...info};
+    },
+    async listApiKeys(owner: string): Promise<ApiKeyInfo[]> {
+      const snapshot = await db.collection(`users/${owner}/apiKeys`).orderBy('createdAt', 'desc').get();
+      return snapshot.docs.map((d) => ({id: d.id, createdAt: d.data().createdAt, last4: d.data().last4}));
+    },
+    // Returns the revoked key's hash so the caller can drop it from its lookup cache.
+    async revokeApiKey(owner: string, id: string) {
+      const ref = db.doc(`users/${owner}/apiKeys/${id}`);
+      return db.runTransaction(async (tx) => {
+        const item = (await tx.get(ref)).data();
+        if (!item) throw new HttpError(404, 'This API key does not exist.');
+        tx.update(db.doc(`apiKeys/${item.hash}`), {revoked: true});
+        tx.delete(ref);
+        return item.hash as string;
+      });
+    },
+    async findApiKey(hash: string) {
+      const data = (await db.doc(`apiKeys/${hash}`).get()).data();
+      return data && !data.revoked ? {owner: data.owner as string} : null;
+    },
     async reserve(owner: string, key: string, value: Snapshot) {
       const ref = db.doc(`shareJobs/${key}`);
       return db.runTransaction(async (tx) => {
@@ -87,7 +129,7 @@ export function createStore(bucketName: string) {
         const job = (await tx.get(ref)).data();
         if (job?.status === 'ready') {
           const existing = (await tx.get(db.doc(`exports/${job.id}`))).data();
-          if (existing?.status === 'ready') return {ready: existing as Exported};
+          if (existing?.status === 'ready' && Date.now() - existing.createdAt < EXPORT_REUSE_MS) return {ready: existing as Exported};
         }
         if (job?.status === 'rendering' && job.leaseUntil > Date.now()) throw new HttpError(409, 'This MP4 is still rendering. Try again shortly.');
         const count = await quota(tx, 'export', owner);
@@ -125,10 +167,12 @@ export function createStore(bucketName: string) {
       if (!data || data.status !== 'ready') throw new HttpError(404, 'This MP4 is unavailable.');
       return data as Exported;
     },
-    async exportAsset(id: string) {
-      const file = bucket.file(`exports/${id}/video.mp4`);
-      const [metadata] = await file.getMetadata();
-      return {size: Number(metadata.size), stream: (range?: {start: number; end: number}) => file.createReadStream(range)};
+    async exportUrl(id: string, filename: string) {
+      const [url] = await bucket.file(`exports/${id}/video.mp4`).getSignedUrl({
+        version: 'v4', action: 'read', expires: Date.now() + EXPORT_URL_MS,
+        responseDisposition: `attachment; filename="${filename}"`, responseType: 'video/mp4',
+      });
+      return url;
     },
   };
 }

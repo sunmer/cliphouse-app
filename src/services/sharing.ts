@@ -3,10 +3,14 @@ import type {VideoProps} from '../videos/contract';
 
 const apiOrigin = (import.meta.env.VITE_SHARE_API_ORIGIN || '').replace(/\/$/, '');
 export const sharingConfigured = Boolean(apiOrigin);
+// Public reads go through the site (Cloudflare, then the Hosting rewrite) so they are cached and rate-limited
+// at the edge. Writes and renders use the direct Cloud Run origin: renders can outlast proxy time limits.
+const readOrigin = import.meta.env.PROD ? '' : apiOrigin;
 export type SharedVideo = {id: string; variantId: string; templateVersion: number; props: VideoProps; title: string; url: string; image: string; agent: string};
-export type ExportedVideo = {id: string; path: string; filename: string; url: string};
+// `url` is a signed Cloud Storage link that expires after a few minutes.
+export type ExportedVideo = {id: string; filename: string; url: string};
 
-async function request(path: string, options: RequestInit = {}, authenticated = false) {
+async function request(path: string, options: RequestInit = {}, authenticated = false, base = apiOrigin) {
   const headers = new Headers(options.headers);
   if (authenticated) {
     const user = auth?.currentUser;
@@ -15,7 +19,7 @@ async function request(path: string, options: RequestInit = {}, authenticated = 
   }
   let response: Response;
   try {
-    response = await fetch(`${apiOrigin}${path}`, {...options, headers, signal: options.signal ?? AbortSignal.timeout(300_000)});
+    response = await fetch(`${base}${path}`, {...options, headers, signal: options.signal ?? AbortSignal.timeout(300_000)});
   } catch {
     throw new Error('Connection lost. Your edits are still here. Try again to recover your link.');
   }
@@ -34,7 +38,7 @@ export async function publishVideo(variantId: string, props: VideoProps, templat
 }
 
 export async function loadSharedVideo(id: string, signal: AbortSignal): Promise<SharedVideo> {
-  return request(`/api/shares/${encodeURIComponent(id)}`, {signal});
+  return request(`/api/shares/${encodeURIComponent(id)}`, {signal}, false, readOrigin);
 }
 
 export async function deleteSharedVideo(id: string) {
@@ -43,10 +47,15 @@ export async function deleteSharedVideo(id: string) {
 
 export async function exportVideo(variantId: string, props: VideoProps, templateVersion: number): Promise<ExportedVideo> {
   if (!sharingConfigured) throw new Error('MP4 export is not available yet. Copy the render command instead.');
-  const body = await request('/api/exports', {
+  return request('/api/exports', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({variantId, props, templateVersion}),
   }, true);
-  return {...body, url: `${apiOrigin}${body.path}`};
 }
+
+export type ApiKey = {id: string; createdAt: number; last4: string};
+export const listApiKeys = async (): Promise<ApiKey[]> => (await request('/api/keys', {}, true)).keys;
+export const createApiKey = async (): Promise<ApiKey & {key: string}> =>
+  request('/api/keys', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}, true);
+export const revokeApiKey = (id: string) => request(`/api/keys/${encodeURIComponent(id)}`, {method: 'DELETE'}, true);

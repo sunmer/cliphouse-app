@@ -69,7 +69,7 @@ export type Published = Omit<Snapshot, 'meta' | 'composition' | 'templateVersion
 export type Exported = {id: string; owner: string; variantId: string; template: string; title: string; status: string; createdAt: number};
 export const exportFilename = (video: Pick<Exported, 'variantId' | 'title'>) =>
   `${(video.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48) || video.variantId)}.mp4`;
-export const publicExport = (video: Exported) => ({id: video.id, path: `/api/exports/${video.id}/video.mp4`, filename: exportFilename(video)});
+export const publicExport = (video: Exported, url: string) => ({id: video.id, filename: exportFilename(video), url});
 export const fingerprint = (uid: string, value: Snapshot, version: string) =>
   createHash('sha256').update(JSON.stringify([uid, version, value.variantId, value.templateVersion, value.props])).digest('hex');
 

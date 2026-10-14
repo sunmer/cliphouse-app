@@ -22,6 +22,7 @@ const handler = createHandler({
   version: `${process.env.RENDER_VERSION || '1'}-thumbnail`, assets,
   store: createStore(bucket), render: renderThumbnail, renderVideo,
   verify: (token) => getAuth().verifyIdToken(token, true),
+  edgeSecret: process.env.EDGE_SECRET || undefined,
 });
 const server = createServer(handler);
 server.requestTimeout = 290_000;

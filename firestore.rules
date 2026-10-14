@@ -29,6 +29,11 @@ service cloud.firestore {
     match /users/{uid}/shares/{shareId} {
       allow read: if request.auth != null && request.auth.uid == uid;
     }
+    // API key metadata. Keys are created and revoked only by the share service.
+    // Hashed keys in /apiKeys have no client rules, so clients cannot read or write them.
+    match /users/{uid}/apiKeys/{keyId} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+    }
     match /users/{uid}/bookmarks/{variantId} {
       function owner() {
         return request.auth != null && request.auth.uid == uid;

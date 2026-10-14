@@ -1,11 +1,13 @@
 import {GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut, type User} from 'firebase/auth';
 import {collection, deleteDoc, doc, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc} from 'firebase/firestore';
-import {LogOut, Star, Trash2, UserRound, X} from 'lucide-react';
+import {Bookmark, Download, Infinity as Unlimited, LogOut, Share2, Star, Trash2, UserRound, X} from 'lucide-react';
 import {createContext, useContext, useEffect, useRef, useState, type ReactNode} from 'react';
 import {auth, db, firebaseConfigured} from '../services/firebase';
 import {track} from '../services/analytics';
 import {deleteSharedVideo} from '../services/sharing';
 import {deleteDraft} from '../services/drafts';
+import {ApiKeys} from './ApiKeys';
+import {FREE_VIDEOS, checkOpen, looksAutomated} from '../services/gate';
 
 type AccountState = {
   user: User | null;
@@ -16,10 +18,14 @@ type AccountState = {
   pending: Set<string>;
   openAccount: () => void;
   requireSignIn: () => Promise<User>;
+  // Returns true when the visitor may keep the video open.
+  noteVideoOpen: (variantId: string) => boolean;
+  gated: boolean;
   toggle: (id: string) => void;
   retry: () => void;
 };
 const AccountContext = createContext<AccountState | null>(null);
+
 export function useAccount() {
   const value = useContext(AccountContext);
   if (!value) throw new Error('AccountProvider is required');
@@ -57,6 +63,7 @@ export function AccountProvider({children}: {children: ReactNode}) {
   const [revision, setRevision] = useState(0);
   const [open, setOpen] = useState(false);
   const [intent, setIntent] = useState<string | null>(null);
+  const [mode, setMode] = useState<'prompt' | 'gate' | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -137,15 +144,38 @@ export function AccountProvider({children}: {children: ReactNode}) {
   };
 
   const close = () => {
-    if (busy) return;
-    setOpen(false); setIntent(null); setError('');
+    // The gate cannot be dismissed; only sign-in or Back to gallery leaves it.
+    if (busy || mode === 'gate') return;
+    if (mode === 'prompt') track('signup_prompt_dismiss');
+    setOpen(false); setIntent(null); setMode(null); setError('');
     signInRequest.current?.reject(new Error('Sign-in was cancelled. Your edits are still here.'));
     signInRequest.current = null;
+  };
+  const noteVideoOpen = (variantId: string) => {
+    if (!firebaseConfigured || !ready || auth?.currentUser || looksAutomated(navigator)) return true;
+    const result = checkOpen(variantId, localStorage);
+    if (result === 'open') return true;
+    if (result === 'prompt' && open) return true;
+    setIntent(null); setError(''); setMode(result); setOpen(true);
+    track(result === 'gate' ? 'signup_gate_show' : 'signup_prompt_show', {variant_id: variantId});
+    return result === 'prompt';
+  };
+  // Any navigation away from the gated video closes the gate. The next editor re-checks its own video.
+  useEffect(() => {
+    if (mode !== 'gate') return;
+    const onHash = () => { setOpen(false); setMode(null); };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, [mode]);
+  const leaveGate = () => {
+    track('signup_gate_back');
+    setOpen(false); setMode(null); setError('');
+    location.hash = '/';
   };
   const requireSignIn = () => {
     if (auth?.currentUser) return Promise.resolve(auth.currentUser);
     if (signInRequest.current) return Promise.reject(new Error('Sign-in is already in progress.'));
-    setIntent(null); setError(''); setOpen(true);
+    setIntent(null); setMode(null); setError(''); setOpen(true);
     return new Promise<User>((resolve, reject) => { signInRequest.current = {resolve, reject}; });
   };
   const writeBookmark = async (id: string, add: boolean, uid: string) => {
@@ -187,9 +217,10 @@ export function AccountProvider({children}: {children: ReactNode}) {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({prompt: 'select_account'});
       const result = await signInWithPopup(auth, provider);
-      track('login', {method: 'Google'});
+      track('login', {method: 'Google', ...(mode ? {source: mode === 'gate' ? 'signup_gate' : 'signup_prompt'} : {})});
       setOpen(false);
       setIntent(null);
+      setMode(null);
       if (selected) void writeBookmark(selected, true, result.user.uid);
       signInRequest.current?.resolve(result.user);
       signInRequest.current = null;
@@ -206,15 +237,15 @@ export function AccountProvider({children}: {children: ReactNode}) {
   };
 
   return (
-    <AccountContext.Provider value={{user, ready, savedReady, savedError, saved, pending, toggle, requireSignIn,
-      retry: () => setRevision((n) => n + 1), openAccount: () => { setIntent(null); setOpen(true); }}}>
+    <AccountContext.Provider value={{user, ready, savedReady, savedError, saved, pending, toggle, requireSignIn, noteVideoOpen, gated: mode === 'gate' && !user,
+      retry: () => setRevision((n) => n + 1), openAccount: () => { setIntent(null); setMode(null); setOpen(true); }}}>
       {children}
       {notice && <div className="account-notice" role="status">{notice}<button className="icon-btn ghost" aria-label="Dismiss notification" onClick={() => setNotice('')}><X size={16} /></button></div>}
       <dialog className="account-dialog" ref={dialog} aria-labelledby="account-title"
         onCancel={(event) => { event.preventDefault(); close(); }} onClick={(event) => { if (event.target === event.currentTarget) close(); }}>
         <div className="dialog-heading">
-          <h2 id="account-title">{user ? 'Your account' : 'Sign in'}</h2>
-          <button className="icon-btn ghost" aria-label="Close account" disabled={busy} onClick={close}><X size={18} /></button>
+          <h2 id="account-title">{user ? 'Your account' : mode === 'gate' ? 'Create a free account to keep going' : mode ? 'Keep going with a free account' : 'Sign in'}</h2>
+          {mode !== 'gate' && <button className="icon-btn ghost" aria-label="Close account" disabled={busy} onClick={close}><X size={18} /></button>}
         </div>
         {user ? <>
           <p className="account-name">{user.displayName || 'Google account'}</p>
@@ -239,10 +270,21 @@ export function AccountProvider({children}: {children: ReactNode}) {
             </div>)}
           </section>}
           {sharesError && <p className="account-error" role="alert">{sharesError}</p>}
+          {open && <ApiKeys />}
           <button className="account-action" onClick={logout} disabled={busy}><LogOut size={17} />{busy ? 'Signing out...' : 'Sign out'}</button>
         </> : firebaseConfigured ? <>
-          <p className="muted">Keep your saved videos, stars, and published links in your account.</p>
+          {mode ? <>
+            <p className="muted">{mode === 'gate' ? `You've explored ${FREE_VIDEOS} videos. ` : ''}Sign in or create an account with Google. It is free and takes one click.</p>
+            <ul className="account-perks">
+              <li><Unlimited size={17} aria-hidden="true" />Keep exploring videos without interruptions</li>
+              <li><Download size={17} aria-hidden="true" />Download your edits as MP4</li>
+              <li><Share2 size={17} aria-hidden="true" />Share your edits with a link</li>
+              <li><Bookmark size={17} aria-hidden="true" />Save edits and star favorites across devices</li>
+            </ul>
+          </> : <p className="muted">Keep your saved videos, stars, and published links in your account.</p>}
           <button className="google-signin" onClick={login} disabled={busy}><GoogleMark /><span>{busy ? 'Signing in...' : 'Sign in with Google'}</span></button>
+          {mode === 'prompt' && <button className="link-btn account-later" onClick={close} disabled={busy}>Not now</button>}
+          {mode === 'gate' && <button className="link-btn account-later" onClick={leaveGate} disabled={busy}>Back to gallery</button>}
         </> : <p className="muted">Google sign-in is not available yet. You can still browse and edit every video.</p>}
         {error && <p className="account-error" role="alert">{error}</p>}
         <a className="privacy-link" href="#/privacy" onClick={close}>Privacy</a>

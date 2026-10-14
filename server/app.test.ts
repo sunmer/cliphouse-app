@@ -5,7 +5,8 @@ import {Readable} from 'node:stream';
 import manifest from '../src/catalog/manifest.json' with {type: 'json'};
 import {createHandler} from './app.ts';
 import {HttpError, byteRange, exportFilename, fingerprint, shareHtml, validateShare, type Exported, type Published} from './model.ts';
-import type {createStore} from './store.ts';
+import {hashKey, type createStore} from './store.ts';
+import {createLimiter} from './limits.ts';
 
 // A silent showreel preset: these tests use the plain texts + theme contract.
 const variant = manifest.variants.find((v) => v.id === 'showreel-nocturne')!;
@@ -30,7 +31,7 @@ const store = {
   async finish(key: string, value: Published) { const ready = {...value, status: 'ready'}; completed.set(key, ready); saved.set(id, ready); return ready; },
   async fail() {},
   async get(key: string) { if (!saved.has(key)) throw new HttpError(404, 'This shared video is unavailable.'); return saved.get(key)!; },
-  async remove(key: string, uid: string) { const item = await this.get(key); if (item.owner !== uid) throw new HttpError(403, 'Not your video.'); saved.delete(key); },
+  async remove(key: string, uid: string) { const item = await store.get(key); if (item.owner !== uid) throw new HttpError(403, 'Not your video.'); saved.delete(key); },
   async asset() { return {size: bytes.length, stream: (range?: {start: number; end: number}) => Readable.from(range ? bytes.subarray(range.start, range.end + 1) : bytes)}; },
   async reserveExport(owner: string, key: string, value: ReturnType<typeof validateShare>) {
     if (completedExports.has(key)) return {ready: completedExports.get(key)};
@@ -39,9 +40,26 @@ const store = {
   async finishExport(key: string, value: Exported) { const ready = {...value, status: 'ready'}; completedExports.set(key, ready); exported.set(ready.id, ready); return ready; },
   async failExport() {},
   async getExport(key: string) { if (!exported.has(key)) throw new HttpError(404, 'This MP4 is unavailable.'); return exported.get(key)!; },
-  async exportAsset() { return {size: bytes.length, stream: (range?: {start: number; end: number}) => Readable.from(range ? bytes.subarray(range.start, range.end + 1) : bytes)}; },
-} as ReturnType<typeof createStore>;
-const server = createServer(createHandler({
+  async exportUrl(key: string, filename: string) { return `https://storage.test/exports/${key}/video.mp4?sig=1&name=${filename}`; },
+  async createApiKey(owner: string) {
+    const owned = [...apiKeys.values()].filter((k) => k.owner === owner && !k.revoked);
+    if (owned.length >= 2) throw new HttpError(409, 'You can have 2 API keys. Revoke one first.');
+    const key = `chk_${owner}${'x'.repeat(24)}${apiKeys.size}`;
+    const info = {id: `key${owner}${apiKeys.size}000`, createdAt: 1, last4: key.slice(-4)};
+    apiKeys.set(hashKey(key), {...info, owner, revoked: false});
+    return {key, ...info};
+  },
+  async listApiKeys(owner: string) { return [...apiKeys.values()].filter((k) => k.owner === owner && !k.revoked).map(({id, createdAt, last4}) => ({id, createdAt, last4})); },
+  async revokeApiKey(owner: string, id: string) {
+    const entry = [...apiKeys.entries()].find(([, k]) => k.id === id && k.owner === owner && !k.revoked);
+    if (!entry) throw new HttpError(404, 'This API key does not exist.');
+    entry[1].revoked = true;
+    return entry[0];
+  },
+  async findApiKey(hash: string) { const k = apiKeys.get(hash); return k && !k.revoked ? {owner: k.owner} : null; },
+} as unknown as ReturnType<typeof createStore>;
+const apiKeys = new Map<string, {id: string; owner: string; createdAt: number; last4: string; revoked: boolean}>();
+const baseDeps: Parameters<typeof createHandler>[0] = {
   store, origin: 'https://cliphou.se', origins: new Set(['https://cliphou.se']), version: 'test',
   assets: {file: 'assets/test.js', css: ['assets/test.css']},
   verify: async (token) => {
@@ -54,11 +72,22 @@ const server = createServer(createHandler({
     return {image: '/tmp/test.jpg', cleanup: async () => {}};
   },
   renderVideo: async () => { videoRenders++; return {video: '/tmp/test.mp4', cleanup: async () => {}}; },
-}));
+};
+const server = createServer(createHandler(baseDeps));
+// A second instance with the edge secret on and a tiny anonymous tier, so limits are cheap to hit.
+let clock = 0;
+const edge = createServer(createHandler({...baseDeps, edgeSecret: 'edge-secret-value', limiter: (() => {
+  const real = createLimiter(() => clock);
+  return (key, tier) => real(key, key.startsWith('ip:') ? {perMinute: 3, perDay: 5} : {perMinute: 6, perDay: 100});
+})()}));
 const exportId = 'mp4mp4mp4mp4mp4mp4mp4mp4mp4mp4mp4';
 let origin: string;
-before(async () => { await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve)); origin = `http://127.0.0.1:${(server.address() as {port: number}).port}`; });
-after(() => new Promise<void>((resolve) => server.close(() => resolve())));
+let edgeOrigin: string;
+before(async () => {
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve)); origin = `http://127.0.0.1:${(server.address() as {port: number}).port}`;
+  await new Promise<void>((resolve) => edge.listen(0, '127.0.0.1', resolve)); edgeOrigin = `http://127.0.0.1:${(edge.address() as {port: number}).port}`;
+});
+after(() => Promise.all([server, edge].map((s) => new Promise<void>((resolve) => s.close(() => resolve())))));
 const post = (body: unknown, token = 'alice', headers = {}) => fetch(`${origin}/api/shares`, {method: 'POST',
   headers: {'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...headers}, body: JSON.stringify(body)});
 const postExport = (body: unknown, token = 'alice') => fetch(`${origin}/api/exports`, {method: 'POST',
@@ -186,21 +215,121 @@ test('only the owner can remove a published link', async () => {
   assert.equal((await fetch(`${origin}/api/shares/${id}`, {method: 'DELETE', headers: {Authorization: 'Bearer charlie'}})).status, 200);
   assert.equal((await fetch(`${origin}/s/${id}`)).status, 404);
 });
-test('MP4 export validates identity and props, reuses identical renders, and downloads as an attachment', async () => {
+test('MP4 export validates identity and props, reuses identical renders, and returns a signed link', async () => {
   assert.equal((await fetch(`${origin}/api/exports`, {method: 'POST'})).status, 401);
   assert.equal((await postExport(payload, 'anonymous')).status, 403);
   assert.equal((await postExport({...payload, props: {...props, texts: {...props.texts, headline: 'x'.repeat(25)}}})).status, 400);
   assert.equal(videoRenders, 0);
   const first = await postExport(payload);
   assert.equal(first.status, 201);
-  assert.deepEqual(await first.json(), {id: exportId, path: `/api/exports/${exportId}/video.mp4`, filename: 'my-shared-edit.mp4'});
+  assert.deepEqual(await first.json(), {id: exportId, filename: 'my-shared-edit.mp4',
+    url: `https://storage.test/exports/${exportId}/video.mp4?sig=1&name=my-shared-edit.mp4`});
   assert.equal((await postExport(payload)).status, 200);
   assert.equal(videoRenders, 1);
-  const download = await fetch(`${origin}/api/exports/${exportId}/video.mp4`);
-  assert.equal(download.headers.get('content-type'), 'video/mp4');
-  assert.equal(download.headers.get('content-disposition'), 'attachment; filename="my-shared-edit.mp4"');
-  assert.equal(await download.text(), '0123456789');
-  assert.equal((await fetch(`${origin}/api/exports/${exportId}/video.mp4`, {headers: {Range: 'bytes=2-3'}})).status, 206);
-  assert.equal((await fetch(`${origin}/api/exports/${'z'.repeat(32)}/video.mp4`)).status, 404);
+  // The old streaming route is gone: MP4 bytes never pass through the share service.
+  assert.equal((await fetch(`${origin}/api/exports/${exportId}/video.mp4`)).status, 404);
   assert.equal(exportFilename({variantId: 'fallback', title: '!!!'}), 'fallback.mp4');
+});
+test('public share lookups and misses are cached', async () => {
+  let reads = 0;
+  const get = store.get;
+  store.get = async (key: string) => { reads++; return get.call(store, key); };
+  try {
+    const missing = `${'q'.repeat(31)}1`;
+    const first = await fetch(`${origin}/s/${missing}`);
+    assert.equal(first.status, 404);
+    assert.match(first.headers.get('cache-control') || '', /s-maxage=300/);
+    await fetch(`${origin}/api/shares/${missing}`);
+    assert.equal(reads, 1);
+    assert.equal((await fetch(`${origin}/api/shares`, {method: 'POST'})).headers.get('cache-control'), 'no-store');
+  } finally { store.get = get; }
+});
+
+const mcp = (body: unknown, {base = origin, token, edgeHeader = true, ip = '10.0.0.1'}: {base?: string; token?: string; edgeHeader?: boolean; ip?: string} = {}) =>
+  fetch(`${base}/mcp`, {method: 'POST', body: typeof body === 'string' ? body : JSON.stringify(body), headers: {
+    'Content-Type': 'application/json', Accept: 'application/json, text/event-stream', 'CF-Connecting-IP': ip,
+    ...(token ? {Authorization: `Bearer ${token}`} : {}), ...(edgeHeader && base !== origin ? {'X-Cliphouse-Edge': 'edge-secret-value'} : {}),
+  }});
+const rpc = (method: string, params: unknown = {}, id = 1) => ({jsonrpc: '2.0', id, method, params});
+const call = async (name: string, args: unknown) => {
+  const response = await mcp(rpc('tools/call', {name, arguments: args}));
+  assert.equal(response.status, 200);
+  const result = (await response.json()).result;
+  return {...result, data: result.isError ? null : JSON.parse(result.content[0].text)};
+};
+
+test('the edge secret blocks direct public reads and leaves exempt routes alone', async () => {
+  for (const path of [`/s/${'q'.repeat(32)}`, `/api/shares/${'q'.repeat(32)}`]) {
+    assert.equal((await fetch(`${edgeOrigin}${path}`)).status, 403);
+    assert.equal((await fetch(`${edgeOrigin}${path}`, {headers: {'X-Cliphouse-Edge': 'wrong-secret-value'}})).status, 403);
+    assert.equal((await fetch(`${edgeOrigin}${path}`, {headers: {'X-Cliphouse-Edge': 'edge-secret-value'}})).status, 404);
+  }
+  assert.equal((await mcp(rpc('tools/list'), {base: edgeOrigin, edgeHeader: false, ip: '10.9.9.9'})).status, 403);
+  assert.equal((await fetch(`${edgeOrigin}/health`)).status, 200);
+  assert.equal((await fetch(`${edgeOrigin}/api/shares`, {method: 'POST'})).status, 401, 'authenticated routes are exempt');
+  assert.equal((await fetch(`${edgeOrigin}/api/exports`, {method: 'POST'})).status, 401);
+  assert.equal((await fetch(`${origin}/s/${'q'.repeat(32)}`)).status, 404, 'no secret configured: unchanged');
+});
+test('MCP lists three read-only tools and answers from the catalog', async () => {
+  const init = await mcp(rpc('initialize', {protocolVersion: '2025-06-18', capabilities: {}, clientInfo: {name: 'test', version: '1'}}));
+  assert.equal(init.status, 200);
+  assert.equal(init.headers.get('mcp-session-id'), null, 'stateless');
+  const list = await (await mcp(rpc('tools/list'))).json();
+  assert.deepEqual(list.result.tools.map((t: {name: string}) => t.name).sort(), ['build_edit_link', 'get_template_spec', 'search_templates']);
+  assert.ok(list.result.tools.every((t: {annotations?: {readOnlyHint?: boolean}}) => t.annotations?.readOnlyHint));
+  const found = await call('search_templates', {query: variant.title.split(' ')[0], limit: 50 > 20 ? 20 : 5});
+  assert.ok(found.data.some((t: {id: string}) => t.id === variant.id));
+  assert.ok(found.data.length <= 20);
+  assert.equal(found.data[0].spec.startsWith('https://cliphou.se/templates/'), true);
+  const spec = await call('get_template_spec', {variantId: variant.id});
+  assert.equal(spec.data.kind, 'template');
+  assert.deepEqual(spec.data.props, variant.props);
+  assert.equal((await call('get_template_spec', {variantId: 'missing-template'})).isError, true);
+  const link = await call('build_edit_link', {variantId: variant.id, props});
+  assert.match(link.data.url, new RegExp(`^https://cliphou.se/#/v/${variant.id}\\?props=`));
+  assert.deepEqual(JSON.parse(decodeURIComponent(new URL(link.data.url.replace('#', '')).searchParams.get('props')!)), props);
+  const bad = await call('build_edit_link', {variantId: variant.id, props: {...props, texts: {...props.texts, headline: 'x'.repeat(25)}}});
+  assert.equal(bad.isError, true);
+  assert.match(bad.content[0].text, /too long/);
+});
+test('MCP rejects GET and oversized bodies', async () => {
+  assert.equal((await fetch(`${origin}/mcp`)).status, 405);
+  assert.equal((await mcp({jsonrpc: '2.0', id: 1, method: 'tools/list', params: {pad: 'x'.repeat(17_000)}}, {ip: '10.0.0.2'})).status, 413);
+});
+test('anonymous and API key tiers are limited separately and return 429 headers', async () => {
+  const opts = {base: edgeOrigin, ip: '10.1.1.1'};
+  for (let i = 0; i < 3; i++) assert.equal((await mcp(rpc('tools/list'), opts)).status, 200);
+  const limited = await mcp(rpc('tools/list'), opts);
+  assert.equal(limited.status, 429);
+  assert.ok(Number(limited.headers.get('retry-after')) >= 1);
+  assert.equal(limited.headers.get('ratelimit-limit'), '3');
+  assert.equal(limited.headers.get('ratelimit-remaining'), '0');
+  assert.ok(Number(limited.headers.get('ratelimit-reset')) > 0);
+  assert.match((await limited.json()).error.message, /API key/);
+  assert.equal((await mcp(rpc('tools/list'), {...opts, ip: '10.1.1.2'})).status, 200, 'other IPs unaffected');
+  clock += 60_000;
+  assert.equal((await mcp(rpc('tools/list'), opts)).status, 200, 'minute window resets');
+  assert.equal((await mcp(rpc('tools/list'), opts)).status, 429, 'daily cap of 5 reached');
+
+  const created = await (await fetch(`${origin}/api/keys`, {method: 'POST', headers: {Authorization: 'Bearer dana'}})).json();
+  for (let i = 0; i < 6; i++) assert.equal((await mcp(rpc('tools/list'), {...opts, token: created.key})).status, 200, 'key tier is higher');
+  assert.equal((await mcp(rpc('tools/list'), {...opts, token: created.key})).status, 429);
+  assert.equal((await mcp(rpc('tools/list'), {...opts, token: 'chk_unknownunknownunknownunknown'})).status, 401);
+  assert.equal((await mcp(rpc('tools/list'), {...opts, token: 'not-a-key'})).status, 401);
+});
+test('API keys require a Google identity, are capped at 2, and can be revoked', async () => {
+  assert.equal((await fetch(`${origin}/api/keys`, {method: 'POST'})).status, 401);
+  assert.equal((await fetch(`${origin}/api/keys`, {method: 'POST', headers: {Authorization: 'Bearer anonymous'}})).status, 403);
+  const auth = {Authorization: 'Bearer erin'};
+  const first = await (await fetch(`${origin}/api/keys`, {method: 'POST', headers: auth})).json();
+  assert.match(first.key, /^chk_/);
+  assert.equal((await fetch(`${origin}/api/keys`, {method: 'POST', headers: auth})).status, 201);
+  assert.equal((await fetch(`${origin}/api/keys`, {method: 'POST', headers: auth})).status, 409);
+  const listed = await (await fetch(`${origin}/api/keys`, {headers: auth})).json();
+  assert.equal(listed.keys.length, 2);
+  assert.ok(listed.keys.every((k: Record<string, unknown>) => !('key' in k) && !('hash' in k)));
+  assert.equal((await mcp(rpc('tools/list'), {token: first.key, ip: '10.2.2.2'})).status, 200);
+  assert.equal((await fetch(`${origin}/api/keys/${first.id}`, {method: 'DELETE', headers: {Authorization: 'Bearer mallory'}})).status, 404);
+  assert.equal((await fetch(`${origin}/api/keys/${first.id}`, {method: 'DELETE', headers: auth})).status, 200);
+  assert.equal((await mcp(rpc('tools/list'), {token: first.key, ip: '10.2.2.2'})).status, 401, 'revoked key is rejected immediately');
 });

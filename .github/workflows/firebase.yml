@@ -57,6 +57,7 @@ jobs:
           --allow-unauthenticated --cpu 2 --memory 2Gi --concurrency 8
           --min-instances 0 --max-instances 2 --timeout 300
           --set-env-vars GOOGLE_CLOUD_PROJECT=cliphouse-app,SHARE_BUCKET=cliphouse-app-shares,PUBLIC_ORIGIN=https://cliphou.se,RENDER_VERSION=${{ github.sha }}
+          ${{ vars.EDGE_SECRET_ENABLED == 'true' && '--set-secrets EDGE_SECRET=cliphouse-edge-secret:latest' || '' }}
           --quiet
       - name: Deploy Hosting and rules
         run: |
