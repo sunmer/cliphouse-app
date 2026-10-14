@@ -439,6 +439,13 @@ h1, h2, h3 { margin: 0; }
 .google-signin:hover:not(:disabled) { background: #f7f8f8; }
 .google-signin:disabled { opacity: .6; }
 .google-mark { width: 20px; height: 20px; flex: none; }
+.api-key-fresh { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: center; margin-bottom: 8px; }
+.api-key-fresh p { grid-column: 1 / -1; margin: 0; font-size: 13px; }
+.account-share span { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono, monospace); font-size: 13px; }
+.account-perks { list-style: none; margin: 16px 0 20px; padding: 0; display: grid; gap: 10px; }
+.account-perks li { display: flex; align-items: flex-start; gap: 10px; line-height: 1.45; }
+.account-perks svg { flex: none; margin-top: 2px; color: var(--accent); }
+.account-dialog .google-signin + .account-later { display: block; margin: -8px auto 0; color: var(--muted); text-decoration: underline; }
 .privacy-link { display: block; margin-top: 18px; width: fit-content; color: var(--muted); text-decoration: underline; }
 .account-error { color: var(--danger); }
 .account-notice {

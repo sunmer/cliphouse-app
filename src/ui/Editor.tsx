@@ -188,6 +188,10 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
   };
 
   useEffect(() => { track('editor_open', {variant_id: variant.id, template_kind: templateKind(variant.tmpl)}); }, [variant.id, variant.tmpl]);
+  // Only catalog videos count toward the account gate. Shared links, saved edits, and agent handoffs never do.
+  const {noteVideoOpen, gated} = account;
+  useEffect(() => { if (!shareId && !draftId && handoff === undefined) noteVideoOpen(variant.id); }, [variant.id, shareId, draftId, handoff, account.ready]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (gated) player.current?.pause(); }, [gated]);
   useEffect(() => {
     if (!incoming) return;
     track(incoming.ok ? 'agent_handoff_open' : 'agent_handoff_reject', {variant_id: variant.id});
@@ -372,7 +376,7 @@ For text and color edits, return a link in the spec's handoff format. For code e
   );
 
   return (
-    <main className="editor-page" inert={saving} aria-busy={saving}>
+    <main className="editor-page" inert={saving || gated} aria-busy={saving}>
       <div ref={immersive} className={`immersive-editor ${c.width > c.height ? 'landscape-video' : ''} ${expanded ? 'expanded' : ''} ${panel ? 'panel-open' : ''}`} style={{'--video-ratio': c.width / c.height} as CSSProperties}>
         <header className="editor-top">
           <a className="overlay-btn" href={`${import.meta.env.BASE_URL}#/`} title="All videos" aria-label="All videos"><ArrowLeft size={20} /></a>

@@ -4,7 +4,9 @@
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {"source": "/s/**", "run": {"serviceId": "cliphouse-share", "region": "europe-west1"}},
-      {"source": "/api/shares{,/**}", "run": {"serviceId": "cliphouse-share", "region": "europe-west1"}}
+      {"source": "/api/shares{,/**}", "run": {"serviceId": "cliphouse-share", "region": "europe-west1"}},
+      {"source": "/api/health", "run": {"serviceId": "cliphouse-share", "region": "europe-west1"}},
+      {"source": "/mcp", "run": {"serviceId": "cliphouse-share", "region": "europe-west1"}}
     ],
     "headers": [
       {"source": "**", "headers": [

@@ -3,7 +3,7 @@ import {beforeEach, test} from 'node:test';
 import {initializeApp} from 'firebase-admin/app';
 import {getFirestore} from 'firebase-admin/firestore';
 import manifest from '../src/catalog/manifest.json' with {type: 'json'};
-import {createStore} from './store.ts';
+import {createStore, hashKey} from './store.ts';
 import {validateShare} from './model.ts';
 
 if (!process.env.FIRESTORE_EMULATOR_HOST) throw new Error('These tests require the Firestore emulator.');
@@ -59,4 +59,20 @@ test('failed and expired jobs can be retried, and other users cannot delete', as
   assert.notEqual(expired.video?.id, retry.video?.id);
   await db.doc(`shares/${expired.video!.id}`).update({status: 'ready'});
   await assert.rejects(store.remove(expired.video!.id, 'bob'), {status: 403});
+});
+test('API keys store only hashes, cap at two per user, and revoke', async () => {
+  const first = await store.createApiKey('alice');
+  assert.match(first.key, /^chk_[A-Za-z0-9_-]{32}$/);
+  const stored = (await db.doc(`apiKeys/${hashKey(first.key)}`).get()).data();
+  assert.deepEqual({owner: stored?.owner, revoked: stored?.revoked}, {owner: 'alice', revoked: false});
+  assert.ok(!JSON.stringify((await db.collection('apiKeys').get()).docs.map((d) => d.data())).includes(first.key), 'raw key is never stored');
+  assert.deepEqual(await store.findApiKey(hashKey(first.key)), {owner: 'alice'});
+  await store.createApiKey('alice');
+  await assert.rejects(store.createApiKey('alice'), {status: 409});
+  assert.equal((await store.listApiKeys('alice')).length, 2);
+  await assert.rejects(store.revokeApiKey('bob', first.id), {status: 404});
+  assert.equal(await store.revokeApiKey('alice', first.id), hashKey(first.key));
+  assert.equal(await store.findApiKey(hashKey(first.key)), null);
+  assert.equal((await store.listApiKeys('alice')).length, 1);
+  await store.createApiKey('alice');
 });

@@ -105,3 +105,24 @@ test('drafts reject oversized content, extra fields and forged timestamps', asyn
     {...draft(), templateVersion: '1'}, {...draft(), templateVersion: 0}, {...draft(), templateVersion: 1.5},
   ]) await assertFails(setDoc(ref, value));
 });
+
+test('hashed API keys are closed to clients and owners can only read their own key index', async () => {
+  await env.withSecurityRulesDisabled(async (context) => {
+    const db = context.firestore();
+    await setDoc(doc(db, 'apiKeys/abc123'), {id: 'k1', owner: 'alice', createdAt: 1, revoked: false});
+    await setDoc(doc(db, 'users/alice/apiKeys/k1'), {createdAt: 1, last4: 'wxyz', hash: 'abc123'});
+  });
+  const alice = env.authenticatedContext('alice').firestore();
+  await assertSucceeds(getDoc(doc(alice, 'users/alice/apiKeys/k1')));
+  await assertSucceeds(getDocs(collection(alice, 'users/alice/apiKeys')));
+  await assertFails(setDoc(doc(alice, 'users/alice/apiKeys/k2'), {createdAt: 2, last4: 'abcd', hash: 'def'}));
+  await assertFails(deleteDoc(doc(alice, 'users/alice/apiKeys/k1')));
+  for (const context of [env.authenticatedContext('alice'), env.authenticatedContext('bob'), env.unauthenticatedContext()]) {
+    const db = context.firestore();
+    await assertFails(getDoc(doc(db, 'apiKeys/abc123')));
+    await assertFails(setDoc(doc(db, 'apiKeys/forged'), {id: 'x', owner: 'bob', createdAt: 1, revoked: false}));
+  }
+  for (const context of [env.authenticatedContext('bob'), env.unauthenticatedContext()]) {
+    await assertFails(getDoc(doc(context.firestore(), 'users/alice/apiKeys/k1')));
+  }
+});

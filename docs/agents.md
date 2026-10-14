@@ -21,6 +21,31 @@ Every cliphou.se video is deterministic code plus props. An agent can read it, e
 - Use `source.renderCommand` from the spec. Remotion uses `props.json`; HyperFrames uses `variables.json`.
 - `npm run test:source-render -- <template>` extracts a package, installs it, and checks that its frame is byte-identical to the repository render.
 
+## MCP Server
+
+`https://cliphou.se/mcp` is a read-only MCP server using the stateless Streamable HTTP transport: `POST` only, JSON responses, no sessions or SSE. `GET` returns 405. Request bodies are limited to 16 KB, and each request is limited to 10 seconds.
+
+| Tool | Input | Returns |
+| --- | --- | --- |
+| `search_templates` | `query?`, `purpose?`, `engine?` (`remotion` or `hyperframes`), `limit?` (1-20, default 10) | id, title, template, engine, aspect, purpose, spec URL, editor URL |
+| `get_template_spec` | `variantId` | the same JSON as `/templates/<variant>/agent.json` |
+| `build_edit_link` | `variantId`, `props`, `templateVersion?` | a handoff URL, after the same validation the share service uses. Invalid props return a tool error. |
+
+All tools answer from catalog data bundled in the share service image. No tool renders, publishes, or reads user data.
+
+### Rate limits
+
+| Caller | Identified by | Limit |
+| --- | --- | --- |
+| Anonymous | `CF-Connecting-IP`, else the first `X-Forwarded-For` hop | 60 requests per minute, 1,000 per day |
+| API key | `Authorization: Bearer chk_...` | 600 requests per minute, 20,000 per day |
+
+Every response carries `RateLimit-Limit`, `RateLimit-Remaining`, and `RateLimit-Reset` (Unix seconds). Over the limit, the server returns HTTP 429 with `Retry-After` and a JSON-RPC error (`-32029`). Clients must wait `Retry-After` seconds and back off; rejected requests still count toward the daily limit. An invalid or revoked key returns 401. The limits are in memory, per Cloud Run instance; the service runs at most two instances, so the effective ceiling is at most twice the table. Move them to a shared store before raising `--max-instances`.
+
+### API keys
+
+A signed-in user creates keys in the account dialog (MCP API keys). Each account may hold two keys. A key is shown once. Firestore stores only its SHA-256 in `apiKeys/{hash}` (`id`, `owner`, `createdAt`, `revoked`) and the owner's index in `users/{uid}/apiKeys/{id}` (`createdAt`, `last4`, `hash`). Clients cannot read `apiKeys` at all, and owners can only read their own index. The server endpoints are `POST /api/keys`, `GET /api/keys`, and `DELETE /api/keys/<id>`, and each requires a verified Google token. Key lookups are cached for 5 minutes per instance; revocation clears the cache on the instance that handled it, so another instance may accept a revoked key for up to 5 minutes.
+
 ## Versioning
 
 - `src/videos/versions.json` lists the versions of each template. Packages in `public/source` are immutable.
