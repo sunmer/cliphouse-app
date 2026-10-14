@@ -2,13 +2,13 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "se.cliphou/templates",
   "title": "cliphou.se motion graphics templates",
-  "description": "Search free motion graphics video templates, read their edit specs, and build validated edit links.",
+  "description": "Preview free motion graphics video templates, fill them with your product details, and get validated edit links.",
   "websiteUrl": "https://cliphou.se/",
   "repository": {
     "url": "https://github.com/sunmer/voodoo",
     "source": "github"
   },
-  "version": "1.0.0",
+  "version": "1.1.0",
   "remotes": [
     {
       "type": "streamable-http",

@@ -27,9 +27,11 @@ Every cliphou.se video is deterministic code plus props. An agent can read it, e
 
 | Tool | Input | Returns |
 | --- | --- | --- |
-| `search_templates` | `query?`, `purpose?`, `engine?` (`remotion` or `hyperframes`), `limit?` (1-20, default 10) | id, title, template, engine, aspect, purpose, spec URL, editor URL |
+| `search_templates` | `query?`, `aspect?` (`16:9`, `9:16`, `4:5`, `1:1`), `maxSeconds?`, `music?`, `purpose?`, `engine?` (`remotion` or `hyperframes`), `limit?` (1-20, default 6) | id, title, description, purpose, template, engine, aspect, seconds, music, preview MP4, poster, page, spec URL, editor URL |
 | `get_template_spec` | `variantId` | the same JSON as `/templates/<variant>/agent.json` |
 | `build_edit_link` | `variantId`, `props`, `templateVersion?` | a handoff URL, after the same validation the share service uses. Invalid props return a tool error. |
+
+The `initialize` response includes `instructions` with the cliphou.se skill workflow: read the project (or the conversation) for product facts, search, show previews, fill the spec props, and return the editor link. Search uses the skill ranking and synonyms. Keep the `SYNONYMS` table in `server/mcp.ts` in sync with the skill helper.
 
 All tools answer from catalog data bundled in the share service image. No tool renders, publishes, or reads user data.
 
