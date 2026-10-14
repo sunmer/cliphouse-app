@@ -23,6 +23,8 @@ type Filters = {
 export const energyOf = (n: number): Energy => (n <= 2 ? 'Calm' : n === 3 ? 'Medium' : 'High');
 const FORMATS: Format[] = ['16:9', '9:16', '1:1', '4:5'];
 const SCENE_FILTERS = Object.entries(SCENE_TYPES).filter(([k]) => k !== 'transition');
+// One random order per page load, so "Featured" changes on each visit but stays stable while filtering.
+const featuredRank = new Map(variants.map((v) => [v.id, Math.random()]));
 
 // The gallery remounts on every visit, so its view state lives in this tab's session storage:
 // opening a video and coming back keeps the sort, search, and filters.
@@ -75,7 +77,9 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
 
   const results = useMemo(() => {
     const matching = searched.filter((v) => matches(v, f));
-    return sort === 'new' ? matching.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)) : matching;
+    return sort === 'new'
+      ? matching.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+      : matching.sort((a, b) => featuredRank.get(a.id)! - featuredRank.get(b.id)!);
   }, [searched, f, sort]);
 
   const active = Boolean(q || f.template || f.purpose || f.formats.length || f.styles.length || f.tones.length || f.energy || f.scenes.length);
