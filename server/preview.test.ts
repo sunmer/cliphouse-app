@@ -35,7 +35,7 @@ const store = {
   },
   async reservePreview(caller: string, keyed: boolean) {
     const used = quota.get(caller) ?? 0;
-    if (used >= (keyed ? 3 : 2)) throw new HttpError(429, 'Your daily preview limit has been reached.');
+    if (used >= (caller.startsWith('ip:10.9.2.') ? 10 : keyed ? 3 : 2)) throw new HttpError(429, 'Your daily preview limit has been reached.');
     quota.set(caller, used + 1);
   },
   async findApiKey() { return {owner: 'kim'}; },
@@ -55,20 +55,26 @@ const deps = {
   store, origin: 'https://cliphou.se', origins: new Set(['https://cliphou.se']), version: 'test', assets: {file: 'a.js'},
   render: async () => ({image: '', cleanup: async () => {}}), renderVideo: async () => ({video: '', cleanup: async () => {}}),
   verify: async () => ({uid: 'x'}),
-  preview: createPreviewService({store, render, origin: 'https://cliphou.se', version: 'test', budgetMs: 300, maxQueue: 2}),
+  preview: createPreviewService({store, render, origin: 'https://cliphou.se', version: 'test', budgetMs: 300, maxQueue: 2, concurrency: 1}),
 } as unknown as Parameters<typeof createHandler>[0];
 const server = createServer(createHandler(deps));
 let origin = '';
+// A second server with production queue limits, for batches.
+const batchServer = createServer(createHandler({...deps,
+  preview: createPreviewService({store, render, origin: 'https://cliphou.se', version: 'test', budgetMs: 1_000})} as typeof deps));
+let batchOrigin = '';
 before(async () => {
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
   origin = `http://127.0.0.1:${(server.address() as {port: number}).port}`;
+  await new Promise<void>((resolve) => batchServer.listen(0, '127.0.0.1', resolve));
+  batchOrigin = `http://127.0.0.1:${(batchServer.address() as {port: number}).port}`;
 });
-after(() => new Promise<void>((resolve) => server.close(() => resolve())));
+after(() => Promise.all([server, batchServer].map((s) => new Promise<void>((resolve) => s.close(() => resolve())))));
 beforeEach(() => { searches.length = 0; events.length = 0; failLogs = false; renderDelay = 0; renderFails = false; });
 
 let ipSeq = 0;
-const call = async (name: string, args: unknown, headers: Record<string, string> = {}) => {
-  const res = await fetch(`${origin}/mcp`, {method: 'POST', headers: {'Content-Type': 'application/json', Accept: 'application/json, text/event-stream',
+const call = async (name: string, args: unknown, headers: Record<string, string> = {}, base = origin) => {
+  const res = await fetch(`${base}/mcp`, {method: 'POST', headers: {'Content-Type': 'application/json', Accept: 'application/json, text/event-stream',
     'CF-Connecting-IP': headers.ip ?? `10.8.0.${++ipSeq}`, 'User-Agent': 'cliphouse-skill/1.2', ...headers},
     body: JSON.stringify({jsonrpc: '2.0', id: 1, method: 'tools/call', params: {name, arguments: args}})});
   assert.equal(res.status, 200);
@@ -176,4 +182,38 @@ test('previews are queued, not rejected, and a full queue degrades to the editor
   const results = await Promise.all([1, 2, 3].map((n) => call('render_preview', {variantId: variant.id, props: p(n)})));
   assert.equal(results.filter((r) => r.data.poster).length, 2, 'two fit the queue');
   assert.equal(results.filter((r) => !r.data.poster).length, 1);
+});
+test('render_previews renders tailored posters for several templates in one call', async () => {
+  const ids = ['bento-launch', 'prism-launch', 'feature-announcement'];
+  const before = renders;
+  const brand = {name: 'HejVinter', headline: 'Svarar när ni inte kan', points: ['Svenska samtal', 'Följdfrågor', 'Tydligt underlag'], cta: 'Testa demon',
+    theme: {background: '#0e4549', accent: '#c24e1f'}};
+  const r = await call('render_previews', {variantIds: ids, brand, searchId: 'abcdefgh1234'}, {ip: '10.9.2.1'}, batchOrigin);
+  assert.deepEqual(r.data.results.map((x: {id: string}) => x.id), ids);
+  for (const x of r.data.results) {
+    assert.ok(x.poster, JSON.stringify(x.message)); assert.match(x.poster, /^https:\/\/cliphou\.se\/p\/[a-f0-9]{64}\.jpg$/);
+    assert.equal(x.props.texts.brand, 'HejVinter');
+    assert.equal(x.props.theme.background, '#0e4549');
+    assert.match(x.editor, new RegExp(`/#/v/${x.id}\\?props=`));
+  }
+  assert.equal(r.content.filter((c: {type: string}) => c.type === 'image').length, 3);
+  assert.equal(renders, before + 3);
+  assert.ok(events.filter((e) => e.searchId === 'abcdefgh1234' && e.batch).length === 3);
+  const again = await call('render_previews', {variantIds: ids, brand}, {ip: '10.9.2.1'}, batchOrigin);
+  assert.equal(renders, before + 3, 'repeats come from the cache');
+  assert.deepEqual(again.data.results.map((x: {poster: string}) => x.poster), r.data.results.map((x: {poster: string}) => x.poster));
+});
+test('render_previews rejects bad input and degrades per template', async () => {
+  const unknown = await call('render_previews', {variantIds: ['nope'], brand: {name: 'X'}});
+  assert.equal(unknown.isError, true);
+  assert.match(unknown.content[0].text, /Unknown template/);
+  const tooMany = await call('render_previews', {variantIds: ['a', 'b', 'c', 'd', 'e'], brand: {name: 'X'}});
+  assert.equal(tooMany.isError, true);
+  const color = await call('render_previews', {variantIds: ['bento-launch'], brand: {name: 'X', theme: {accent: 'red'}}});
+  assert.equal(color.isError, true);
+  renderFails = true;
+  const failed = await call('render_previews', {variantIds: ['prism-launch'], brand: {name: 'Broken Co'}}, {ip: '10.9.2.2'}, batchOrigin);
+  assert.equal(failed.data.results[0].poster, null);
+  assert.match(failed.data.results[0].stockPoster, /\/previews\/prism-launch\.jpg$/);
+  assert.ok(failed.data.results[0].editor);
 });

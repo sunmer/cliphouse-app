@@ -275,8 +275,8 @@ test('MCP lists the catalog tools and answers from the catalog', async () => {
   assert.equal(init.status, 200);
   assert.equal(init.headers.get('mcp-session-id'), null, 'stateless');
   const list = await (await mcp(rpc('tools/list'))).json();
-  assert.deepEqual(list.result.tools.map((t: {name: string}) => t.name).sort(), ['build_edit_link', 'get_template_spec', 'render_preview', 'search_templates']);
-  assert.ok(list.result.tools.filter((t: {name: string}) => t.name !== 'render_preview').every((t: {annotations?: {readOnlyHint?: boolean}}) => t.annotations?.readOnlyHint));
+  assert.deepEqual(list.result.tools.map((t: {name: string}) => t.name).sort(), ['build_edit_link', 'get_template_spec', 'render_preview', 'render_previews', 'search_templates']);
+  assert.ok(list.result.tools.filter((t: {name: string}) => !t.name.startsWith('render_preview')).every((t: {annotations?: {readOnlyHint?: boolean}}) => t.annotations?.readOnlyHint));
   const found = await call('search_templates', {query: variant.title.split(' ')[0], limit: 50 > 20 ? 20 : 5});
   assert.match(found.data.searchId, /^[A-Za-z0-9_-]{16}$/);
   assert.ok(found.data.results.some((t: {id: string}) => t.id === variant.id));

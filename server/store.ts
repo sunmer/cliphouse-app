@@ -17,7 +17,7 @@ export type SearchLog = {
   engines: string[]; client: string; caller: string;
 };
 export type EventLog = {searchId: string | null; type: 'spec' | 'link' | 'preview'; variantId: string; client: string; caller: string;
-  engine?: string; ms?: number; cached?: boolean; poster?: boolean; error?: string};
+  engine?: string; ms?: number; cached?: boolean; poster?: boolean; batch?: boolean; error?: string};
 
 export function createStore(bucketName: string) {
   const db = getFirestore();
@@ -62,8 +62,8 @@ export function createStore(bucketName: string) {
       const day = new Date().toISOString().slice(0, 10);
       const globalRef = db.doc(`previewQuota/${day}`);
       const callerRef = db.doc(`previewQuota/${day}/callers/${createHash('sha256').update(caller).digest('hex').slice(0, 32)}`);
-      const limits = {global: Number(process.env.PREVIEWS_PER_DAY || 2_000),
-        caller: Number(keyed ? process.env.PREVIEWS_PER_KEY_DAY || 300 : process.env.PREVIEWS_PER_IP_DAY || 30)};
+      const limits = {global: Number(process.env.PREVIEWS_PER_DAY || 4_000),
+        caller: Number(keyed ? process.env.PREVIEWS_PER_KEY_DAY || 300 : process.env.PREVIEWS_PER_IP_DAY || 60)};
       await db.runTransaction(async (tx) => {
         const [global, mine] = await Promise.all([tx.get(globalRef), tx.get(callerRef)]);
         const globalCount = global.data()?.count || 0;
