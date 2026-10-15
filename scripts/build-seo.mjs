@@ -203,8 +203,7 @@ function agentsPage() {
     [icon('<path d="m4 17 6-6-6-6"/><path d="M12 19h8"/>'), 'Right in your coding agent', 'Ask for a video, pick from playing previews in the chat, and keep editing by prompt.'],
     [icon('<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>'), 'Free and open', 'MIT-0 templates. No account, no watermark, and the source renders locally.'],
   ];
-  const body = `<section class="agents-hero"><div class="agents-video"><video autoplay muted loop playsinline preload="auto" poster="${local('/agents/poster-4x5.jpg')}" aria-label="Demo: a coding agent suggests launch video templates, the user picks one, and the agent fills it from the repo">
-      <source media="(min-width: 900px)" src="${local('/agents/demo-16x9.mp4')}" type="video/mp4" /><source src="${local('/agents/demo-4x5.mp4')}" type="video/mp4" /></video></div>
+  const body = `<section class="agents-hero"><div class="agents-video"><video data-video-src="${local('/agents/demo-4x5.mp4')}" data-video-src-wide="${local('/agents/demo-16x9.mp4')}" poster="${local('/agents/poster-4x5.jpg')}" data-poster-wide="${local('/agents/poster-16x9.jpg')}" aria-label="Demo: a coding agent suggests launch video templates, the user picks one, and the agent fills it from the repo" muted loop playsinline preload="none"></video><button type="button" data-video-play hidden>Play video</button><noscript><a href="${local('/agents/demo-16x9.mp4')}">Watch the demo</a></noscript></div>
     <div class="agents-copy"><h1>Launch videos for what you ship.</h1><p class="lead">Find a motion graphics template, fill it from your repo, and get an editable video, all inside your coding agent.</p>
     <ul class="agents-points">${points.map(([svg, h, p]) => `<li><span>${svg}</span><div><strong>${esc(h)}</strong><p>${esc(p)}</p></div></li>`).join('')}</ul></div></section>
     <section class="seo-section"><h2>Install</h2><div class="agents-install">
