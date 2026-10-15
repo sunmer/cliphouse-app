@@ -1,7 +1,7 @@
 import versionsJson from '../videos/versions.json' with {type: 'json'};
 
 export const SITE = 'https://cliphou.se';
-export const REPOSITORY = 'https://github.com/sunmer/voodoo';
+export const REPOSITORY = 'https://github.com/sunmer/cliphouse-app';
 export const TEMPLATE_LICENSE = 'MIT-0';
 /** Longest accepted encoded `props` value in a handoff URL. */
 export const MAX_HANDOFF_CHARS = 8000;

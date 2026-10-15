@@ -6,7 +6,7 @@
 - Firebase Authentication handles Google sign-in.
 - Cloud Firestore stores private starred video IDs and server timestamps.
 - GA4 loads automatically without a consent banner, as requested by the operator.
-- GitHub remains the source repository: `sunmer/voodoo`.
+- GitHub remains the source repository: `sunmer/cliphouse-app`. It was renamed from `sunmer/voodoo`, and GitHub redirects the old name.
 
 The saved-video sharing service is implemented but needs verified credit coverage before activation under the operator's conditional USD 1,000 launch budget. See [sharing.md](sharing.md) and [cost-budget.md](cost-budget.md). Keep `VITE_SHARE_API_ORIGIN` unset until that service is deployed; the workflow then retains static hosting.
 
@@ -41,7 +41,9 @@ firebase deploy --project cliphouse-app --only firestore:rules,hosting
 
 Use workload identity federation for GitHub Actions rather than a long-lived service-account key. Scope the identity to this repository and the production branch. Deploy rules and hosting together when their contract changes.
 
-Keep the old GitHub Pages build on `/voodoo/` until the custom-domain site is verified. A root-base build cannot be dropped into a project subdirectory unchanged.
+The workload identity provider checks the repository ID (`1408654740`), so it is not affected by a rename. The `cliphouse-deploy` service account trusts the repository name through `attribute.repository/sunmer/cliphouse-app`. Before you rename the repository again, add the new name to that binding first.
+
+The old GitHub Pages site at `https://sunmer.github.io/voodoo/` is retired. GitHub does not redirect Pages after a repository rename.
 
 ## Loopia
 
