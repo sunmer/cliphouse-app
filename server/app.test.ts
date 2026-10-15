@@ -222,13 +222,13 @@ test('MP4 export validates identity and props, reuses identical renders, and ret
   assert.equal(videoRenders, 0);
   const first = await postExport(payload);
   assert.equal(first.status, 201);
-  assert.deepEqual(await first.json(), {id: exportId, filename: 'my-shared-edit.mp4',
-    url: `https://storage.test/exports/${exportId}/video.mp4?sig=1&name=my-shared-edit.mp4`});
+  assert.deepEqual(await first.json(), {id: exportId, filename: 'my-shared-edit-made-with-cliphouse.mp4',
+    url: `https://storage.test/exports/${exportId}/video.mp4?sig=1&name=my-shared-edit-made-with-cliphouse.mp4`});
   assert.equal((await postExport(payload)).status, 200);
   assert.equal(videoRenders, 1);
   // The old streaming route is gone: MP4 bytes never pass through the share service.
   assert.equal((await fetch(`${origin}/api/exports/${exportId}/video.mp4`)).status, 404);
-  assert.equal(exportFilename({variantId: 'fallback', title: '!!!'}), 'fallback.mp4');
+  assert.equal(exportFilename({variantId: 'fallback', title: '!!!'}), 'fallback-made-with-cliphouse.mp4');
 });
 test('public share lookups and misses are cached', async () => {
   let reads = 0;

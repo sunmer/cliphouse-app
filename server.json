@@ -3,12 +3,12 @@
   "name": "se.cliphou/templates",
   "title": "cliphou.se motion graphics templates",
   "description": "Launch videos that auto adapt to what you're building, right in your coding agent.",
-  "websiteUrl": "https://cliphou.se/",
+  "websiteUrl": "https://cliphou.se/agents/",
   "repository": {
-    "url": "https://github.com/sunmer/voodoo",
+    "url": "https://github.com/sunmer/cliphouse",
     "source": "github"
   },
-  "version": "1.2.0",
+  "version": "1.2.1",
   "remotes": [
     {
       "type": "streamable-http",
