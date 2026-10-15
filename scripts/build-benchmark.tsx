@@ -4,14 +4,15 @@ import React from 'react';
 import {loadEnv} from 'vite';
 import {renderToString} from 'react-dom/server';
 import {BenchmarkPage} from '../src/benchmark/BenchmarkPage';
-import {addition, additionDigest, allModels, contract, digest, protocol, root, validateAddition, validateResults} from './benchmark/protocol.mjs';
+import {addition, additionDigest, additionDigestOf, additionResultsFile, allModels, contract, digest, laterAdditions, loadAdditionResults, protocol, root, validateAddition, validateResults} from './benchmark/protocol.mjs';
 import {recoveryProtocol, validateRecovery} from './benchmark/recovery.mjs';
 import {validateTimings} from './benchmark/timings.mjs';
 
 const dist = path.join(root, 'dist');
 const base = process.env.BASE ?? '/voodoo/';
 const results = validateResults(JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/results.json'), 'utf8')), path.join(root, 'public'));
-const additions = validateAddition(JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/addition-results.json'), 'utf8')), results, path.join(root, 'public'));
+const a1 = validateAddition(JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/addition-results.json'), 'utf8')), results, path.join(root, 'public'));
+const additions = loadAdditionResults(results, path.join(root, 'public'));
 const recovery = validateRecovery(JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/recovery.json'), 'utf8')), results, path.join(root, 'public'));
 const timings = validateTimings(JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/timings.json'), 'utf8')), results, recovery, path.join(root, 'public'), additions);
 const ga = process.env.VITE_GA_MEASUREMENT_ID ?? loadEnv('production', root, 'VITE_').VITE_GA_MEASUREMENT_ID ?? '';
@@ -42,7 +43,13 @@ for (const edition of [false, true]) {
 fs.writeFileSync(path.join(dist, 'benchmark/protocol.json'), `${JSON.stringify({...protocol, sha256: digest}, null, 2)}\n`);
 fs.writeFileSync(path.join(dist, 'benchmark/contract.txt'), `${contract}\n`);
 fs.writeFileSync(path.join(dist, 'benchmark/results.json'), `${JSON.stringify(results, null, 2)}\n`);
-fs.writeFileSync(path.join(dist, 'benchmark/addition-results.json'), `${JSON.stringify({...additions, addition, additionHash: additionDigest}, null, 2)}\n`);
+fs.writeFileSync(path.join(dist, 'benchmark/addition-results.json'), `${JSON.stringify({...a1, addition, additionHash: additionDigest}, null, 2)}\n`);
+for (const item of laterAdditions) {
+  const file = additionResultsFile(item);
+  if (!fs.existsSync(file)) continue;
+  const data = validateAddition(JSON.parse(fs.readFileSync(file, 'utf8')), results, path.join(root, 'public'), item);
+  fs.writeFileSync(path.join(dist, `benchmark/${path.basename(file)}`), `${JSON.stringify({...data, addition: item, additionHash: additionDigestOf(item)}, null, 2)}\n`);
+}
 fs.writeFileSync(path.join(dist, 'benchmark/recovery.json'), `${JSON.stringify(recovery, null, 2)}\n`);
 fs.writeFileSync(path.join(dist, 'benchmark/recovery-protocol.json'), `${JSON.stringify(recoveryProtocol, null, 2)}\n`);
 fs.writeFileSync(path.join(dist, 'benchmark/timings.json'), `${JSON.stringify(timings, null, 2)}\n`);

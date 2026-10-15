@@ -2,9 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {execFile, execFileSync} from 'node:child_process';
 import {parseArgs, promisify} from 'node:util';
-import {addition, additionDigest, atomicJson, contract, digest as baseDigest, ensureBudget, hash, parseSource, priceCeiling, protocol, reserveCost, root} from './protocol.mjs';
+import {addition as additionA1, additionDigestOf, loadAddition, atomicJson, contract, digest as baseDigest, ensureBudget, hash, parseSource, priceCeiling, protocol, reserveCost, root} from './protocol.mjs';
 
-const {values} = parseArgs({options: {execute: {type: 'boolean'}, addition: {type: 'boolean'}, model: {type: 'string'}, brief: {type: 'string'}, run: {type: 'string'}}});
+const {values} = parseArgs({options: {execute: {type: 'boolean'}, addition: {type: 'boolean'}, 'addition-id': {type: 'string'}, 'allow-unlimited-key': {type: 'string'}, model: {type: 'string'}, brief: {type: 'string'}, run: {type: 'string'}}});
+const addition = values['addition-id'] ? loadAddition(values['addition-id']) : additionA1;
+if (values['addition-id']) values.addition = true;
+const additionDigest = additionDigestOf(addition);
 // --addition runs late-added models in a separate store and ledger; original runs are never touched.
 const digest = values.addition ? additionDigest : baseDigest;
 const store = values.addition ? path.join(root, '.benchmark', protocol.edition, `addition-${addition.id.toLowerCase()}`) : path.join(root, '.benchmark', protocol.edition);
@@ -54,7 +57,7 @@ async function getProvider(model) {
   const file = path.join(store, `provider-${model.key}.json`);
   if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, 'utf8'));
   const data = await getJson(`https://openrouter.ai/api/v1/models/${model.id}/endpoints`);
-  const candidates = data.data.endpoints.filter((endpoint) => endpoint.tag && !/(?:^|\/)(flex|batch)(?:$|\/)/i.test(endpoint.tag) && !(endpoint.status < 0) && ['max_tokens', 'reasoning'].every((param) => endpoint.supported_parameters?.includes(param)) && endpoint.max_completion_tokens >= protocol.limits.maxTokens);
+  const candidates = data.data.endpoints.filter((endpoint) => (!model.provider || endpoint.tag === model.provider) && endpoint.tag && !/(?:^|\/)(flex|batch)(?:$|\/)/i.test(endpoint.tag) && !(endpoint.status < 0) && ['max_tokens', 'reasoning'].every((param) => endpoint.supported_parameters?.includes(param)) && endpoint.max_completion_tokens >= protocol.limits.maxTokens);
   candidates.sort((a, b) => priceCeiling(a.pricing).completion - priceCeiling(b.pricing).completion);
   if (!candidates.length) throw new Error(`${model.id}: no provider supports the fixed settings.`);
   const endpoint = candidates[0];
@@ -156,9 +159,16 @@ try {
   ensureBudget(ledger, 'generation', 0);
   ledger.pending = [];
   const identity = await getJson('https://openrouter.ai/api/v1/key', {headers});
-  if (identity.data?.limit === null || identity.data?.limit === undefined || identity.data.limit > 40) throw new Error('Use a dedicated OpenRouter key with a lifetime spending limit of at most $40.');
-  if (identity.data?.limit_reset) throw new Error('Use a lifetime key limit, not a resetting daily or monthly limit.');
-  if (typeof identity.data?.limit_remaining !== 'number' || identity.data.limit_remaining <= 0) throw new Error('The dedicated OpenRouter key has no verified remaining budget.');
+  const cap = values['allow-unlimited-key'] === undefined ? null : Number(values['allow-unlimited-key']);
+  if (cap !== null) {
+    // Operator-approved: a key without an OpenRouter limit, bounded by a hard cap recorded in this ledger.
+    if (!values.addition || !Number.isFinite(cap) || cap <= 0 || cap > 5) throw new Error('--allow-unlimited-key needs an addition and a cap between $0 and $5.');
+    if (ledger.capUsd === undefined) { ledger.capUsd = cap; ledger.keyPolicy = {limit: identity.data?.limit ?? null, approvedAt: new Date().toISOString(), note: 'Key without an OpenRouter spending limit, approved by the operator. Spend is capped by capUsd.'}; atomicJson(ledgerFile, ledger); }
+  } else {
+    if (identity.data?.limit === null || identity.data?.limit === undefined || identity.data.limit > 40) throw new Error('Use a dedicated OpenRouter key with a lifetime spending limit of at most $40.');
+    if (identity.data?.limit_reset) throw new Error('Use a lifetime key limit, not a resetting daily or monthly limit.');
+    if (typeof identity.data?.limit_remaining !== 'number' || identity.data.limit_remaining <= 0) throw new Error('The dedicated OpenRouter key has no verified remaining budget.');
+  }
   const catalog = await getJson('https://openrouter.ai/api/v1/models');
   for (const model of models) {
     const available = catalog.data.find((candidate) => candidate.id === model.id);
@@ -209,7 +219,7 @@ try {
   }
   let nextJob = 0;
   const failures = [];
-  await Promise.all(Array.from({length: 4}, async () => {
+  await Promise.all(Array.from({length: Number(process.env.BENCHMARK_WORKERS || 4)}, async () => {
     while (!stopping && nextJob < jobs.length) {
       const job = jobs[nextJob++];
       try { await executeJob(job); } catch (error) {

@@ -1,0 +1,10 @@
+{
+  "id": "A2",
+  "baselineVersion": "1.1",
+  "edition": "2026-10",
+  "date": "2026-10-15",
+  "policy": "Late addition to the October 2026 edition. It uses the protocol 1.1 contract, briefs, palette, fonts, token limit, renderer image, and single repair rule. The provider is pinned to Fireworks (unquantized listing) instead of the cheapest-price rule, because four providers list the same price. The original 60 runs and addition A1 are unchanged. Automated recovery R1 does not apply to this addition.",
+  "models": [
+    {"key": "muse-spark-open", "name": "Muse Spark Open", "author": "Meta", "id": "meta/muse-spark-open", "tier": "Mid-range", "weights": "Open", "reasoning": "high", "provider": "fireworks"}
+  ]
+}

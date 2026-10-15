@@ -1,6 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {addition, additionDigest, atomicJson, hash, protocol, root, validateAddition, validateResults} from './protocol.mjs';
+import {parseArgs} from 'node:util';
+import {additionDigestOf, additionResultsFile, atomicJson, hash, loadAddition, protocol, root, validateAddition, validateResults} from './protocol.mjs';
+
+const {values} = parseArgs({options: {id: {type: 'string'}}});
+const addition = loadAddition(values.id ?? 'A1');
+const additionDigest = additionDigestOf(addition);
 
 // Publishes late-added models separately. src/benchmark/results.json stays unchanged.
 const store = path.join(root, '.benchmark', protocol.edition, `addition-${addition.id.toLowerCase()}`);
@@ -45,6 +50,6 @@ for (const model of addition.models) for (const brief of protocol.briefs) for (l
   entries.push(published);
 }
 const updatedAt = new Intl.DateTimeFormat('sv-SE', {timeZone: 'Europe/Stockholm'}).format(new Date());
-const data = validateAddition({id: addition.id, edition: addition.edition, updatedAt, entries}, baseline, path.join(root, 'public'));
-atomicJson(path.join(root, 'src/benchmark/addition-results.json'), data);
+const data = validateAddition({id: addition.id, edition: addition.edition, updatedAt, entries}, baseline, path.join(root, 'public'), addition);
+atomicJson(additionResultsFile(addition), data);
 console.log(`Prepared ${entries.length} addition results, ${entries.filter((entry) => entry.status === 'rendered').length} videos, $${entries.reduce((sum, entry) => sum + entry.costUsd, 0).toFixed(4)}. Original results unchanged.`);

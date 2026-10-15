@@ -662,6 +662,71 @@
       "provider": "Google",
       "generationTimeMs": 67850,
       "fetchedAt": "2026-10-13T20:46:12.711Z"
+    },
+    {
+      "video": "benchmark/media/addition-a2-muse-spark-open-product-launch-1/video.mp4",
+      "sourceSha256": "8ba12e09c9225d27ae30b3f3277c1177988198e2730a4ec697827ad759614427",
+      "generationId": "gen-1792088119-3DyW0QnKb4ETjmHjrktq",
+      "model": "meta/muse-spark-open",
+      "resolvedModel": "meta/muse-spark-open",
+      "provider": "Fireworks",
+      "generationTimeMs": null,
+      "fetchedAt": "2026-10-15T18:34:08.107Z",
+      "unavailableReason": "OpenRouter could not find this generation."
+    },
+    {
+      "video": "benchmark/media/addition-a2-muse-spark-open-product-launch-2/video.mp4",
+      "sourceSha256": "e6d4097025e4ee724b8906aeec24b8e900b4049c24c577a0328af235341a8332",
+      "generationId": "gen-1792088474-e6vnCkEqXTCwQpV8PiMa",
+      "model": "meta/muse-spark-open",
+      "resolvedModel": "meta/muse-spark-open",
+      "provider": "Fireworks",
+      "generationTimeMs": null,
+      "fetchedAt": "2026-10-15T18:34:08.321Z",
+      "unavailableReason": "OpenRouter could not find this generation."
+    },
+    {
+      "video": "benchmark/media/addition-a2-muse-spark-open-kinetic-type-1/video.mp4",
+      "sourceSha256": "73619b147dbb4d8d633893751b22cf694645c1db83aaea0e1fcbf533d50ddb30",
+      "generationId": "gen-1792088679-A9y7r8hNFM2jpVc7c7xU",
+      "model": "meta/muse-spark-open",
+      "resolvedModel": "meta/muse-spark-open",
+      "provider": "Fireworks",
+      "generationTimeMs": null,
+      "fetchedAt": "2026-10-15T18:34:08.632Z",
+      "unavailableReason": "OpenRouter could not find this generation."
+    },
+    {
+      "video": "benchmark/media/addition-a2-muse-spark-open-kinetic-type-2/video.mp4",
+      "sourceSha256": "7c2b129d0e9fb20d5227b24dc3e46a11a6b28da7fdfa0eefa963aab720f2eec3",
+      "generationId": "gen-1792088119-yp35iYDv1Yb1dQKRz50W",
+      "model": "meta/muse-spark-open",
+      "resolvedModel": "meta/muse-spark-open-20261015",
+      "provider": "Fireworks",
+      "generationTimeMs": 183545,
+      "fetchedAt": "2026-10-15T18:32:58.633Z"
+    },
+    {
+      "video": "benchmark/media/addition-a2-muse-spark-open-data-story-1/video.mp4",
+      "sourceSha256": "88a9268cb750c901f32ce75277444024aa35da33927b618507170787bbf744a7",
+      "generationId": "gen-1792088766-kuwzWugLtQwnpZYY8Lwm",
+      "model": "meta/muse-spark-open",
+      "resolvedModel": "meta/muse-spark-open",
+      "provider": "Fireworks",
+      "generationTimeMs": null,
+      "fetchedAt": "2026-10-15T18:34:08.939Z",
+      "unavailableReason": "OpenRouter could not find this generation."
+    },
+    {
+      "video": "benchmark/media/addition-a2-muse-spark-open-data-story-2/video.mp4",
+      "sourceSha256": "208888a6cd2ff4529d82d8821fa0d1fcc2853a40cf94dcceba61796078a6f1c3",
+      "generationId": "gen-1792088928-Tzw3cKcbA3BaWesLfRl3",
+      "model": "meta/muse-spark-open",
+      "resolvedModel": "meta/muse-spark-open",
+      "provider": "Fireworks",
+      "generationTimeMs": null,
+      "fetchedAt": "2026-10-15T18:34:09.244Z",
+      "unavailableReason": "OpenRouter could not find this generation."
     }
   ]
 }
