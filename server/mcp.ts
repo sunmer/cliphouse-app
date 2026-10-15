@@ -13,14 +13,18 @@ import {MCP_VERSION} from './discovery.ts';
 import {HttpError, validateShare} from './model.ts';
 import type {EventLog, SearchLog} from './store.ts';
 import type {PreviewResult} from './preview.ts';
+import {checkBrand, tailorProps} from './tailor.ts';
 
 // Per-request caller context. Logging is best effort and bounded: it never fails or noticeably delays a tool call.
 export type McpContext = {
   client: string; caller: string; keyed?: boolean;
   logSearch?: (entry: SearchLog) => Promise<void>;
   logEvent?: (entry: EventLog) => Promise<void>;
-  preview?: (args: {variantId: string; props: unknown; templateVersion?: number; caller: string; keyed: boolean; editor: string}) => Promise<PreviewResult>;
+  preview?: (args: {variantId: string; props: unknown; templateVersion?: number; caller: string; keyed: boolean; editor: string; timeoutMs?: number}) => Promise<PreviewResult>;
 };
+// Budget for a whole render_previews batch. Posters not ready by then come back with poster: null.
+export const BATCH_BUDGET_MS = 20_000;
+export const MAX_BATCH = 4;
 const LOG_WAIT_MS = 300;
 export async function record(write: (() => Promise<void>) | undefined) {
   if (!write) return;
@@ -108,8 +112,8 @@ const INSTRUCTIONS = `cliphou.se is a free library of editable motion graphics v
 Workflow:
 1. Learn the product before you search. If you can read the user's project, read it first: README, package.json, landing page, CSS variables, Tailwind config, and logo. Otherwise use the conversation, attached files, or a page the user gives. Collect the product name, tagline, 2-3 real features or numbers, call to action, and brand colors. Do not ask for facts the project already contains. Ask only for facts you cannot find. Never invent numbers.
 2. Call search_templates with a short query (for example "product launch developer tool"). Set aspect only when the destination implies it: 9:16 for Reels, TikTok, and Shorts; 16:9 for YouTube and websites; 1:1 or 4:5 for feeds.
-3. Show the best 3-4 results with title, aspect, length, and the poster image or preview link, and let the user pick one. If your interface can render images, show each poster as an inline image (Markdown ![title](poster)) so the user sees the options.
-4. Call get_template_spec with the searchId. Start from its props and change only texts, theme, and media (and hidden/audio for music templates). Keep each text within maxLength and each color as #RRGGBB, with good contrast.
+3. Pick the best 3-4 results. Call render_previews once with their ids, the searchId, and one brand object built from step 1 (name, headline, subhead, up to 3 points, cta, and theme colors). It returns a poster of each template with the user's own product. Show each poster as an inline image (Markdown ![title](poster)) with its title, and let the user pick one. If a poster is null, show that template's stock poster from search_templates instead.
+4. Call get_template_spec with the searchId. Start from the picked template's tailored props from render_previews, or from the spec's props, and change only texts, theme, and media (and hidden/audio for music templates). Keep each text within maxLength and each color as #RRGGBB, with good contrast.
 5. Call render_preview with the filled props and the searchId. It returns a poster of the template with the user's own product, plus the editor link. Show the poster image first, then the link and a short list of the text you used. If it returns an error, fix the props and call it again. If poster is null, give the editor link. The link opens a live, editable preview; the user exports the MP4 there.
 6. Treat follow-ups ("punchier", "use our green") as prop edits: call render_preview again and show the new poster and link. build_edit_link returns only the link, without rendering.
 For layout, motion, or timing changes, or a local MP4 render in a code project, point the user to the spec's source.package and source.renderCommand.`;
@@ -198,6 +202,49 @@ function createServer(origin: string, ctx: McpContext) {
     const body = {poster: data.poster, video: data.video, editor: data.editor, ...(data.message ? {message: data.message} : {})};
     return {content: [{type: 'text' as const, text: JSON.stringify(body, null, 2)},
       ...(image ? [{type: 'image' as const, data: image.toString('base64'), mimeType: 'image/jpeg'}] : [])]};
+  });
+  const hex = z.string().regex(/^#[a-fA-F0-9]{6}$/);
+  server.registerTool('render_previews', {
+    title: 'Render tailored previews',
+    description: `Render posters of up to ${MAX_BATCH} templates at once, each filled with one brand description, so the user picks from options that already show their product. The server maps the brand onto each template's text fields and shortens text to fit. Returns, per template: id, title, poster URL (null if it was not ready in time), editor link, the tailored props to start from after the pick, and keptSample: text fields that still hold the template's sample text (fill them with real facts after the pick). Inline images follow the text, in the same order as the results.`,
+    inputSchema: {
+      variantIds: z.array(z.string().regex(/^[a-z0-9-]{1,100}$/)).min(1).max(MAX_BATCH).describe('Template ids from search_templates.'),
+      brand: z.object({
+        name: z.string().min(1).max(60).describe('Product or company name.'),
+        headline: z.string().max(120).optional().describe('Main message, as short as possible.'),
+        subhead: z.string().max(200).optional().describe('One supporting sentence.'),
+        points: z.array(z.string().max(80)).max(6).optional().describe('2-3 real features or facts, short phrases.'),
+        cta: z.string().max(60).optional().describe('Call to action, for example "Start free".'),
+        date: z.string().max(40).optional().describe('Launch or availability date, only if the project states one.'),
+        theme: z.object({background: hex.optional(), surface: hex.optional(), foreground: hex.optional(), accent: hex.optional(), accent2: hex.optional()})
+          .optional().describe('Brand colors as #RRGGBB. Keep good contrast between foreground and background.'),
+      }).describe('The product facts from the user\'s project. Never invent numbers.'),
+      searchId: searchIdField,
+    },
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
+  }, async ({variantIds, brand, searchId}) => {
+    let checked;
+    try { checked = checkBrand(brand); }
+    catch (e) { return failure(e instanceof HttpError ? e.message : 'The brand could not be validated.'); }
+    const ids = [...new Set(variantIds)];
+    const unknown = ids.find((id) => !visible.some((v) => v.id === id));
+    if (unknown) return failure(`Unknown template: ${unknown}. Use ids from search_templates.`);
+    const deadline = Date.now() + BATCH_BUDGET_MS;
+    const results = await Promise.all(ids.map(async (variantId) => {
+      const v = visible.find((x) => x.id === variantId)!;
+      const {props, kept} = tailorProps(variantId, checked);
+      const editor = editLink(origin, variantId, props);
+      const result: PreviewResult = ctx.preview
+        ? await ctx.preview({variantId, props, caller: ctx.caller, keyed: Boolean(ctx.keyed), editor, timeoutMs: Math.max(1_000, deadline - Date.now())})
+        : {poster: null, video: null, editor, previewId: '', cached: false, ms: 0, message: 'Previews are not available here.'};
+      await event({searchId: searchId ?? null, type: 'preview', variantId, engine: engineOf(v.template), ms: result.ms, cached: result.cached,
+        poster: Boolean(result.poster), batch: true, ...(result.poster ? {} : {error: (result.message ?? 'no poster').slice(0, 200)})});
+      return {id: variantId, title: v.title, aspect: aspect(v.template), poster: result.poster, editor, props, keptSample: kept,
+        ...(result.poster ? {} : {stockPoster: `${origin}/previews/${variantId}.jpg`, message: result.message}), image: result.image};
+    }));
+    const body = {results: results.map(({image, ...r}) => r)};
+    return {content: [{type: 'text' as const, text: JSON.stringify(body, null, 2)},
+      ...results.flatMap((r) => (r.image ? [{type: 'image' as const, data: r.image.toString('base64'), mimeType: 'image/jpeg'}] : []))]};
   });
   return server;
 }

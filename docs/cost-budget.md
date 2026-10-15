@@ -56,7 +56,7 @@ Local timings (Apple Silicon, 2026-10-15), with the persistent preview browser a
 
 The browser warm-up at startup took 1.4-3.3 s. Posters were 15-62 KB. Record Cloud Run cold and warm times here after deploy: the `ms` field of `events` documents with `type: preview` holds each render time, and `scripts/search-report.mjs` reports p50 and p90 per engine.
 
-Daily limits count renders, not cache hits: 30 per IP, 300 per API key, 2,000 per project. At 2,000 renders of about 3 active seconds, compute is about USD 0.32 per day.
+Daily limits count renders, not cache hits: 60 per IP, 300 per API key, 4,000 per project. A tailored grid (`render_previews`) uses up to 4 renders per search. At 4,000 renders of about 3 active seconds, compute is about USD 0.64 per day.
 
 ## Sources
 

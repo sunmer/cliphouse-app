@@ -167,9 +167,9 @@ export function createHandler(deps: Dependencies) {
           return;
         }
         const body = await readBody(req, 'MCP request');
-        const rendersPreview = (body as {method?: string; params?: {name?: string}})?.method === 'tools/call'
-          && (body as {params?: {name?: string}}).params?.name === 'render_preview';
-        // render_preview has its own render budget (25 s) inside this limit and always answers before it.
+        const call = body as {method?: string; params?: {name?: string}} | null;
+        const rendersPreview = call?.method === 'tools/call' && ['render_preview', 'render_previews'].includes(call.params?.name ?? '');
+        // render_preview (25 s) and render_previews (20 s) have their own render budgets inside this limit.
         const timeout = rendersPreview ? deps.previewTimeoutMs ?? 30_000 : deps.mcpTimeoutMs ?? 10_000;
         // Stateless MCP has no session, so clientInfo is only seen on initialize. Use it there, else the User-Agent.
         const info = (body as {method?: string; params?: {clientInfo?: {name?: unknown; version?: unknown}}})?.params?.clientInfo;

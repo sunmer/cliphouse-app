@@ -90,19 +90,26 @@ type Store = Pick<ReturnType<typeof createStore>, 'previewExists' | 'savePreview
 // Orchestrates one personalized poster: cache lookup, a per-instance queue that shares and exports never
 // hold, the daily preview quota (cache misses only), and a hard time budget. Every failure degrades to
 // poster: null with the editor link, so the agent flow always completes.
-export function createPreviewService({store, render, origin, version, budgetMs = 25_000, maxQueue = 6}: {
-  store: Store; render: RenderPreview; origin: string; version: string; budgetMs?: number; maxQueue?: number;
+export function createPreviewService({store, render, origin, version, budgetMs = 25_000, maxQueue = 12, concurrency = 3}: {
+  store: Store; render: RenderPreview; origin: string; version: string; budgetMs?: number; maxQueue?: number; concurrency?: number;
 }) {
-  let tail: Promise<unknown> = Promise.resolve();
   let queued = 0;
+  let running = 0;
+  const waiting: (() => void)[] = [];
   const inflight = new Map<string, Promise<Buffer>>();
-  // Runs jobs one at a time on this instance. The caller's signal covers time spent waiting in line.
-  const enqueue = <T>(job: () => Promise<T>, signal: AbortSignal) => {
+  // Runs up to `concurrency` renders at once on this instance; pages share the one open browser.
+  // The caller's signal covers time spent waiting in line.
+  const enqueue = async <T>(job: () => Promise<T>, signal: AbortSignal) => {
     if (queued >= maxQueue) throw new HttpError(429, 'The preview renderer is busy.');
     queued++;
-    const run = tail.then(() => { if (signal.aborted) throw new HttpError(504, 'Preview timed out.'); return job(); });
-    tail = run.catch(() => {}).finally(() => { queued--; });
-    return run;
+    try {
+      if (running >= concurrency) await new Promise<void>((resolve) => waiting.push(resolve));
+      running++;
+      try {
+        if (signal.aborted) throw new HttpError(504, 'Preview timed out.');
+        return await job();
+      } finally { running--; waiting.shift()?.(); }
+    } finally { queued--; }
   };
   const produce = async (hash: string, value: Snapshot, signal: AbortSignal) => {
     const result = await render(value, signal);
@@ -112,8 +119,8 @@ export function createPreviewService({store, render, origin, version, budgetMs =
       return image;
     } finally { await result.cleanup().catch(() => {}); }
   };
-  return async ({variantId, props, templateVersion, caller, keyed, editor}: {
-    variantId: string; props: unknown; templateVersion?: number; caller: string; keyed: boolean; editor: string;
+  return async ({variantId, props, templateVersion, caller, keyed, editor, timeoutMs}: {
+    variantId: string; props: unknown; templateVersion?: number; caller: string; keyed: boolean; editor: string; timeoutMs?: number;
   }): Promise<PreviewResult> => {
     const started = Date.now();
     // Validation errors propagate: the tool reports them so the agent can fix the props.
@@ -122,7 +129,7 @@ export function createPreviewService({store, render, origin, version, budgetMs =
     const base = {video: null, editor, previewId: hash};
     const url = `${origin}/p/${hash}.jpg`;
     const done = (partial: Partial<PreviewResult> & {cached: boolean}) => ({...base, poster: null, ...partial, ms: Date.now() - started});
-    const signal = AbortSignal.timeout(budgetMs);
+    const signal = AbortSignal.timeout(Math.min(timeoutMs ?? budgetMs, budgetMs));
     try {
       if (await store.previewExists(hash).catch(() => false)) {
         const asset = await store.previewAsset(hash).catch(() => null);
