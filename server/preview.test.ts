@@ -1,0 +1,179 @@
+import assert from 'node:assert/strict';
+import {after, before, beforeEach, test} from 'node:test';
+import {createServer} from 'node:http';
+import {writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import {Readable} from 'node:stream';
+import manifest from '../src/catalog/manifest.json' with {type: 'json'};
+import {createHandler} from './app.ts';
+import {HttpError} from './model.ts';
+import {createPreviewService, type RenderPreview} from './preview.ts';
+import type {EventLog, SearchLog, createStore} from './store.ts';
+
+const variant = manifest.variants.find((v) => v.id === 'showreel-nocturne')!;
+const props = structuredClone(variant.props);
+props.texts.headline = 'BLOOM';
+const searches: SearchLog[] = [];
+const events: EventLog[] = [];
+const objects = new Map<string, Buffer>();
+const quota = new Map<string, number>();
+let failLogs = false;
+let renders = 0;
+let renderDelay = 0;
+let renderFails = false;
+const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xd9]);
+const store = {
+  async logSearch(entry: SearchLog) { if (failLogs) throw new Error('down'); searches.push(entry); },
+  async logEvent(entry: EventLog) { if (failLogs) throw new Error('down'); events.push(entry); },
+  async previewExists(hash: string) { return objects.has(hash); },
+  async savePreview(hash: string, image: string) { objects.set(hash, jpeg); void image; },
+  async previewAsset(hash: string) {
+    const bytes = objects.get(hash);
+    if (!bytes) throw new Error('missing');
+    return {size: bytes.length, stream: () => Readable.from(bytes)};
+  },
+  async reservePreview(caller: string, keyed: boolean) {
+    const used = quota.get(caller) ?? 0;
+    if (used >= (keyed ? 3 : 2)) throw new HttpError(429, 'Your daily preview limit has been reached.');
+    quota.set(caller, used + 1);
+  },
+  async findApiKey() { return {owner: 'kim'}; },
+} as unknown as ReturnType<typeof createStore>;
+const render: RenderPreview = async (_value, signal) => {
+  renders++;
+  await new Promise<void>((resolve, reject) => {
+    const t = setTimeout(resolve, renderDelay);
+    signal.addEventListener('abort', () => { clearTimeout(t); reject(new Error('aborted')); }, {once: true});
+  });
+  if (renderFails) throw new Error('chrome died');
+  const image = path.join(tmpdir(), `preview-test-${renders}.jpg`);
+  await writeFile(image, jpeg);
+  return {image, cleanup: async () => {}};
+};
+const deps = {
+  store, origin: 'https://cliphou.se', origins: new Set(['https://cliphou.se']), version: 'test', assets: {file: 'a.js'},
+  render: async () => ({image: '', cleanup: async () => {}}), renderVideo: async () => ({video: '', cleanup: async () => {}}),
+  verify: async () => ({uid: 'x'}),
+  preview: createPreviewService({store, render, origin: 'https://cliphou.se', version: 'test', budgetMs: 300, maxQueue: 2}),
+} as unknown as Parameters<typeof createHandler>[0];
+const server = createServer(createHandler(deps));
+let origin = '';
+before(async () => {
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  origin = `http://127.0.0.1:${(server.address() as {port: number}).port}`;
+});
+after(() => new Promise<void>((resolve) => server.close(() => resolve())));
+beforeEach(() => { searches.length = 0; events.length = 0; failLogs = false; renderDelay = 0; renderFails = false; });
+
+let ipSeq = 0;
+const call = async (name: string, args: unknown, headers: Record<string, string> = {}) => {
+  const res = await fetch(`${origin}/mcp`, {method: 'POST', headers: {'Content-Type': 'application/json', Accept: 'application/json, text/event-stream',
+    'CF-Connecting-IP': headers.ip ?? `10.8.0.${++ipSeq}`, 'User-Agent': 'cliphouse-skill/1.2', ...headers},
+    body: JSON.stringify({jsonrpc: '2.0', id: 1, method: 'tools/call', params: {name, arguments: args}})});
+  assert.equal(res.status, 200);
+  const result = (await res.json()).result;
+  return {...result, data: result.isError ? null : JSON.parse(result.content[0].text)};
+};
+
+test('search logs query, filters, results, client, and caller, and returns a searchId', async () => {
+  const found = await call('search_templates', {query: '  logo intro  ', aspect: '16:9', limit: 3}, {ip: '10.7.7.7'});
+  assert.equal(searches.length, 1);
+  const [log] = searches;
+  assert.equal(log.searchId, found.data.searchId);
+  assert.equal(log.query, 'logo intro');
+  assert.deepEqual(log.filters, {aspect: '16:9'});
+  assert.deepEqual(log.resultIds, found.data.results.map((r: {id: string}) => r.id));
+  assert.equal(log.empty, false);
+  assert.ok(log.topScore > 0);
+  assert.equal(log.client, 'cliphouse-skill/1.2');
+  assert.equal(log.caller, 'ip:10.7.7.7');
+  const none = await call('search_templates', {query: 'zzqx underwater basket weaving'});
+  assert.equal(none.data.results.length, 0);
+  assert.equal(searches[1].empty, true);
+  assert.equal(searches[1].resultCount, 0);
+});
+test('a failed log write still returns results', async () => {
+  failLogs = true;
+  const found = await call('search_templates', {query: 'logo intro'});
+  assert.ok(found.data.results.length > 0);
+  assert.ok((await call('get_template_spec', {variantId: variant.id})).data);
+});
+test('searchId links spec, link, and preview events', async () => {
+  const {data: {searchId}} = await call('search_templates', {query: 'showreel'});
+  await call('get_template_spec', {variantId: variant.id, searchId});
+  await call('build_edit_link', {variantId: variant.id, props, searchId});
+  await call('render_preview', {variantId: variant.id, props, searchId});
+  assert.deepEqual(events.map((e) => [e.type, e.searchId, e.variantId]), [['spec', searchId, variant.id], ['link', searchId, variant.id], ['preview', searchId, variant.id]]);
+  assert.equal(events[2].poster, true);
+  assert.equal(events[2].engine, 'remotion');
+  assert.equal(typeof events[2].ms, 'number');
+  const bad = await call('get_template_spec', {variantId: variant.id, searchId: 'not valid!'});
+  assert.equal(bad.isError, true, 'malformed searchId is rejected by the schema');
+});
+test('render_preview rejects invalid props with the validation message', async () => {
+  const bad = await call('render_preview', {variantId: variant.id, props: {...props, texts: {...props.texts, headline: 'x'.repeat(40)}}});
+  assert.equal(bad.isError, true);
+  assert.match(bad.content[0].text, /too long/);
+  assert.equal(events.at(-1)?.error?.length ? true : false, true);
+});
+test('render_preview returns poster, null video, editor, and an inline image; repeats hit the cache', async () => {
+  const edited = structuredClone(props);
+  edited.texts.headline = 'CACHE ME';
+  const before = renders;
+  const first = await call('render_preview', {variantId: variant.id, props: edited});
+  assert.match(first.data.poster, /^https:\/\/cliphou\.se\/p\/[a-f0-9]{64}\.jpg$/);
+  assert.equal(first.data.video, null);
+  assert.match(first.data.editor, new RegExp(`^https://cliphou.se/#/v/${variant.id}\\?props=`));
+  assert.equal(first.content[1].type, 'image');
+  assert.equal(first.content[1].mimeType, 'image/jpeg');
+  const second = await call('render_preview', {variantId: variant.id, props: edited});
+  assert.equal(second.data.poster, first.data.poster);
+  assert.equal(renders, before + 1, 'cached poster is not rendered again');
+  assert.equal(events.at(-1)?.cached, true);
+  const hash = first.data.poster.match(/([a-f0-9]{64})/)[1];
+  const served = await fetch(`${origin}/p/${hash}.jpg`);
+  assert.equal(served.status, 200);
+  assert.equal(served.headers.get('content-type'), 'image/jpeg');
+  assert.match(served.headers.get('cache-control') || '', /s-maxage=\d+/);
+  assert.deepEqual(Buffer.from(await served.arrayBuffer()), jpeg);
+  assert.equal((await fetch(`${origin}/p/${'0'.repeat(64)}.jpg`)).status, 404);
+  assert.equal((await fetch(`${origin}/p/../secret.jpg`)).status, 404);
+});
+test('preview quota applies per caller on renders only', async () => {
+  const ip = '10.9.1.1';
+  const fresh = (n: number) => { const p = structuredClone(props); p.texts.headline = `Q${n}`; return p; };
+  assert.ok((await call('render_preview', {variantId: variant.id, props: fresh(1)}, {ip})).data.poster);
+  assert.ok((await call('render_preview', {variantId: variant.id, props: fresh(2)}, {ip})).data.poster);
+  const limited = await call('render_preview', {variantId: variant.id, props: fresh(3)}, {ip});
+  assert.equal(limited.data.poster, null);
+  assert.match(limited.data.message, /limit.*editor link/i);
+  assert.ok(limited.data.editor);
+  assert.ok((await call('render_preview', {variantId: variant.id, props: fresh(1)}, {ip})).data.poster, 'cache hits do not count');
+  assert.ok((await call('render_preview', {variantId: variant.id, props: fresh(3)}, {ip: '10.9.1.2'})).data.poster, 'other callers unaffected');
+});
+test('a slow or failed render returns poster null with the editor link', async () => {
+  renderDelay = 2_000;
+  const slow = structuredClone(props);
+  slow.texts.headline = 'SLOW';
+  const started = Date.now();
+  const timedOut = await call('render_preview', {variantId: variant.id, props: slow});
+  assert.ok(Date.now() - started < 1_500, 'the budget bounds the call');
+  assert.equal(timedOut.data.poster, null);
+  assert.match(timedOut.data.message, /too long/);
+  assert.ok(timedOut.data.editor);
+  renderDelay = 0;
+  renderFails = true;
+  const broken = structuredClone(props);
+  broken.texts.headline = 'BROKEN';
+  const failed = await call('render_preview', {variantId: variant.id, props: broken});
+  assert.equal(failed.data.poster, null);
+  assert.equal(events.at(-1)?.poster, false);
+});
+test('previews are queued, not rejected, and a full queue degrades to the editor link', async () => {
+  renderDelay = 100;
+  const p = (n: number) => { const x = structuredClone(props); x.texts.headline = `QUEUE${n}`; return x; };
+  const results = await Promise.all([1, 2, 3].map((n) => call('render_preview', {variantId: variant.id, props: p(n)})));
+  assert.equal(results.filter((r) => r.data.poster).length, 2, 'two fit the queue');
+  assert.equal(results.filter((r) => !r.data.poster).length, 1);
+});

@@ -3,6 +3,10 @@
     {
       "action": {"type": "Delete"},
       "condition": {"age": 7, "matchesPrefix": ["exports/"]}
+    },
+    {
+      "action": {"type": "Delete"},
+      "condition": {"age": 30, "matchesPrefix": ["previews/"]}
     }
   ]
 }

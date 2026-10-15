@@ -8,10 +8,11 @@ import {scoreOf as beatScoreOf} from '../src/videos/beat/schema.ts';
 import {musicOf} from '../src/videos/song/index.ts';
 import {addScore, addTrack} from './audio.ts';
 import {trackFor} from '../src/music/schema.ts';
-import {renderHyperframes, stillFromVideo, writeHyperframesProject} from './hyperframes.ts';
+import {renderHyperframes, snapshotFrame, stillFromVideo, writeHyperframesProject} from './hyperframes.ts';
 import type {Snapshot} from './model.ts';
 
 export const MAX_VIDEO_BYTES = 60_000_000;
+export const PREVIEW_WIDTH = 900;
 
 // Music templates render silent video in either engine, then mux the generated score when sound is on.
 // A beat template has sound only when it has a song; without one it always exports silent.

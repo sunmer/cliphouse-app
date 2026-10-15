@@ -23,17 +23,22 @@ Every cliphou.se video is deterministic code plus props. An agent can read it, e
 
 ## MCP Server
 
-`https://cliphou.se/mcp` is a read-only MCP server using the stateless Streamable HTTP transport: `POST` only, JSON responses, no sessions or SSE. `GET` returns 405. Request bodies are limited to 16 KB, and each request is limited to 10 seconds.
+`https://cliphou.se/mcp` is an MCP server using the stateless Streamable HTTP transport: `POST` only, JSON responses, no sessions or SSE. `GET` returns 405. Request bodies are limited to 16 KB. Each request is limited to 10 seconds, except `render_preview`, which is limited to 30 seconds and always answers within 25.
 
 | Tool | Input | Returns |
 | --- | --- | --- |
-| `search_templates` | `query?`, `aspect?` (`16:9`, `9:16`, `4:5`, `1:1`), `maxSeconds?`, `music?`, `purpose?`, `engine?` (`remotion` or `hyperframes`), `limit?` (1-20, default 6) | id, title, description, purpose, template, engine, aspect, seconds, music, preview MP4, poster, page, spec URL, editor URL |
-| `get_template_spec` | `variantId` | the same JSON as `/templates/<variant>/agent.json` |
-| `build_edit_link` | `variantId`, `props`, `templateVersion?` | a handoff URL, after the same validation the share service uses. Invalid props return a tool error. |
+| `search_templates` | `query?`, `aspect?` (`16:9`, `9:16`, `4:5`, `1:1`), `maxSeconds?`, `music?`, `purpose?`, `engine?` (`remotion` or `hyperframes`), `limit?` (1-20, default 6) | `{searchId, results}`. Each result has id, title, description, purpose, template, engine, aspect, seconds, music, preview MP4, poster, page, spec URL, editor URL |
+| `get_template_spec` | `variantId`, `searchId?` | the same JSON as `/templates/<variant>/agent.json` |
+| `build_edit_link` | `variantId`, `props`, `templateVersion?`, `searchId?` | a handoff URL, after the same validation the share service uses. Invalid props return a tool error. |
+| `render_preview` | `variantId`, `props`, `templateVersion?`, `searchId?` | `{poster, video, editor}` plus the poster as an inline JPEG. `poster` is `https://cliphou.se/p/<hash>.jpg`. `video` is reserved for a short animated preview and is `null` for now. Invalid props return a tool error. On a timeout, render failure, or daily limit, `poster` is `null`, `message` says why, and `editor` still works. |
 
 The `initialize` response includes `instructions` with the cliphou.se skill workflow: read the project (or the conversation) for product facts, search, show previews, fill the spec props, and return the editor link. Search uses the skill ranking and synonyms. Keep the `SYNONYMS` table in `server/mcp.ts` in sync with the skill helper.
 
-All tools answer from catalog data bundled in the share service image. No tool renders, publishes, or reads user data.
+Search, spec, and link answer from catalog data bundled in the share service image. `render_preview` renders one 900 px still of the filled template at its poster frame. Remotion templates render in a browser that stays open for the life of the instance; HyperFrames templates use `hyperframes snapshot` at the poster time. Posters are cached in the share bucket under `previews/<hash>.jpg`, keyed by variant, props, template version, and deploy, so identical props are rendered once. `previews/` objects are deleted after 30 days. Previews run one at a time per instance in their own queue (at most 6 waiting), so shares and exports never block them. Renders, not cache hits, count toward a daily limit: 30 per IP, 300 per API key, and 2,000 per project (`PREVIEWS_PER_IP_DAY`, `PREVIEWS_PER_KEY_DAY`, `PREVIEWS_PER_DAY`).
+
+### Search logging
+
+Every `search_templates` call writes a `searches/{autoId}` document: `at`, `searchId`, `query` (trimmed, at most 200 characters), `filters`, `resultIds` (first 10), `resultCount`, `empty`, `topScore`, `engines`, `client` (the `initialize` `clientInfo`, else `User-Agent`), and `caller` (`key:<owner>` or `ip:<address>`). Spec, link, and preview calls write `events/{autoId}` with `type`, `variantId`, `searchId`, and, for previews, `engine`, `ms`, `cached`, `poster`, and any error. Writes wait at most 300 ms and never fail a tool call. Clients cannot read either collection. `node scripts/search-report.mjs [--days 7]` prints the weekly report (empty and weak searches first, then search-to-poster time, poster-null share, engine split, top queries, clients, and per-template conversion) and writes `out/search-report-<date>.md`.
 
 ### Rate limits
 
