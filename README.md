@@ -2,7 +2,7 @@
 
 cliphou.se is a gallery of AI-generated Remotion and HyperFrames videos. Users can find videos with faceted filters, edit text and colors inline, and keep private starred collections through Google sign-in. Each template is locked to one engine, while the editor, agent handoff, sharing, and export flows use the same contract.
 
-The Firebase-hosted site is at https://cliphouse-app.web.app/. The production domain is https://cliphou.se/ after the Loopia DNS cutover. Pushes to `main` deploy through keyless GitHub Actions. The previous https://sunmer.github.io/voodoo/ address is retained.
+The production site is https://cliphou.se/, and Firebase also serves it at https://cliphouse-app.web.app/. Pushes to `main` deploy through keyless GitHub Actions. This repository was renamed from `sunmer/voodoo`, and the old GitHub Pages address is retired.
 
 See [deployment.md](docs/deployment.md) for configuration and the Loopia cutover checklist.
 See [sharing.md](docs/sharing.md) for saved video links, rendering, and the pending paid-service activation.

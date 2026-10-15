@@ -2,7 +2,7 @@ import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  // GitHub Pages serves the site at /voodoo/. Set BASE=/ for other hosts.
+  // Local and test builds use /voodoo/. Production builds set BASE=/.
   base: process.env.BASE ?? '/voodoo/',
   plugins: [react()],
   build: {manifest: true, rollupOptions: {input: {main: 'index.html', about: 'about/index.html', benchmark: 'benchmark/index.html', benchmarkOctober: 'benchmark/2026-10/index.html', seoVideo: 'src/media/seo-video.ts'}}},
