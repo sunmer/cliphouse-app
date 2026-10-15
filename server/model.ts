@@ -68,7 +68,7 @@ export type Snapshot = ReturnType<typeof validateShare>;
 export type Published = Omit<Snapshot, 'meta' | 'composition' | 'templateVersion'> & {templateVersion?: number; id: string; owner: string; status: string; createdAt: number};
 export type Exported = {id: string; owner: string; variantId: string; template: string; title: string; status: string; createdAt: number};
 export const exportFilename = (video: Pick<Exported, 'variantId' | 'title'>) =>
-  `${(video.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48) || video.variantId)}.mp4`;
+  `${(video.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48) || video.variantId)}-made-with-cliphouse.mp4`;
 export const publicExport = (video: Exported, url: string) => ({id: video.id, filename: exportFilename(video), url});
 export const fingerprint = (uid: string, value: Snapshot, version: string) =>
   createHash('sha256').update(JSON.stringify([uid, version, value.variantId, value.templateVersion, value.props])).digest('hex');
@@ -112,7 +112,7 @@ ${(assets.css || []).map((file) => `<link rel="stylesheet" href="/${escape(file)
 <script type="module" crossorigin src="/${escape(assets.file)}"></script>
 </head><body><div id="root"></div><noscript>
 <h1>${escape(data.title)}</h1><img alt="${escape(data.title)}" src="${data.image}" style="max-width:100%;max-height:80vh">
-<p><a href="${data.agent}">Agent spec</a> · <a href="/">Browse cliphou.se</a></p></noscript></body></html>`;
+<p><a href="${data.agent}">Agent spec</a> · <a href="/">Browse cliphou.se</a></p><p>Made with <a href="/agents/">cliphou.se</a></p></noscript></body></html>`;
 }
 
 export function byteRange(header: string | undefined, size: number) {

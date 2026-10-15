@@ -491,3 +491,13 @@ h1, h2, h3 { margin: 0; }
 .track-btn.on { border-color: var(--accent); color: var(--accent); }
 .track-btn:disabled { opacity: .5; cursor: default; }
 @keyframes sheet-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* Agent entry points */
+.agents-link { display: inline-flex; align-items: center; gap: 6px; flex: none; height: 36px; padding: 0 10px; border-radius: 8px; color: var(--text); font-size: 13px; font-weight: 600; text-decoration: none; }
+.agents-link:hover { background: var(--panel); }
+.agents-link svg { color: var(--accent); }
+.agent-banner { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); z-index: 30; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 24px); padding: 6px 6px 6px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); font-size: 13px; }
+.agent-banner svg { flex: none; color: var(--accent); }
+.agent-banner a { color: var(--accent); font-weight: 700; white-space: nowrap; }
+.agent-banner .overlay-btn { width: 28px; height: 28px; }
+@media (max-width: 560px) { .agents-link span { display: none; } .agents-link { padding: 0 8px; } .agent-banner { top: auto; bottom: 84px; white-space: nowrap; } }
