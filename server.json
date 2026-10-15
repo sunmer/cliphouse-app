@@ -8,7 +8,7 @@
     "url": "https://github.com/sunmer/voodoo",
     "source": "github"
   },
-  "version": "1.1.1",
+  "version": "1.2.0",
   "remotes": [
     {
       "type": "streamable-http",

@@ -1,5 +1,5 @@
 import {execFile} from 'node:child_process';
-import {copyFile, mkdir, readFile, writeFile} from 'node:fs/promises';
+import {copyFile, mkdir, readFile, readdir, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {promisify} from 'node:util';
 import {bindHyperframes, hyperframesVariables} from '../src/videos/hyperframes.ts';
@@ -33,4 +33,15 @@ export async function renderHyperframes(project: string, output: string, signal:
 
 export async function stillFromVideo(video: string, output: string, seconds: number, width: number, signal: AbortSignal) {
   await run('ffmpeg', ['-v', 'error', '-y', '-ss', String(seconds), '-i', video, '-frames:v', '1', '-vf', `scale=${width}:-2`, '-q:v', '4', output], {signal});
+}
+
+// One frame without rendering the whole video: `hyperframes snapshot` seeks the composition to an exact time.
+export async function snapshotFrame(project: string, output: string, seconds: number, width: number, signal: AbortSignal) {
+  const dir = path.join(project, 'snap');
+  await run(path.join(root, 'node_modules/.bin/hyperframes'), [
+    'snapshot', project, '--at', seconds.toFixed(3), '--no-end', '--describe', 'false', '-o', dir,
+  ], {signal, env: {...process.env, HYPERFRAMES_NO_TELEMETRY: '1'}, maxBuffer: 1024 * 1024 * 8});
+  const frame = (await readdir(dir)).find((f) => f.startsWith('frame-') && f.endsWith('.png'));
+  if (!frame) throw new Error('HyperFrames snapshot wrote no frame.');
+  await run('ffmpeg', ['-v', 'error', '-y', '-i', path.join(dir, frame), '-vf', `scale=${width}:-2`, '-q:v', '4', output], {signal});
 }

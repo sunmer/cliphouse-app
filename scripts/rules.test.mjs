@@ -126,3 +126,18 @@ test('hashed API keys are closed to clients and owners can only read their own k
     await assertFails(getDoc(doc(context.firestore(), 'users/alice/apiKeys/k1')));
   }
 });
+
+test('search and event logs are closed to every client', async () => {
+  await env.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'searches/s1'), {query: 'x', caller: 'ip:1.2.3.4'});
+    await setDoc(doc(context.firestore(), 'events/e1'), {type: 'spec'});
+    await setDoc(doc(context.firestore(), 'previewQuota/2026-10-15'), {count: 1});
+  });
+  for (const context of [env.authenticatedContext('alice'), env.unauthenticatedContext()]) {
+    const db = context.firestore();
+    for (const path of ['searches/s1', 'events/e1', 'previewQuota/2026-10-15']) await assertFails(getDoc(doc(db, path)));
+    await assertFails(getDocs(collection(db, 'searches')));
+    await assertFails(setDoc(doc(db, 'searches/forged'), {query: 'x'}));
+    await assertFails(setDoc(doc(db, 'events/forged'), {type: 'spec'}));
+  }
+});

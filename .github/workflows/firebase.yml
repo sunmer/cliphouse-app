@@ -55,7 +55,7 @@ jobs:
           gcloud run deploy cliphouse-share --source . --project cliphouse-app
           --region europe-west1 --service-account cliphouse-share@cliphouse-app.iam.gserviceaccount.com
           --allow-unauthenticated --cpu 2 --memory 2Gi --concurrency 8
-          --min-instances 0 --max-instances 2 --timeout 300
+          --min-instances 1 --max-instances 2 --timeout 300 --cpu-boost
           --set-env-vars GOOGLE_CLOUD_PROJECT=cliphouse-app,SHARE_BUCKET=cliphouse-app-shares,PUBLIC_ORIGIN=https://cliphou.se,RENDER_VERSION=${{ github.sha }}
           ${{ vars.EDGE_SECRET_ENABLED == 'true' && '--set-secrets EDGE_SECRET=cliphouse-edge-secret:latest' || '' }}
           --quiet

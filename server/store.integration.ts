@@ -76,3 +76,21 @@ test('API keys store only hashes, cap at two per user, and revoke', async () => 
   assert.equal((await store.listApiKeys('alice')).length, 1);
   await store.createApiKey('alice');
 });
+test('search and event logs are written with a server timestamp, and preview quota counts per caller', async () => {
+  await store.logSearch({searchId: 's1', query: 'logo intro', filters: {aspect: '16:9'}, resultIds: ['a'], resultCount: 1, empty: false, topScore: 3,
+    engines: ['remotion'], client: 'cliphouse-skill/1.2', caller: 'ip:1.2.3.4'});
+  await store.logEvent({searchId: 's1', type: 'preview', variantId: 'a', client: 'x', caller: 'ip:1.2.3.4', ms: 900, cached: false, poster: true, engine: undefined});
+  const [search] = (await db.collection('searches').get()).docs.map((d) => d.data());
+  assert.equal(search.query, 'logo intro');
+  assert.ok(search.at.toMillis() > 0);
+  const [event] = (await db.collection('events').get()).docs.map((d) => d.data());
+  assert.equal(event.poster, true);
+  assert.equal('engine' in event, false, 'undefined fields are dropped');
+  process.env.PREVIEWS_PER_IP_DAY = '2';
+  process.env.PREVIEWS_PER_DAY = '3';
+  await store.reservePreview('ip:1', false);
+  await store.reservePreview('ip:1', false);
+  await assert.rejects(store.reservePreview('ip:1', false), {status: 429});
+  await store.reservePreview('key:kim', true);
+  await assert.rejects(store.reservePreview('ip:2', false), {status: 429}, 'global cap');
+});

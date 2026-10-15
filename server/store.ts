@@ -1,5 +1,5 @@
 import {createHash, randomBytes} from 'node:crypto';
-import {getFirestore} from 'firebase-admin/firestore';
+import {FieldValue, getFirestore} from 'firebase-admin/firestore';
 import {getStorage} from 'firebase-admin/storage';
 import {HttpError, type Exported, type Published, type Snapshot} from './model.ts';
 
@@ -11,6 +11,13 @@ export const EXPORT_URL_MS = 10 * 60 * 1000;
 export const MAX_API_KEYS = 2;
 export const hashKey = (key: string) => createHash('sha256').update(key).digest('hex');
 export type ApiKeyInfo = {id: string; createdAt: number; last4: string};
+// Search telemetry for the weekly demand report (scripts/search-report.mjs). Server-only collections.
+export type SearchLog = {
+  searchId: string; query: string; filters: Record<string, unknown>; resultIds: string[]; resultCount: number; empty: boolean; topScore: number;
+  engines: string[]; client: string; caller: string;
+};
+export type EventLog = {searchId: string | null; type: 'spec' | 'link' | 'preview'; variantId: string; client: string; caller: string;
+  engine?: string; ms?: number; cached?: boolean; poster?: boolean; error?: string};
 
 export function createStore(bucketName: string) {
   const db = getFirestore();
@@ -30,6 +37,43 @@ export function createStore(bucketName: string) {
     return () => { tx.set(userRef, {count: userCount + 1}); tx.set(globalRef, {count: globalCount + 1}); };
   };
   return {
+    async logSearch(entry: SearchLog) {
+      await db.collection('searches').add({...entry, at: FieldValue.serverTimestamp()});
+    },
+    async logEvent(entry: EventLog) {
+      const clean = Object.fromEntries(Object.entries(entry).filter(([, v]) => v !== undefined));
+      await db.collection('events').add({...clean, at: FieldValue.serverTimestamp()});
+    },
+    // Personalized previews: one immutable JPEG per (variant, props, version) hash under previews/.
+    async previewExists(hash: string) {
+      const [exists] = await bucket.file(`previews/${hash}.jpg`).exists();
+      return exists;
+    },
+    async savePreview(hash: string, image: string) {
+      await bucket.upload(image, {destination: `previews/${hash}.jpg`, metadata: {contentType: 'image/jpeg'}});
+    },
+    async previewAsset(hash: string) {
+      const file = bucket.file(`previews/${hash}.jpg`);
+      const [metadata] = await file.getMetadata();
+      return {size: Number(metadata.size), stream: (range?: {start: number; end: number}) => file.createReadStream(range)};
+    },
+    // Daily preview quota, separate from share and export quotas. Counts renders, not cache hits.
+    async reservePreview(caller: string, keyed: boolean) {
+      const day = new Date().toISOString().slice(0, 10);
+      const globalRef = db.doc(`previewQuota/${day}`);
+      const callerRef = db.doc(`previewQuota/${day}/callers/${createHash('sha256').update(caller).digest('hex').slice(0, 32)}`);
+      const limits = {global: Number(process.env.PREVIEWS_PER_DAY || 2_000),
+        caller: Number(keyed ? process.env.PREVIEWS_PER_KEY_DAY || 300 : process.env.PREVIEWS_PER_IP_DAY || 30)};
+      await db.runTransaction(async (tx) => {
+        const [global, mine] = await Promise.all([tx.get(globalRef), tx.get(callerRef)]);
+        const globalCount = global.data()?.count || 0;
+        const callerCount = mine.data()?.count || 0;
+        if (callerCount >= limits.caller) throw new HttpError(429, 'Your daily preview limit has been reached.');
+        if (globalCount >= limits.global) throw new HttpError(429, 'Previews have reached their daily capacity.');
+        tx.set(globalRef, {count: globalCount + 1});
+        tx.set(callerRef, {count: callerCount + 1, caller});
+      });
+    },
     // Keys are shown once. Only their SHA-256 is stored, so a database leak does not expose usable keys.
     async createApiKey(owner: string) {
       const key = `chk_${randomBytes(24).toString('base64url')}`;

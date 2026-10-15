@@ -9,6 +9,7 @@ import {HttpError, byteRange, exportFilename, fingerprint, publicExport, publicV
 import type {Exported, Published} from './model.ts';
 import type {createStore} from './store.ts';
 import type {renderThumbnail, renderVideo} from './render.ts';
+import type {createPreviewService} from './preview.ts';
 
 type Dependencies = {
   origin: string; origins: Set<string>; version: string;
@@ -21,6 +22,9 @@ type Dependencies = {
   edgeSecret?: string;
   limiter?: ReturnType<typeof createLimiter>;
   mcpTimeoutMs?: number;
+  // Personalized posters for render_preview. Optional so the handler runs without a renderer.
+  preview?: ReturnType<typeof createPreviewService>;
+  previewTimeoutMs?: number;
 };
 async function readBody(req: IncomingMessage, label = 'Video request') {
   if (req.headers['content-type']?.split(';')[0] !== 'application/json') throw new HttpError(415, 'Use JSON.');
@@ -142,7 +146,7 @@ export function createHandler(deps: Dependencies) {
         res.end(req.method === 'HEAD' ? undefined : body); return;
       }
       const readOnly = ['GET', 'HEAD'].includes(req.method || '');
-      const edgeOnly = pathname === '/mcp' || (readOnly && (/^\/s\//.test(pathname) || /^\/api\/shares\/[^/]+$/.test(pathname)));
+      const edgeOnly = pathname === '/mcp' || (readOnly && (/^\/(s|p)\//.test(pathname) || /^\/api\/shares\/[^/]+$/.test(pathname)));
       if (deps.edgeSecret && edgeOnly && !fromEdge(deps.edgeSecret, req.headers['x-cliphouse-edge'])) {
         throw new HttpError(403, `Use ${deps.origin}.`);
       }
@@ -152,7 +156,8 @@ export function createHandler(deps: Dependencies) {
         if (req.headers.authorization && !bearer) throw new HttpError(401, 'Invalid API key.');
         const owner = bearer ? await apiKeyOwner(bearer) : null;
         if (bearer && !owner) throw new HttpError(401, 'Invalid or revoked API key.');
-        const limit = limiter(owner ? `key:${owner}` : `ip:${clientIp(req.headers, req.socket.remoteAddress)}`, owner ? TIERS.key : TIERS.anonymous);
+        const caller = owner ? `key:${owner}` : `ip:${clientIp(req.headers, req.socket.remoteAddress)}`;
+        const limit = limiter(caller, owner ? TIERS.key : TIERS.anonymous);
         res.setHeader('RateLimit-Limit', String(limit.limit));
         res.setHeader('RateLimit-Remaining', String(limit.remaining));
         res.setHeader('RateLimit-Reset', String(limit.reset));
@@ -162,11 +167,33 @@ export function createHandler(deps: Dependencies) {
           return;
         }
         const body = await readBody(req, 'MCP request');
-        const timeout = deps.mcpTimeoutMs ?? 10_000;
+        const rendersPreview = (body as {method?: string; params?: {name?: string}})?.method === 'tools/call'
+          && (body as {params?: {name?: string}}).params?.name === 'render_preview';
+        // render_preview has its own render budget (25 s) inside this limit and always answers before it.
+        const timeout = rendersPreview ? deps.previewTimeoutMs ?? 30_000 : deps.mcpTimeoutMs ?? 10_000;
+        // Stateless MCP has no session, so clientInfo is only seen on initialize. Use it there, else the User-Agent.
+        const info = (body as {method?: string; params?: {clientInfo?: {name?: unknown; version?: unknown}}})?.params?.clientInfo;
+        const client = String(info?.name ? `${info.name}/${info.version ?? ''}` : req.headers['user-agent'] || 'unknown').slice(0, 120);
+        const ctx = {client, caller, keyed: Boolean(owner), preview: deps.preview,
+          logSearch: deps.store.logSearch && ((entry: Parameters<typeof deps.store.logSearch>[0]) => deps.store.logSearch(entry)),
+          logEvent: deps.store.logEvent && ((entry: Parameters<typeof deps.store.logEvent>[0]) => deps.store.logEvent(entry))};
         let timer: NodeJS.Timeout | undefined;
-        await Promise.race([handleMcp(deps.origin, req, res, body), new Promise<never>((_, reject) => {
+        await Promise.race([handleMcp(deps.origin, req, res, body, ctx), new Promise<never>((_, reject) => {
           timer = setTimeout(() => reject(new HttpError(504, 'The MCP request timed out.')), timeout);
         })]).finally(() => clearTimeout(timer));
+        return;
+      }
+      const poster = pathname.match(/^\/p\/([a-f0-9]{64})\.jpg$/);
+      if (poster) {
+        publicRoute = true;
+        if (!['GET', 'HEAD'].includes(req.method || '')) throw new HttpError(405, 'Method not allowed.');
+        let file;
+        try { file = await deps.store.previewAsset(poster[1]); }
+        catch { throw new HttpError(404, 'This preview is unavailable.'); }
+        // Content-addressed, so the bytes never change. Objects expire after 30 days (storage-lifecycle.json).
+        res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=2592000');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        await send(req, res, file, 'image/jpeg');
         return;
       }
       if (pathname === '/api/keys' && req.method === 'POST') {

@@ -1,3 +1,4 @@
+import {randomBytes} from 'node:crypto';
 import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
 import {StreamableHTTPServerTransport} from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import type {IncomingMessage, ServerResponse} from 'node:http';
@@ -10,6 +11,25 @@ import {agentSpec} from '../src/agent/spec.ts';
 import {handoffPath, specPath} from '../src/agent/versions.ts';
 import {MCP_VERSION} from './discovery.ts';
 import {HttpError, validateShare} from './model.ts';
+import type {EventLog, SearchLog} from './store.ts';
+import type {PreviewResult} from './preview.ts';
+
+// Per-request caller context. Logging is best effort and bounded: it never fails or noticeably delays a tool call.
+export type McpContext = {
+  client: string; caller: string; keyed?: boolean;
+  logSearch?: (entry: SearchLog) => Promise<void>;
+  logEvent?: (entry: EventLog) => Promise<void>;
+  preview?: (args: {variantId: string; props: unknown; templateVersion?: number; caller: string; keyed: boolean; editor: string}) => Promise<PreviewResult>;
+};
+const LOG_WAIT_MS = 300;
+export async function record(write: (() => Promise<void>) | undefined) {
+  if (!write) return;
+  let timer: NodeJS.Timeout | undefined;
+  await Promise.race([write().catch((e) => console.error('Log write failed:', (e as {code?: string}).code || (e as Error).name)),
+    new Promise<void>((resolve) => { timer = setTimeout(resolve, LOG_WAIT_MS); })]).finally(() => clearTimeout(timer));
+}
+const SEARCH_ID = /^[A-Za-z0-9_-]{8,40}$/;
+const searchIdField = z.string().regex(SEARCH_ID).optional().describe('The searchId returned by search_templates. Pass it through so picks can be measured.');
 
 const visible = manifest.variants.filter((v) => !('hidden' in v && v.hidden));
 const ASPECTS = ['16:9', '9:16', '4:5', '1:1'] as const;
@@ -49,7 +69,7 @@ function score(v: (typeof visible)[number], terms: string[][], phrase: string) {
 }
 
 type SearchArgs = {query?: string; purpose?: string; engine?: string; aspect?: string; maxSeconds?: number; music?: boolean; limit?: number};
-export function searchTemplates(origin: string, {query, purpose, engine, aspect: wanted, maxSeconds, music, limit = 6}: SearchArgs) {
+export function rankTemplates({query, purpose, engine, aspect: wanted, maxSeconds, music, limit = 6}: SearchArgs) {
   const kept = words(query ?? '').filter((w) => !(ASPECTS as readonly string[]).includes(w));
   const terms = kept.map((w) => [stem(w), ...(SYNONYMS[w] ?? SYNONYMS[stem(w)] ?? []).map(stem)]);
   const phrase = kept.join(' ');
@@ -62,15 +82,16 @@ export function searchTemplates(origin: string, {query, purpose, engine, aspect:
     .map((v) => ({v, score: terms.length ? score(v, terms, phrase) : 1}))
     .filter(({score}) => score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, Math.min(Math.max(limit, 1), 20))
-    .map(({v}) => {
+    .slice(0, Math.min(Math.max(limit, 1), 20));
+}
+const card = (origin: string) => ({v}: {v: (typeof visible)[number]}) => {
       const meta = templateMeta[v.template];
       return {id: v.id, title: v.title, description: v.description, purpose: v.purpose, template: v.template, engine: engineOf(v.template),
         aspect: aspect(v.template), seconds: Math.round(meta.durationInFrames / meta.fps), music: Boolean(scoreOf(meta)),
         preview: `${origin}/previews/${v.id}.mp4`, poster: `${origin}/previews/${v.id}.jpg`, page: `${origin}/templates/${v.id}/`,
         spec: `${origin}${specPath(v.id)}`, editor: `${origin}/#/v/${v.id}`};
-    });
-}
+};
+export const searchTemplates = (origin: string, args: SearchArgs) => rankTemplates(args).map(card(origin));
 
 export function templateSpec(origin: string, variantId: string) {
   const v = visible.find((item) => item.id === variantId);
@@ -88,17 +109,19 @@ Workflow:
 1. Learn the product before you search. If you can read the user's project, read it first: README, package.json, landing page, CSS variables, Tailwind config, and logo. Otherwise use the conversation, attached files, or a page the user gives. Collect the product name, tagline, 2-3 real features or numbers, call to action, and brand colors. Do not ask for facts the project already contains. Ask only for facts you cannot find. Never invent numbers.
 2. Call search_templates with a short query (for example "product launch developer tool"). Set aspect only when the destination implies it: 9:16 for Reels, TikTok, and Shorts; 16:9 for YouTube and websites; 1:1 or 4:5 for feeds.
 3. Show the best 3-4 results with title, aspect, length, and the poster image or preview link, and let the user pick one.
-4. Call get_template_spec. Start from its props and change only texts, theme, and media (and hidden/audio for music templates). Keep each text within maxLength and each color as #RRGGBB, with good contrast.
-5. Call build_edit_link. If it returns an error, fix the props and call it again. Give the user the link and a short list of the text you used. The link opens a live, editable preview; the user exports the MP4 there.
-6. Treat follow-ups ("punchier", "use our green") as prop edits and return a new link.
+4. Call get_template_spec with the searchId. Start from its props and change only texts, theme, and media (and hidden/audio for music templates). Keep each text within maxLength and each color as #RRGGBB, with good contrast.
+5. Call render_preview with the filled props and the searchId. It returns a poster of the template with the user's own product, plus the editor link. Show the poster image first, then the link and a short list of the text you used. If it returns an error, fix the props and call it again. If poster is null, give the editor link. The link opens a live, editable preview; the user exports the MP4 there.
+6. Treat follow-ups ("punchier", "use our green") as prop edits: call render_preview again and show the new poster and link. build_edit_link returns only the link, without rendering.
 For layout, motion, or timing changes, or a local MP4 render in a code project, point the user to the spec's source.package and source.renderCommand.`;
 
-function createServer(origin: string) {
+function createServer(origin: string, ctx: McpContext) {
   const server = new McpServer({name: 'cliphouse', title: 'cliphou.se motion graphics', version: MCP_VERSION}, {instructions: INSTRUCTIONS});
   const readOnly = {readOnlyHint: true, openWorldHint: false};
+  const who = {client: ctx.client, caller: ctx.caller};
+  const event = (entry: Omit<EventLog, 'client' | 'caller'>) => record(ctx.logEvent && (() => ctx.logEvent!({...entry, ...who})));
   server.registerTool('search_templates', {
     title: 'Search video templates',
-    description: 'Find motion graphics video templates (launch videos, promos, intros, social reels, logo reveals, teasers) in the free cliphou.se catalog. Returns id, title, aspect, length in seconds, preview MP4, poster image, and editor URL. Use this first when the user wants a video for a product, project, or announcement.',
+    description: 'Find motion graphics video templates (launch videos, promos, intros, social reels, logo reveals, teasers) in the free cliphou.se catalog. Returns a searchId and results with id, title, aspect, length in seconds, preview MP4, poster image, and editor URL. Use this first when the user wants a video for a product, project, or announcement.',
     inputSchema: {
       query: z.string().max(200).optional().describe('Short description of the video, for example "saas product launch" or "logo intro".'),
       aspect: z.enum(ASPECTS).optional().describe('Only when the destination implies it: 9:16 vertical (Reels, TikTok, Shorts), 16:9 (YouTube, web), 1:1 or 4:5 (feeds).'),
@@ -109,33 +132,79 @@ function createServer(origin: string) {
       limit: z.number().int().min(1).max(20).optional().describe('Maximum results, default 6.'),
     },
     annotations: readOnly,
-  }, async (args) => text(searchTemplates(origin, args)));
+  }, async (args) => {
+    const ranked = rankTemplates(args);
+    const results = ranked.map(card(origin));
+    const searchId = randomBytes(12).toString('base64url');
+    const {query, limit: _, ...filters} = args;
+    await record(ctx.logSearch && (() => ctx.logSearch!({
+      searchId, query: (query ?? '').trim().slice(0, 200), filters: Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== undefined)),
+      resultIds: results.slice(0, 10).map((r) => r.id), resultCount: results.length, empty: results.length === 0,
+      topScore: ranked[0]?.score ?? 0, engines: results.slice(0, 10).map((r) => r.engine), ...who,
+    })));
+    return text({searchId, results});
+  });
   server.registerTool('get_template_spec', {
     title: 'Get template spec',
     description: 'Get the editable fields of one template: current props, text roles with maxLength, theme colors, scenes, format, JSON Schema, and the source package for local rendering. Call before build_edit_link and start from the returned props.',
-    inputSchema: {variantId: z.string().regex(/^[a-z0-9-]{1,100}$/).describe('Template id from search_templates.')},
+    inputSchema: {variantId: z.string().regex(/^[a-z0-9-]{1,100}$/).describe('Template id from search_templates.'), searchId: searchIdField},
     annotations: readOnly,
-  }, async ({variantId}) => {
+  }, async ({variantId, searchId}) => {
     const spec = templateSpec(origin, variantId);
-    return spec ? text(spec) : failure(`Unknown template "${variantId}". Use search_templates to find ids.`);
+    if (!spec) return failure(`Unknown template "${variantId}". Use search_templates to find ids.`);
+    await event({searchId: searchId ?? null, type: 'spec', variantId, engine: spec.engine});
+    return text(spec);
   });
   server.registerTool('build_edit_link', {
     title: 'Build editor link',
     description: 'Validate filled-in props for a template and return a cliphou.se link that opens a live, editable preview of the customized video. The user can export the MP4 there. Invalid props return an error that names the field to fix.',
     inputSchema: {variantId: z.string().regex(/^[a-z0-9-]{1,100}$/).describe('Template id.'),
       props: z.record(z.string(), z.unknown()).describe('The full props object from get_template_spec with edited texts, theme, and media.'),
-      templateVersion: z.number().int().positive().optional().describe('Only for older template versions. Usually omit.')},
+      templateVersion: z.number().int().positive().optional().describe('Only for older template versions. Usually omit.'), searchId: searchIdField},
     annotations: readOnly,
-  }, async ({variantId, props, templateVersion}) => {
-    try { return text({url: editLink(origin, variantId, props, templateVersion)}); }
-    catch (e) { return failure(e instanceof HttpError ? e.message : 'The props could not be validated.'); }
+  }, async ({variantId, props, templateVersion, searchId}) => {
+    let url;
+    try { url = editLink(origin, variantId, props, templateVersion); }
+    catch (e) {
+      const message = e instanceof HttpError ? e.message : 'The props could not be validated.';
+      await event({searchId: searchId ?? null, type: 'link', variantId, error: message.slice(0, 200)});
+      return failure(message);
+    }
+    await event({searchId: searchId ?? null, type: 'link', variantId});
+    return text({url});
+  });
+  server.registerTool('render_preview', {
+    title: 'Render personalized preview',
+    description: 'Render a poster image of a template filled with the user\'s props, in a few seconds, and return it with the editor link. Call after get_template_spec once the props are filled, and show the image to the user. Invalid props return an error that names the field to fix. If rendering is unavailable, poster is null and the editor link still works. video is reserved for a short animated preview and is null for now.',
+    inputSchema: {variantId: z.string().regex(/^[a-z0-9-]{1,100}$/).describe('Template id.'),
+      props: z.record(z.string(), z.unknown()).describe('The full props object from get_template_spec with edited texts, theme, and media.'),
+      templateVersion: z.number().int().positive().optional().describe('Only for older template versions. Usually omit.'), searchId: searchIdField},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
+  }, async ({variantId, props, templateVersion, searchId}) => {
+    let editor;
+    try { editor = editLink(origin, variantId, props, templateVersion); }
+    catch (e) {
+      const message = e instanceof HttpError ? e.message : 'The props could not be validated.';
+      await event({searchId: searchId ?? null, type: 'preview', variantId, error: message.slice(0, 200)});
+      return failure(message);
+    }
+    const engine = engineOf(visible.find((v) => v.id === variantId)!.template);
+    const result: PreviewResult = ctx.preview
+      ? await ctx.preview({variantId, props, templateVersion, caller: ctx.caller, keyed: Boolean(ctx.keyed), editor})
+      : {poster: null, video: null, editor, previewId: '', cached: false, ms: 0, message: 'Previews are not available here. Open the editor link to see the video.'};
+    await event({searchId: searchId ?? null, type: 'preview', variantId, engine, ms: result.ms, cached: result.cached, poster: Boolean(result.poster),
+      ...(result.poster ? {} : {error: (result.message ?? 'no poster').slice(0, 200)})});
+    const {image, ...data} = result;
+    const body = {poster: data.poster, video: data.video, editor: data.editor, ...(data.message ? {message: data.message} : {})};
+    return {content: [{type: 'text' as const, text: JSON.stringify(body, null, 2)},
+      ...(image ? [{type: 'image' as const, data: image.toString('base64'), mimeType: 'image/jpeg'}] : [])]};
   });
   return server;
 }
 
 // Stateless Streamable HTTP: a fresh server and transport per request, JSON responses, no sessions or SSE.
-export async function handleMcp(origin: string, req: IncomingMessage, res: ServerResponse, body: unknown) {
-  const server = createServer(origin);
+export async function handleMcp(origin: string, req: IncomingMessage, res: ServerResponse, body: unknown, ctx: McpContext) {
+  const server = createServer(origin, ctx);
   const transport = new StreamableHTTPServerTransport({sessionIdGenerator: undefined, enableJsonResponse: true});
   res.on('close', () => { void transport.close(); void server.close(); });
   await server.connect(transport);
