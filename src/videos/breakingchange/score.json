@@ -1,0 +1,61 @@
+{
+  "beatFrames": 16,
+  "scenes": [
+    {
+      "type": "announcement",
+      "bars": 1,
+      "focusBeat": 3.5,
+      "roles": ["brand", "headline"],
+      "energy": 1
+    },
+    {
+      "type": "list",
+      "bars": 2,
+      "focusBeat": 10,
+      "roles": ["brand", "headline", "date", "list"],
+      "energy": 2
+    },
+    {
+      "type": "end-screen",
+      "bars": 1,
+      "focusBeat": 14,
+      "roles": ["brand", "headline", "date", "list", "cta"],
+      "energy": 3
+    }
+  ],
+  "cues": [
+    {"id": "band", "beat": 0, "sound": "impact", "velocity": 0.6},
+    {"id": "brand", "beat": 1, "sound": "blip", "role": "brand", "velocity": 0.6},
+    {"id": "headline", "beat": 2, "sound": "pluck", "role": "headline", "velocity": 0.7},
+    {"id": "callout", "beat": 3, "sound": "snap", "velocity": 0.6},
+    {"id": "date", "beat": 4, "sound": "tom", "role": "date", "velocity": 0.8},
+    {"id": "mark", "beat": 5, "sound": "snap", "velocity": 0.5},
+    {"id": "lend", "beat": 6, "sound": "snap", "velocity": 0.4},
+    {"id": "elapse", "beat": 9, "sound": "tom", "velocity": 0.6},
+    {"id": "deadline", "beat": 10, "sound": "tom", "velocity": 0.7},
+    {"id": "drop", "beat": 11, "sound": "pluck", "velocity": 0.6},
+    {"id": "panel", "beat": 12, "sound": "impact", "velocity": 0.8},
+    {"id": "cta", "beat": 12.5, "sound": "lead", "role": "cta", "velocity": 0.7},
+    {"id": "stamp", "beat": 13, "sound": "stamp", "velocity": 1},
+    {"id": "arrow", "beat": 14, "sound": "snap", "velocity": 0.6},
+    {"id": "close", "beat": 15, "sound": "zap", "velocity": 0.6}
+  ],
+  "list": {
+    "role": "list",
+    "label": "What changes",
+    "scene": 1,
+    "min": 1,
+    "max": 3,
+    "itemMax": 32,
+    "schedules": {
+      "1": [7],
+      "2": [6, 8],
+      "3": [6, 7, 8]
+    },
+    "accentOffset": 1,
+    "voice": "marimba"
+  },
+  "risers": [
+    {"beat": 9, "beats": 3}
+  ]
+}

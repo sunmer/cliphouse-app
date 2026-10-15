@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .1em; margin-bottom:-.1em; }
+    .w { display:inline-block; }
+
+    /* Terminal field */
+    .grid { position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:0; }
+    .grid circle { fill:color-mix(in srgb, var(--theme-foreground) 11%, transparent); }
+
+    /* Title bar */
+    .chrome { position:absolute; left:0; top:0; width:1920px; height:96px; background:var(--theme-surface); border-bottom:3px solid color-mix(in srgb, var(--theme-foreground) 12%, transparent); z-index:5; }
+    .dot { position:absolute; top:37px; width:22px; height:22px; border-radius:50%; }
+    .dot.d1 { left:96px; background:var(--theme-accent2); }
+    .dot.d2 { left:136px; background:var(--theme-accent); }
+    .dot.d3 { left:176px; background:color-mix(in srgb, var(--theme-foreground) 28%, transparent); }
+    .cbrand { position:absolute; left:250px; top:24px; width:1200px; height:50px; font-size:40px; line-height:48px; white-space:nowrap; color:var(--theme-foreground); }
+
+    /* Status bar with the progress segments */
+    .status { position:absolute; left:0; top:1000px; width:1920px; height:80px; background:var(--theme-surface); border-top:3px solid color-mix(in srgb, var(--theme-foreground) 12%, transparent); z-index:5; }
+    .meter { position:absolute; left:96px; right:96px; top:25px; height:24px; display:flex; gap:16px; }
+    .pip { position:relative; flex:1; height:24px; background:color-mix(in srgb, var(--theme-foreground) 12%, transparent); overflow:hidden; transform-origin:0 50%; }
+    .pfill { position:absolute; inset:0; background:var(--theme-accent); transform-origin:0 50%; transform:scaleX(0); }
+    .finish { position:absolute; left:0; top:997px; width:1920px; height:6px; background:var(--theme-accent); transform-origin:0 50%; z-index:6; }
+
+    /* Headline: printed at hero size, then scrolls up and scales down */
+    .headline { --mix:0; position:absolute; left:200px; top:368px; width:1624px; height:360px; font-size:170px; line-height:.96; transform-origin:0 0;
+      color:color-mix(in srgb, var(--theme-accent) calc(var(--mix) * 1%), var(--theme-foreground)); z-index:2; }
+
+    /* The cursor / rail head */
+    .head { --mix:0; position:absolute; left:96px; top:384px; width:72px; height:140px; z-index:7;
+      background:color-mix(in srgb, var(--theme-accent) calc(var(--mix) * 1%), var(--theme-accent2)); }
+
+    /* Output divider */
+    .divider { position:absolute; left:196px; top:360px; width:1628px; height:6px; background:var(--theme-accent2); transform-origin:0 50%; z-index:1; }
+
+    /* Tally: checked / total */
+    .tally { position:absolute; right:96px; top:128px; height:200px; display:flex; align-items:flex-end; gap:22px; z-index:2; }
+    .tslot { position:relative; width:226px; height:184px; overflow:hidden; }
+    .tzero, .tnum { position:absolute; left:0; top:0; width:226px; height:184px; font-size:170px; line-height:184px; text-align:right; color:var(--theme-accent); }
+    .tslash { width:14px; height:150px; margin-bottom:18px; background:color-mix(in srgb, var(--theme-foreground) 25%, transparent); transform-origin:50% 100%; }
+    .tmask { overflow:hidden; padding-bottom:16px; }
+    .ttotal { display:block; font-size:84px; line-height:1; color:color-mix(in srgb, var(--theme-foreground) 45%, transparent); }
+
+    /* Rail */
+    .rail, .railfill { position:absolute; left:126px; top:384px; width:4px; height:556px; transform-origin:50% 0; }
+    .rail { background:color-mix(in srgb, var(--theme-foreground) 18%, transparent); z-index:1; }
+    .railfill { background:var(--theme-accent); z-index:1; }
+
+    /* Steps: reflow per count */
+    .steps { --cs:calc(136px - var(--count) * 15px); position:absolute; left:0; top:384px; width:1920px; height:556px; display:flex; flex-direction:column; z-index:3; }
+    .row { position:relative; height:calc(556px / var(--count)); display:flex; align-items:center; padding:0 calc(136px + var(--cs)) 0 196px; }
+    .stop { position:absolute; left:110px; top:50%; margin-top:-18px; width:36px; height:36px; border-radius:50%; background:var(--theme-background); border:4px solid color-mix(in srgb, var(--theme-foreground) 30%, transparent); }
+    .sfill { position:absolute; inset:2px; border-radius:50%; background:var(--theme-accent); }
+    .nmask { display:block; overflow:hidden; flex:none; padding-bottom:.06em; }
+    .num { display:block; font-size:calc(170px - var(--count) * 18px); width:1.3em; line-height:1; color:var(--theme-accent2); }
+    .text { flex:1; min-width:0; height:calc(556px / var(--count) - 16px); margin-left:32px; font-size:72px; line-height:1.12; align-content:center; color:var(--theme-foreground); }
+    .check { position:absolute; right:96px; top:50%; width:var(--cs); height:var(--cs); margin-top:calc(var(--cs) / -2); border-radius:6px; overflow:hidden; border:4px solid color-mix(in srgb, var(--theme-foreground) 20%, transparent); }
+    .cfill { position:absolute; inset:0; background:var(--theme-accent); transform-origin:50% 100%; }
+    .tick { position:absolute; left:50%; top:50%; width:calc(var(--cs) * .46); height:calc(var(--cs) * .24); border-left:calc(var(--cs) * .11) solid var(--theme-background); border-bottom:calc(var(--cs) * .11) solid var(--theme-background); }
+
+    /* Finale: the green field */
+    .fin { position:absolute; inset:0; background:var(--theme-accent); z-index:10; clip-path:circle(0px at 128px 940px); }
+    .bigcheck { position:absolute; left:96px; top:260px; width:560px; height:560px; }
+    .bigcheck polyline { fill:none; stroke:var(--theme-background); stroke-width:56; stroke-linecap:butt; stroke-linejoin:miter; stroke-dasharray:1; stroke-dashoffset:1; }
+    .fcursor { position:absolute; left:760px; top:304px; width:30px; height:52px; background:var(--theme-background); transform-origin:50% 100%; }
+    .finbrand { position:absolute; left:816px; top:300px; width:1008px; height:62px; font-size:48px; line-height:60px; white-space:nowrap; color:var(--theme-background); }
+    .ctabox { position:absolute; left:760px; top:384px; width:1064px; height:350px; transform-origin:0 50%; }
+    .cta { display:block; width:1064px; height:350px; font-size:170px; line-height:.95; align-content:center; color:var(--theme-background); }
+    .rule2 { position:absolute; left:760px; top:770px; width:1064px; height:14px; background:var(--theme-foreground); transform-origin:0 50%; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10.667" data-width="1920" data-height="1080">
+    <section id="migration-session" class="scene" data-start="0" data-duration="10.667" data-track-index="0">
+      <svg class="grid" viewBox="0 0 1920 1080" data-layout-allow-overflow>
+        <defs><pattern id="mgdots" width="48" height="48" patternUnits="userSpaceOnUse"><circle cx="0" cy="0" r="2.5" /><circle cx="48" cy="0" r="2.5" /><circle cx="0" cy="48" r="2.5" /><circle cx="48" cy="48" r="2.5" /></pattern></defs>
+        <rect width="1920" height="1080" fill="url(#mgdots)" />
+      </svg>
+
+      <div class="chrome">
+        <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div>
+        <div class="cbrand mono" data-text-role="brand" data-beat-text="brand">Brand</div>
+      </div>
+
+      <h1 class="headline display fit" data-fit-max="170" data-fit-min="90" data-text-role="headline" data-beat-text="headline">Headline</h1>
+
+      <div class="divider"></div>
+      <div class="rail"></div>
+      <div class="railfill"></div>
+
+      <div class="tally">
+        <div class="tslot"><span class="tzero display"></span></div>
+        <div class="tslash"></div>
+        <div class="tmask"><span class="ttotal display"></span></div>
+      </div>
+
+      <div class="steps" data-list>
+        <template data-list-row>
+          <div class="row">
+            <div class="stop" data-list-part="stop" data-list-align="y"><div class="sfill"></div></div>
+            <span class="nmask" data-list-part="number" data-list-align="y"><span class="num display" data-list-number>01</span></span>
+            <div class="text mono fit" data-list-text data-words data-fit-max="72" data-fit-min="40">Step</div>
+            <div class="check" data-list-part="check" data-list-align="y"><div class="cfill"></div><div class="tick"></div></div>
+          </div>
+        </template>
+      </div>
+
+      <div class="status"><div class="meter"></div></div>
+      <div class="finish"></div>
+
+      <div class="head"></div>
+
+      <div class="fin">
+        <svg class="bigcheck" viewBox="0 0 500 500"><polyline pathLength="1" points="40,270 190,420 460,110" /></svg>
+        <div class="fcursor"></div>
+        <div class="finbrand mono" data-text-role="brand" data-beat-text="brand">Brand</div>
+        <div class="ctabox"><div class="cta display fit" data-fit-max="170" data-fit-min="80" data-text-role="cta" data-beat-text="cta">CTA</div></div>
+        <div class="rule2"></div>
+      </div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const n = Math.max(1, m.items.length);
+      const TOP = 384, H = 556, RX = 128;
+      const stopY = (i) => TOP + (i + 0.5) * H / n;
+      const pad = (v) => String(v).padStart(2, '0');
+
+      // Per-count type scale for the steps; fewer items get bigger type, the fit helper keeps 30 characters readable.
+      const fmax = [0, 104, 92, 80, 72][Math.min(n, 4)];
+      for (const el of document.querySelectorAll('[data-list] [data-list-text]')) { el.dataset.fitMax = String(fmax); el.dataset.fitMin = '40'; }
+      window.cliphouseFitText?.();
+
+      // Words rise through masks; later words share the last slot so long text settles early.
+      const words = (el, at, step = 0.5, cap = 2) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, at + Math.min(i, cap) * B(step)));
+
+      // Beat 0: the brand rises in the title bar.
+      words(q('.cbrand'), t('brand'), 0.25, 2);
+
+      // The cursor is one actor: keyframed from state to state at absolute beats.
+      const head = q('.head');
+      const HOME = {left: 96, top: 384, width: 72, height: 140, '--mix': 0};
+      let hs = {...HOME};
+      tl.set(head, hs, 0);
+      const hto = (at, dur, next) => {
+        tl.fromTo(head, {...hs}, {...next, duration: dur, ease: 'expo.out', immediateRender: false}, at);
+        hs = {...hs, ...next};
+      };
+      // Beat 0.5: the prompt cursor blinks before the headline prints.
+      tl.set(head, {autoAlpha: 0}, t('brand') + B(0.5));
+      tl.set(head, {autoAlpha: 1}, t('headline'));
+
+      // Beats 1-2: the headline prints at hero size; beat 3 it scrolls up and scales into the header.
+      const headline = q('.headline');
+      words(headline, t('headline'), 0.5, 2);
+      tl.fromTo(headline, {y: 0, scale: 1}, {y: -238, scale: 0.58, duration: B(1), ease: 'expo.out'}, t('scroll'));
+      hto(t('scroll'), B(1), {top: 139, width: 42, height: 81});
+
+      // Beat 4: the cursor drops into the rail head; the rail draws down from it and the steps open.
+      hto(t('rail'), B(0.75), {left: RX - 22, top: TOP - 22, width: 44, height: 44});
+      tl.fromTo('.rail', {scaleY: 0}, {scaleY: 1, duration: B(1), ease: 'expo.out'}, t('rail'));
+      tl.fromTo('.steps', {autoAlpha: 0}, {autoAlpha: 1, duration: 0}, t('rail'));
+
+      // Beat 4: the status bar progress segments draw across the full width (scaffold).
+      const pips = m.parts(q('.meter'), 'pip', () => {
+        const d = document.createElement('div');
+        d.className = 'pip';
+        d.dataset.listGroup = 'scaffold';
+        const f = document.createElement('i');
+        f.className = 'pfill';
+        d.append(f);
+        return d;
+      });
+      tl.fromTo(pips, {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out', stagger: B(0.125)}, t('rail'));
+
+      // Beat 4.5: the tally "00 / total" rises in the top right.
+      const zero = q('.tzero');
+      zero.textContent = pad(0);
+      q('.ttotal').textContent = pad(m.items.length);
+      const tallyAt = t('rail') + B(0.5);
+      tl.fromTo('.tally', {autoAlpha: 0}, {autoAlpha: 1, duration: 0}, tallyAt);
+      tl.fromTo(zero, {yPercent: 100}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, tallyAt);
+      tl.fromTo('.tslash', {scaleY: 0, skewX: -16}, {scaleY: 1, skewX: -16, duration: B(0.5), ease: 'expo.out'}, tallyAt);
+      tl.fromTo('.ttotal', {yPercent: 110}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, tallyAt + B(0.125));
+      const tnums = m.parts(q('.tslot'), 'tally', (it) => {
+        const s = document.createElement('span');
+        s.className = 'tnum display';
+        s.textContent = pad(it.index + 1);
+        return s;
+      });
+
+      // Beat 5: the output divider draws. Beat 8: the finish line runs along the status bar.
+      tl.fromTo('.divider', {scaleX: 0}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('divider'));
+      tl.fromTo('.finish', {scaleX: 0}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('finishLine'));
+
+      // Rail fill steps to each checked stop.
+      let frac = 0;
+      tl.set('.railfill', {scaleY: 0}, 0);
+      const fillTo = (at, f) => {
+        tl.fromTo('.railfill', {scaleY: frac}, {scaleY: f, duration: B(0.75), ease: 'expo.out', immediateRender: false}, at);
+        frac = f;
+      };
+
+      // Steps: land on start, check on accent (as the next step begins).
+      m.items.forEach((it, i) => {
+        const row = m.row(it.index);
+        if (!row) return;
+        hto(it.start, B(0.75), {top: stopY(it.index) - 22});
+        tl.fromTo(row.querySelector('.stop'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, it.start);
+        tl.fromTo(row.querySelector('.nmask'), {autoAlpha: 0}, {autoAlpha: 1, duration: 0}, it.start);
+        tl.fromTo(row.querySelector('.num'), {yPercent: 110}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, it.start);
+        words(row.querySelector('[data-list-text]'), it.start, 0.125, 3);
+        tl.fromTo(row.querySelector('.check'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, it.start + B(0.25));
+
+        tl.fromTo(row.querySelector('.sfill'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, it.accent);
+        tl.fromTo(row.querySelector('.cfill'), {scaleY: 0}, {scaleY: 1, duration: B(0.5), ease: 'expo.out'}, it.accent);
+        tl.fromTo(row.querySelector('.tick'),
+          {scale: 0, rotation: -45, xPercent: -50, yPercent: -70},
+          {scale: 1, rotation: -45, xPercent: -50, yPercent: -70, duration: B(0.5), ease: 'back.out(1.2)'}, it.accent + B(0.125));
+        if (pips[i]) tl.fromTo(pips[i].firstChild, {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, it.accent);
+        fillTo(it.accent, (stopY(it.index) - TOP) / H);
+
+        // The tally rolls to this step's number.
+        const prev = i ? tnums[i - 1] : zero;
+        if (prev) tl.fromTo(prev, {yPercent: 0}, {yPercent: -100, duration: B(0.75), ease: 'expo.out', immediateRender: false}, it.accent);
+        if (tnums[i]) {
+          tl.fromTo(tnums[i], {autoAlpha: 0}, {autoAlpha: 1, duration: 0}, it.accent);
+          tl.fromTo(tnums[i], {yPercent: 100}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, it.accent);
+        }
+      });
+
+      // Beat 9: all done, the headline turns green.
+      tl.fromTo(headline, {'--mix': 0}, {'--mix': 100, duration: B(0.5), ease: 'power2.out'}, t('allDone'));
+      // Beat 10: the rail completes and the head reaches the end.
+      fillTo(t('railEnd'), 1);
+      hto(t('railEnd'), B(1), {top: TOP + H - 22});
+      // Beat 11: the head swells into a green block.
+      hto(t('headGrow'), B(0.75), {left: RX - 60, top: TOP + H - 60, width: 120, height: 120, '--mix': 100});
+
+      // Beat 12: green floods from the head to the farthest corner (10 frames).
+      tl.fromTo('.fin', {clipPath: 'circle(0px at 128px 940px)'},
+        {clipPath: 'circle(2100px at 128px 940px)', duration: B(0.625), ease: 'power3.out'}, t('flood'));
+
+      // Beat 13: under full cover, the terminal resets to its first frame.
+      const R = t('bigCheck');
+      tl.set(['.cbrand', '.headline', '.steps', '.rail', '.railfill', '.meter', '.divider', '.finish', '.tally'], {autoAlpha: 0}, R);
+      tl.set(head, HOME, R);
+
+      // Beat 13: the giant check draws on.
+      tl.fromTo('.bigcheck polyline', {strokeDashoffset: 1}, {strokeDashoffset: 0, duration: B(0.75), ease: 'expo.out'}, t('bigCheck'));
+      // Beat 14: the CTA stamps in.
+      tl.fromTo('.ctabox', {scale: 1.12}, {scale: 1, duration: B(0.75), ease: 'expo.out'}, t('ctaStamp'));
+      words(q('.fin .cta'), t('ctaStamp'), 0.25, 1);
+      // Beat 15: the brand rises behind a prompt cursor.
+      tl.fromTo('.fcursor', {scaleY: 0}, {scaleY: 1, duration: B(0.5), ease: 'expo.out'}, t('finBrand'));
+      words(q('.fin .finbrand'), t('finBrand'), 0.25, 2);
+      // Beat 16: the rule draws.
+      tl.fromTo('.rule2', {scaleX: 0}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('rule'));
+      // Beats 17-18.5: the cursor blinks on eighth notes while the message holds.
+      [0, 0.5, 1, 1.5].forEach((b, i) => tl.set('.fcursor', {autoAlpha: i % 2 ? 1 : 0}, t('blink') + B(b)));
+
+      // Beat 19: the green iris snaps shut into the prompt cursor of frame 0.
+      tl.fromTo('.fin', {clipPath: 'circle(2000px at 132px 454px)'},
+        {clipPath: 'circle(0px at 132px 454px)', duration: B(0.75), ease: 'power3.out', immediateRender: false}, t('loop'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

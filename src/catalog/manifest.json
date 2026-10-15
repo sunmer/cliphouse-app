@@ -5,6 +5,7 @@
     "purpose": [
       "Showreel",
       "Product launch",
+      "Developer",
       "Brand intro",
       "Event promo",
       "Social ad",
@@ -1597,6 +1598,216 @@
         "provider": "Anthropic",
         "effort": "high"
       }
+    },
+    {
+      "id": "apirelease",
+      "title": "API Release",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16:9 API release video. The version and date sit in a header bar, the headline names the release, then up to four lines of example code type into an editor pane one per beat (a request, a flag, a response field), then the CTA as an install or docs command. Monospace, precise, developer-first.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "breakingchange",
+      "title": "Breaking Change",
+      "creator": "cliphouse.studio",
+      "prompt": "A 4:5 breaking change or deprecation notice. A warning band slides across, the headline names what is going away, the removal date lands like a deadline, up to three lines say what changes, then the CTA to the migration guide. Clear and calm: a notice, not an alarm.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "migration",
+      "title": "Migration Guide",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16:9 \"upgrade to the new version\" walkthrough. The headline names the upgrade, then up to four numbered steps advance along a progress rail one per beat, each step checking off as the next begins, then the CTA. Feels like a guided terminal session that ends green.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "codediff",
+      "title": "Code Diff",
+      "creator": "cliphouse.studio",
+      "prompt": "A 1:1 code diff post. The headline frames the change, then up to six diff lines print one per beat in a gutter with line markers: lines that start with \"-\" are removals, lines that start with \"+\" are additions, other lines are context. Read the marker from the item text at runtime, show it in the gutter, and never depend on leading spaces (the editor trims them). The removed lines strike out, the added lines settle in, then the CTA. Built for \"look how much simpler this is\" posts.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "githubstars",
+      "title": "GitHub Stars",
+      "creator": "cliphouse.studio",
+      "prompt": "A 1:1 open-source milestone post. A star counter ticks up and locks on the stat, the headline says what was reached, the subhead thanks the community, then the CTA. A field of small marks, one per beat, fills the frame like a contribution graph. Grateful, credible, and a little proud.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "contributors",
+      "title": "Contributors",
+      "creator": "cliphouse.studio",
+      "prompt": "A 4:5 contributor shoutout for a release or a month of open source. The headline thanks the community, then up to six contributor handles land one per beat like name tags or commit avatars built from their initials, the date names the release or month, then the CTA invites new contributors.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "roadmap",
+      "title": "Roadmap",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16:9 public roadmap update. The headline and the quarter (the date) set it up, then up to five roadmap items land on a horizontal track one per beat. The first item is marked as in progress, the rest are queued behind it, then the CTA. Calm, structured, and honest.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "benchmark",
+      "title": "Benchmark",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16:9 benchmark result. The headline states the claim, then up to four bars race to their values one per beat, with the first item highlighted as the product, the subhead names the method, then the CTA. Each list item is a label and a number, such as \"Forge 1.2\". Engineering-credible, not a marketing chart.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "modelrelease",
+      "title": "Model Release",
+      "creator": "cliphouse.studio",
+      "prompt": "A 1:1 AI model release card. The model name lands as the hero, a headline eval score locks in as the stat, the subhead says what the score measures, up to three capabilities appear, then the CTA to try it in the API. Precise and modern, like a lab release note, without sci-fi cliches.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "statusupdate",
+      "title": "Status Update",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16:9 incident resolved update. A status light settles from alert to resolved, the headline names the outcome, the date gives the incident window, up to four timeline entries print one per beat on a vertical log, then the CTA to the postmortem. Transparent and steady.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "securityadvisory",
+      "title": "Security Advisory",
+      "creator": "cliphouse.studio",
+      "prompt": "A 4:5 security advisory. The severity score locks into a badge as the stat, the headline says to patch and names the fixed version, the subhead states the issue in one sentence, then the CTA to the advisory. Urgent but measured: a responsible disclosure, not a scare.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "docslaunch",
+      "title": "Docs Launch",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16:9 documentation launch. A docs sidebar builds itself: up to four section names land one per beat as navigation items while a page frame assembles beside them, the headline names the new docs, the subhead gives the promise, then the CTA as the docs address.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "hackathon",
+      "title": "Hackathon",
+      "creator": "cliphouse.studio",
+      "prompt": "A 9:16 hackathon promo. The event name lands big, the dates and the city (the date role) follow, the prize pool slams in as the stat, the subhead gives the theme, then the CTA to register. Energetic and builder-friendly, like a terminal prompt that turns into a poster.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "devtalk",
+      "title": "Dev Talk",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16:9 conference talk promo. The talk title is the hero, the speaker name and role land as the author, the conference and room land as the attribution, the date and time follow, then the CTA. Feels like a talk title slide that comes alive, not a generic speaker card.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "opensource",
+      "title": "Open Source",
+      "creator": "cliphouse.studio",
+      "prompt": "A 1:1 \"now open source\" announcement. A closed box or lock opens to reveal the headline, the subhead names the license and what is included, then the CTA as the repository address. Generous and confident, the moment a team gives its code away.",
+      "createdAt": "2026-10-14",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
     }
   ],
   "variants": [
@@ -2359,7 +2570,7 @@
       "title": "CLI Launch",
       "creator": "devrel_kai",
       "description": "Terminal-typed launch for a developer tool or API.",
-      "purpose": "Product launch",
+      "purpose": "Developer",
       "style": [
         "Tech",
         "Minimal"
@@ -2399,7 +2610,8 @@
       "useCases": [
         "product-launch",
         "saas",
-        "youtube-intro"
+        "youtube-intro",
+        "developer"
       ]
     },
     {
@@ -2408,7 +2620,7 @@
       "title": "Hackathon Invite",
       "creator": "devrel_kai",
       "description": "Glitchy terminal teaser for a hackathon or dev conference.",
-      "purpose": "Event promo",
+      "purpose": "Developer",
       "style": [
         "Tech",
         "Neon"
@@ -7076,7 +7288,7 @@
       "id": "changelog-launch",
       "title": "Weekly Changelog",
       "description": "A weekly changelog post. A version tag and the week, then up to five shipped items print onto a release log one per beat, each read as its own line (the user may prefix them with New, Improved, or Fixed), then the CTA. Built for X and LinkedIn feeds.",
-      "purpose": "Product launch",
+      "purpose": "Developer",
       "style": [
         "Tech",
         "Minimal"
@@ -7113,7 +7325,8 @@
       "useCases": [
         "saas",
         "product-launch",
-        "social-ad"
+        "social-ad",
+        "developer"
       ],
       "launch": true
     },
@@ -7593,7 +7806,7 @@
       "id": "releasenotes-launch",
       "title": "Release Notes",
       "description": "A release notes video for a changelog page or YouTube. A version and date header, then up to six notes that type or slide in one per beat like a terminal or a document, then the CTA. Developer-friendly and calm.",
-      "purpose": "Product launch",
+      "purpose": "Developer",
       "style": [
         "Tech",
         "Minimal"
@@ -7630,7 +7843,8 @@
       "useCases": [
         "saas",
         "product-launch",
-        "youtube-intro"
+        "youtube-intro",
+        "developer"
       ],
       "launch": true
     },
@@ -7733,6 +7947,786 @@
         "testimonial",
         "saas",
         "social-ad"
+      ],
+      "launch": true
+    },
+    {
+      "template": "apirelease",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "apirelease-launch",
+      "title": "API Release",
+      "description": "A API release video. The version and date sit in a header bar, the headline names the release, then up to four lines of example code type into an editor pane one per beat (a request, a flag, a response field), then the CTA as an install or docs command. Monospace, precise, developer-first.",
+      "purpose": "Developer",
+      "style": [
+        "Tech",
+        "Minimal"
+      ],
+      "energy": 3,
+      "keywords": [
+        "api release video",
+        "api launch video",
+        "developer announcement",
+        "sdk release video",
+        "devrel video template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Parcel API",
+          "headline": "Webhooks v2",
+          "date": "v2.0 / Oct 14",
+          "list": "POST /v2/webhooks\n\"events\": [\"order.paid\"]\n\"retry\": \"exponential\"\n201 Created in 38 ms",
+          "cta": "Read the API docs"
+        },
+        "theme": {
+          "background": "#0c0f14",
+          "surface": "#171c25",
+          "foreground": "#e8edf5",
+          "accent": "#ffb224",
+          "accent2": "#4cc38a"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "techno-grid"
+        }
+      },
+      "seoDescription": "A free 16:9 api release template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "saas",
+        "feature-launch"
+      ],
+      "launch": true
+    },
+    {
+      "template": "breakingchange",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "breakingchange-launch",
+      "title": "Breaking Change Notice",
+      "description": "A breaking change or deprecation notice. A warning band slides across, the headline names what is going away, the removal date lands like a deadline, up to three lines say what changes, then the CTA to the migration guide. Clear and calm: a notice, not an alarm.",
+      "purpose": "Developer",
+      "style": [
+        "Editorial",
+        "Bold"
+      ],
+      "energy": 2,
+      "keywords": [
+        "breaking change video",
+        "deprecation notice",
+        "api deprecation announcement",
+        "developer update video",
+        "end of life notice"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Parcel",
+          "headline": "API v1 is retiring",
+          "date": "Removed on Jan 15, 2027",
+          "list": "v1 endpoints return 410\nAPI keys move to scoped tokens\nWebhooks need signing secrets",
+          "cta": "Read the guide"
+        },
+        "theme": {
+          "background": "#fbf8f1",
+          "surface": "#ffe58a",
+          "foreground": "#1b1914",
+          "accent": "#e5484d",
+          "accent2": "#1b1914"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-sunday"
+        }
+      },
+      "seoDescription": "A free 4:5 breaking change notice template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "announcement",
+        "saas"
+      ],
+      "launch": true
+    },
+    {
+      "template": "migration",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "migration-launch",
+      "title": "Migration Guide",
+      "description": "A \"upgrade to the new version\" walkthrough. The headline names the upgrade, then up to four numbered steps advance along a progress rail one per beat, each step checking off as the next begins, then the CTA. Feels like a guided terminal session that ends green.",
+      "purpose": "Developer",
+      "style": [
+        "Minimal",
+        "Tech"
+      ],
+      "energy": 3,
+      "keywords": [
+        "migration guide video",
+        "upgrade guide video",
+        "version upgrade announcement",
+        "developer tutorial template",
+        "framework release video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Forge",
+          "headline": "Upgrade to Forge 5",
+          "list": "Run npx forge@5 upgrade\nRename config to forge.ts\nReplace env() with secrets()\nDeploy and you are done",
+          "cta": "Full migration guide"
+        },
+        "theme": {
+          "background": "#f4f7f5",
+          "surface": "#ffffff",
+          "foreground": "#10201a",
+          "accent": "#0f9d6b",
+          "accent2": "#3b5bdb"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-nightshift"
+        }
+      },
+      "seoDescription": "A free 16:9 migration guide template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "saas",
+        "youtube-intro"
+      ],
+      "launch": true
+    },
+    {
+      "template": "codediff",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "codediff-launch",
+      "title": "Code Diff",
+      "description": "A code diff post. The headline frames the change, then up to six diff lines print one per beat in a gutter with line markers: lines that start with \"-\" are removals, lines that start with \"+\" are additions, other lines are context. Read the marker from the item text at runtime, show it in the gutter, and never depend on leading spaces (the editor trims them). The removed lines strike out, the added lines settle in, then the CTA. Built for \"look how much simpler this is\" posts.",
+      "purpose": "Developer",
+      "style": [
+        "Tech",
+        "Minimal"
+      ],
+      "energy": 3,
+      "keywords": [
+        "code diff video",
+        "code snippet video",
+        "developer social post",
+        "code animation template",
+        "devtools launch video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Tidewave",
+          "headline": "Auth in one line",
+          "list": "- const s = await session(req)\n- if (!s) throw new AuthError()\n- const user = await db.user(s)\n+ const user = await auth(req)\nreturn user.plan\n+ // no session code left",
+          "cta": "Try Tidewave"
+        },
+        "theme": {
+          "background": "#111014",
+          "surface": "#1d1b22",
+          "foreground": "#f1eef7",
+          "accent": "#ff6b6b",
+          "accent2": "#5ce1a6"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-launch"
+        }
+      },
+      "seoDescription": "A free 1:1 code diff template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "feature-launch",
+        "social-ad"
+      ],
+      "launch": true
+    },
+    {
+      "template": "githubstars",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "githubstars-launch",
+      "title": "Open Source Milestone",
+      "description": "A open-source milestone post. A star counter ticks up and locks on the stat, the headline says what was reached, the subhead thanks the community, then the CTA. A field of small marks, one per beat, fills the frame like a contribution graph. Grateful, credible, and a little proud.",
+      "purpose": "Developer",
+      "style": [
+        "Tech",
+        "Bold"
+      ],
+      "energy": 4,
+      "keywords": [
+        "github stars video",
+        "open source milestone",
+        "github milestone post",
+        "open source community video",
+        "repo milestone animation"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Tinybase",
+          "stat": "25k",
+          "headline": "stars on GitHub",
+          "subhead": "Built by 340 contributors. Thank you all.",
+          "cta": "Star the repo"
+        },
+        "theme": {
+          "background": "#0d1117",
+          "surface": "#161b22",
+          "foreground": "#f0f6fc",
+          "accent": "#f2cc60",
+          "accent2": "#3fb950"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "techno-pulse"
+        }
+      },
+      "seoDescription": "A free 1:1 open source milestone template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "data-recap",
+        "social-ad"
+      ],
+      "launch": true
+    },
+    {
+      "template": "contributors",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "contributors-launch",
+      "title": "Contributor Shoutout",
+      "description": "A contributor shoutout for a release or a month of open source. The headline thanks the community, then up to six contributor handles land one per beat like name tags or commit avatars built from their initials, the date names the release or month, then the CTA invites new contributors.",
+      "purpose": "Developer",
+      "style": [
+        "Playful",
+        "Bold"
+      ],
+      "energy": 3,
+      "keywords": [
+        "contributor shoutout video",
+        "open source thank you",
+        "community shoutout template",
+        "release contributors post",
+        "devrel community video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Forge",
+          "headline": "Thank you, builders",
+          "date": "Release 5.2 contributors",
+          "list": "@mayachen\n@devon_k\n@ines-ruiz\n@tomasz\n@akira.dev\n@priyanka",
+          "cta": "Good first issues"
+        },
+        "theme": {
+          "background": "#fff4e8",
+          "surface": "#ffd9b3",
+          "foreground": "#2a1608",
+          "accent": "#ff5f1f",
+          "accent2": "#2457ff"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-window"
+        }
+      },
+      "seoDescription": "A free 4:5 contributor shoutout template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "thank-you",
+        "social-ad"
+      ],
+      "launch": true
+    },
+    {
+      "template": "roadmap",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "roadmap-launch",
+      "title": "Public Roadmap",
+      "description": "A public roadmap update. The headline and the quarter (the date) set it up, then up to five roadmap items land on a horizontal track one per beat. The first item is marked as in progress, the rest are queued behind it, then the CTA. Calm, structured, and honest.",
+      "purpose": "Developer",
+      "style": [
+        "Minimal",
+        "Editorial"
+      ],
+      "energy": 2,
+      "keywords": [
+        "product roadmap video",
+        "public roadmap template",
+        "roadmap update video",
+        "saas roadmap announcement",
+        "what we are building next"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Relay",
+          "headline": "What we are building",
+          "date": "Q4 2026 roadmap",
+          "list": "Offline mode\nSAML single sign-on\nPublic API v3\nMobile widgets\nAudit log export",
+          "cta": "Vote on the roadmap"
+        },
+        "theme": {
+          "background": "#f5f3ff",
+          "surface": "#ffffff",
+          "foreground": "#18142b",
+          "accent": "#6d4aff",
+          "accent2": "#ff8a3d"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-shipit"
+        }
+      },
+      "seoDescription": "A free 16:9 public roadmap template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "saas",
+        "timeline"
+      ],
+      "launch": true
+    },
+    {
+      "template": "benchmark",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "benchmark-launch",
+      "title": "Benchmark Results",
+      "description": "A benchmark result. The headline states the claim, then up to four bars race to their values one per beat, with the first item highlighted as the product, the subhead names the method, then the CTA. Each list item is a label and a number, such as \"Forge 1.2\". Engineering-credible, not a marketing chart.",
+      "purpose": "Developer",
+      "style": [
+        "Tech",
+        "Bold"
+      ],
+      "energy": 4,
+      "keywords": [
+        "benchmark video",
+        "performance comparison video",
+        "benchmark chart animation",
+        "developer benchmark post",
+        "speed comparison template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Forge",
+          "headline": "3x faster cold starts",
+          "subhead": "p50 cold start in seconds, Node 22, 512 MB.",
+          "list": "Forge 0.4\nLambda 1.3\nCloud Run 1.1\nVercel 0.9",
+          "cta": "See the benchmark"
+        },
+        "theme": {
+          "background": "#07090c",
+          "surface": "#141922",
+          "foreground": "#f2f5f8",
+          "accent": "#00d1ff",
+          "accent2": "#8b95a5"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-rooftop"
+        }
+      },
+      "seoDescription": "A free 16:9 benchmark results template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "animated-chart",
+        "comparison"
+      ],
+      "launch": true
+    },
+    {
+      "template": "modelrelease",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "modelrelease-launch",
+      "title": "AI Model Release",
+      "description": "A AI model release card. The model name lands as the hero, a headline eval score locks in as the stat, the subhead says what the score measures, up to three capabilities appear, then the CTA to try it in the API. Precise and modern, like a lab release note, without sci-fi cliches.",
+      "purpose": "Developer",
+      "style": [
+        "Minimal",
+        "Editorial"
+      ],
+      "energy": 3,
+      "keywords": [
+        "ai model release video",
+        "llm launch video",
+        "model announcement template",
+        "ai launch video",
+        "eval results post"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Lumen Labs",
+          "headline": "Lumen 3 Mini",
+          "stat": "92.4%",
+          "subhead": "on our internal coding eval, at half the cost.",
+          "list": "1M token context\nTool use built in\nOpen weights",
+          "cta": "Try it in the API"
+        },
+        "theme": {
+          "background": "#f7f7f2",
+          "surface": "#e8e7dd",
+          "foreground": "#121212",
+          "accent": "#ff4d00",
+          "accent2": "#3a86ff"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "techno-grid"
+        }
+      },
+      "seoDescription": "A free 1:1 ai model release template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "feature-launch",
+        "announcement"
+      ],
+      "launch": true
+    },
+    {
+      "template": "statusupdate",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "statusupdate-launch",
+      "title": "Incident Update",
+      "description": "A incident resolved update. A status light settles from alert to resolved, the headline names the outcome, the date gives the incident window, up to four timeline entries print one per beat on a vertical log, then the CTA to the postmortem. Transparent and steady.",
+      "purpose": "Developer",
+      "style": [
+        "Tech",
+        "Minimal"
+      ],
+      "energy": 2,
+      "keywords": [
+        "incident update video",
+        "postmortem video",
+        "status page update",
+        "outage update template",
+        "sre incident communication"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Parcel Status",
+          "headline": "Incident resolved",
+          "date": "Oct 14, 09:12-09:47 UTC",
+          "list": "09:12 Elevated API errors\n09:19 Bad config rollout found\n09:31 Rollback complete\n09:47 All systems normal",
+          "cta": "Read the postmortem"
+        },
+        "theme": {
+          "background": "#0e1116",
+          "surface": "#1a1f27",
+          "foreground": "#eef2f6",
+          "accent": "#f5a623",
+          "accent2": "#30c48d"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-sunday"
+        }
+      },
+      "seoDescription": "A free 16:9 incident update template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "announcement",
+        "timeline"
+      ],
+      "launch": true
+    },
+    {
+      "template": "securityadvisory",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "securityadvisory-launch",
+      "title": "Security Advisory",
+      "description": "A security advisory. The severity score locks into a badge as the stat, the headline says to patch and names the fixed version, the subhead states the issue in one sentence, then the CTA to the advisory. Urgent but measured: a responsible disclosure, not a scare.",
+      "purpose": "Developer",
+      "style": [
+        "Bold",
+        "Tech"
+      ],
+      "energy": 3,
+      "keywords": [
+        "security advisory video",
+        "security patch announcement",
+        "cve announcement",
+        "vulnerability disclosure post",
+        "open source security update"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Forge",
+          "stat": "8.1",
+          "headline": "Patch to Forge 5.2.3",
+          "subhead": "Fixes a path traversal in the static file server.",
+          "cta": "Read the advisory"
+        },
+        "theme": {
+          "background": "#140b0d",
+          "surface": "#2a1418",
+          "foreground": "#fff1f1",
+          "accent": "#ff3b47",
+          "accent2": "#ffd34d"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-nightshift"
+        }
+      },
+      "seoDescription": "A free 4:5 security advisory template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "announcement",
+        "saas"
+      ],
+      "launch": true
+    },
+    {
+      "template": "docslaunch",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "docslaunch-launch",
+      "title": "New Docs Launch",
+      "description": "A documentation launch. A docs sidebar builds itself: up to four section names land one per beat as navigation items while a page frame assembles beside them, the headline names the new docs, the subhead gives the promise, then the CTA as the docs address.",
+      "purpose": "Developer",
+      "style": [
+        "Minimal",
+        "Editorial"
+      ],
+      "energy": 2,
+      "keywords": [
+        "documentation launch video",
+        "new docs announcement",
+        "docs site launch",
+        "developer docs video",
+        "devrel announcement template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Forge",
+          "headline": "The new Forge docs",
+          "subhead": "Rewritten from scratch, with runnable examples.",
+          "list": "Quickstart\nGuides\nAPI reference\nRecipes",
+          "cta": "docs.forge.dev"
+        },
+        "theme": {
+          "background": "#fdfdfb",
+          "surface": "#eef1f5",
+          "foreground": "#121821",
+          "accent": "#2f6bff",
+          "accent2": "#ffb300"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-launch"
+        }
+      },
+      "seoDescription": "A free 16:9 new docs launch template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "feature-launch",
+        "saas"
+      ],
+      "launch": true
+    },
+    {
+      "template": "hackathon",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "hackathon-launch",
+      "title": "Hackathon Promo",
+      "description": "A hackathon promo. The event name lands big, the dates and the city (the date role) follow, the prize pool slams in as the stat, the subhead gives the theme, then the CTA to register. Energetic and builder-friendly, like a terminal prompt that turns into a poster.",
+      "purpose": "Developer",
+      "style": [
+        "Bold",
+        "Neon"
+      ],
+      "energy": 5,
+      "keywords": [
+        "hackathon promo video",
+        "hackathon announcement",
+        "developer event promo",
+        "tech event reel",
+        "devrel event template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Forge",
+          "headline": "Forge Hack 2026",
+          "date": "Nov 8-9 / Berlin + online",
+          "stat": "$50k",
+          "subhead": "Build anything with agents in 48 hours.",
+          "cta": "Register now"
+        },
+        "theme": {
+          "background": "#0b0b0f",
+          "surface": "#1a1a24",
+          "foreground": "#f7f7ff",
+          "accent": "#b6ff3b",
+          "accent2": "#ff4fd8"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "techno-pulse"
+        }
+      },
+      "seoDescription": "A free 9:16 hackathon promo template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "event-promo",
+        "instagram-reel"
+      ],
+      "launch": true
+    },
+    {
+      "template": "devtalk",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "devtalk-launch",
+      "title": "Conference Talk Promo",
+      "description": "A conference talk promo. The talk title is the hero, the speaker name and role land as the author, the conference and room land as the attribution, the date and time follow, then the CTA. Feels like a talk title slide that comes alive, not a generic speaker card.",
+      "purpose": "Developer",
+      "style": [
+        "Editorial",
+        "Bold"
+      ],
+      "energy": 3,
+      "keywords": [
+        "conference talk promo",
+        "speaker announcement video",
+        "tech talk promo",
+        "developer conference video",
+        "talk title animation"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Forge",
+          "headline": "Shipping agents safely",
+          "author": "Ines Ruiz, Staff Engineer at Forge",
+          "attribution": "NodeConf EU, Main Stage",
+          "date": "Nov 6, 14:30",
+          "cta": "Add to schedule"
+        },
+        "theme": {
+          "background": "#f2efe8",
+          "surface": "#1c2b4a",
+          "foreground": "#141414",
+          "accent": "#ff5a36",
+          "accent2": "#1c2b4a"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-window"
+        }
+      },
+      "seoDescription": "A free 16:9 conference talk promo template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "event-promo",
+        "speaker"
+      ],
+      "launch": true
+    },
+    {
+      "template": "opensource",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-14",
+      "id": "opensource-launch",
+      "title": "Now Open Source",
+      "description": "A \"now open source\" announcement. A closed box or lock opens to reveal the headline, the subhead names the license and what is included, then the CTA as the repository address. Generous and confident, the moment a team gives its code away.",
+      "purpose": "Developer",
+      "style": [
+        "Bold",
+        "Playful"
+      ],
+      "energy": 4,
+      "keywords": [
+        "open source announcement",
+        "now open source video",
+        "open sourcing announcement",
+        "github launch video",
+        "oss launch template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Halo",
+          "headline": "Halo is open source",
+          "subhead": "MIT licensed. Server, clients, and every plugin.",
+          "cta": "github.com/halo"
+        },
+        "theme": {
+          "background": "#e9f5ec",
+          "surface": "#c8ead2",
+          "foreground": "#0d2416",
+          "accent": "#0f8a4a",
+          "accent2": "#ff6a3d"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-shipit"
+        }
+      },
+      "seoDescription": "A free 1:1 now open source template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "announcement",
+        "product-launch"
       ],
       "launch": true
     }

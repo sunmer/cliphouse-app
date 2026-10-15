@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1920" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1920px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+    .typed .c { visibility:hidden; }
+    .layer { position:absolute; inset:0; }
+    .bg { z-index:0; }
+
+    /* Terminal scaffold: guides, gutter ticks, and the dim code buffer. */
+    .guide { position:absolute; left:80px; width:920px; height:2px; background:var(--theme-surface); }
+    .gutter { position:absolute; left:134px; top:190px; width:2px; height:1536px; background:var(--theme-surface); }
+    .tick { position:absolute; left:96px; width:24px; height:6px; background:var(--theme-surface); }
+    .ghost, .code { position:absolute; height:44px; display:flex; gap:16px; }
+    .ghost .seg { height:44px; background:color-mix(in srgb, var(--theme-foreground) 7%, transparent); }
+    .code { transform-origin:0 50%; }
+    .code .seg { height:44px; background:color-mix(in srgb, var(--theme-foreground) 24%, transparent); }
+    .code .seg.k { background:var(--theme-accent2); }
+
+    .term { z-index:5; }
+    .brand1, .brand2 { position:absolute; left:150px; top:200px; width:850px; height:72px; font-size:64px; line-height:72px; white-space:nowrap; }
+    .brand1 { color:var(--theme-foreground); }
+    .headline1 { position:absolute; left:150px; top:316px; width:850px; height:624px; font-size:230px; line-height:.9; color:var(--theme-foreground); }
+    .date1 { position:absolute; left:150px; top:984px; width:850px; height:146px; font-size:62px; line-height:1.15; color:var(--theme-accent); }
+
+    /* The cursor slab is a full-frame block placed only by transforms (x, y, scaleX, scaleY from a top-left origin). */
+    .slab { position:absolute; left:0; top:0; width:1080px; height:1920px; background:var(--theme-accent); z-index:10; transform-origin:0 0; transform:translate(150px, 316px) scale(0.12037, 0.10417); }
+
+    .statbox { position:absolute; left:80px; top:1246px; width:920px; height:480px; z-index:12; }
+    .stat { position:absolute; left:40px; top:36px; width:840px; height:384px; font-size:280px; line-height:1.1; white-space:nowrap; text-align:center; align-content:center; color:var(--theme-background); transform-origin:50% 50%; }
+    .strip { position:absolute; left:0; bottom:0; width:920px; height:24px; background:var(--theme-accent2); transform-origin:0 50%; }
+    .br { position:absolute; width:64px; height:64px; border:0 solid var(--theme-background); }
+    .br.tl { left:20px; top:20px; border-top-width:12px; border-left-width:12px; transform-origin:0 0; }
+    .br.tr { right:20px; top:20px; border-top-width:12px; border-right-width:12px; transform-origin:100% 0; }
+    .br.bl { left:20px; bottom:44px; border-bottom-width:12px; border-left-width:12px; transform-origin:0 100%; }
+    .br.bx { right:20px; bottom:44px; border-bottom-width:12px; border-right-width:12px; transform-origin:100% 100%; }
+
+    .finale { z-index:14; }
+    .fcursor { position:absolute; left:80px; top:200px; width:40px; height:72px; background:var(--theme-background); transform-origin:50% 0; }
+    .brand2 { color:var(--theme-background); }
+    .headline2 { position:absolute; left:150px; top:296px; width:850px; height:420px; font-size:150px; line-height:.9; color:var(--theme-background); }
+    .subhead { position:absolute; left:150px; top:1232px; width:850px; height:188px; font-size:62px; line-height:1; color:var(--theme-background); }
+    .date2 { position:absolute; left:150px; top:1434px; width:850px; height:66px; font-size:54px; line-height:66px; white-space:nowrap; color:var(--theme-background); }
+    .button { position:absolute; left:80px; top:1514px; width:920px; height:226px; background:var(--theme-background); transform-origin:50% 50%; }
+    .pcur { position:absolute; left:40px; top:55px; width:44px; height:116px; background:var(--theme-accent2); }
+    .cta { position:absolute; left:120px; top:13px; width:760px; height:200px; font-size:104px; line-height:1; align-content:center; color:var(--theme-accent); }
+
+    .cover { z-index:20; background:var(--theme-background); clip-path:circle(0px at 142px 1627px); }
+
+    .chrome { z-index:40; }
+    .titlebar { position:absolute; left:80px; top:80px; width:920px; height:70px; background:var(--theme-surface); }
+    .dot { position:absolute; top:23px; width:24px; height:24px; border-radius:50%; }
+    .dot1 { left:24px; background:var(--theme-accent2); }
+    .dot2 { left:60px; background:var(--theme-accent); }
+    .dot3 { left:96px; background:var(--theme-foreground); }
+    .statusbar { position:absolute; left:80px; top:1764px; width:920px; height:76px; background:var(--theme-surface); }
+    .cells { position:absolute; left:18px; top:18px; width:884px; height:40px; display:flex; gap:6px; }
+    .cell { position:relative; flex:1; height:40px; background:var(--theme-background); overflow:hidden; }
+    .fill { position:absolute; inset:0; background:var(--theme-accent); transform-origin:0 50%; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="9.333" data-width="1080" data-height="1920">
+    <section id="hackathon-bg" class="layer bg" data-start="0" data-duration="9.333" data-track-index="0"></section>
+
+    <section id="hackathon-term" class="layer term" data-start="0" data-duration="9.333" data-track-index="1">
+      <div class="brand1 mono typed fit" data-fit-max="64" data-fit-min="40" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <h1 class="headline1 display fit" data-fit-max="230" data-fit-min="100" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <p class="date1 mono typed fit" data-fit-max="62" data-fit-min="38" data-text-role="date" data-beat-text="date">Date</p>
+    </section>
+
+    <div class="slab"></div>
+
+    <div class="statbox">
+      <div class="stat display" data-fit-max="280" data-fit-min="110" data-text-role="stat" data-beat-text="stat">$50k</div>
+      <div class="strip"></div>
+      <div class="br tl"></div><div class="br tr"></div><div class="br bl"></div><div class="br bx"></div>
+    </div>
+
+    <section id="hackathon-poster" class="layer finale" data-start="0" data-duration="9.333" data-track-index="2">
+      <div class="fcursor"></div>
+      <div class="brand2 mono fit" data-fit-max="64" data-fit-min="40" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <h2 class="headline2 display fit" data-fit-max="150" data-fit-min="76" data-text-role="headline" data-beat-text="headline">Headline</h2>
+      <h3 class="subhead display fit" data-fit-max="62" data-fit-min="40" data-text-role="subhead" data-beat-text="subhead">Subhead</h3>
+      <p class="date2 mono fit" data-fit-max="54" data-fit-min="34" data-text-role="date" data-beat-text="date">Date</p>
+      <div class="button">
+        <div class="pcur"></div>
+        <div class="cta display fit" data-fit-max="104" data-fit-min="56" data-text-role="cta" data-beat-text="cta">CTA</div>
+      </div>
+    </section>
+
+    <div class="layer cover"></div>
+
+    <div class="layer chrome">
+      <div class="titlebar"><div class="dot dot1"></div><div class="dot dot2"></div><div class="dot dot3"></div></div>
+      <div class="statusbar"><div class="cells"></div></div>
+    </div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>
+    // Terminal buffer rows on the guide grid: [indent, segment widths]. null keeps a row clear for small text.
+    window.HACK_ROWS = [
+      null,
+      [0, [180, 90, 260]], [60, [120, 300]], [60, [220, 140, 90]], [120, [340]],
+      [120, [90, 200, 120]], [60, [260, 160]], [0, [140, 90, 220]],
+      null, null,
+      [0, [200, 120, 260]],
+      [0, [120, 300, 140]], [60, [180, 90, 360]], [120, [420]], [120, [120, 240, 120]], [60, [520]]
+    ];
+    window.HACK_LIT = [10, 11, 12, 13, 14, 15];
+    window.hackRowTop = (k) => 190 + k * 96 + 26;
+    // Static scaffold, painted identically under the content and on the clear cover, so the loop seam matches.
+    (() => {
+      const paint = (host) => {
+        for (let k = 0; k < 17; k++) {
+          const g = document.createElement('div');
+          g.className = 'guide';
+          g.style.top = (190 + k * 96) + 'px';
+          host.append(g);
+        }
+        const v = document.createElement('div');
+        v.className = 'gutter';
+        host.append(v);
+        HACK_ROWS.forEach((row, k) => {
+          const tick = document.createElement('div');
+          tick.className = 'tick';
+          tick.style.top = (hackRowTop(k) + 19) + 'px';
+          host.append(tick);
+          if (!row) return;
+          const r = document.createElement('div');
+          r.className = 'ghost';
+          r.style.left = (150 + row[0]) + 'px';
+          r.style.top = hackRowTop(k) + 'px';
+          row[1].forEach((w) => {
+            const s = document.createElement('div');
+            s.className = 'seg';
+            s.style.width = w + 'px';
+            r.append(s);
+          });
+          host.append(r);
+        });
+      };
+      paint(document.querySelector('.bg'));
+      paint(document.querySelector('.cover'));
+      // The lit copies of the lower buffer rows, printed on half beats.
+      const term = document.querySelector('.term');
+      HACK_LIT.forEach((k) => {
+        const row = HACK_ROWS[k];
+        const r = document.createElement('div');
+        r.className = 'code';
+        r.style.left = (150 + row[0]) + 'px';
+        r.style.top = hackRowTop(k) + 'px';
+        row[1].forEach((w, s) => {
+          const seg = document.createElement('div');
+          seg.className = (k + s) % 3 === 0 ? 'seg k' : 'seg';
+          seg.style.width = w + 'px';
+          r.append(seg);
+        });
+        term.append(r);
+      });
+    })();
+  </script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const beats = Math.round(m.duration / B(1));
+
+      // Words rise through masks; later words share the last slot so long text settles early.
+      const words = (el, start, cap = 2, gap = 0.5) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, start + Math.min(i, cap) * B(gap)));
+      // Typewriter: characters print across a fixed span of beats, whatever the length.
+      const type = (el, start, span) => {
+        const chars = [];
+        m.spans(el).forEach((w) => {
+          const s = w.textContent;
+          w.textContent = '';
+          for (const ch of s) {
+            const c = document.createElement('span');
+            c.className = 'c';
+            c.textContent = ch;
+            w.append(c);
+            chars.push(c);
+          }
+        });
+        chars.forEach((c, i) => tl.set(c, {visibility: 'visible'}, start + B(span) * i / chars.length));
+      };
+
+      // Status bar: one cell fills per beat, a constant metronome.
+      const cells = q('.cells');
+      cells.textContent = '';
+      for (let k = 1; k < beats; k++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        const fill = document.createElement('div');
+        fill.className = 'fill';
+        cell.append(fill);
+        cells.append(cell);
+        tl.fromTo(fill, {scaleX: 0}, {scaleX: 1, duration: B(0.25), ease: 'expo.out'}, B(k));
+      }
+
+      // The cursor slab: a full-frame block placed by transforms only, so every move interpolates sub-pixel.
+      const slab = q('.slab');
+      const rect = (x, y, w, h) => ({x, y, scaleX: w / 1080, scaleY: h / 1920});
+      const R0 = rect(150, 316, 130, 200);
+      const R_PROMPT = rect(80, 200, 40, 72);
+      const R_HEAD = rect(80, 316, 40, 624);
+      const R_DATE = rect(80, 984, 40, 70);
+      const R_SLAB = rect(80, 1246, 920, 480);
+      const R_FULL = rect(0, 0, 1080, 1920);
+      const move = (from, to, at, dur, ease = 'expo.out') =>
+        tl.fromTo(slab, {...from}, {...to, duration: B(dur), ease, immediateRender: false}, at);
+      tl.set(slab, {...R0, transformOrigin: '0 0', opacity: 1, zIndex: 10}, 0);
+
+      // Beats 0-1: the poster-size cursor blinks, then collapses onto the prompt line as the brand types.
+      tl.set(slab, {opacity: 0}, t('boot') + B(0.5));
+      tl.set(slab, {opacity: 1}, t('brand'));
+      move(R0, R_PROMPT, t('brand'), 0.5);
+      type(q('.brand1'), t('brand'), 0.75);
+
+      // Beat 2: the cursor stretches into a bar beside the headline.
+      move(R_PROMPT, R_HEAD, t('headline'), 0.75);
+      words(q('.headline1'), t('headline'));
+
+      // Beat 4: the cursor drops to the date line and the date types.
+      move(R_HEAD, R_DATE, t('date'), 0.75);
+      type(q('.date1'), t('date'), 1);
+
+      // Beats 5-7.5: buffer rows light up on half beats.
+      qa('.code').forEach((row, i) =>
+        tl.fromTo(row, {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('build') + i * B(0.5)));
+
+      // Beat 8: the cursor spreads over the lit rows into the prize slab, snapped to guides 11-16.
+      move(R_DATE, R_SLAB, t('slab'), 0.75);
+
+      // Beat 9: the prize stabs in.
+      words(q('.stat'), t('stat'), 0);
+      tl.fromTo('.stat', {scale: 1.3}, {scale: 1, duration: B(0.75), ease: 'expo.out'}, t('stat'));
+
+      // Beat 10: the pink strip draws; beat 11: selection brackets snap on.
+      tl.fromTo('.strip', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('strip'));
+      qa('.br').forEach((b) => tl.fromTo(b, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('brackets')));
+
+      // Beat 12: the slab floods to every corner and buries the terminal.
+      move(R_SLAB, R_FULL, t('flood'), 0.75, 'power3.out');
+      tl.set('.term', {visibility: 'hidden'}, t('posterHeadline'));
+
+      // Beat 12.5: the event name rises in dark type as the flood finishes.
+      words(q('.headline2'), t('posterHeadline'), 2, 0.25);
+
+      // Beat 13: the prize climbs to mid-poster; the dark cursor and brand land.
+      tl.to('.statbox', {y: -516, duration: B(0.75), ease: 'expo.out'}, t('climb'));
+      tl.fromTo('.fcursor', {scaleY: 0}, {scaleY: 1, duration: B(0.5), ease: 'expo.out'}, t('climb'));
+      words(q('.brand2'), t('climb'), 2, 0.25);
+
+      // Beat 14: the theme; beat 15: the date.
+      words(q('.subhead'), t('subhead'), 3, 0.25);
+      words(q('.date2'), t('finaleDate'), 2, 0.25);
+
+      // Beat 16: the CTA button wipes up and stamps.
+      tl.fromTo('.button', {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('ctaStamp') - B(0.5));
+      tl.fromTo('.button', {scale: 1.12}, {scale: 1, duration: B(0.75), ease: 'expo.out'}, t('ctaStamp'));
+      words(q('.cta'), t('ctaStamp'), 1, 0.25);
+
+      // Beats 17-18.5: the caret blinks on the beat while the message holds.
+      [1, 2].forEach((k) => {
+        tl.set('.pcur', {opacity: 0}, t('ctaStamp') + B(k));
+        tl.set('.pcur', {opacity: 1}, t('ctaStamp') + B(k + 0.5));
+      });
+
+      // Beat 19: clear. A background flood from the caret, then the waiting prompt returns as on frame 0.
+      tl.fromTo('.cover', {clipPath: 'circle(0px at 142px 1627px)'},
+        {clipPath: 'circle(1900px at 142px 1627px)', duration: B(0.75), ease: 'power3.out'}, t('clear'));
+      const reset = t('clear') + B(0.75);
+      tl.set(slab, {...R0, zIndex: 30}, reset);
+      tl.set('.fill', {scaleX: 0}, reset);
+      tl.set(['.finale', '.statbox'], {visibility: 'hidden'}, reset);
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

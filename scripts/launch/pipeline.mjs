@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {promisify} from 'node:util';
 import {LAUNCH} from './briefs.mjs';
+import os from 'node:os';
 
 const run = promisify(execFile);
 const root = path.resolve(import.meta.dirname, '../..');
@@ -51,7 +52,28 @@ async function check(id, sheets) {
   } catch (e) { return `Contract:\n${String(e.stdout || e.stderr).slice(0, 8000)}`; }
   try { await node(['--import', 'tsx', 'scripts/beat-direction.mjs', '--sheets', sheets, id], {timeout: 1_200_000}); }
   catch (e) { return `Direction gates:\n${String(e.stdout || e.stderr).slice(0, 8000)}`; }
+  // Exports render with `hyperframes render --strict`, so its lint errors must fail here too.
+  const lint = await hyperframesLint(id);
+  if (lint) return `HyperFrames lint (exports render with --strict):\n${lint}`;
   return '';
+}
+
+async function hyperframesLint(id) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), `cliphouse-lint-${id}-`));
+  try {
+    await node(['--import', 'tsx', '-e', `
+      const {writeHyperframesProject} = await import('./server/hyperframes.ts');
+      const {templateMeta} = await import('./src/videos/meta.ts');
+      const {LAUNCH} = await import('./scripts/launch/briefs.mjs');
+      const {presetProps} = await import('./scripts/launch/catalog.mjs');
+      const b = LAUNCH.find((x) => x.id === ${JSON.stringify(id)});
+      await writeHyperframesProject({template: b.id, props: presetProps(b), meta: templateMeta[b.id]}, ${JSON.stringify(dir)});`]);
+    let out = '';
+    try { ({stdout: out} = await run(path.join(root, 'node_modules/.bin/hyperframes'), ['lint', dir], {cwd: root, maxBuffer: 16 * 1024 * 1024})); }
+    catch (e) { out = `${e.stdout ?? ''}${e.stderr ?? ''}`; }
+    const lines = out.split('\n');
+    return lines.flatMap((l, i) => (l.includes('✗') ? [l.trim().replace(`${dir}/`, ''), (lines[i + 1] ?? '').trim()] : [])).join('\n').slice(0, 6000);
+  } finally { fs.rmSync(dir, {recursive: true, force: true}); }
 }
 
 async function build(id) {

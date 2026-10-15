@@ -1,0 +1,65 @@
+{
+  "beatFrames": 16,
+  "scenes": [
+    {
+      "type": "announcement",
+      "bars": 2,
+      "focusBeat": 5,
+      "roles": ["brand", "headline", "date"],
+      "energy": 1
+    },
+    {
+      "type": "timeline",
+      "bars": 2,
+      "focusBeat": 14,
+      "roles": ["brand", "date", "list"],
+      "energy": 2
+    },
+    {
+      "type": "end-screen",
+      "bars": 1,
+      "focusBeat": 17,
+      "roles": ["brand", "cta"],
+      "energy": 3
+    }
+  ],
+  "cues": [
+    {"id": "alert", "beat": 0, "sound": "snap", "velocity": 0.6},
+    {"id": "headline", "beat": 1, "sound": "pluck", "role": "headline", "velocity": 0.7},
+    {"id": "date", "beat": 2, "sound": "blip", "role": "date", "velocity": 0.6},
+    {"id": "hold", "beat": 3, "sound": "tom", "velocity": 0.4},
+    {"id": "resolve", "beat": 4, "sound": "bell", "velocity": 0.8},
+    {"id": "rule", "beat": 5, "sound": "pluck", "velocity": 0.5},
+    {"id": "exit", "beat": 6, "sound": "snap", "velocity": 0.5},
+    {"id": "railHead", "beat": 7, "sound": "tom", "velocity": 0.5},
+    {"id": "rail", "beat": 7.5, "sound": "snap", "velocity": 0.6},
+    {"id": "terminal", "beat": 12, "sound": "tom", "velocity": 0.5},
+    {"id": "sweep", "beat": 13, "sound": "bell", "velocity": 0.7},
+    {"id": "terminalOk", "beat": 14, "sound": "snap", "velocity": 0.6},
+    {"id": "charge", "beat": 15, "sound": "tom", "velocity": 0.6},
+    {"id": "flood", "beat": 15.5, "sound": "zap", "velocity": 0.7},
+    {"id": "ctaStamp", "beat": 16, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "ctaRule", "beat": 17, "sound": "pluck", "velocity": 0.6},
+    {"id": "arrow", "beat": 18, "sound": "blip", "velocity": 0.6},
+    {"id": "loopFlood", "beat": 19, "sound": "zap", "velocity": 0.6}
+  ],
+  "list": {
+    "role": "list",
+    "label": "Timeline",
+    "scene": 1,
+    "min": 1,
+    "max": 4,
+    "itemMax": 34,
+    "schedules": {
+      "1": [9],
+      "2": [8, 10],
+      "3": [8, 9, 10],
+      "4": [8, 9, 10, 11]
+    },
+    "accentOffset": 0.5,
+    "voice": "marimba"
+  },
+  "risers": [
+    {"beat": 13, "beats": 2}
+  ]
+}

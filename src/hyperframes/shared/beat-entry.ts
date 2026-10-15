@@ -72,7 +72,7 @@ function create(score: BeatScore, vars: Vars): Beat {
     items: plan.items.map((it) => ({text: list[it.index], index: it.index, start: at(it.start), accent: at(it.accent)})),
     duration: durationSeconds(score),
     spans: (el) => el ? [...el.querySelectorAll<HTMLElement>('.w')] : [],
-    row: (index) => document.querySelector<HTMLElement>(`[data-list] > [data-list-item="${index}"]`),
+    row: (index) => document.querySelector<HTMLElement>('[data-list] > [data-list-item="' + index + '"]'),
     parts: () => [],
     tag: (el, name, index) => {
       if (!el) return el;
@@ -86,7 +86,7 @@ function create(score: BeatScore, vars: Vars): Beat {
 function withParts(m: Beat): Beat {
   m.parts = (host, name, make) => {
     if (!host) return [];
-    for (const old of host.querySelectorAll(`[data-list-generated][data-list-part="${name}"]`)) old.remove();
+    for (const old of host.querySelectorAll('[data-list-generated][data-list-part="' + name + '"]')) old.remove();
     return m.items.map((item) => {
       const el = make(item);
       m.tag(el, name, item.index);

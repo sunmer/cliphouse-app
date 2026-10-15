@@ -3,6 +3,7 @@
 export const LAUNCH_TEMPLATES = [
   'changelog', 'nowinbeta', 'versionreveal', 'shipped', 'featurelist', 'metricbump', 'integration',
   'pricingchange', 'waitlist', 'launchday', 'releasenotes', 'beforenow', 'customerquote',
+  'apirelease', 'breakingchange', 'migration', 'codediff', 'githubstars', 'contributors', 'roadmap', 'benchmark', 'modelrelease', 'statusupdate', 'securityadvisory', 'docslaunch', 'hackathon', 'devtalk', 'opensource',
 ] as const;
 export type LaunchTemplate = (typeof LAUNCH_TEMPLATES)[number];
 export const isLaunch = (id: string) => (LAUNCH_TEMPLATES as readonly string[]).includes(id);

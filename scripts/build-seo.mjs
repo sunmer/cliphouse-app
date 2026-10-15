@@ -31,7 +31,7 @@ const validCases = new Set(['showreel', 'youtube-intro', 'instagram-reel', 'soci
   'hiring', 'livestream', 'animated-chart', 'counter', 'timeline', 'cyber-monday', 'new-year', 'valentines', 'giveaway', 'thank-you', 'pricing',
   'subscribe', 'channel-trailer', 'credits', 'gaming-intro', 'title-card', 'poll', 'quiz', 'before-after', 'progress-bar', 'comparison', 'top-list',
   'agenda', 'flash-sale', 'case-study', 'speaker', 'webinar', 'tickets', 'coming-soon', 'announcement', 'anniversary', 'grand-opening', 'team-intro',
-  'partnership', 'newsletter', 'app-promo', 'feature-launch', 'quote', 'birthday', 'music-video']);
+  'partnership', 'newsletter', 'app-promo', 'feature-launch', 'quote', 'birthday', 'music-video', 'developer']);
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const local = (p) => `${base.replace(/\/$/, '')}${p}`;

@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1350" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1350px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+
+    /* Header: repo name, graph glyph, fetch bar */
+    .header { position:absolute; inset:0 0 auto 0; height:156px; z-index:30; }
+    .brand { position:absolute; left:80px; top:62px; width:760px; height:66px; font-size:52px; line-height:66px; font-weight:700; white-space:nowrap; overflow:hidden; color:var(--theme-foreground); }
+    .hair { position:absolute; left:80px; top:150px; width:920px; height:2px; background:color-mix(in srgb, var(--theme-foreground) 25%, transparent); }
+    .glyph { position:absolute; right:80px; top:84px; width:124px; height:24px; }
+    .glyph::before { content:""; position:absolute; left:12px; right:12px; top:10px; height:4px; background:var(--theme-foreground); }
+    .glyph i { position:absolute; top:0; width:24px; height:24px; border-radius:50%; background:var(--theme-foreground); }
+    .glyph i:nth-child(1) { left:0; }
+    .glyph i:nth-child(2) { left:50px; background:var(--theme-accent2); }
+    .glyph i:nth-child(3) { right:0; background:var(--theme-accent); }
+    .prog { position:absolute; left:80px; top:144px; width:920px; height:6px; background:var(--theme-accent2); transform-origin:0 50%; z-index:31; }
+
+    /* Graph */
+    .panel { position:absolute; left:0; top:572px; width:1080px; height:500px; background:var(--theme-surface); z-index:1; }
+    .rail { position:absolute; left:141px; top:248px; width:6px; height:932px; background:color-mix(in srgb, var(--theme-foreground) 30%, transparent); transform-origin:50% 0; z-index:2; }
+    .railhot { position:absolute; left:141px; top:248px; width:6px; height:932px; background:var(--theme-accent); transform-origin:50% 0; z-index:3; }
+    .graph { position:absolute; inset:0; z-index:4; pointer-events:none; }
+    .slot { position:absolute; border-radius:50%; border:4px dashed color-mix(in srgb, var(--theme-foreground) 40%, transparent); background:var(--theme-surface); }
+    .head { position:absolute; left:120px; top:310px; width:48px; height:48px; border-radius:50%; background:var(--theme-accent2); border:8px solid var(--theme-background); z-index:6; }
+    .head i { position:absolute; inset:3px; border-radius:50%; background:var(--theme-accent); }
+
+    /* Contribution graph: one square per day */
+    .grid { position:absolute; left:236px; top:1100px; width:764px; height:160px; display:grid; grid-auto-flow:column; grid-template-columns:repeat(18, 34px); grid-template-rows:repeat(4, 34px); gap:8px 0; justify-content:space-between; z-index:5; }
+    .cell { position:relative; width:34px; height:34px; border-radius:6px; overflow:hidden; background:var(--theme-surface); }
+    .cell i, .cell b { position:absolute; inset:0; display:block; }
+    .cell b { background:var(--theme-accent); }
+
+    /* Release tag (date) */
+    .tagwrap { position:absolute; left:80px; top:174px; height:70px; max-width:920px; z-index:6; }
+    .chip { position:relative; display:flex; align-items:center; height:70px; padding:0 30px 0 60px; background:var(--theme-accent2); clip-path:polygon(30px 0, 100% 0, 100% 100%, 30px 100%, 0 50%); }
+    .eyelet { position:absolute; left:30px; top:27px; width:16px; height:16px; border-radius:50%; background:var(--theme-background); }
+    .date { display:block; max-width:830px; height:70px; font-size:48px; line-height:66px; font-weight:700; white-space:nowrap; overflow:hidden; color:var(--theme-background); }
+
+    /* Headline: the HEAD commit message */
+    .headline { position:absolute; left:210px; top:270px; width:800px; height:284px; font-size:140px; line-height:.92; color:var(--theme-foreground); z-index:6; }
+
+    /* Contributor commits */
+    .list { position:absolute; left:0; top:572px; width:1080px; height:500px; display:flex; flex-direction:column; justify-content:center; z-index:5;
+      --rowh: calc(500px / max(var(--count, 6), 2)); --av: min(calc(var(--rowh) * .8), 160px); --ck: min(calc(var(--rowh) * .56), 68px); }
+    .row { position:relative; flex:none; height:var(--rowh); }
+    .av { position:absolute; left:calc(144px - var(--av) / 2); top:calc(50% - var(--av) / 2); width:var(--av); height:var(--av); }
+    .face { position:absolute; inset:0; border-radius:50%; overflow:hidden; border:5px solid var(--theme-surface); background:var(--theme-accent); display:grid; place-items:center; }
+    .ini { display:block; font-size:calc(var(--av) * .4); line-height:1; color:var(--theme-background); }
+    .handle { position:absolute; left:236px; top:0; width:calc(740px - var(--ck)); height:var(--rowh); line-height:calc(var(--rowh) - 6px); font-size:54px; font-weight:600; white-space:nowrap; overflow:hidden; color:var(--theme-foreground); }
+    .ci { position:absolute; right:80px; top:calc(50% - var(--ck) / 2); width:var(--ck); height:var(--ck); border-radius:50%; background:var(--theme-accent2); }
+    .ci::after { content:""; position:absolute; left:37%; top:18%; width:24%; height:44%; border-right:5px solid var(--theme-background); border-bottom:5px solid var(--theme-background); transform:rotate(45deg); }
+
+    /* Next commit: the invitation */
+    .cta-block { position:absolute; left:80px; top:1090px; width:920px; height:180px; background:var(--theme-accent); z-index:7; }
+    .cta { position:absolute; left:156px; top:10px; width:620px; height:160px; font-size:84px; line-height:.92; align-content:center; color:var(--theme-background); }
+    .arrow { position:absolute; right:44px; top:60px; width:96px; height:60px; overflow:hidden; }
+    .arrow i { position:absolute; inset:0; }
+    .arrow i::before { content:""; position:absolute; left:0; top:27px; width:84px; height:7px; background:var(--theme-background); }
+    .arrow i::after { content:""; position:absolute; right:8px; top:10px; width:34px; height:34px; border-top:7px solid var(--theme-background); border-right:7px solid var(--theme-background); transform:rotate(45deg); }
+    .plus { position:absolute; left:106px; top:1142px; width:76px; height:76px; border-radius:50%; background:var(--theme-background); border:5px dashed var(--theme-foreground); z-index:8; }
+    .plus b { position:absolute; left:50%; top:50%; background:var(--theme-foreground); }
+    .plus .pv { width:6px; height:30px; margin:-15px 0 0 -3px; }
+    .plus .ph { width:30px; height:6px; margin:-3px 0 0 -15px; }
+
+    .flood { position:absolute; inset:0; background:var(--theme-background); z-index:20; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1080" data-height="1350">
+    <section id="contributors-log" class="scene clip" data-start="0" data-duration="10" data-track-index="0">
+      <div class="header">
+        <div class="brand mono" data-text-role="brand" data-beat-text="brand">Brand</div>
+        <div class="glyph"><i></i><i></i><i></i></div>
+        <div class="hair"></div>
+      </div>
+      <div class="prog"></div>
+
+      <div class="panel"></div>
+      <div class="rail"></div>
+      <div class="railhot"></div>
+      <div class="graph"></div>
+      <div class="grid"></div>
+
+      <div class="tagwrap"><div class="chip"><i class="eyelet"></i><span class="date mono" data-fit-max="48" data-fit-min="32" data-text-role="date" data-beat-text="date">Date</span></div></div>
+      <div class="head"><i></i></div>
+      <h1 class="headline display fit" data-fit-max="140" data-fit-min="72" data-text-role="headline" data-beat-text="headline">Headline</h1>
+
+      <div class="list" data-list>
+        <template data-list-row>
+          <div class="row">
+            <div class="av" data-list-part="avatar">
+              <div class="face"><span class="ini display" data-text-copy="list" aria-hidden="true"></span></div>
+            </div>
+            <div class="handle mono" data-list-text data-words data-fit-max="54" data-fit-min="40"></div>
+            <i class="ci" data-list-part="ci" data-list-group="finale"></i>
+          </div>
+        </template>
+      </div>
+
+      <div class="cta-block">
+        <div class="cta display fit" data-fit-max="84" data-fit-min="48" data-text-role="cta" data-beat-text="cta">CTA</div>
+        <div class="arrow"><i></i></div>
+      </div>
+      <div class="plus"><b class="pv"></b><b class="ph"></b></div>
+
+      <div class="flood"></div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const n = m.items.length;
+      const list = q('[data-list]');
+
+      // Words rise through masks; later words share the last slot so long text settles early.
+      const words = (el, at, step = 0.5, cap = 2) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, at + Math.min(i, cap) * B(step)));
+      const pop = (el, at, dur = 0.5) => tl.fromTo(el, {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(dur), ease: 'back.out(1.2)'}, at);
+
+      // Handle size follows the count, then refit.
+      const fmax = {1: 88, 2: 84, 3: 72, 4: 64, 5: 58, 6: 54}[n] || 54;
+      for (const h of qa('[data-list] .handle')) h.dataset.fitMax = String(fmax);
+      window.cliphouseFitText && window.cliphouseFitText();
+
+      // Initials and colors of each commit avatar, derived from its handle.
+      const initials = (s) => {
+        const core = s.replace(/^[@#~]+/, '');
+        const parts = core.split(/[._\-\s/]+/).filter(Boolean);
+        const pick = parts.length > 1 ? Array.from(parts[0])[0] + Array.from(parts[1])[0] : Array.from(core).slice(0, 2).join('');
+        return (pick || '+').toUpperCase();
+      };
+      m.items.forEach((it) => {
+        const row = m.row(it.index);
+        if (!row) return;
+        row.querySelector('.ini').textContent = initials(it.text);
+        row.querySelector('.face').style.background = it.index % 2 ? 'var(--theme-foreground)' : 'var(--theme-accent)';
+      });
+
+      // The contribution graph: 18 weeks of 4 days, levels fixed per cell.
+      const grid = q('.grid');
+      grid.textContent = '';
+      const cells = [];
+      const MIX = [0, 40, 70, 100];
+      for (let c = 0; c < 18; c++) for (let r = 0; r < 4; r++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        const h = (c * 73 + r * 151 + c * r * 29 + 7) % 10;
+        let lv = h < 2 ? 0 : h < 5 ? 1 : h < 8 ? 2 : 3;
+        if (r === 0 && !lv) lv = 1;
+        const fillEl = document.createElement('i');
+        fillEl.style.background = lv ? `color-mix(in srgb, var(--theme-accent) ${MIX[lv]}%, var(--theme-surface))` : 'transparent';
+        const hot = document.createElement('b');
+        cell.append(fillEl, hot);
+        grid.append(cell);
+        cells.push({c, r, cell, fillEl, hot, lv});
+      }
+
+      // Beats 0-18: the fetch bar steps once per beat.
+      for (let b = 0; b <= 18; b++) {
+        const v = (b + 1) / 19;
+        if (!b) tl.fromTo('.prog', {scaleX: 0}, {scaleX: v, duration: B(0.5), ease: 'expo.out'}, B(0));
+        else tl.to('.prog', {scaleX: v, duration: B(0.5), ease: 'expo.out'}, B(b));
+      }
+
+      // Beat 0: main draws down and the pane opens out of the rail.
+      tl.fromTo('.rail', {scaleY: 0}, {scaleY: 1, duration: B(1.5), ease: 'expo.out'}, t('rail'));
+      tl.fromTo('.panel', {clipPath: 'inset(0px 936px 0px 144px)'}, {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.75), ease: 'expo.out'}, t('rail') + B(0.25));
+
+      // Beat 1: the HEAD commit message. Beat 2: its node, and the empty graph rings in.
+      words(q('.headline'), t('headline'), 0.5, 2);
+      pop('.head', t('headNode'));
+      cells.forEach(({c, cell}) => tl.fromTo(cell, {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('headNode') + c * B(0.03)));
+
+      // Beat 3: the empty commit slots ring in down the rail.
+      const slots = m.parts(q('.graph'), 'slot', (it) => {
+        const row = m.row(it.index);
+        const av = row.querySelector('.av');
+        const s = av.offsetWidth;
+        const cy = list.offsetTop + row.offsetTop + row.offsetHeight / 2;
+        const el = document.createElement('div');
+        el.className = 'slot';
+        el.dataset.listGroup = 'scaffold';
+        el.dataset.listAlign = 'y';
+        el.style.width = s + 'px';
+        el.style.height = s + 'px';
+        el.style.left = (144 - s / 2) + 'px';
+        el.style.top = (cy - s / 2) + 'px';
+        return el;
+      });
+      slots.forEach((el, i) => tl.fromTo(el, {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('scaffold') + i * B(0.125)));
+
+      // Beats 4-12: two weeks of contributions light on every beat.
+      cells.forEach(({c, r, fillEl, lv}) => {
+        if (!lv) return;
+        tl.fromTo(fillEl, {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: 'expo.out'},
+          m.scene(1, Math.floor(c / 2)) + (c % 2) * B(0.125) + r * B(0.03));
+      });
+
+      // Beats 4-9: each contributor stamps onto its slot; the handle rises on the accent.
+      m.items.forEach((it) => {
+        const row = m.row(it.index);
+        if (!row) return;
+        pop(row.querySelector('.av'), it.start, 0.75);
+        tl.fromTo(row.querySelector('.ini'), {yPercent: 120}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, it.start + B(0.25));
+        words(row.querySelector('.handle'), it.accent, 0.25, 1);
+      });
+
+      // Beat 10: every commit gets its green check (finale group).
+      qa('[data-list] [data-list-part="ci"]').forEach((c, i) => pop(c, t('merged') + i * B(0.125)));
+
+      // Beat 11: the merge line runs down through every commit.
+      tl.fromTo('.railhot', {scaleY: 0}, {scaleY: 1, duration: B(1), ease: 'expo.out'}, t('hotRail'));
+
+      // Beat 12: the release tag wipes off the top of the rail.
+      tl.fromTo('.tagwrap', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('date'));
+      words(q('.date'), t('date') + B(0.25), 0.25, 2);
+
+      // Beat 13: the empty next commit. Beat 14: the whole graph streaks solid accent.
+      pop('.plus', t('slot'));
+      cells.forEach(({c, hot}) => tl.fromTo(hot, {scaleY: 0, transformOrigin: '50% 100%'}, {scaleY: 1, duration: B(0.4), ease: 'expo.out'}, t('streak') + c * B(0.025)));
+
+      // Beat 15: the slot floods the streaked graph into the CTA block, and the CTA stamps in.
+      tl.fromTo('.cta-block', {clipPath: 'circle(0px at 64px 90px)'}, {clipPath: 'circle(880px at 64px 90px)', duration: B(0.7), ease: 'power3.out'}, t('ctaStamp'));
+      tl.fromTo('.cta-block', {scale: 1.04, transformOrigin: '64px 90px'}, {scale: 1, duration: B(1), ease: 'expo.out'}, t('ctaStamp'));
+      words(q('.cta'), t('ctaStamp') + B(0.125), 0.25, 2);
+
+      // Beat 16: the arrow. Beat 17: the release tag punches down and its eyelet pops. Beat 18: HEAD fills.
+      tl.fromTo('.arrow i', {xPercent: -120}, {xPercent: 0, duration: B(0.6), ease: 'expo.out'}, t('arrow'));
+      tl.fromTo('.tagwrap', {scale: 1.12, transformOrigin: '0% 50%'}, {scale: 1, duration: B(0.6), ease: 'expo.out'}, t('tagPunch'));
+      pop('.eyelet', t('tagPunch'));
+      tl.fromTo('.head i', {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('headFill'));
+
+      // Beat 19: a background flood from the slot clears to the bare header of frame 0.
+      tl.fromTo('.flood', {clipPath: 'circle(0px at 144px 1180px)'}, {clipPath: 'circle(1560px at 144px 1180px)', duration: B(0.7), ease: 'power3.out'}, t('loopFlood'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

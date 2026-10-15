@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1350" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1350px; }
+    #root { --redact: color-mix(in srgb, var(--theme-surface) 84%, var(--theme-foreground)); }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; position:relative; }
+    .w { display:inline-block; position:relative; z-index:1; }
+    .a { position:absolute; }
+    .rbar { position:absolute; background:var(--redact); z-index:2; transform-origin:100% 50%; }
+    .rbar.dark { background:var(--theme-background); }
+
+    /* Header */
+    .brand { left:80px; top:80px; width:800px; height:72px; font-size:52px; line-height:1; text-transform:uppercase; white-space:nowrap; align-content:center; color:var(--theme-foreground); }
+    .shield { left:928px; top:74px; width:72px; height:82px; }
+    .shield svg { width:100%; height:100%; display:block; overflow:visible; }
+    .shield .outline { fill:none; stroke:var(--theme-accent2); stroke-width:5; stroke-linejoin:miter; }
+    .shield .check { fill:none; stroke:var(--theme-accent2); stroke-width:7; stroke-linecap:butt; stroke-linejoin:miter; stroke-dasharray:1; stroke-dashoffset:1; }
+    .hdr-rule { left:80px; top:178px; width:920px; height:2px; background:color-mix(in srgb, var(--theme-foreground) 22%, transparent); }
+
+    /* Severity badge and meter */
+    .badge { left:80px; top:210px; width:420px; height:420px; background:var(--theme-accent); overflow:hidden; }
+    .badge:before { content:""; position:absolute; inset:16px; border:3px solid color-mix(in srgb, var(--theme-background) 32%, transparent); }
+    .stat { position:absolute; left:20px; top:80px; width:380px; height:260px; font-size:210px; line-height:1.05; text-align:center; align-content:center; color:var(--theme-background); }
+    .meter { left:552px; top:210px; width:448px; height:420px; display:flex; align-items:flex-end; gap:12px; }
+    .seg { position:relative; width:34px; flex:none; background:var(--theme-surface); overflow:hidden; }
+    .fill { position:absolute; inset:0; background:var(--theme-accent); transform:scaleY(0); transform-origin:50% 100%; }
+    .seg.peak .fill { background:var(--theme-accent2); }
+    .rule2 { left:80px; top:660px; width:920px; height:10px; background:var(--theme-accent); transform:scaleX(0); transform-origin:0% 50%; }
+
+    /* Headline and subhead */
+    .headline { left:80px; top:694px; width:920px; height:282px; font-size:132px; line-height:.92; color:var(--theme-foreground); }
+    .headline .w.ver { color:color-mix(in srgb, var(--theme-accent2) calc(var(--hl, 0) * 100%), var(--theme-foreground)); }
+    .hl { position:absolute; left:.04em; right:.04em; bottom:0; height:.08em; background:var(--theme-accent2); transform:scaleX(0); transform-origin:0% 50%; z-index:0; }
+    .subhead { left:80px; top:1000px; width:920px; height:136px; font-size:52px; line-height:1.22; font-weight:500; color:var(--theme-foreground); }
+
+    /* CTA */
+    .cta { left:80px; top:1160px; width:920px; height:110px; background:var(--theme-accent2); color:var(--theme-background); clip-path:inset(0% 100% 0% 0%); }
+    .ctext { position:absolute; left:40px; top:0; width:740px; height:110px; font-size:60px; line-height:1; text-transform:uppercase; white-space:nowrap; align-content:center; }
+    .arrow-box { position:absolute; right:40px; top:35px; width:84px; height:40px; overflow:hidden; }
+    .arrow { position:absolute; inset:0; }
+    .arrow svg { width:100%; height:100%; display:block; }
+    .arrow path { fill:none; stroke:var(--theme-background); stroke-width:7; stroke-linejoin:miter; }
+    .cta-red { left:80px; top:1160px; width:920px; height:110px; background:var(--redact); z-index:3; transform-origin:100% 50%; }
+
+    /* Lock brackets */
+    .bk { position:absolute; width:56px; height:56px; border:0 solid var(--theme-accent2); z-index:4; }
+    .bk-tl { left:62px; top:192px; border-top-width:8px; border-left-width:8px; transform-origin:0% 0%; }
+    .bk-tr { left:462px; top:192px; border-top-width:8px; border-right-width:8px; transform-origin:100% 0%; }
+    .bk-bl { left:62px; top:592px; border-bottom-width:8px; border-left-width:8px; transform-origin:0% 100%; }
+    .bk-br { left:462px; top:592px; border-bottom-width:8px; border-right-width:8px; transform-origin:100% 100%; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1080" data-height="1350">
+    <section id="securityadvisory-main" class="scene" data-start="0" data-duration="8" data-track-index="0">
+      <div class="a brand display fit" data-fit-max="52" data-fit-min="32" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="a shield">
+        <svg viewBox="0 0 64 72" aria-hidden="true">
+          <path class="outline" d="M32 4 L59 13 V34 C59 51 48 62 32 68 C16 62 5 51 5 34 V13 Z" />
+          <path class="check" pathLength="1" d="M19 36 L28 45 L46 25" />
+        </svg>
+      </div>
+      <div class="a hdr-rule"></div>
+
+      <div class="a badge">
+        <div class="stat display fit" data-fit-max="210" data-fit-min="50" data-text-role="stat" data-beat-text="stat">8.1</div>
+      </div>
+      <div class="a meter">
+        <div class="seg" style="height:140px"><div class="fill"></div></div>
+        <div class="seg" style="height:171px"><div class="fill"></div></div>
+        <div class="seg" style="height:202px"><div class="fill"></div></div>
+        <div class="seg" style="height:233px"><div class="fill"></div></div>
+        <div class="seg" style="height:264px"><div class="fill"></div></div>
+        <div class="seg" style="height:295px"><div class="fill"></div></div>
+        <div class="seg" style="height:326px"><div class="fill"></div></div>
+        <div class="seg" style="height:357px"><div class="fill"></div></div>
+        <div class="seg" style="height:388px"><div class="fill"></div></div>
+        <div class="seg" style="height:420px"><div class="fill"></div></div>
+      </div>
+      <div class="a rule2"></div>
+
+      <h1 class="a headline display fit" data-fit-max="132" data-fit-min="60" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <p class="a subhead fit" data-fit-max="52" data-fit-min="32" data-text-role="subhead" data-beat-text="subhead">Subhead</p>
+
+      <div class="a cta display">
+        <div class="ctext" data-fit-max="60" data-fit-min="30" data-text-role="cta" data-beat-text="cta">CTA</div>
+        <div class="arrow-box"><div class="arrow"><svg viewBox="0 0 84 40" aria-hidden="true"><path d="M0 20 H74 M56 4 L76 20 L56 36" /></svg></div></div>
+      </div>
+      <div class="a cta-red"></div>
+
+      <div class="bk bk-tl"></div><div class="bk bk-tr"></div><div class="bk bk-bl"></div><div class="bk bk-br"></div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const OUT = 'expo.out';
+      const rise = (ws, at, step, cap) => ws.forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: OUT}, at + Math.min(i, cap) * B(step)));
+      const retract = (el, at) => tl.fromTo(el, {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.75), ease: OUT}, at);
+
+      // Group the word masks of a text element into its real rendered lines.
+      const lines = (el) => {
+        if (!el) return [];
+        const out = [];
+        for (const mk of el.querySelectorAll('.wmask')) {
+          const top = mk.offsetTop, h = mk.offsetHeight;
+          let ln = out.find((l) => Math.abs(l.top - top) < h * 0.5);
+          if (!ln) { ln = {top, h, left: Infinity, right: -Infinity, masks: []}; out.push(ln); }
+          ln.h = Math.max(ln.h, h);
+          ln.left = Math.min(ln.left, mk.offsetLeft);
+          ln.right = Math.max(ln.right, mk.offsetLeft + mk.offsetWidth);
+          ln.masks.push(mk);
+        }
+        return out.sort((a, b) => a.top - b.top);
+      };
+
+      // One redaction bar per real line, sized to that line. Bars live inside the text element,
+      // so every rebuild (which refills the words) removes them.
+      const sealed = [];
+      const disclose = (el, start, mode, cls) => {
+        const L = lines(el);
+        const n = L.length;
+        L.forEach((ln, k) => {
+          const bl = ln.left - 6, bw = ln.right - ln.left + 12;
+          const bar = document.createElement('div');
+          bar.className = 'rbar' + (cls ? ' ' + cls : '');
+          Object.assign(bar.style, {left: bl + 'px', top: ln.top + 'px', width: bw + 'px', height: ln.h + 'px'});
+          el.append(bar);
+          const words = ln.masks.map((mk) => mk.querySelector('.w'));
+          sealed.push({bar, words});
+          if (mode === 'quick') {
+            const at = start + k * B(0.125);
+            retract(bar, at);
+            rise(words, at, 0.125, 2);
+          } else if (n === 1 && words.length > 1) {
+            // A single line discloses in two steps, one per beat.
+            const h = Math.ceil(words.length / 2);
+            const cut = ln.masks[h].offsetLeft - 4;
+            const frac = Math.max(0, Math.min(1, (bl + bw - cut) / bw));
+            tl.fromTo(bar, {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: frac, duration: B(0.75), ease: OUT}, start);
+            tl.to(bar, {scaleX: 0, duration: B(0.75), ease: OUT}, start + B(1));
+            rise(words.slice(0, h), start, 0.125, 3);
+            rise(words.slice(h), start + B(1), 0.125, 3);
+          } else {
+            const at = start + B(n <= 2 ? k : Math.min(k * 0.5, 1.5));
+            retract(bar, at);
+            rise(words, at, 0.125, 3);
+          }
+        });
+      };
+
+      const headW = m.spans(q('.headline'));
+      const statW = m.spans(q('.stat'));
+      const ctaW = m.spans(q('.ctext'));
+
+      // The meter reads the score on a 0-10 scale.
+      const found = (m.text('stat').match(/\d+(?:\.\d+)?/) || ['10'])[0];
+      const value = parseFloat(found);
+      const level = Math.max(1, Math.min(10, Math.round(value > 10 ? 10 : value)));
+      const segs = qa('.meter .seg');
+      segs.forEach((s, i) => s.classList.toggle('peak', i === level - 1));
+      const fills = segs.slice(0, level).map((s) => s.querySelector('.fill'));
+
+      // Brackets: badge corners, and their offsets to the CTA corners.
+      const corners = [
+        ['.bk-tl', -1, -1, 4, 954],
+        ['.bk-tr', 1, -1, 496, 954],
+        ['.bk-bl', -1, 1, 4, 636],
+        ['.bk-br', 1, 1, 496, 636],
+      ];
+
+      // Measure every line before anything is added to the text elements.
+      disclose(q('.brand'), t('brand'), 'quick');
+
+      // Beat 1: the severity columns fill bottom-up to the score.
+      fills.forEach((f, i) => tl.fromTo(f, {scaleY: 0}, {scaleY: 1, duration: B(0.5), ease: OUT}, t('meter') + i * B(1 / 16)));
+
+      // Beat 2: the score is disclosed and stamps into the badge. The stamp scales the word masks only,
+      // so the redaction bar keeps its size and frame 0 matches the resealed last frame.
+      disclose(q('.stat'), t('stat'), 'quick', 'dark');
+      const statMasks = statW.map((w) => w.parentElement);
+      if (statMasks.length) tl.fromTo(statMasks, {scale: 1.18, transformOrigin: '50% 50%'},
+        {scale: 1, duration: B(0.75), ease: OUT, immediateRender: false}, t('stat'));
+
+      // Beat 3: four brackets clamp onto the badge.
+      corners.forEach(([s, sx, sy]) =>
+        tl.fromTo(s, {x: sx * 40, y: sy * 40, scale: 0}, {x: 0, y: 0, scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('lock')));
+
+      // Beats 4-5: the headline is disclosed line by line.
+      disclose(q('.headline'), t('headline'), 'lines');
+
+      // Beat 6: the fixed version (the last word) turns accent2 and is underlined.
+      const last = headW[headW.length - 1];
+      let hl = null;
+      if (last) {
+        last.classList.add('ver');
+        hl = document.createElement('span');
+        hl.className = 'hl';
+        last.parentElement.append(hl);
+        tl.fromTo(last, {'--hl': 0}, {'--hl': 1, duration: B(0.25), ease: 'power3.out'}, t('version'));
+        tl.fromTo(hl, {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.5), ease: OUT}, t('version'));
+      }
+
+      // Beat 7: the divider draws under the badge block.
+      tl.fromTo('.rule2', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: OUT}, t('rule'));
+
+      // Beats 8-9: the subhead states the issue.
+      disclose(q('.subhead'), t('subhead'), 'lines');
+
+      // Beat 10: the patch ships, so the shield gets its check.
+      tl.fromTo('.check', {strokeDashoffset: 1}, {strokeDashoffset: 0, duration: B(0.5), ease: 'power3.out'}, t('check'));
+      tl.to('.shield', {scale: 1.2, transformOrigin: '50% 50%', duration: B(0.125), ease: 'power2.out'}, t('check'));
+      tl.to('.shield', {scale: 1, duration: B(0.5), ease: OUT}, t('check') + B(0.125));
+
+      // Beat 11: the CTA button pushes its redaction block off and its words rise.
+      tl.fromTo('.cta', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.75), ease: OUT}, t('ctaWipe'));
+      retract('.cta-red', t('ctaWipe'));
+      rise(ctaW, t('ctaWipe') + B(0.25), 0.125, 2);
+
+      // Beat 12: the CTA stamps and the lock moves from the badge to the action.
+      tl.fromTo('.cta', {scale: 1.06, transformOrigin: '50% 50%'},
+        {scale: 1, duration: B(0.75), ease: OUT, immediateRender: false}, t('ctaStamp'));
+      corners.forEach(([s, , , dx, dy]) => tl.to(s, {x: dx, y: dy, duration: B(0.75), ease: OUT}, t('ctaStamp')));
+
+      // Beat 13: the arrow slides in.
+      tl.fromTo('.arrow', {x: -90}, {x: 0, duration: B(0.75), ease: OUT}, t('arrow'));
+
+      // Beat 14: the brackets pinch tight onto the button.
+      corners.forEach(([s, sx, sy, dx, dy]) => tl.to(s, {x: dx - sx * 12, y: dy - sy * 12, duration: B(0.5), ease: 'power3.out'}, t('pinch')));
+
+      // Beat 15: every line reseals left to right, back to the exact first frame.
+      const R = t('reseal');
+      const st = B(1 / 24);
+      const home = R + B(0.75);
+      [...sealed, {bar: q('.cta-red'), words: ctaW}].forEach(({bar, words}, k) => {
+        const at = R + Math.min(k, 9) * st;
+        tl.set(bar, {transformOrigin: '0% 50%'}, at);
+        tl.to(bar, {scaleX: 1, duration: B(0.6), ease: OUT}, at);
+        if (words.length) {
+          tl.to(words, {yPercent: -125, duration: B(0.5), ease: 'power3.inOut'}, at);
+          tl.set(words, {yPercent: 125}, home);
+        }
+      });
+      fills.forEach((f, i) => {
+        tl.set(f, {transformOrigin: '50% 0%'}, R);
+        tl.to(f, {scaleY: 0, duration: B(0.5), ease: 'power3.inOut'}, R + (level - 1 - i) * B(1 / 32));
+      });
+      tl.set('.rule2', {transformOrigin: '100% 50%'}, R);
+      tl.to('.rule2', {scaleX: 0, duration: B(0.5), ease: 'power3.inOut'}, R);
+      if (hl) {
+        tl.set(hl, {transformOrigin: '100% 50%'}, R);
+        tl.to(hl, {scaleX: 0, duration: B(0.5), ease: 'power3.inOut'}, R);
+        tl.set(last, {'--hl': 0}, home);
+      }
+      tl.to('.check', {strokeDashoffset: -1, duration: B(0.5), ease: 'power3.inOut'}, R);
+      tl.set('.check', {strokeDashoffset: 1}, home);
+      corners.forEach(([s, sx, sy]) => {
+        tl.to(s, {scale: 0, duration: B(0.4), ease: 'power3.in'}, R);
+        tl.set(s, {x: sx * 40, y: sy * 40}, R + B(0.5));
+      });
+      tl.set('.arrow', {x: -90}, home);
+    });
+    // Line bars are measured from rendered type, so rebuild once the web fonts are in.
+    if (document.fonts) document.fonts.ready.then(() => { if (window.cliphouseBeatUpdate) window.cliphouseBeatUpdate({}); });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>
