@@ -196,14 +196,14 @@ const agentPrompts = ['Deploy to prod. Btw we need a launch video.', 'Make a 10-
 function agentsPage() {
   const page = {path: '/agents/', title: 'Launch Videos From Your Coding Agent | cliphou.se Skill and MCP',
     description: 'Get launch videos for what you ship without leaving your coding agent. Install the free cliphou.se skill or connect the MCP server in one step.',
-    image: absolute('/agents/poster-16x9.jpg'), video: absolute('/agents/demo-16x9.mp4'), updatedAt: '2026-10-15'};
+    image: absolute('/agents/poster-16x9-a1.jpg'), video: absolute('/agents/demo-16x9-a1.mp4'), updatedAt: '2026-10-15'};
   const icon = (d) => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const points = [
     [icon('<circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/><path d="M6 9v6"/>'), 'Built from your repo', 'Your agent reads the README, changelog, and brand colors, and fills the template with real details.'],
     [icon('<path d="m4 17 6-6-6-6"/><path d="M12 19h8"/>'), 'Right in your coding agent', 'Ask for a video, pick from playing previews in the chat, and keep editing by prompt.'],
     [icon('<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>'), 'Free and open', 'MIT-0 templates. No account, no watermark, and the source renders locally.'],
   ];
-  const body = `<section class="agents-hero"><div class="agents-video"><video data-video-src="${local('/agents/demo-4x5.mp4')}" data-video-src-wide="${local('/agents/demo-16x9.mp4')}" poster="${local('/agents/poster-4x5.jpg')}" data-poster-wide="${local('/agents/poster-16x9.jpg')}" aria-label="Demo: a coding agent suggests launch video templates, the user picks one, and the agent fills it from the repo" muted loop playsinline preload="none"></video><button type="button" data-video-play hidden>Play video</button><noscript><a href="${local('/agents/demo-16x9.mp4')}">Watch the demo</a></noscript></div>
+  const body = `<section class="agents-hero"><div class="agents-video"><video data-video-src="${local('/agents/demo-4x5-a1.mp4')}" data-video-src-wide="${local('/agents/demo-16x9-a1.mp4')}" poster="${local('/agents/poster-4x5-a1.jpg')}" data-poster-wide="${local('/agents/poster-16x9-a1.jpg')}" aria-label="Demo: a coding agent suggests launch video templates, the user picks one, and the agent fills it from the repo" muted loop playsinline preload="none"></video><button type="button" data-video-play hidden>Play video</button><noscript><a href="${local('/agents/demo-16x9-a1.mp4')}">Watch the demo</a></noscript></div>
     <div class="agents-copy"><h1>Launch videos for what you ship.</h1><p class="lead">Find a motion graphics template, fill it from your repo, and get an editable video, all inside your coding agent.</p>
     <ul class="agents-points">${points.map(([svg, h, p]) => `<li><span>${svg}</span><div><strong>${esc(h)}</strong><p>${esc(p)}</p></div></li>`).join('')}</ul></div></section>
     <section class="seo-section"><h2>Install</h2><div class="agents-install">
