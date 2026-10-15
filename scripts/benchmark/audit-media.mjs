@@ -1,12 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
-import {root, validateAddition, validateResults} from './protocol.mjs';
+import {loadAdditionResults, root, validateResults} from './protocol.mjs';
 import {validateRecovery} from './recovery.mjs';
 
 const results = validateResults(JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/results.json'), 'utf8')), path.join(root, 'public'));
 const recoveries = validateRecovery(JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/recovery.json'), 'utf8')), results, path.join(root, 'public'));
-const additions = validateAddition(JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/addition-results.json'), 'utf8')), results, path.join(root, 'public'));
+const additions = loadAdditionResults(results, path.join(root, 'public'));
 const successful = [...results.entries, ...recoveries.entries, ...additions.entries].filter((entry) => entry.status === 'rendered');
 if (!successful.length) throw new Error('There are no rendered submissions to audit.');
 const directory = path.join(root, '.benchmark', 'media-audit');

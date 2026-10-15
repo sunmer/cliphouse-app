@@ -55,6 +55,35 @@ node scripts/benchmark/publish-addition.mjs
 node scripts/benchmark/collect-timings.mjs --execute
 ```
 
+## Late Addition A2
+
+Muse Spark Open (`meta/muse-spark-open`), Meta's open-weight 816B-A42B model, was
+added on October 15, 2026, the day it appeared on OpenRouter. It is listed first.
+It uses the unchanged protocol 1.1 contract, briefs, limits, renderer image, and
+repair rule. Four providers listed the same price, so the provider was pinned to
+Fireworks (unquantized listing) instead of the cheapest-price rule. All six runs
+rendered: four on the first attempt and two after the single repair, at a total
+cost of $0.5446. A1 and the original 60 runs are unchanged. A2 did not receive
+recovery R1, and the Muse runs are not part of the blind-review package.
+
+The run used an OpenRouter key without a spending limit, approved by the operator.
+`--allow-unlimited-key 3` replaced the key-limit check with a hard $3 cap recorded
+in the A2 ledger (`capUsd`, `keyPolicy`). One repair request was rejected upstream
+with HTTP 429 (shared provider rate limit, 268 ms, no generation id, no charge). It
+was reconciled at $0 and recorded under `addition-a2/infrastructure/`; the repair
+then ran with `BENCHMARK_WORKERS=1`. OpenRouter returned generation_time for one of
+the six videos at publication; the other five are published as unavailable.
+
+Definition: `src/benchmark/addition-a2.json`. Results:
+`src/benchmark/addition-a2-results.json`. Raw records and the separate ledger:
+`.benchmark/2026-10/addition-a2/`.
+
+```sh
+BENCHMARK_WORKERS=1 npm run benchmark:run -- --addition-id A2 [--allow-unlimited-key <cap>]
+node scripts/benchmark/publish-addition.mjs --id A2
+node scripts/benchmark/collect-timings.mjs --execute
+```
+
 ## Pilot Limitation
 
 The runner selected stderr instead of combining stdout and stderr for failed

@@ -1,18 +1,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {parseArgs} from 'node:util';
-import {addition, atomicJson, hash, protocol, root} from './protocol.mjs';
+import {atomicJson, hash, loadAdditionResults, protocol, root, validateResults} from './protocol.mjs';
 import {reportedTiming, validateTimings} from './timings.mjs';
 
 const {values} = parseArgs({options: {execute: {type: 'boolean'}, store: {type: 'string'}}});
 const baseline = JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/results.json'), 'utf8'));
 const recovery = JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/recovery.json'), 'utf8'));
-const additions = JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/addition-results.json'), 'utf8'));
+const additions = loadAdditionResults(validateResults(baseline));
 const store = path.resolve(values.store ?? path.join(root, '.benchmark', protocol.edition));
 const jobs = [
   ...baseline.entries.filter(entry => entry.status === 'rendered').map(entry => ({entry, directory: store})),
   ...recovery.entries.filter(entry => entry.status === 'rendered').map(entry => ({entry, directory: path.join(store, 'recovery-r1')})),
-  ...additions.entries.filter(entry => entry.status === 'rendered').map(entry => ({entry, directory: path.join(store, `addition-${addition.id.toLowerCase()}`)})),
+  ...additions.entries.filter(entry => entry.status === 'rendered').map(entry => ({entry, directory: path.join(store, `addition-${entry.addition.toLowerCase()}`)})),
 ];
 if (!values.execute) {
   console.log(`Read-only timing lookup for ${jobs.length} successful video generations. Use --execute and OPENROUTER_API_KEY. No completions or renders will be requested.`);

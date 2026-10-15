@@ -12,7 +12,14 @@ export const digest = hash(JSON.stringify(protocol) + contract);
 // Late additions reuse protocol 1.1 unchanged; their hash binds the addition to the baseline digest.
 export const addition = JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/addition.json'), 'utf8'));
 export const additionDigest = hash(JSON.stringify(addition) + digest);
-export const allModels = [...addition.models, ...protocol.models];
+// Each later addition has its own file, store, ledger, and hash. A1 stays in addition.json unchanged.
+export const loadAddition = (id) => id === 'A1' ? addition : JSON.parse(fs.readFileSync(path.join(root, `src/benchmark/addition-${id.toLowerCase()}.json`), 'utf8'));
+export const additionDigestOf = (value) => hash(JSON.stringify(value) + digest);
+export const laterAdditions = ['A2'].map(loadAddition);
+export const additions = [addition, ...laterAdditions];
+// Newest additions first, matching the page's shortlist order.
+export const allModels = [...[...additions].reverse().flatMap((item) => item.models), ...protocol.models];
+export const additionResultsFile = (item) => path.join(root, `src/benchmark/${item.id === 'A1' ? 'addition-results' : `addition-${item.id.toLowerCase()}-results`}.json`);
 const localAsset = z.string().regex(/^benchmark\/media\/[a-z0-9-]+\/[a-z0-9-]+\.(mp4|jpg|tsx|json)$/);
 const scores = z.object(Object.fromEntries(protocol.rubric.map((criterion) => [criterion.id, z.number().min(1).max(5)]))).strict();
 const entrySchema = (models) => z.object({
@@ -54,10 +61,10 @@ function checkAssets(entries, assetRoot) {
   }
 }
 
-export function validateAddition(data, baseline, assetRoot) {
+export function validateAddition(data, baseline, assetRoot, item = addition) {
   const validated = z.object({
-    id: z.literal(addition.id), edition: z.literal(addition.edition), updatedAt: z.iso.date(),
-    entries: z.array(entrySchema(addition.models)),
+    id: z.literal(item.id), edition: z.literal(item.edition), updatedAt: z.iso.date(),
+    entries: z.array(entrySchema(item.models)),
   }).strict().parse(data);
   const keys = validated.entries.map((entry) => `${entry.model}/${entry.brief}/${entry.run}`);
   if (new Set(keys).size !== keys.length) throw new Error('Duplicate addition entries.');
@@ -66,6 +73,16 @@ export function validateAddition(data, baseline, assetRoot) {
   if (validated.entries.some((entry) => [entry.video, entry.source, entry.request].some((file) => file && media.has(file)))) throw new Error('Addition media must not overwrite original assets.');
   if (assetRoot) checkAssets(validated.entries, assetRoot);
   return validated;
+}
+
+// Every addition's results merged into one {entries} list, each validated against its own definition.
+export function loadAdditionResults(baseline, assetRoot) {
+  const entries = additions.flatMap((item) => {
+    const file = additionResultsFile(item);
+    if (!fs.existsSync(file)) return [];
+    return validateAddition(JSON.parse(fs.readFileSync(file, 'utf8')), baseline, assetRoot, item).entries.map((entry) => ({...entry, addition: item.id}));
+  });
+  return {entries};
 }
 
 export function validateResults(data, assetRoot) {
@@ -105,6 +122,11 @@ export function reserveCost(messages, rates, maxTokens = protocol.limits.maxToke
 }
 
 export function ensureBudget(ledger, kind, reservation, {allowInFlight = false} = {}) {
+  // A ledger cap set by the runner (for keys without an OpenRouter limit) applies on top of the edition limits.
+  if (typeof ledger.capUsd === 'number') {
+    const total = ledger.charges.reduce((sum, charge) => sum + charge.cost, 0) + (Array.isArray(ledger.pending) ? ledger.pending : []).reduce((sum, request) => sum + request.reservation, 0);
+    if (total + reservation > ledger.capUsd + 1e-9) throw new Error(`Ledger cap of $${ledger.capUsd} would be exceeded. No request sent.`);
+  }
   const pending = Array.isArray(ledger.pending) ? ledger.pending : ledger.pending ? [ledger.pending] : [];
   if (pending.length && !allowInFlight) throw new Error('An earlier request has unknown cost. Reconcile it with OpenRouter before continuing.');
   if (!Number.isFinite(reservation) || reservation < 0) throw new Error('Invalid cost reservation.');

@@ -4,7 +4,9 @@ import {ArticleLayout} from '../ui/ArticleLayout';
 import {ViewportVideo} from '../ui/ViewportVideo';
 import protocol from './protocol.json';
 import addition from './addition.json';
+import additionA2 from './addition-a2.json';
 import additionData from './addition-results.json';
+import additionA2Data from './addition-a2-results.json';
 import resultsData from './results.json';
 import recoveryData from './recovery.json';
 import recoveryProtocol from './recovery-protocol.json';
@@ -14,11 +16,12 @@ import {withRecovery, type BenchmarkAdditionResults, type BenchmarkModel, type B
 
 // The publication build validates this JSON against the result schema.
 const defaultResults = resultsData as BenchmarkResults;
-const defaultAdditions = additionData as BenchmarkAdditionResults;
-// Late additions are listed first in shortlist order.
-const allModels: BenchmarkModel[] = [...addition.models, ...protocol.models];
-const additionKeys = new Set(addition.models.map((model) => model.key));
-const additionDate = 'October 13';
+const additionList = [addition, additionA2];
+const defaultAdditions = {entries: [...(additionData as BenchmarkAdditionResults).entries, ...(additionA2Data as BenchmarkAdditionResults).entries]} as Pick<BenchmarkAdditionResults, 'entries'>;
+// Late additions are listed first, newest first.
+const allModels: BenchmarkModel[] = [...[...additionList].reverse().flatMap((item) => item.models), ...protocol.models];
+const shortDate = (date: string) => new Date(`${date}T12:00:00Z`).toLocaleDateString('en-US', {month: 'long', day: 'numeric', timeZone: 'UTC'});
+const additionOf = new Map(additionList.flatMap((item) => item.models.map((model) => [model.key, item] as const)));
 const month = 'October 2026';
 const dateLabel = 'October 8, 2026';
 const money = (value: number) => `$${value.toFixed(value < 0.01 ? 4 : 3)}`;
@@ -51,7 +54,7 @@ function ResultCard({model, entry, timing, base, run, brief}: {model: BenchmarkM
     <div className="benchmark-card-body">
       <div className="benchmark-card-labels"><span>{model.author}</span><span>{model.weights === 'Open' ? 'Open weights' : model.tier}</span></div>
       <h3>{model.name}</h3>
-      {additionKeys.has(model.key) && <p className="benchmark-addition-label">New / Added {additionDate}</p>}
+      {additionOf.has(model.key) && <p className="benchmark-addition-label">New / Added {shortDate(additionOf.get(model.key)!.date)}</p>}
       {entry?.recovery && <p className="benchmark-recovery-label">{entry.status === 'rendered' ? 'Recovered' : 'Repair limit reached'} / R1 &middot; {entry.recovery.attempts} additional attempt{entry.recovery.attempts === 1 ? '' : 's'}</p>}
       <dl className="benchmark-metrics">
         <div><dt>API cost</dt><dd>{entry ? money(entry.costUsd) : <span className="metric-pending">Pending</span>}</dd></div>
@@ -86,7 +89,7 @@ function ResultCard({model, entry, timing, base, run, brief}: {model: BenchmarkM
   </article>;
 }
 
-export function BenchmarkPage({base = '/', edition = false, data = defaultResults, additions = defaultAdditions, recoveries = recoveryData as BenchmarkRecoveries, timings = timingsData as BenchmarkTimings}: {base?: string; edition?: boolean; data?: BenchmarkResults; additions?: BenchmarkAdditionResults; recoveries?: BenchmarkRecoveries; timings?: BenchmarkTimings}) {
+export function BenchmarkPage({base = '/', edition = false, data = defaultResults, additions = defaultAdditions, recoveries = recoveryData as BenchmarkRecoveries, timings = timingsData as BenchmarkTimings}: {base?: string; edition?: boolean; data?: BenchmarkResults; additions?: Pick<BenchmarkAdditionResults, 'entries'>; recoveries?: BenchmarkRecoveries; timings?: BenchmarkTimings}) {
   const results = data;
   const [briefId, setBriefId] = useState(protocol.briefs[0].id);
   const [run, setRun] = useState(1);
@@ -189,7 +192,7 @@ export function BenchmarkPage({base = '/', edition = false, data = defaultResult
         <p className="benchmark-footnote">A curated selection across price tiers, not a popularity ranking. Empty entries are untested, not failed.</p>
         <p className="benchmark-footnote">Time to video is an estimate from prompt submission until the MP4 was ready. It adds every model response and render attempt, including repairs. It excludes waiting in the render queue and small file-handling overhead. <a href={`${base}benchmark/timings.json`}>OpenRouter timing records</a></p>
         {recoveries.entries.length > 0 && <p className="benchmark-footnote">Recovered entries show total API cost, including original attempts. The additional repair cost is itemized in run details. Recovery means the code compiled and rendered. It is not first-attempt success.</p>}
-        <p className="benchmark-footnote"><strong>Late addition:</strong> {addition.models.map((model) => model.name).join(', ')} was added on {additionDate} after the original ten models. It used the same protocol, briefs, token limit, renderer, and repair rule. It did not receive the R1 recovery pass.</p>
+        <p className="benchmark-footnote"><strong>Late additions:</strong> {additionList.map((item) => `${item.models.map((model) => model.name).join(', ')} (${shortDate(item.date)})`).join(' and ')} were added after the original ten models. They used the same protocol, briefs, token limit, renderer, and repair rule. They did not receive the R1 recovery pass.</p>
       </section>
 
       <section id="methodology" className="benchmark-section">
@@ -217,7 +220,7 @@ export function BenchmarkPage({base = '/', edition = false, data = defaultResult
           <p className="benchmark-footnote">Both runs are published, including failures. Two runs are exploratory evidence, not a statistically definitive ranking.</p>
           <p className="benchmark-footnote"><strong>Protocol revision:</strong> A Haiku setup pilot used 13,309 reasoning tokens and was truncated at the original 16,000-token limit. Protocol 1.1 uses 32,000 tokens for all 60 comparable runs. The pilot cost $0.008 and remains in the spending record, outside the comparison.</p>
           <p className="benchmark-footnote"><strong>Repair-feedback limitation:</strong> In this pilot, compile-failure repairs received a stack trace without the detailed TypeScript diagnostics. Treat repair outcomes as provisional. First-attempt outcomes are unaffected.</p>
-          <p className="benchmark-footnote"><strong>Addition {addition.id}:</strong> {addition.policy} <a href={`${base}benchmark/addition-results.json`}>Addition results</a></p>
+          {additionList.map((item) => <p key={item.id} className="benchmark-footnote"><strong>Addition {item.id}:</strong> {item.policy} <a href={`${base}benchmark/${item.id === 'A1' ? 'addition-results' : `addition-${item.id.toLowerCase()}-results`}.json`}>Addition results</a></p>)}
         </div>
       </section>
 

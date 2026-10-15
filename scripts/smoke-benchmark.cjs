@@ -26,15 +26,16 @@ async function check(browser, viewport, prefix) {
   const recoveries = await (await context.request.get(`${base}benchmark/recovery.json`)).json();
   const timings = await (await context.request.get(`${base}benchmark/timings.json`)).json();
   const additions = await (await context.request.get(`${base}benchmark/addition-results.json`)).json();
-  protocol.models = [...additions.addition.models, ...protocol.models];
+  const additionsA2 = await (await context.request.get(`${base}benchmark/addition-a2-results.json`)).json();
+  protocol.models = [...additionsA2.addition.models, ...additions.addition.models, ...protocol.models];
   const cards = protocol.models.length;
   const results = {...original, entries: original.entries.map((entry) => {
     const repair = recoveries.entries.find((item) => item.model === entry.model && item.brief === entry.brief && item.run === entry.run);
     return repair ? {...entry, ...repair, generationMs: entry.generationMs + repair.generationMs, renderMs: entry.renderMs + repair.renderMs} : entry;
-  }).concat(additions.entries)};
+  }).concat(additions.entries, additionsA2.entries)};
   await page.locator('.benchmark-card').first().waitFor();
   assert.equal(await page.locator('.benchmark-card').count(), cards);
-  assert.equal(await page.locator('.benchmark-card h3').first().innerText(), 'Gemini 4 Argon', 'the late addition is listed first');
+  assert.equal(await page.locator('.benchmark-card h3').first().innerText(), 'Muse Spark Open', 'the newest late addition is listed first');
   assert.equal(await page.locator('.filters').count(), 0);
   assert.equal(await page.getByRole('heading', {level: 1}).count(), 1);
   assert.equal(await page.locator('.benchmark-progress, .benchmark-recovery-summary').count(), 0);
@@ -140,7 +141,7 @@ async function check(browser, viewport, prefix) {
   assert.equal(await page.locator('.benchmark-card').count(), cards);
   await page.getByRole('link', {name: 'Templates', exact: true}).click();
   await page.locator('.card').first().waitFor();
-  await page.getByRole('link', {name: /New: Gemini 4 Argon benchmarked\..*Compare now/}).click();
+  await page.getByRole('link', {name: /New: Meta Muse Spark Open benchmarked\..*Compare now/}).click();
   await page.locator('.benchmark-card').first().waitFor();
   assert.deepEqual(errors, [], 'no runtime or hydration errors');
   await context.close();
@@ -153,7 +154,7 @@ async function check(browser, viewport, prefix) {
     const context = await browser.newContext({javaScriptEnabled: false, viewport: {width: 1280, height: 900}});
     const page = await context.newPage();
     await page.goto(`${base}benchmark/`);
-    assert.equal(await page.locator('.benchmark-card').count(), 11, 'all models are server rendered');
+    assert.equal(await page.locator('.benchmark-card').count(), 12, 'all models are server rendered');
     assert.equal(await page.locator('script[type="application/ld+json"]').count(), 1);
     await page.locator('.benchmark-prompt summary').click();
     assert.equal(await page.locator('.benchmark-prompt').getAttribute('open'), '');
