@@ -4,6 +4,7 @@
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {"source": "/s/**", "run": {"serviceId": "cliphouse-share", "region": "europe-west1"}},
+      {"source": "/p/**", "run": {"serviceId": "cliphouse-share", "region": "europe-west1"}},
       {"source": "/api/shares{,/**}", "run": {"serviceId": "cliphouse-share", "region": "europe-west1"}},
       {"source": "/api/health", "run": {"serviceId": "cliphouse-share", "region": "europe-west1"}},
       {"source": "/.well-known/mcp-registry-auth", "run": {"serviceId": "cliphouse-share", "region": "europe-west1"}},

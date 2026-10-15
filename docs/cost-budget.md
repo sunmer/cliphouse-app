@@ -41,6 +41,23 @@ The application currently permits 100 new render attempts per project per UTC da
 
 Firebase Auth currently reports `FIREBASE_AUTH`, not Identity Platform. Do not silently upgrade to Identity Platform or enable phone/SMS authentication: those changes can introduce different charges.
 
+## Personalized Previews
+
+`render_preview` renders one 900 px JPEG per new set of props. Identical props reuse the stored file. The share service runs with `--min-instances 1` so the first preview of the day does not wait for a cold start and a browser launch. One idle instance at 2 vCPU and 2 GiB costs roughly USD 0.0000064 per second (idle rate, request-based billing) before free allowances, about USD 17 per month. Check the Cloud Run bill after the first week.
+
+Local timings (Apple Silicon, 2026-10-15), with the persistent preview browser already open:
+
+| Engine | Template | Render |
+| --- | --- | --- |
+| Remotion | `apppromo-mobile-app` | 1.1 s |
+| Remotion | `wordmark-reveal` | 0.8 s |
+| HyperFrames (`snapshot`) | `featuredrop-launch` | 3.6 s |
+| HyperFrames (`snapshot`) | `signal-orbit` | 2.8 s |
+
+The browser warm-up at startup took 1.4-3.3 s. Posters were 15-62 KB. Record Cloud Run cold and warm times here after deploy: the `ms` field of `events` documents with `type: preview` holds each render time, and `scripts/search-report.mjs` reports p50 and p90 per engine.
+
+Daily limits count renders, not cache hits: 30 per IP, 300 per API key, 2,000 per project. At 2,000 renders of about 3 active seconds, compute is about USD 0.32 per day.
+
 ## Sources
 
 - https://firebase.google.com/docs/hosting/usage-quotas-pricing

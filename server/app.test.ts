@@ -270,21 +270,22 @@ test('the edge secret blocks direct public reads and leaves exempt routes alone'
   assert.equal((await fetch(`${edgeOrigin}/api/exports`, {method: 'POST'})).status, 401);
   assert.equal((await fetch(`${origin}/s/${'q'.repeat(32)}`)).status, 404, 'no secret configured: unchanged');
 });
-test('MCP lists three read-only tools and answers from the catalog', async () => {
+test('MCP lists the catalog tools and answers from the catalog', async () => {
   const init = await mcp(rpc('initialize', {protocolVersion: '2025-06-18', capabilities: {}, clientInfo: {name: 'test', version: '1'}}));
   assert.equal(init.status, 200);
   assert.equal(init.headers.get('mcp-session-id'), null, 'stateless');
   const list = await (await mcp(rpc('tools/list'))).json();
-  assert.deepEqual(list.result.tools.map((t: {name: string}) => t.name).sort(), ['build_edit_link', 'get_template_spec', 'search_templates']);
-  assert.ok(list.result.tools.every((t: {annotations?: {readOnlyHint?: boolean}}) => t.annotations?.readOnlyHint));
+  assert.deepEqual(list.result.tools.map((t: {name: string}) => t.name).sort(), ['build_edit_link', 'get_template_spec', 'render_preview', 'search_templates']);
+  assert.ok(list.result.tools.filter((t: {name: string}) => t.name !== 'render_preview').every((t: {annotations?: {readOnlyHint?: boolean}}) => t.annotations?.readOnlyHint));
   const found = await call('search_templates', {query: variant.title.split(' ')[0], limit: 50 > 20 ? 20 : 5});
-  assert.ok(found.data.some((t: {id: string}) => t.id === variant.id));
-  assert.ok(found.data.length <= 20);
-  assert.equal(found.data[0].spec.startsWith('https://cliphou.se/templates/'), true);
+  assert.match(found.data.searchId, /^[A-Za-z0-9_-]{16}$/);
+  assert.ok(found.data.results.some((t: {id: string}) => t.id === variant.id));
+  assert.ok(found.data.results.length <= 20);
+  assert.equal(found.data.results[0].spec.startsWith('https://cliphou.se/templates/'), true);
   const vertical = await call('search_templates', {query: 'app promo', aspect: '9:16', maxSeconds: 12, limit: 4});
-  assert.ok(vertical.data.length > 0 && vertical.data.every((t: {aspect: string; seconds: number}) => t.aspect === '9:16' && t.seconds <= 12));
-  assert.match(vertical.data[0].preview, /^https:\/\/cliphou.se\/previews\/.+\.mp4$/);
-  assert.equal((await call('search_templates', {query: 'logo intro', limit: 1})).data[0].id, 'wordmark-reveal');
+  assert.ok(vertical.data.results.length > 0 && vertical.data.results.every((t: {aspect: string; seconds: number}) => t.aspect === '9:16' && t.seconds <= 12));
+  assert.match(vertical.data.results[0].preview, /^https:\/\/cliphou.se\/previews\/.+\.mp4$/);
+  assert.equal((await call('search_templates', {query: 'logo intro', limit: 1})).data.results[0].id, 'wordmark-reveal');
   assert.match((await init.clone().json()).result.instructions, /search_templates/);
   const spec = await call('get_template_spec', {variantId: variant.id});
   assert.equal(spec.data.kind, 'template');

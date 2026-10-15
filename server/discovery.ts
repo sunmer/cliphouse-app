@@ -16,7 +16,7 @@ export function discovery(origin: string) {
     websiteUrl: server.websiteUrl,
     registry: `https://registry.modelcontextprotocol.io/v0.1/servers?search=${encodeURIComponent(server.name)}`,
     remotes: server.remotes,
-    tools: ['search_templates', 'get_template_spec', 'build_edit_link'],
+    tools: ['search_templates', 'get_template_spec', 'build_edit_link', 'render_preview'],
     authentication: {
       required: false,
       optional: {type: 'bearer', format: 'chk_...', obtain: `${origin}/ (Account, MCP API keys)`},
