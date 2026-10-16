@@ -158,7 +158,8 @@ type AssetArgs = {variantId: string; props: unknown; templateVersion?: number; c
 export type PreviewExt = 'jpg' | 'webp';
 
 // Posters and loops share the instance's CPUs. Posters always go first: a loop starts only when no
-// poster is rendering, so a slow loop can never starve the gallery posters.
+// poster is queued or rendering, so a slow loop can never starve the gallery posters. A poster counts
+// from the moment it is requested, not when it starts, so a loop cannot slip in between queued posters.
 export function createRenderGate() {
   let posters = 0;
   const idle: (() => void)[] = [];
@@ -168,6 +169,7 @@ export function createRenderGate() {
       try { return await job(); } finally { if (--posters === 0) idle.splice(0).forEach((resolve) => resolve()); }
     },
     async whenIdle() { while (posters > 0) await new Promise<void>((resolve) => idle.push(resolve)); },
+    get busy() { return posters > 0; },
   };
 }
 type Gate = ReturnType<typeof createRenderGate>;
@@ -193,13 +195,19 @@ function createAssetService({store, render, origin, version, ext, budgetMs, maxQ
     if (queued >= maxQueue) throw new HttpError(429, 'The preview renderer is busy.');
     queued++;
     try {
+      const slot = async () => {
+        if (running >= concurrency) await new Promise<void>((resolve) => waiting.push(resolve));
+        // A loop that got a slot rechecks: posters requested meanwhile go first.
+        while (detached && gate?.busy) await gate.whenIdle();
+        running++;
+        try {
+          if (signal.aborted) throw new HttpError(504, 'Preview timed out.');
+          return await job();
+        } finally { running--; waiting.shift()?.(); }
+      };
       if (detached) await gate?.whenIdle();
-      if (running >= concurrency) await new Promise<void>((resolve) => waiting.push(resolve));
-      running++;
-      try {
-        if (signal.aborted) throw new HttpError(504, 'Preview timed out.');
-        return await (gate && !detached ? gate.poster(job) : job());
-      } finally { running--; waiting.shift()?.(); }
+      // A poster holds the gate while it waits for a slot too.
+      return await (gate && !detached ? gate.poster(slot) : slot());
     } finally { queued--; }
   };
   const produce = async (hash: string, value: Snapshot, signal: AbortSignal) => {
