@@ -5,6 +5,7 @@ import {ROLES, THEME_ROLES, type Role} from '../src/videos/vocab.ts';
 import {scoreOf as beatScoreOf} from '../src/videos/beat/schema.ts';
 import {scoreOf as musicScoreOf} from '../src/videos/music/schema.ts';
 import {validateProps} from '../src/agent/handoff.ts';
+import {LOGO_ID, supportsLogo, type Logo} from '../src/videos/logo.ts';
 import {HttpError} from './model.ts';
 
 // One brand description from the agent, mapped onto any template. Roles the brand does not fill keep
@@ -12,6 +13,7 @@ import {HttpError} from './model.ts';
 export type Brand = {
   name: string; headline?: string; subhead?: string; points?: string[]; cta?: string; date?: string;
   theme?: Partial<Record<(typeof THEME_ROLES)[number], string>>;
+  logo?: Logo;
 };
 
 const HEX = /^#[a-f0-9]{6}$/i;
@@ -38,7 +40,15 @@ export function checkBrand(value: unknown): Brand {
       theme[role] = color.toLowerCase();
     }
   }
-  return {name, headline: clean(b.headline), subhead: clean(b.subhead), points, cta: clean(b.cta), date: clean(b.date), theme};
+  let logo: Logo | undefined;
+  if (b.logo !== undefined) {
+    const l = b.logo as Record<string, unknown>;
+    if (!l || typeof l !== 'object' || typeof l.id !== 'string' || !LOGO_ID.test(l.id) || typeof l.ratio !== 'number' || !(l.ratio >= 0.2 && l.ratio <= 8)) {
+      throw new HttpError(400, 'brand.logo must be the {id, ratio, mono} object returned by upload_logo.');
+    }
+    logo = {id: l.id, ratio: l.ratio, mono: l.mono === true};
+  }
+  return {name, headline: clean(b.headline), subhead: clean(b.subhead), points, cta: clean(b.cta), date: clean(b.date), theme, ...(logo ? {logo} : {})};
 }
 
 const listScoreOf = (template: string) => {
@@ -78,6 +88,8 @@ export function tailorProps(variantId: string, brand: Brand) {
   }
   for (const role of THEME_ROLES) if (brand.theme?.[role]) props.theme[role] = brand.theme[role]!;
   const schema = schemas[variant.template];
+  // Templates with a logo slot show the logo instead of the brand name; the name stays as its alt text.
+  if (brand.logo && supportsLogo(schema)) (props as Record<string, unknown>).logo = {...brand.logo};
   const original = variant.props as unknown as {texts: Record<string, string>};
   // Roles that still show the template's sample text, so the agent can fill or flag them after the pick.
   const result = (p: typeof props) => ({props: p, template: variant.template,

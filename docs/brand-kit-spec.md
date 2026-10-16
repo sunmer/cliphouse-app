@@ -65,7 +65,7 @@ Custom color edits send one event after the user stops changing the color for 80
 
 ## Later work
 
-- **Logos:** a logo upload and a `logo` slot on templates, with the brand name as the fallback.
+- **Logos:** built 2026-10-17 for the 40 release and developer templates. See the Logos section in `docs/agents.md`.
 - **Brand name:** a kit name that fills the `brand` role.
 - **Uploads:** screenshot uploads into template image slots, stored per account.
 - **Account sync:** the kit stored with the account so it follows the user.

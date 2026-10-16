@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
 import {after, before, test} from 'node:test';
 import {createServer} from 'node:http';
 import {Readable} from 'node:stream';
@@ -57,7 +58,13 @@ const store = {
     return entry[0];
   },
   async findApiKey(hash: string) { const k = apiKeys.get(hash); return k && !k.revoked ? {owner: k.owner} : null; },
+  async logoExists(key: string) { return logos.has(key); },
+  async saveLogo(key: string, png: Buffer) { logos.set(key, png); },
+  async reserveLogo() { logoUploads++; },
+  async logoAsset(key: string) { const b = logos.get(key); if (!b) throw new Error('missing'); return {size: b.length, stream: () => Readable.from(b)}; },
 } as unknown as ReturnType<typeof createStore>;
+const logos = new Map<string, Buffer>();
+let logoUploads = 0;
 const apiKeys = new Map<string, {id: string; owner: string; createdAt: number; last4: string; revoked: boolean}>();
 const baseDeps: Parameters<typeof createHandler>[0] = {
   store, origin: 'https://cliphou.se', origins: new Set(['https://cliphou.se']), version: 'test',
@@ -275,8 +282,8 @@ test('MCP lists the catalog tools and answers from the catalog', async () => {
   assert.equal(init.status, 200);
   assert.equal(init.headers.get('mcp-session-id'), null, 'stateless');
   const list = await (await mcp(rpc('tools/list'))).json();
-  assert.deepEqual(list.result.tools.map((t: {name: string}) => t.name).sort(), ['build_edit_link', 'get_template_spec', 'render_preview', 'render_previews', 'search_templates']);
-  assert.ok(list.result.tools.filter((t: {name: string}) => !t.name.startsWith('render_preview')).every((t: {annotations?: {readOnlyHint?: boolean}}) => t.annotations?.readOnlyHint));
+  assert.deepEqual(list.result.tools.map((t: {name: string}) => t.name).sort(), ['build_edit_link', 'get_template_spec', 'render_preview', 'render_previews', 'search_templates', 'upload_logo']);
+  assert.ok(list.result.tools.filter((t: {name: string}) => !t.name.startsWith('render_preview') && t.name !== 'upload_logo').every((t: {annotations?: {readOnlyHint?: boolean}}) => t.annotations?.readOnlyHint));
   const found = await call('search_templates', {query: variant.title.split(' ')[0], limit: 50 > 20 ? 20 : 5});
   assert.match(found.data.searchId, /^[A-Za-z0-9_-]{16}$/);
   assert.equal(found.data.contractVersion, (await import('../src/agent/goals.ts')).AGENT_CONTRACT_VERSION);
@@ -362,4 +369,38 @@ test('MCP registry proof and discovery document are public, cacheable, and bypas
   }
   const init = await (await mcp(rpc('initialize', {protocolVersion: '2025-06-18', capabilities: {}, clientInfo: {name: 't', version: '1'}}), {ip: '10.3.3.3'})).json();
   assert.equal(init.result.serverInfo.version, (await import('../server.json', {with: {type: 'json'}})).default.version);
+});
+
+test('logo uploads need a Google account, are content-addressed, and gate rendered logos', {skip: (() => { try { execFileSync('ffmpeg', ['-version'], {stdio: 'ignore'}); return false; } catch { return true; } })()}, async () => {
+  const png = execFileSync('ffmpeg', ['-v', 'error', '-f', 'lavfi', '-i', 'color=c=black@0.0:s=200x100,format=rgba,drawbox=x=10:y=10:w=80:h=60:color=white@1:t=fill',
+    '-frames:v', '1', '-f', 'image2pipe', '-c:v', 'png', 'pipe:1']);
+  const body = JSON.stringify({data: `data:image/png;base64,${png.toString('base64')}`});
+  const upload = (token?: string) => fetch(`${origin}/api/logos`, {method: 'POST', body, headers: {'Content-Type': 'application/json', ...(token ? {Authorization: `Bearer ${token}`} : {})}});
+  assert.equal((await upload()).status, 401);
+  assert.equal((await upload('anonymous')).status, 403);
+  const first = await upload('alice');
+  assert.equal(first.status, 201);
+  const logo = await first.json();
+  assert.match(logo.id, /^[a-f0-9]{64}$/);
+  assert.equal(logo.ratio, 2);
+  assert.equal(logo.mono, true);
+  assert.equal((await upload('alice')).status, 201);
+  assert.equal(logoUploads, 1, 'a repeated file is not stored or counted twice');
+  const served = await fetch(`${origin}/l/${logo.id}.png`);
+  assert.equal(served.status, 200);
+  assert.equal(served.headers.get('content-type'), 'image/png');
+  assert.match(served.headers.get('cache-control') || '', /immutable/);
+  assert.equal((await fetch(`${origin}/l/${'b'.repeat(64)}.png`)).status, 404);
+  const launch = manifest.variants.find((v) => v.id === 'changelog-launch')!;
+  const before = renders;
+  assert.equal((await post({variantId: launch.id, props: {...launch.props, logo: {id: 'c'.repeat(64), ratio: 2, mono: true}}})).status, 400);
+  assert.equal(renders, before, 'an unknown logo never reaches the renderer');
+  const unknown = await call('build_edit_link', {variantId: launch.id, props: {...launch.props, logo: {id: 'c'.repeat(64), ratio: 2, mono: true}}});
+  assert.equal(unknown.isError, true);
+  const ok = await call('build_edit_link', {variantId: launch.id, props: {...launch.props, logo: {id: logo.id, ratio: 2, mono: true}}});
+  assert.match(ok.data.url, /%22logo%22/);
+  const mcpUpload = await call('upload_logo', {data: png.toString('base64')});
+  assert.equal(mcpUpload.data.logo.id, logo.id);
+  const big = await mcp(rpc('tools/call', {name: 'upload_logo', arguments: {data: png.toString('base64').repeat(40)}}), {ip: '10.9.9.9'});
+  assert.equal(big.status, 200, 'upload_logo may exceed the 16 KB limit for other calls');
 });

@@ -77,7 +77,7 @@ jobs:
           --no-allow-unauthenticated --cpu 4 --memory 4Gi --concurrency 3
           --min-instances 1 --max-instances 8 --timeout 150 --cpu-boost
           --command node --args=--import,tsx,server/loop-worker.ts
-          --set-env-vars HYPERFRAMES_NO_TELEMETRY=1,HYPERFRAMES_BROWSER_PATH=/usr/local/bin/hyperframes-chrome,NODE_ENV=production
+          --set-env-vars HYPERFRAMES_NO_TELEMETRY=1,HYPERFRAMES_BROWSER_PATH=/usr/local/bin/hyperframes-chrome,NODE_ENV=production,GOOGLE_CLOUD_PROJECT=cliphouse-app,SHARE_BUCKET=cliphouse-app-shares
           --quiet
       - name: Deploy Hosting and rules
         run: |

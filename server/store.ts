@@ -57,6 +57,42 @@ export function createStore(bucketName: string) {
       const [metadata] = await file.getMetadata();
       return {size: Number(metadata.size), stream: (range?: {start: number; end: number}) => file.createReadStream(range)};
     },
+    // Logos: one immutable PNG per content hash under logos/. A logo is kept while any edit may use it.
+    async saveLogo(id: string, png: Buffer, owner: string) {
+      const file = bucket.file(`logos/${id}.png`);
+      const [exists] = await file.exists();
+      if (!exists) await file.save(png, {resumable: false, metadata: {contentType: 'image/png', cacheControl: 'public, max-age=31536000, immutable', metadata: {owner}}});
+    },
+    async logoExists(id: string) {
+      const [exists] = await bucket.file(`logos/${id}.png`).exists();
+      return exists;
+    },
+    async readLogo(id: string) {
+      const [bytes] = await bucket.file(`logos/${id}.png`).download();
+      return bytes;
+    },
+    async logoAsset(id: string) {
+      const file = bucket.file(`logos/${id}.png`);
+      const [metadata] = await file.getMetadata();
+      return {size: Number(metadata.size), stream: (range?: {start: number; end: number}) => file.createReadStream(range)};
+    },
+    // Daily upload quota per caller and in total. Counts uploads, including repeats of the same file.
+    async reserveLogo(caller: string, keyed: boolean) {
+      const day = new Date().toISOString().slice(0, 10);
+      const globalRef = db.doc(`logoQuota/${day}`);
+      const callerRef = db.doc(`logoQuota/${day}/callers/${createHash('sha256').update(caller).digest('hex').slice(0, 32)}`);
+      const limits = {global: Number(process.env.LOGOS_PER_DAY || 2_000),
+        caller: Number(keyed ? process.env.LOGOS_PER_KEY_DAY || 100 : process.env.LOGOS_PER_CALLER_DAY || 20)};
+      await db.runTransaction(async (tx) => {
+        const [global, mine] = await Promise.all([tx.get(globalRef), tx.get(callerRef)]);
+        const globalCount = global.data()?.count || 0;
+        const callerCount = mine.data()?.count || 0;
+        if (callerCount >= limits.caller) throw new HttpError(429, 'Your daily logo upload limit has been reached.');
+        if (globalCount >= limits.global) throw new HttpError(429, 'Logo uploads have reached their daily capacity.');
+        tx.set(globalRef, {count: globalCount + 1});
+        tx.set(callerRef, {count: callerCount + 1, caller});
+      });
+    },
     // Daily preview quota, separate from share and export quotas. Counts renders, not cache hits.
     async reservePreview(caller: string, keyed: boolean) {
       const day = new Date().toISOString().slice(0, 10);

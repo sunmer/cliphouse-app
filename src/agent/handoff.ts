@@ -3,6 +3,7 @@ import type {VideoSchema} from '../videos/contract.ts';
 import {hideableRoles, isMusicSchema} from '../videos/music/schema.ts';
 import {mediaSlots} from '../videos/media/catalog.ts';
 import {audioKeys} from '../music/schema.ts';
+import {supportsLogo} from '../videos/logo.ts';
 import {MAX_HANDOFF_CHARS} from './versions.ts';
 
 export type HandoffResult = {ok: true; props: VideoProps} | {ok: false; error: string};
@@ -18,13 +19,21 @@ export function propKeys(schema: VideoSchema) {
   return ['texts', 'theme', ...(mediaSlots(schema).length ? ['media'] : []),
     ...(isBeatSchema(schema) ? ['audio'] : isMusicSchema(schema) ? ['hidden', 'audio'] : [])];
 }
+/** Top-level prop keys that may be left out. A logo is optional: without one, templates show the brand name. */
+export const optionalKeys = (schema: VideoSchema) => (supportsLogo(schema) ? ['logo'] : []);
+/** The prop keys of a value: the required ones, plus each optional key it carries. */
+export const keysFor = (schema: VideoSchema, value: Record<string, unknown>) =>
+  [...propKeys(schema), ...optionalKeys(schema).filter((k) => Object.hasOwn(value, k))];
 
 // Agent output is untrusted. Accept only the exact text and color fields of one template.
 export function validateProps(schema: VideoSchema, value: unknown): HandoffResult {
   const roles = Object.keys(schema.shape.texts.shape);
   const slots = mediaSlots(schema);
   const top = propKeys(schema);
-  if (!object(value) || !sameKeys(value, top)) return {ok: false, error: `Props must contain only ${top.join(', ')}.`};
+  const optional = optionalKeys(schema);
+  if (!object(value) || !sameKeys(value, keysFor(schema, value))) {
+    return {ok: false, error: `Props must contain only ${top.join(', ')}${optional.length ? `, and optionally ${optional.join(', ')}` : ''}.`};
+  }
   if (!object(value.texts) || !sameKeys(value.texts, roles)) return {ok: false, error: `texts must contain exactly: ${roles.join(', ')}.`};
   if (!object(value.theme) || !sameKeys(value.theme, THEME_ROLES)) return {ok: false, error: `theme must contain exactly: ${THEME_ROLES.join(', ')}.`};
   if (slots.length && (!object(value.media) || !sameKeys(value.media, slots))) return {ok: false, error: `media must contain exactly: ${slots.join(', ')}.`};

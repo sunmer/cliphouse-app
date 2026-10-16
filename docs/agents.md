@@ -23,7 +23,7 @@ Every cliphou.se video is deterministic code plus props. An agent can read it, e
 
 ## MCP Server
 
-`https://cliphou.se/mcp` is an MCP server using the stateless Streamable HTTP transport: `POST` only, JSON responses, no sessions or SSE. `GET` returns 405. Request bodies are limited to 16 KB. Each request is limited to 10 seconds, except `render_preview`, which is limited to 30 seconds and always answers within 25.
+`https://cliphou.se/mcp` is an MCP server using the stateless Streamable HTTP transport: `POST` only, JSON responses, no sessions or SSE. `GET` returns 405. Request bodies are limited to 16 KB, except `upload_logo` calls, which may carry a logo of up to 1 MB. Each request is limited to 10 seconds, except `render_preview`, which is limited to 30 seconds and always answers within 25.
 
 Agents search by marketing goal first. The goal IDs live in `src/agent/goals.ts`: `launch-product`, `announce-feature`, `share-update`, `grow-waitlist`, `announce-integration`, `announce-pricing`, `celebrate-milestone`, `share-social-proof`, `promote-event`, `introduce-brand`, `run-promotion`, and `hire-team`. Search hides the rendering engine unless the caller uses the advanced `engine` filter. Specs and source packages still name the engine.
 
@@ -33,7 +33,18 @@ Agents search by marketing goal first. The goal IDs live in `src/agent/goals.ts`
 | `get_template_spec` | `variantId`, `searchId?` | the same JSON as `/templates/<variant>/agent.json` |
 | `build_edit_link` | `variantId`, `props`, `templateVersion?`, `searchId?` | a handoff URL, after the same validation the share service uses. Invalid props return a tool error. |
 | `render_preview` | `variantId`, `props`, `templateVersion?`, `searchId?` | `{poster, video, editor}` plus the poster as an inline JPEG. `poster` is `https://cliphou.se/p/<hash>.jpg`. `video` is reserved for a short animated preview and is `null` for now. Invalid props return a tool error. On a timeout, render failure, or daily limit, `poster` is `null`, `message` says why, and `editor` still works. |
-| `render_previews` | `variantIds` (1-4), `brand` (`name`, `headline?`, `subhead?`, `points?`, `cta?`, `date?`, `theme?`), `searchId?` | `{results}`: per template, `id`, `title`, `aspect`, `poster`, `editor`, the tailored `props`, and `keptSample` (text roles that still hold the template's sample text), plus each poster as an inline JPEG in result order. The server maps the brand onto each template's text roles, shortens text to each role's limit at a word boundary, and keeps the template's own text for any role the brand does not fill. A template whose poster is not ready within 20 s gets `poster: null`, `stockPoster`, and `message`. |
+| `render_previews` | `variantIds` (1-4), `brand` (`name`, `headline?`, `subhead?`, `points?`, `cta?`, `date?`, `theme?`, `logo?`), `searchId?` | `{results}`: per template, `id`, `title`, `aspect`, `poster`, `editor`, the tailored `props`, and `keptSample` (text roles that still hold the template's sample text), plus each poster as an inline JPEG in result order. The server maps the brand onto each template's text roles, shortens text to each role's limit at a word boundary, and keeps the template's own text for any role the brand does not fill. A template whose poster is not ready within 20 s gets `poster: null`, `stockPoster`, and `message`. |
+
+| `upload_logo` | `svg?` (SVG text) or `data?` (base64 PNG, JPEG, WebP, or SVG), up to 1 MB | `{logo: {id, ratio, mono}, url, transparent}`. Pass `logo` as `brand.logo` or `props.logo`. Counts against a daily per-caller upload limit (20 anonymous, 100 with an API key). |
+
+## Logos
+
+The 40 release and developer templates (the HyperFrames library set, `librarySchema`) take an optional `props.logo`: `{id, ratio, mono}`. Other templates reject it.
+
+- **Upload:** `POST /api/logos` (signed-in Google account, from the editor's Logo panel and the gallery brand kit) or the `upload_logo` MCP tool. `server/logos.ts` checks the type by its bytes, refuses SVGs with scripts, entities, embedded content, or outside references, and rasterizes with ffmpeg (librsvg, no scripts) to a PNG at most 1024 px on its long side. The id is the PNG's SHA-256, so the same file is stored once. Ratios run from 1:5 to 8:1.
+- **Storage:** `logos/<id>.png` in the share bucket, served at `/l/<id>.png` (immutable, CORS open). Daily quotas live in `logoQuota/`. Shares, exports, links, and previews refuse a logo id that was never uploaded.
+- **Rendering:** `bindHyperframes` adds a small runtime after the beat runtime only when the props carry a logo. It wraps `CliphouseBeat.mount` and puts the logo in every `[data-beat-text="brand"]` element as its single masked word, so the template's own brand motion moves it. The logo is one em tall at the fitted brand size. `mono: true` draws it as a mask in the brand text color. Template sources and source packages do not change. Renders copy the PNG into the project, so they read no network assets. The loop worker reads `logos/` with a read-only IAM condition.
+- **Brand kit:** the gallery strip (Customize) and the editor ("Use this logo for every video") store one logo in `cliphouse:brandkit:logo`. Untouched videos with a logo slot open with it, and gallery cards preview it.
 
 The `initialize` response includes `instructions` with the cliphou.se skill workflow: read the project (or the conversation) for product facts, search, show previews, fill the spec props, and return the editor link. Search uses the skill ranking and synonyms. Keep the `SYNONYMS` table in `server/mcp.ts` in sync with the skill helper.
 

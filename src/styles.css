@@ -315,6 +315,28 @@ h1, h2, h3 { margin: 0; }
 .brand-strip .theme-colors { grid-column: 1 / -1; grid-row: 2; grid-template-columns: repeat(5, minmax(0, 150px)); padding: 4px 0 2px; }
 .palette-btn.none { justify-content: center; align-items: center; font-size: 12px; color: var(--muted); }
 .palette-btn.none.on { color: var(--text); }
+.logo-controls { display: grid; gap: 10px; min-width: 0; }
+.logo-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.logo-preview {
+  flex: 0 1 160px; min-width: 72px; height: 40px; padding: 6px 10px; display: flex; align-items: center;
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel-2); overflow: hidden;
+}
+.logo-preview img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
+.logo-preview.mono span[role="img"] {
+  display: block; width: 100%; height: 100%; background: var(--text);
+  -webkit-mask: no-repeat left center / contain; mask: no-repeat left center / contain;
+}
+.logo-empty { color: var(--muted); font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.logo-btn {
+  height: 34px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; flex: none;
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); font-size: 13px; white-space: nowrap;
+}
+.logo-btn:not(:disabled):hover { background: var(--panel-2); }
+.logo-mode { justify-self: start; }
+.logo-mode button:disabled { opacity: 0.45; cursor: not-allowed; }
+.logo-error { color: #f87171; font-size: 12px; }
+.brand-logo { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: 16px; padding: 4px 0 2px; }
+.brand-logo > .brand-label { padding-top: 10px; }
 .switch { position: relative; width: 36px; height: 20px; flex: none; cursor: pointer; }
 .switch input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
 .switch span { position: absolute; inset: 0; border-radius: 999px; background: var(--line); transition: background 0.15s; pointer-events: none; }
