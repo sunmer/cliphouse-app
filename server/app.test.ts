@@ -279,13 +279,20 @@ test('MCP lists the catalog tools and answers from the catalog', async () => {
   assert.ok(list.result.tools.filter((t: {name: string}) => !t.name.startsWith('render_preview')).every((t: {annotations?: {readOnlyHint?: boolean}}) => t.annotations?.readOnlyHint));
   const found = await call('search_templates', {query: variant.title.split(' ')[0], limit: 50 > 20 ? 20 : 5});
   assert.match(found.data.searchId, /^[A-Za-z0-9_-]{16}$/);
+  assert.equal(found.data.contractVersion, (await import('../src/agent/goals.ts')).AGENT_CONTRACT_VERSION);
   assert.ok(found.data.results.some((t: {id: string}) => t.id === variant.id));
+  assert.ok(found.data.results.every((t: Record<string, unknown>) => !('engine' in t)), 'engine is hidden by default');
   assert.ok(found.data.results.length <= 20);
   assert.equal(found.data.results[0].spec.startsWith('https://cliphou.se/templates/'), true);
   const vertical = await call('search_templates', {query: 'app promo', aspect: '9:16', maxSeconds: 12, limit: 4});
   assert.ok(vertical.data.results.length > 0 && vertical.data.results.every((t: {aspect: string; seconds: number}) => t.aspect === '9:16' && t.seconds <= 12));
   assert.match(vertical.data.results[0].preview, /^https:\/\/cliphou.se\/previews\/.+\.mp4$/);
   assert.equal((await call('search_templates', {query: 'logo intro', limit: 1})).data.results[0].id, 'wordmark-reveal');
+  const waitlist = await call('search_templates', {goal: 'grow-waitlist', limit: 3});
+  assert.equal(waitlist.data.goal, 'grow-waitlist');
+  assert.ok(waitlist.data.results.every((t: {goals: string[]}) => t.goals.includes('grow-waitlist')));
+  assert.equal((await call('search_templates', {query: 'we need a waitlist video', limit: 1})).data.results[0].goals.includes('grow-waitlist'), true);
+  assert.ok((await call('search_templates', {engine: 'hyperframes', limit: 1})).data.results[0].engine);
   assert.match((await init.clone().json()).result.instructions, /search_templates/);
   const spec = await call('get_template_spec', {variantId: variant.id});
   assert.equal(spec.data.kind, 'template');
@@ -350,6 +357,8 @@ test('MCP registry proof and discovery document are public, cacheable, and bypas
     const body = await doc.json();
     assert.equal(body.name, 'se.cliphou/templates');
     assert.deepEqual(body.remotes, [{type: 'streamable-http', url: 'https://cliphou.se/mcp'}]);
+    assert.equal(body.agentContract.version, (await import('../src/agent/goals.ts')).AGENT_CONTRACT_VERSION);
+    assert.ok(body.tools.includes('render_previews'));
   }
   const init = await (await mcp(rpc('initialize', {protocolVersion: '2025-06-18', capabilities: {}, clientInfo: {name: 't', version: '1'}}), {ip: '10.3.3.3'})).json();
   assert.equal(init.result.serverInfo.version, (await import('../server.json', {with: {type: 'json'}})).default.version);

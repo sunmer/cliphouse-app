@@ -9,6 +9,7 @@ import {engineOf} from '../src/videos/engine.ts';
 import {scoreOf} from '../src/videos/music/schema.ts';
 import {agentSpec} from '../src/agent/spec.ts';
 import {handoffPath, specPath} from '../src/agent/versions.ts';
+import {AGENT_CONTRACT_VERSION, GOAL_IDS, MARKETING_GOALS, goalLabel, type MarketingGoal} from '../src/agent/goals.ts';
 import {MCP_VERSION} from './discovery.ts';
 import {HttpError, validateShare} from './model.ts';
 import type {EventLog, SearchLog} from './store.ts';
@@ -76,30 +77,41 @@ function score(v: (typeof visible)[number], terms: string[][], phrase: string) {
   return words_ + (exact ? 3 : 0);
 }
 
-type SearchArgs = {query?: string; purpose?: string; engine?: string; aspect?: string; maxSeconds?: number; music?: boolean; limit?: number};
-export function rankTemplates({query, purpose, engine, aspect: wanted, maxSeconds, music, limit = 6}: SearchArgs) {
+type SearchArgs = {query?: string; goal?: MarketingGoal; purpose?: string; engine?: string; aspect?: string; maxSeconds?: number; music?: boolean; limit?: number};
+const goalsOf = (v: (typeof visible)[number]) => ((v as {goals?: MarketingGoal[]}).goals ?? []);
+// Plain requests ("we need a waitlist video") imply a goal. An explicit goal always wins.
+export function inferGoal(query = ''): MarketingGoal | undefined {
+  const text = ` ${query.toLowerCase().replace(/[^a-z0-9]+/g, ' ')} `;
+  return MARKETING_GOALS.map((goal) => ({goal: goal.id, score: goal.terms.reduce((n, term) => n + (text.includes(` ${term} `) ? term.split(' ').length : 0), 0)}))
+    .filter((item) => item.score > 0).sort((a, b) => b.score - a.score)[0]?.goal;
+}
+export function rankTemplates({query, goal, purpose, engine, aspect: wanted, maxSeconds, music, limit = 6}: SearchArgs) {
+  const selectedGoal = goal ?? inferGoal(query);
   const kept = words(query ?? '').filter((w) => !(ASPECTS as readonly string[]).includes(w));
   const terms = kept.map((w) => [stem(w), ...(SYNONYMS[w] ?? SYNONYMS[stem(w)] ?? []).map(stem)]);
   const phrase = kept.join(' ');
   return visible
+    .filter((v) => !goal || goalsOf(v).includes(goal))
     .filter((v) => !purpose || v.purpose.toLowerCase() === purpose.toLowerCase())
     .filter((v) => !engine || engineOf(v.template) === engine)
     .filter((v) => !wanted || aspect(v.template) === wanted)
     .filter((v) => !maxSeconds || templateMeta[v.template].durationInFrames / templateMeta[v.template].fps <= maxSeconds)
     .filter((v) => music === undefined || Boolean(scoreOf(templateMeta[v.template])) === music)
-    .map((v) => ({v, score: terms.length ? score(v, terms, phrase) : 1}))
+    .map((v) => ({v, score: (terms.length ? score(v, terms, phrase) : 1) + (selectedGoal && goalsOf(v).includes(selectedGoal) ? 5 : 0)}))
     .filter(({score}) => score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, Math.min(Math.max(limit, 1), 20));
 }
-const card = (origin: string) => ({v}: {v: (typeof visible)[number]}) => {
+const card = (origin: string, includeEngine = false) => ({v}: {v: (typeof visible)[number]}) => {
       const meta = templateMeta[v.template];
-      return {id: v.id, title: v.title, description: v.description, purpose: v.purpose, template: v.template, engine: engineOf(v.template),
+      const goals = goalsOf(v);
+      return {id: v.id, title: v.title, description: v.description, purpose: v.purpose, goals, goalLabels: goals.map(goalLabel), template: v.template,
+        ...(includeEngine ? {engine: engineOf(v.template)} : {}),
         aspect: aspect(v.template), seconds: Math.round(meta.durationInFrames / meta.fps), music: Boolean(scoreOf(meta)),
         preview: `${origin}/previews/${v.id}.mp4`, poster: `${origin}/previews/${v.id}.jpg`, page: `${origin}/templates/${v.id}/`,
         spec: `${origin}${specPath(v.id)}`, editor: `${origin}/#/v/${v.id}`};
 };
-export const searchTemplates = (origin: string, args: SearchArgs) => rankTemplates(args).map(card(origin));
+export const searchTemplates = (origin: string, args: SearchArgs) => rankTemplates(args).map(card(origin, Boolean(args.engine)));
 
 export function templateSpec(origin: string, variantId: string) {
   const v = visible.find((item) => item.id === variantId);
@@ -112,10 +124,10 @@ export function editLink(origin: string, variantId: string, props: unknown, temp
   return `${origin}${handoffPath(variantId, value.props, templateVersion)}`;
 }
 
-const INSTRUCTIONS = `cliphou.se is a free library of editable motion graphics video templates (MIT-0): launch videos, promos, intros, social reels, logo reveals, teasers.
+const INSTRUCTIONS = `cliphou.se turns what the user builds into marketing videos. It has editable motion graphics templates for launches, feature announcements, updates, waitlists, events, social proof, and brand intros. Contract ${AGENT_CONTRACT_VERSION}.
 Workflow:
 1. Learn the product before you search. If you can read the user's project, read it first: README, package.json, landing page, CSS variables, Tailwind config, and logo. Otherwise use the conversation, attached files, or a page the user gives. Collect the product name, tagline, 2-3 real features or numbers, call to action, and brand colors. Do not ask for facts the project already contains. Ask only for facts you cannot find. Never invent numbers.
-2. Call search_templates with a short query (for example "product launch developer tool"). Set aspect only when the destination implies it: 9:16 for Reels, TikTok, and Shorts; 16:9 for YouTube and websites; 1:1 or 4:5 for feeds.
+2. Choose the marketing goal: ${GOAL_IDS.join(', ')}. Call search_templates with that goal and a short query (for example goal "launch-product", query "developer tool"). Set aspect only when the destination implies it: 9:16 for Reels, TikTok, and Shorts; 16:9 for YouTube and websites; 1:1 or 4:5 for feeds. Do not ask the user to choose a rendering engine.
 3. Pick the best 3-4 results. Call render_previews once with their ids, the searchId, and one brand object built from step 1 (name, headline, subhead, up to 3 points, cta, and theme colors). It returns a poster of each template with the user's own product. Show each poster as an inline image (Markdown ![title](poster)) with its title, and let the user pick one. If a poster is null, show that template's stock poster from search_templates instead.
 4. Call get_template_spec with the searchId. Start from the picked template's tailored props from render_previews, or from the spec's props, and change only texts, theme, and media (and hidden/audio for music templates). Keep each text within maxLength and each color as #RRGGBB, with good contrast.
 5. Call render_preview with the filled props and the searchId. It returns a poster of the template with the user's own product, plus the editor link. Show the poster image first, then the link and a short list of the text you used. If it returns an error, fix the props and call it again. If poster is null, give the editor link. The link opens a live, editable preview; the user exports the MP4 there.
@@ -129,28 +141,29 @@ function createServer(origin: string, ctx: McpContext) {
   const event = (entry: Omit<EventLog, 'client' | 'caller'>) => record(ctx.logEvent && (() => ctx.logEvent!({...entry, ...who})));
   server.registerTool('search_templates', {
     title: 'Search video templates',
-    description: 'Find motion graphics video templates (launch videos, promos, intros, social reels, logo reveals, teasers) in the free cliphou.se catalog. Returns a searchId and results with id, title, aspect, length in seconds, preview MP4, poster image, and editor URL. Use this first when the user wants a video for a product, project, or announcement.',
+    description: 'Find marketing video templates for a product, project, or announcement. Prefer a marketing goal, then add a short product or style query. Returns a searchId and results with id, title, goals, aspect, length, preview MP4, poster image, and editor URL. Engine details appear only when the engine filter is used.',
     inputSchema: {
-      query: z.string().max(200).optional().describe('Short description of the video, for example "saas product launch" or "logo intro".'),
+      query: z.string().max(200).optional().describe('Short product or style description, for example "developer tool" or "minimal logo".'),
+      goal: z.enum(GOAL_IDS).optional().describe(`Marketing goal. One of: ${MARKETING_GOALS.map((goal) => `${goal.id} (${goal.label})`).join(', ')}.`),
       aspect: z.enum(ASPECTS).optional().describe('Only when the destination implies it: 9:16 vertical (Reels, TikTok, Shorts), 16:9 (YouTube, web), 1:1 or 4:5 (feeds).'),
       maxSeconds: z.number().int().min(1).max(600).optional().describe('Maximum video length in seconds.'),
       music: z.boolean().optional().describe('true for beat-synced templates with a generated soundtrack, false for silent ones.'),
       purpose: z.string().max(60).optional().describe('Exact catalog purpose, for example "Product launch".'),
-      engine: z.enum(['remotion', 'hyperframes']).optional().describe('Rendering engine of the source package. Usually omit.'),
+      engine: z.enum(['remotion', 'hyperframes']).optional().describe('Advanced source-package filter. Omit unless the user explicitly asks for an engine.'),
       limit: z.number().int().min(1).max(20).optional().describe('Maximum results, default 6.'),
     },
     annotations: readOnly,
   }, async (args) => {
     const ranked = rankTemplates(args);
-    const results = ranked.map(card(origin));
+    const results = ranked.map(card(origin, Boolean(args.engine)));
     const searchId = randomBytes(12).toString('base64url');
     const {query, limit: _, ...filters} = args;
     await record(ctx.logSearch && (() => ctx.logSearch!({
       searchId, query: (query ?? '').trim().slice(0, 200), filters: Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== undefined)),
       resultIds: results.slice(0, 10).map((r) => r.id), resultCount: results.length, empty: results.length === 0,
-      topScore: ranked[0]?.score ?? 0, engines: results.slice(0, 10).map((r) => r.engine), ...who,
+      topScore: ranked[0]?.score ?? 0, engines: ranked.slice(0, 10).map((r) => engineOf(r.v.template)), ...who,
     })));
-    return text({searchId, results});
+    return text({searchId, contractVersion: AGENT_CONTRACT_VERSION, goal: args.goal ?? inferGoal(query) ?? null, results});
   });
   server.registerTool('get_template_spec', {
     title: 'Get template spec',

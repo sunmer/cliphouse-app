@@ -25,15 +25,23 @@ Every cliphou.se video is deterministic code plus props. An agent can read it, e
 
 `https://cliphou.se/mcp` is an MCP server using the stateless Streamable HTTP transport: `POST` only, JSON responses, no sessions or SSE. `GET` returns 405. Request bodies are limited to 16 KB. Each request is limited to 10 seconds, except `render_preview`, which is limited to 30 seconds and always answers within 25.
 
+Agents search by marketing goal first. The goal IDs live in `src/agent/goals.ts`: `launch-product`, `announce-feature`, `share-update`, `grow-waitlist`, `announce-integration`, `announce-pricing`, `celebrate-milestone`, `share-social-proof`, `promote-event`, `introduce-brand`, `run-promotion`, and `hire-team`. Search hides the rendering engine unless the caller uses the advanced `engine` filter. Specs and source packages still name the engine.
+
 | Tool | Input | Returns |
 | --- | --- | --- |
-| `search_templates` | `query?`, `aspect?` (`16:9`, `9:16`, `4:5`, `1:1`), `maxSeconds?`, `music?`, `purpose?`, `engine?` (`remotion` or `hyperframes`), `limit?` (1-20, default 6) | `{searchId, results}`. Each result has id, title, description, purpose, template, engine, aspect, seconds, music, preview MP4, poster, page, spec URL, editor URL |
+| `search_templates` | `goal?`, `query?`, `aspect?` (`16:9`, `9:16`, `4:5`, `1:1`), `maxSeconds?`, `music?`, `purpose?`, `engine?` (`remotion` or `hyperframes`, advanced), `limit?` (1-20, default 6) | `{searchId, contractVersion, goal, results}`. Each result has id, title, description, purpose, goals, goal labels, template, aspect, seconds, music, preview MP4, poster, page, spec URL, editor URL. `engine` is included only when the engine filter is used. |
 | `get_template_spec` | `variantId`, `searchId?` | the same JSON as `/templates/<variant>/agent.json` |
 | `build_edit_link` | `variantId`, `props`, `templateVersion?`, `searchId?` | a handoff URL, after the same validation the share service uses. Invalid props return a tool error. |
 | `render_preview` | `variantId`, `props`, `templateVersion?`, `searchId?` | `{poster, video, editor}` plus the poster as an inline JPEG. `poster` is `https://cliphou.se/p/<hash>.jpg`. `video` is reserved for a short animated preview and is `null` for now. Invalid props return a tool error. On a timeout, render failure, or daily limit, `poster` is `null`, `message` says why, and `editor` still works. |
 | `render_previews` | `variantIds` (1-4), `brand` (`name`, `headline?`, `subhead?`, `points?`, `cta?`, `date?`, `theme?`), `searchId?` | `{results}`: per template, `id`, `title`, `aspect`, `poster`, `editor`, the tailored `props`, and `keptSample` (text roles that still hold the template's sample text), plus each poster as an inline JPEG in result order. The server maps the brand onto each template's text roles, shortens text to each role's limit at a word boundary, and keeps the template's own text for any role the brand does not fill. A template whose poster is not ready within 20 s gets `poster: null`, `stockPoster`, and `message`. |
 
 The `initialize` response includes `instructions` with the cliphou.se skill workflow: read the project (or the conversation) for product facts, search, show previews, fill the spec props, and return the editor link. Search uses the skill ranking and synonyms. Keep the `SYNONYMS` table in `server/mcp.ts` in sync with the skill helper.
+
+### Agent contract guard
+
+`AGENT_CONTRACT_VERSION` in `src/agent/goals.ts` names the agent-visible contract. Bump it when a tool, argument, result field, goal, or workflow changes. The build publishes it at `/agent-contract.json`, and `/.well-known/mcp.json` includes it.
+
+`scripts/agent-contract.test.ts` checks the public skill repo before deploy. It fails when the skill or helper has a different contract version, misses a goal, does not use an MCP tool, or has a different synonym table. CI checks out `sunmer/cliphouse` into `.agent-skill`; locally, the test reads `../cliphouse-skills` or `CLIPHOUSE_SKILL_DIR`. Merge and push the skill change before the app change, or the app deploy stops.
 
 Search, spec, and link answer from catalog data bundled in the share service image. `render_preview` renders one 900 px still of the filled template at its poster frame. Remotion templates render in a browser that stays open for the life of the instance; HyperFrames templates use `hyperframes snapshot` at the poster time. Posters are cached in the share bucket under `previews/<hash>.jpg`, keyed by variant, props, template version, and deploy, so identical props are rendered once. `previews/` objects are deleted after 30 days. Previews run up to 3 at a time per instance, as pages in the one open browser, in their own queue (at most 12 waiting), so shares and exports never block them. Renders, not cache hits, count toward a daily limit: 60 per IP, 300 per API key, and 4,000 per project (`PREVIEWS_PER_IP_DAY`, `PREVIEWS_PER_KEY_DAY`, `PREVIEWS_PER_DAY`).
 
