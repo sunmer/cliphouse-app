@@ -51,6 +51,10 @@ const run = promisify(execFile);
 // Preview loop: a few seconds around the poster frame, silent, small enough for a chat grid.
 export const LOOP_SECONDS = 4;
 export const LOOP_FPS = 15;
+// HyperFrames captures each frame as a separate seek and screenshot, so its cost scales with the frame
+// count. 12 fps looks the same as 15 in a small chat tile and saves about a quarter of the capture time;
+// 10 fps reads as choppy on typing animations.
+export const HF_LOOP_FPS = 12;
 export const MAX_LOOP_BYTES = 1_500_000;
 // Landscape and square loops are 480 px wide; portrait loops are 640 px tall.
 const LOOP_SCALE = `scale=w='if(gte(iw,ih),480,-2)':h='if(gte(iw,ih),-2,640)':flags=lanczos`;
@@ -149,12 +153,12 @@ export function createPreviewRenderer() {
     try {
       if (engineOf(value.template) === 'hyperframes') {
         const {start, length} = loopWindow(value.meta);
-        const count = Math.max(1, Math.round((length / value.meta.fps) * LOOP_FPS));
-        const times = Array.from({length: count}, (_, i) => start / value.meta.fps + i / LOOP_FPS);
+        const count = Math.max(1, Math.round((length / value.meta.fps) * HF_LOOP_FPS));
+        const times = Array.from({length: count}, (_, i) => start / value.meta.fps + i / HF_LOOP_FPS);
         await writeHyperframesProject(value, directory);
         const frames = await snapshotFrames(directory, times, signal);
         await Promise.all(frames.map((frame, i) => rename(frame, path.join(directory, `seq-${String(i).padStart(3, '0')}.png`))));
-        await encodeLoop(['-framerate', String(LOOP_FPS), '-i', path.join(directory, 'seq-%03d.png')], image, signal);
+        await encodeLoop(['-framerate', String(HF_LOOP_FPS), '-i', path.join(directory, 'seq-%03d.png')], image, signal);
       } else {
         const clip = path.join(directory, 'clip.mp4');
         await remotionClip(value, clip, signal);
