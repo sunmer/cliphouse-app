@@ -7,6 +7,7 @@ import {makeCancelSignal, openBrowser, renderMedia, renderStill, selectCompositi
 import manifest from '../src/catalog/manifest.json' with {type: 'json'};
 import {engineOf} from '../src/videos/engine.ts';
 import {snapshotFrame, snapshotFrames, writeHyperframesProject} from './hyperframes.ts';
+import {createHyperframesCapture} from './hf-capture.ts';
 import {readFile} from 'node:fs/promises';
 import {HttpError, fingerprint, validateShare, type Snapshot} from './model.ts';
 import {PREVIEW_WIDTH} from './render.ts';
@@ -58,6 +59,8 @@ export const HF_LOOP_FPS = 12;
 export const MAX_LOOP_BYTES = 1_500_000;
 // Landscape and square loops are 480 px wide; portrait loops are 640 px tall.
 const LOOP_SCALE = `scale=w='if(gte(iw,ih),480,-2)':h='if(gte(iw,ih),-2,640)':flags=lanczos`;
+// Capture width that LOOP_SCALE keeps as is: 480 wide, or 640 tall for portrait.
+const loopWidth = ({width, height}: {width: number; height: number}) => (width >= height ? 480 : Math.round(640 * width / height / 2) * 2);
 
 // The loop window in source frames: LOOP_SECONDS that end shortly after the poster frame, inside the video.
 export function loopWindow(meta: {fps: number; durationInFrames: number; posterFrame: number}) {
@@ -144,6 +147,26 @@ export function createPreviewRenderer() {
     }
   };
 
+  // HyperFrames loops use one persistent Chrome (hf-capture.ts) and fall back to the snapshot CLI.
+  const hfCapture = createHyperframesCapture();
+  const persistent = process.env.HF_PERSISTENT !== '0';
+  const hyperframesFrames = async (value: Snapshot, directory: string, times: number[], signal: AbortSignal) => {
+    if (persistent) {
+      try {
+        const frames = await hfCapture.capture(directory, times, loopWidth(value.meta), signal);
+        await Promise.all(frames.map((bytes, i) => writeFile(path.join(directory, `seq-${String(i).padStart(3, '0')}.jpg`), bytes)));
+        return 'jpg';
+      } catch (e) {
+        if (signal.aborted) throw e;
+        console.error('Persistent HyperFrames capture failed, using the CLI:', String((e as Error).message).slice(0, 200));
+        await hfCapture.close();
+      }
+    }
+    const frames = await snapshotFrames(directory, times, signal);
+    await Promise.all(frames.map((frame, i) => rename(frame, path.join(directory, `seq-${String(i).padStart(3, '0')}.png`))));
+    return 'png';
+  };
+
   // Animated WebP loop of the filled template. HyperFrames captures exact instants in one browser session,
   // which is faster than rendering the whole video; Remotion renders only the loop window.
   const renderLoop: RenderPreview = async (value, signal) => {
@@ -156,9 +179,8 @@ export function createPreviewRenderer() {
         const count = Math.max(1, Math.round((length / value.meta.fps) * HF_LOOP_FPS));
         const times = Array.from({length: count}, (_, i) => start / value.meta.fps + i / HF_LOOP_FPS);
         await writeHyperframesProject(value, directory);
-        const frames = await snapshotFrames(directory, times, signal);
-        await Promise.all(frames.map((frame, i) => rename(frame, path.join(directory, `seq-${String(i).padStart(3, '0')}.png`))));
-        await encodeLoop(['-framerate', String(HF_LOOP_FPS), '-i', path.join(directory, 'seq-%03d.png')], image, signal);
+        const ext = await hyperframesFrames(value, directory, times, signal);
+        await encodeLoop(['-framerate', String(HF_LOOP_FPS), '-i', path.join(directory, `seq-%03d.${ext}`)], image, signal);
       } else {
         const clip = path.join(directory, 'clip.mp4');
         await remotionClip(value, clip, signal);
@@ -181,7 +203,9 @@ export function createPreviewRenderer() {
     await result.cleanup();
     console.log(`Preview renderer warm in ${Date.now() - started} ms`);
   };
-  return {render, renderLoop, warm, close: reset};
+  // Opens the persistent HyperFrames browsers, for the loop worker.
+  const warmLoops = () => (persistent ? hfCapture.warm() : Promise.resolve());
+  return {render, renderLoop, warm, warmLoops, close: async () => { await reset(); await hfCapture.close(); }};
 }
 
 export type PreviewResult = {

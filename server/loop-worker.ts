@@ -8,7 +8,7 @@ import {createPreviewRenderer} from './preview.ts';
 
 const MAX_BODY = 256 * 1024;
 const renderer = createPreviewRenderer();
-await Promise.race([renderer.warm(), new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 45_000))])
+await Promise.race([Promise.all([renderer.warm(), renderer.warmLoops()]), new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 45_000))])
   .catch((e) => console.error('Loop worker warm-up failed:', (e as Error).message));
 
 const server = createServer(async (req, res) => {
