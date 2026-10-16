@@ -303,6 +303,24 @@ test('a loop waits while a poster renders', async () => {
   await Promise.all([poster, loop]);
   assert.deepEqual(order, ['poster start', 'poster end', 'loop start']);
 });
+test('loop: "start" does not slow the posters: each poster renders before any loop', async () => {
+  renderDelay = 80;
+  loopDelay = 50;
+  const order: string[] = [];
+  const before = {renders, loops};
+  const watch = setInterval(() => {
+    if (renders > before.renders && order.at(-1) !== `p${renders}`) order.push(`p${renders}`);
+    if (loops > before.loops && order.at(-1) !== `l${loops}`) order.push(`l${loops}`);
+  }, 5);
+  const r = await call('render_previews', {variantIds: ['bento-launch', 'prism-launch', 'feature-announcement'], brand: {name: 'Order Co'}, loop: 'start'}, {ip: '10.9.3.5'}, batchOrigin);
+  await new Promise((resolve) => setTimeout(resolve, 600));
+  clearInterval(watch);
+  assert.equal(r.data.results.filter((x: {poster: string}) => x.poster).length, 3);
+  const firstLoop = order.findIndex((s) => s.startsWith('l'));
+  assert.ok(firstLoop === -1 || order.slice(firstLoop).every((s) => !s.startsWith('p') || Number(s.slice(1)) <= before.renders + 3), JSON.stringify(order));
+  assert.equal(renders - before.renders, 3);
+  assert.equal(loops - before.loops, 3, 'the loops still render in the background');
+});
 test('a failed loop keeps the poster and returns video null with a message', async () => {
   loopDelay = 0;
   loopFails = true;

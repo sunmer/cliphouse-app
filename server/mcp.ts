@@ -243,15 +243,16 @@ Animated loops (${LOOP_SECONDS}-second animated WebP of each tailored template) 
       const v = visible.find((x) => x.id === variantId)!;
       const {props, kept} = tailorProps(variantId, checked);
       const editor = editLink(origin, variantId, props);
-      // The loop is queued with the poster; the render gate makes it wait until no poster renders.
-      const looping: Promise<LoopResult | null> = loop
-        ? (ctx.loop
-          ? ctx.loop({variantId, props, caller: ctx.caller, keyed: Boolean(ctx.keyed), timeoutMs: loopWait()})
-          : Promise.resolve({video: null, previewId: '', cached: false, ms: 0, message: 'Loops are not available here.'}))
-        : Promise.resolve(null);
-      const [result, clip] = await Promise.all([ctx.preview
+      const result = await (ctx.preview
         ? ctx.preview({variantId, props, caller: ctx.caller, keyed: Boolean(ctx.keyed), editor, timeoutMs: Math.max(1_000, deadline - Date.now())})
-        : Promise.resolve<PreviewResult>({poster: null, video: null, editor, previewId: '', cached: false, ms: 0, message: 'Previews are not available here.'}), looping]);
+        : Promise.resolve<PreviewResult>({poster: null, video: null, editor, previewId: '', cached: false, ms: 0, message: 'Previews are not available here.'}));
+      // The loop is requested only after this template's poster is done, so it never competes with it for CPU.
+      // The render gate also holds it while other posters on this instance render.
+      const clip: LoopResult | null = loop
+        ? (ctx.loop
+          ? await ctx.loop({variantId, props, caller: ctx.caller, keyed: Boolean(ctx.keyed), timeoutMs: loopWait()})
+          : {video: null, previewId: '', cached: false, ms: 0, message: 'Loops are not available here.'})
+        : null;
       await event({searchId: searchId ?? null, type: 'preview', variantId, engine: engineOf(v.template), ms: result.ms, cached: result.cached,
         poster: Boolean(result.poster), batch: true, ...(result.poster ? {} : {error: (result.message ?? 'no poster').slice(0, 200)})});
       // A pending loop is not an outcome yet; log it when it arrives or fails.
