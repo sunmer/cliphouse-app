@@ -5,7 +5,7 @@ import {getAuth} from 'firebase-admin/auth';
 import {createHandler} from './app.ts';
 import {createStore} from './store.ts';
 import {renderThumbnail, renderVideo} from './render.ts';
-import {createLoopService, createPreviewRenderer, createPreviewService} from './preview.ts';
+import {createLoopService, createPreviewRenderer, createPreviewService, createRenderGate} from './preview.ts';
 
 const projectId = process.env.GOOGLE_CLOUD_PROJECT;
 const bucket = process.env.SHARE_BUCKET;
@@ -20,6 +20,8 @@ const assets = manifest['index.html'];
 if (!assets) throw new Error('Build the frontend before starting the share server.');
 const store = createStore(bucket);
 const previewRenderer = createPreviewRenderer();
+// Posters and loops share this instance's CPUs; a loop waits while any poster renders.
+const gate = createRenderGate();
 // Warm the preview browser before listening, so no request reaches a cold renderer. Bounded; a failure only logs.
 await Promise.race([previewRenderer.warm(), new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 45_000))])
   .catch((e) => console.error('Preview warm-up failed:', (e as Error).message));
@@ -28,8 +30,9 @@ const handler = createHandler({
   version: `${process.env.RENDER_VERSION || '1'}-thumbnail`, assets,
   store, render: renderThumbnail, renderVideo,
   // Keyed by the deploy, so a template change never serves an old poster.
-  preview: createPreviewService({store, render: previewRenderer.render, origin, version: process.env.RENDER_VERSION || '1'}),
-  loop: createLoopService({store, render: previewRenderer.renderLoop, origin, version: process.env.RENDER_VERSION || '1'}),
+  preview: createPreviewService({store, render: previewRenderer.render, origin, version: process.env.RENDER_VERSION || '1', gate}),
+  loop: createLoopService({store, render: previewRenderer.renderLoop, origin, version: process.env.RENDER_VERSION || '1', gate,
+    concurrency: Number(process.env.LOOP_CONCURRENCY || 1)}),
   verify: (token) => getAuth().verifyIdToken(token, true),
   edgeSecret: process.env.EDGE_SECRET || undefined,
 });

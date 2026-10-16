@@ -25,7 +25,8 @@ export type McpContext = {
 };
 // Budget for a whole render_previews batch. Posters not ready by then come back with poster: null.
 export const BATCH_BUDGET_MS = 20_000;
-// With loop: true the batch also waits for the animated loops, up to this budget. Loops not ready come back with video: null.
+// With loop: true the batch waits for the animated loops up to this budget. Loops not ready come back with
+// video: null and videoPending: true; they keep rendering, so a repeat call picks them up.
 export const LOOP_BUDGET_MS = 45_000;
 export const MAX_BATCH = 4;
 const LOG_WAIT_MS = 300;
@@ -209,7 +210,8 @@ function createServer(origin: string, ctx: McpContext) {
   const hex = z.string().regex(/^#[a-fA-F0-9]{6}$/);
   server.registerTool('render_previews', {
     title: 'Render tailored previews',
-    description: `Render posters of up to ${MAX_BATCH} templates at once, each filled with one brand description, so the user picks from options that already show their product. The server maps the brand onto each template's text fields and shortens text to fit. Returns, per template: id, title, poster URL (null if it was not ready in time), editor link, the tailored props to start from after the pick, and keptSample: text fields that still hold the template's sample text (fill them with real facts after the pick). Inline images follow the text, in the same order as the results. With loop: true, each result also has video: the URL of a ${LOOP_SECONDS}-second animated WebP loop of the tailored template (null if it was not ready in time), and the call takes longer. Show the loop as an image (Markdown ![title](video)) where the host renders images, so the options animate.`,
+    description: `Render posters of up to ${MAX_BATCH} templates at once, each filled with one brand description, so the user picks from options that already show their product. The server maps the brand onto each template's text fields and shortens text to fit. Returns, per template: id, title, poster URL (null if it was not ready in time), editor link, the tailored props to start from after the pick, and keptSample: text fields that still hold the template's sample text (fill them with real facts after the pick). Inline images follow the text, in the same order as the results.
+Animated loops (${LOOP_SECONDS}-second animated WebP of each tailored template) take two calls. First call with loop: "start": it returns the posters as fast as without loops and starts the loops in the background. Show the posters. Then call again with the same arguments and loop: true: it waits for the loops and returns video (the loop URL) per template. A loop still rendering has video: null and videoPending: true; call once more to get it. Show each loop as an image (Markdown ![title](video)) where the host renders images, so the options animate.`,
     inputSchema: {
       variantIds: z.array(z.string().regex(/^[a-z0-9-]{1,100}$/)).min(1).max(MAX_BATCH).describe('Template ids from search_templates.'),
       brand: z.object({
@@ -222,7 +224,7 @@ function createServer(origin: string, ctx: McpContext) {
         theme: z.object({background: hex.optional(), surface: hex.optional(), foreground: hex.optional(), accent: hex.optional(), accent2: hex.optional()})
           .optional().describe('Brand colors as #RRGGBB. Keep good contrast between foreground and background.'),
       }).describe('The product facts from the user\'s project. Never invent numbers.'),
-      loop: z.boolean().optional().describe(`true to also render a ${LOOP_SECONDS}-second animated WebP loop of each template. Slower; posters still come back if a loop is not ready.`),
+      loop: z.union([z.literal('start'), z.boolean()]).optional().describe(`"start" returns the posters now and starts ${LOOP_SECONDS}-second animated loops in the background. true waits for the loops and returns them as video.`),
       searchId: searchIdField,
     },
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
@@ -235,14 +237,16 @@ function createServer(origin: string, ctx: McpContext) {
     if (unknown) return failure(`Unknown template: ${unknown}. Use ids from search_templates.`);
     const deadline = Date.now() + BATCH_BUDGET_MS;
     const loopDeadline = Date.now() + LOOP_BUDGET_MS;
+    // "start" only queues the loops (wait 0). true waits for them; a poster is cached by then, so it costs nothing.
+    const loopWait = () => (loop === 'start' ? 0 : Math.max(1_000, loopDeadline - Date.now()));
     const results = await Promise.all(ids.map(async (variantId) => {
       const v = visible.find((x) => x.id === variantId)!;
       const {props, kept} = tailorProps(variantId, checked);
       const editor = editLink(origin, variantId, props);
-      // The loop starts with the poster, on its own queue, so it never delays the poster.
+      // The loop is queued with the poster; the render gate makes it wait until no poster renders.
       const looping: Promise<LoopResult | null> = loop
         ? (ctx.loop
-          ? ctx.loop({variantId, props, caller: ctx.caller, keyed: Boolean(ctx.keyed), timeoutMs: Math.max(1_000, loopDeadline - Date.now())})
+          ? ctx.loop({variantId, props, caller: ctx.caller, keyed: Boolean(ctx.keyed), timeoutMs: loopWait()})
           : Promise.resolve({video: null, previewId: '', cached: false, ms: 0, message: 'Loops are not available here.'}))
         : Promise.resolve(null);
       const [result, clip] = await Promise.all([ctx.preview
@@ -250,10 +254,11 @@ function createServer(origin: string, ctx: McpContext) {
         : Promise.resolve<PreviewResult>({poster: null, video: null, editor, previewId: '', cached: false, ms: 0, message: 'Previews are not available here.'}), looping]);
       await event({searchId: searchId ?? null, type: 'preview', variantId, engine: engineOf(v.template), ms: result.ms, cached: result.cached,
         poster: Boolean(result.poster), batch: true, ...(result.poster ? {} : {error: (result.message ?? 'no poster').slice(0, 200)})});
-      if (clip) await event({searchId: searchId ?? null, type: 'loop', variantId, engine: engineOf(v.template), ms: clip.ms, cached: clip.cached,
+      // A pending loop is not an outcome yet; log it when it arrives or fails.
+      if (clip && !clip.pending) await event({searchId: searchId ?? null, type: 'loop', variantId, engine: engineOf(v.template), ms: clip.ms, cached: clip.cached,
         poster: Boolean(clip.video), batch: true, ...(clip.video ? {} : {error: (clip.message ?? 'no loop').slice(0, 200)})});
       return {id: variantId, title: v.title, aspect: aspect(v.template), poster: result.poster, editor, props, keptSample: kept,
-        ...(clip ? {video: clip.video, ...(clip.video ? {} : {videoMessage: clip.message})} : {}),
+        ...(clip ? {video: clip.video, ...(clip.pending ? {videoPending: true} : clip.video ? {} : {videoMessage: clip.message})} : {}),
         ...(result.poster ? {} : {stockPoster: `${origin}/previews/${variantId}.jpg`, message: result.message}), image: result.image};
     }));
     const body = {results: results.map(({image, ...r}) => r)};

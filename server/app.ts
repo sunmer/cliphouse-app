@@ -24,7 +24,7 @@ type Dependencies = {
   mcpTimeoutMs?: number;
   // Personalized posters for render_preview. Optional so the handler runs without a renderer.
   preview?: ReturnType<typeof createPreviewService>;
-  // Animated WebP loops for render_previews with loop: true. Optional; without it loops come back null.
+  // Animated WebP loops for render_previews with loop: "start" or true. Optional; without it loops come back null.
   loop?: ReturnType<typeof createLoopService>;
   previewTimeoutMs?: number;
   loopTimeoutMs?: number;

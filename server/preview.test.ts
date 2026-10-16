@@ -8,7 +8,7 @@ import {Readable} from 'node:stream';
 import manifest from '../src/catalog/manifest.json' with {type: 'json'};
 import {createHandler} from './app.ts';
 import {HttpError} from './model.ts';
-import {createLoopService, createPreviewService, loopWindow, type RenderPreview} from './preview.ts';
+import {createLoopService, createPreviewService, createRenderGate, loopWindow, type RenderPreview} from './preview.ts';
 import type {EventLog, SearchLog, createStore} from './store.ts';
 
 const variant = manifest.variants.find((v) => v.id === 'showreel-nocturne')!;
@@ -75,9 +75,11 @@ const deps = {
 const server = createServer(createHandler(deps));
 let origin = '';
 // A second server with production queue limits, for batches.
+const gate = createRenderGate();
 const batchServer = createServer(createHandler({...deps,
-  preview: createPreviewService({store, render, origin: 'https://cliphou.se', version: 'test', budgetMs: 1_000}),
-  loop: createLoopService({store, render: renderLoop, origin: 'https://cliphou.se', version: 'test', budgetMs: 600})} as typeof deps));
+  preview: createPreviewService({store, render, origin: 'https://cliphou.se', version: 'test', budgetMs: 1_000, gate}),
+  loop: createLoopService({store, render: renderLoop, origin: 'https://cliphou.se', version: 'test', budgetMs: 600, renderBudgetMs: 3_000,
+    concurrency: 3, gate})} as typeof deps));
 let batchOrigin = '';
 before(async () => {
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -261,19 +263,53 @@ test('render_previews without loop does not render loops or return a video field
   assert.equal('video' in r.data.results[0], false);
   assert.ok(r.data.results[0].poster);
 });
-test('a slow or failed loop keeps the poster and returns video null', async () => {
+test('a slow loop keeps the poster, comes back pending, keeps rendering, and a repeat call picks it up', async () => {
   loopDelay = 2_000;
   const started = Date.now();
   const slow = await call('render_previews', {variantIds: ['prism-launch'], brand: {name: 'SlowLoop'}, loop: true}, {ip: '10.9.3.3'}, batchOrigin);
   assert.ok(Date.now() - started < 1_800, 'the loop budget bounds the call');
   assert.ok(slow.data.results[0].poster);
   assert.equal(slow.data.results[0].video, null);
-  assert.match(slow.data.results[0].videoMessage, /too long/);
+  assert.equal(slow.data.results[0].videoPending, true);
+  assert.equal(events.some((e) => e.type === 'loop'), false, 'a pending loop is not logged as an outcome');
+  const before = loops;
+  await new Promise((resolve) => setTimeout(resolve, 1_700));
+  const later = await call('render_previews', {variantIds: ['prism-launch'], brand: {name: 'SlowLoop'}, loop: true}, {ip: '10.9.3.3'}, batchOrigin);
+  assert.match(later.data.results[0].video, /\.webp$/, 'the render went on after the first call stopped waiting');
+  assert.equal(loops, before, 'the repeat call reuses the render, it does not start another');
+});
+test('loop: "start" returns posters at once with loops pending; loop: true then returns the loops', async () => {
+  loopDelay = 300;
+  const ids = ['bento-launch', 'prism-launch'];
+  const brand = {name: 'TwoStep', headline: 'Posters first'};
+  const started = Date.now();
+  const first = await call('render_previews', {variantIds: ids, brand, loop: 'start'}, {ip: '10.9.3.4'}, batchOrigin);
+  assert.ok(Date.now() - started < 250, 'start does not wait for loops');
+  for (const x of first.data.results) { assert.ok(x.poster); assert.equal(x.video, null); assert.equal(x.videoPending, true); }
+  assert.equal(first.content.filter((c: {type: string}) => c.type === 'image').length, 2);
+  const second = await call('render_previews', {variantIds: ids, brand, loop: true}, {ip: '10.9.3.4'}, batchOrigin);
+  for (const x of second.data.results) assert.match(x.video, /\.webp$/);
+  assert.equal(events.filter((e) => e.type === 'loop' && e.poster).length, 2);
+});
+test('a loop waits while a poster renders', async () => {
+  const order: string[] = [];
+  const g = createRenderGate();
+  let release!: () => void;
+  const poster = g.poster(async () => { order.push('poster start'); await new Promise<void>((r) => { release = r; }); order.push('poster end'); });
+  const loop = g.whenIdle().then(() => order.push('loop start'));
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.deepEqual(order, ['poster start']);
+  release();
+  await Promise.all([poster, loop]);
+  assert.deepEqual(order, ['poster start', 'poster end', 'loop start']);
+});
+test('a failed loop keeps the poster and returns video null with a message', async () => {
   loopDelay = 0;
   loopFails = true;
   const failed = await call('render_previews', {variantIds: ['prism-launch'], brand: {name: 'BrokenLoop'}, loop: true}, {ip: '10.9.3.3'}, batchOrigin);
   assert.ok(failed.data.results[0].poster);
   assert.equal(failed.data.results[0].video, null);
+  assert.match(failed.data.results[0].videoMessage, /could not be rendered/);
   assert.equal(events.at(-1)?.type, 'loop');
   assert.equal(events.at(-1)?.poster, false);
   const none = await call('render_previews', {variantIds: ['prism-launch'], brand: {name: 'NoRenderer'}, loop: true});
