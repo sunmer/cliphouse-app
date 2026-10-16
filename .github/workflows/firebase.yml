@@ -56,8 +56,21 @@ jobs:
           --region europe-west1 --service-account cliphouse-share@cliphouse-app.iam.gserviceaccount.com
           --allow-unauthenticated --cpu 2 --memory 2Gi --concurrency 8
           --min-instances 1 --max-instances 2 --timeout 300 --cpu-boost
-          --set-env-vars GOOGLE_CLOUD_PROJECT=cliphouse-app,SHARE_BUCKET=cliphouse-app-shares,PUBLIC_ORIGIN=https://cliphou.se,RENDER_VERSION=${{ github.sha }}
+          --set-env-vars GOOGLE_CLOUD_PROJECT=cliphouse-app,SHARE_BUCKET=cliphouse-app-shares,PUBLIC_ORIGIN=https://cliphou.se,RENDER_VERSION=${{ github.sha }}${{ vars.LOOP_WORKER_URL != '' && format(',LOOP_WORKER_URL={0}', vars.LOOP_WORKER_URL) || '' }}
           ${{ vars.EDGE_SECRET_ENABLED == 'true' && '--set-secrets EDGE_SECRET=cliphouse-edge-secret:latest' || '' }}
+          --quiet
+      # Private loop worker: the share service image with its own CPUs, so preview loops never slow posters.
+      # Scales to zero; only the share service account may call it. It reuses the image just built.
+      - name: Deploy loop worker
+        if: ${{ vars.VITE_SHARE_API_ORIGIN != '' && vars.LOOP_WORKER_URL != '' }}
+        run: >-
+          gcloud run deploy cliphouse-loop --project cliphouse-app --region europe-west1
+          --image "$(gcloud run services describe cliphouse-share --project cliphouse-app --region europe-west1 --format='value(spec.template.spec.containers[0].image)')"
+          --service-account cliphouse-loop@cliphouse-app.iam.gserviceaccount.com
+          --no-allow-unauthenticated --cpu 4 --memory 4Gi --concurrency 1
+          --min-instances 0 --max-instances 4 --timeout 150 --cpu-boost
+          --command node --args=--import,tsx,server/loop-worker.ts
+          --set-env-vars HYPERFRAMES_NO_TELEMETRY=1,HYPERFRAMES_BROWSER_PATH=/usr/local/bin/hyperframes-chrome,NODE_ENV=production
           --quiet
       - name: Deploy Hosting and rules
         run: |
