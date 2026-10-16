@@ -45,3 +45,16 @@ export async function snapshotFrame(project: string, output: string, seconds: nu
   if (!frame) throw new Error('HyperFrames snapshot wrote no frame.');
   await run('ffmpeg', ['-v', 'error', '-y', '-i', path.join(dir, frame), '-vf', `scale=${width}:-2`, '-q:v', '4', output], {signal});
 }
+
+// Several exact instants in one browser session, for a short preview loop. Returns the PNGs in time order.
+export async function snapshotFrames(project: string, seconds: number[], signal: AbortSignal) {
+  const dir = path.join(project, 'loop');
+  await run(path.join(root, 'node_modules/.bin/hyperframes'), [
+    'snapshot', project, '--at', seconds.map((s) => s.toFixed(3)).join(','), '--no-end', '--describe', 'false', '-o', dir,
+  ], {signal, env: {...process.env, HYPERFRAMES_NO_TELEMETRY: '1'}, maxBuffer: 1024 * 1024 * 8});
+  // Names are frame-<index>-at-<time>s.png; the index orders them.
+  const frames = (await readdir(dir)).filter((f) => /^frame-\d+-.*\.png$/.test(f))
+    .sort((a, b) => Number(a.split('-')[1]) - Number(b.split('-')[1]));
+  if (frames.length !== seconds.length) throw new Error(`HyperFrames snapshot wrote ${frames.length} of ${seconds.length} frames.`);
+  return frames.map((f) => path.join(dir, f));
+}

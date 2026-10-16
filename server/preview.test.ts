@@ -8,7 +8,7 @@ import {Readable} from 'node:stream';
 import manifest from '../src/catalog/manifest.json' with {type: 'json'};
 import {createHandler} from './app.ts';
 import {HttpError} from './model.ts';
-import {createPreviewService, type RenderPreview} from './preview.ts';
+import {createLoopService, createPreviewService, loopWindow, type RenderPreview} from './preview.ts';
 import type {EventLog, SearchLog, createStore} from './store.ts';
 
 const variant = manifest.variants.find((v) => v.id === 'showreel-nocturne')!;
@@ -22,20 +22,24 @@ let failLogs = false;
 let renders = 0;
 let renderDelay = 0;
 let renderFails = false;
+let loops = 0;
+let loopDelay = 0;
+let loopFails = false;
 const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xd9]);
+const webp = Buffer.from('RIFF\x0c\x00\x00\x00WEBPVP8X', 'latin1');
 const store = {
   async logSearch(entry: SearchLog) { if (failLogs) throw new Error('down'); searches.push(entry); },
   async logEvent(entry: EventLog) { if (failLogs) throw new Error('down'); events.push(entry); },
-  async previewExists(hash: string) { return objects.has(hash); },
-  async savePreview(hash: string, image: string) { objects.set(hash, jpeg); void image; },
-  async previewAsset(hash: string) {
-    const bytes = objects.get(hash);
+  async previewExists(hash: string, ext = 'jpg') { return objects.has(`${hash}.${ext}`); },
+  async savePreview(hash: string, image: string, ext = 'jpg') { objects.set(`${hash}.${ext}`, ext === 'webp' ? webp : jpeg); void image; },
+  async previewAsset(hash: string, ext = 'jpg') {
+    const bytes = objects.get(`${hash}.${ext}`);
     if (!bytes) throw new Error('missing');
     return {size: bytes.length, stream: () => Readable.from(bytes)};
   },
   async reservePreview(caller: string, keyed: boolean) {
     const used = quota.get(caller) ?? 0;
-    if (used >= (caller.startsWith('ip:10.9.2.') ? 10 : keyed ? 3 : 2)) throw new HttpError(429, 'Your daily preview limit has been reached.');
+    if (used >= (caller.startsWith('ip:10.9.2.') || caller.startsWith('ip:10.9.3.') ? 10 : keyed ? 3 : 2)) throw new HttpError(429, 'Your daily preview limit has been reached.');
     quota.set(caller, used + 1);
   },
   async findApiKey() { return {owner: 'kim'}; },
@@ -51,6 +55,17 @@ const render: RenderPreview = async (_value, signal) => {
   await writeFile(image, jpeg);
   return {image, cleanup: async () => {}};
 };
+const renderLoop: RenderPreview = async (_value, signal) => {
+  loops++;
+  await new Promise<void>((resolve, reject) => {
+    const t = setTimeout(resolve, loopDelay);
+    signal.addEventListener('abort', () => { clearTimeout(t); reject(new Error('aborted')); }, {once: true});
+  });
+  if (loopFails) throw new Error('ffmpeg died');
+  const image = path.join(tmpdir(), `loop-test-${loops}.webp`);
+  await writeFile(image, webp);
+  return {image, cleanup: async () => {}};
+};
 const deps = {
   store, origin: 'https://cliphou.se', origins: new Set(['https://cliphou.se']), version: 'test', assets: {file: 'a.js'},
   render: async () => ({image: '', cleanup: async () => {}}), renderVideo: async () => ({video: '', cleanup: async () => {}}),
@@ -61,7 +76,8 @@ const server = createServer(createHandler(deps));
 let origin = '';
 // A second server with production queue limits, for batches.
 const batchServer = createServer(createHandler({...deps,
-  preview: createPreviewService({store, render, origin: 'https://cliphou.se', version: 'test', budgetMs: 1_000})} as typeof deps));
+  preview: createPreviewService({store, render, origin: 'https://cliphou.se', version: 'test', budgetMs: 1_000}),
+  loop: createLoopService({store, render: renderLoop, origin: 'https://cliphou.se', version: 'test', budgetMs: 600})} as typeof deps));
 let batchOrigin = '';
 before(async () => {
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -70,7 +86,7 @@ before(async () => {
   batchOrigin = `http://127.0.0.1:${(batchServer.address() as {port: number}).port}`;
 });
 after(() => Promise.all([server, batchServer].map((s) => new Promise<void>((resolve) => s.close(() => resolve())))));
-beforeEach(() => { searches.length = 0; events.length = 0; failLogs = false; renderDelay = 0; renderFails = false; });
+beforeEach(() => { searches.length = 0; events.length = 0; failLogs = false; renderDelay = 0; renderFails = false; loopDelay = 0; loopFails = false; });
 
 let ipSeq = 0;
 const call = async (name: string, args: unknown, headers: Record<string, string> = {}, base = origin) => {
@@ -216,4 +232,58 @@ test('render_previews rejects bad input and degrades per template', async () => 
   assert.equal(failed.data.results[0].poster, null);
   assert.match(failed.data.results[0].stockPoster, /\/previews\/prism-launch\.jpg$/);
   assert.ok(failed.data.results[0].editor);
+});
+test('render_previews with loop: true adds an animated WebP loop per template; repeats hit the cache', async () => {
+  const ids = ['bento-launch', 'prism-launch', 'feature-announcement'];
+  const brand = {name: 'LoopCo', headline: 'Moves in the grid', points: ['One', 'Two', 'Three'], cta: 'Try it'};
+  const before = loops;
+  const r = await call('render_previews', {variantIds: ids, brand, loop: true, searchId: 'loopsearch123'}, {ip: '10.9.3.1'}, batchOrigin);
+  assert.ok(r.data, JSON.stringify(r.content));
+  for (const x of r.data.results) {
+    assert.match(x.video, /^https:\/\/cliphou\.se\/p\/[a-f0-9]{64}\.webp$/, JSON.stringify([x.videoMessage, x.message]));
+    assert.equal(x.video.replace('.webp', '.jpg'), x.poster, 'poster and loop of one edit share the hash');
+  }
+  assert.equal(loops, before + 3);
+  assert.equal(r.content.filter((c: {type: string}) => c.type === 'image').length, 3, 'inline images stay posters');
+  assert.equal(events.filter((e) => e.searchId === 'loopsearch123' && e.type === 'loop' && e.poster).length, 3);
+  const served = await fetch(`${batchOrigin}/p/${r.data.results[0].video.match(/([a-f0-9]{64})/)[1]}.webp`);
+  assert.equal(served.status, 200);
+  assert.equal(served.headers.get('content-type'), 'image/webp');
+  assert.equal(served.headers.get('access-control-allow-origin'), '*');
+  assert.deepEqual(Buffer.from(await served.arrayBuffer()), webp);
+  await call('render_previews', {variantIds: ids, brand, loop: true}, {ip: '10.9.3.1'}, batchOrigin);
+  assert.equal(loops, before + 3, 'cached loops are not rendered again');
+});
+test('render_previews without loop does not render loops or return a video field', async () => {
+  const before = loops;
+  const r = await call('render_previews', {variantIds: ['bento-launch'], brand: {name: 'NoLoop'}}, {ip: '10.9.3.2'}, batchOrigin);
+  assert.equal(loops, before);
+  assert.equal('video' in r.data.results[0], false);
+  assert.ok(r.data.results[0].poster);
+});
+test('a slow or failed loop keeps the poster and returns video null', async () => {
+  loopDelay = 2_000;
+  const started = Date.now();
+  const slow = await call('render_previews', {variantIds: ['prism-launch'], brand: {name: 'SlowLoop'}, loop: true}, {ip: '10.9.3.3'}, batchOrigin);
+  assert.ok(Date.now() - started < 1_800, 'the loop budget bounds the call');
+  assert.ok(slow.data.results[0].poster);
+  assert.equal(slow.data.results[0].video, null);
+  assert.match(slow.data.results[0].videoMessage, /too long/);
+  loopDelay = 0;
+  loopFails = true;
+  const failed = await call('render_previews', {variantIds: ['prism-launch'], brand: {name: 'BrokenLoop'}, loop: true}, {ip: '10.9.3.3'}, batchOrigin);
+  assert.ok(failed.data.results[0].poster);
+  assert.equal(failed.data.results[0].video, null);
+  assert.equal(events.at(-1)?.type, 'loop');
+  assert.equal(events.at(-1)?.poster, false);
+  const none = await call('render_previews', {variantIds: ['prism-launch'], brand: {name: 'NoRenderer'}, loop: true});
+  assert.equal(none.data.results[0].video, null, 'a server without a loop renderer degrades');
+  assert.equal((await fetch(`${batchOrigin}/p/${'0'.repeat(64)}.webp`)).status, 404);
+  assert.equal((await fetch(`${batchOrigin}/p/${'0'.repeat(64)}.gif`)).status, 404);
+});
+test('loopWindow keeps four seconds inside the video, ending just after the poster frame', () => {
+  assert.deepEqual(loopWindow({fps: 30, durationInFrames: 300, posterFrame: 178}), {start: 106, length: 120});
+  assert.deepEqual(loopWindow({fps: 30, durationInFrames: 300, posterFrame: 20}), {start: 0, length: 120});
+  assert.deepEqual(loopWindow({fps: 30, durationInFrames: 300, posterFrame: 299}), {start: 180, length: 120});
+  assert.deepEqual(loopWindow({fps: 30, durationInFrames: 90, posterFrame: 60}), {start: 0, length: 90});
 });

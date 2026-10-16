@@ -16,7 +16,7 @@ export type SearchLog = {
   searchId: string; query: string; filters: Record<string, unknown>; resultIds: string[]; resultCount: number; empty: boolean; topScore: number;
   engines: string[]; client: string; caller: string;
 };
-export type EventLog = {searchId: string | null; type: 'spec' | 'link' | 'preview'; variantId: string; client: string; caller: string;
+export type EventLog = {searchId: string | null; type: 'spec' | 'link' | 'preview' | 'loop'; variantId: string; client: string; caller: string;
   engine?: string; ms?: number; cached?: boolean; poster?: boolean; batch?: boolean; error?: string};
 
 export function createStore(bucketName: string) {
@@ -44,16 +44,16 @@ export function createStore(bucketName: string) {
       const clean = Object.fromEntries(Object.entries(entry).filter(([, v]) => v !== undefined));
       await db.collection('events').add({...clean, at: FieldValue.serverTimestamp()});
     },
-    // Personalized previews: one immutable JPEG per (variant, props, version) hash under previews/.
-    async previewExists(hash: string) {
-      const [exists] = await bucket.file(`previews/${hash}.jpg`).exists();
+    // Personalized previews: one immutable poster (.jpg) and loop (.webp) per (variant, props, version) hash under previews/.
+    async previewExists(hash: string, ext: 'jpg' | 'webp' = 'jpg') {
+      const [exists] = await bucket.file(`previews/${hash}.${ext}`).exists();
       return exists;
     },
-    async savePreview(hash: string, image: string) {
-      await bucket.upload(image, {destination: `previews/${hash}.jpg`, metadata: {contentType: 'image/jpeg'}});
+    async savePreview(hash: string, image: string, ext: 'jpg' | 'webp' = 'jpg') {
+      await bucket.upload(image, {destination: `previews/${hash}.${ext}`, metadata: {contentType: ext === 'webp' ? 'image/webp' : 'image/jpeg'}});
     },
-    async previewAsset(hash: string) {
-      const file = bucket.file(`previews/${hash}.jpg`);
+    async previewAsset(hash: string, ext: 'jpg' | 'webp' = 'jpg') {
+      const file = bucket.file(`previews/${hash}.${ext}`);
       const [metadata] = await file.getMetadata();
       return {size: Number(metadata.size), stream: (range?: {start: number; end: number}) => file.createReadStream(range)};
     },
