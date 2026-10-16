@@ -2,13 +2,13 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "se.cliphou/templates",
   "title": "cliphou.se release videos",
-  "description": "Turn every release into a social video, right in your coding agent.",
+  "description": "Turns every release into a social video. Finds the selling points, picks the angle, writes the copy.",
   "websiteUrl": "https://cliphou.se/agents/",
   "repository": {
     "url": "https://github.com/sunmer/cliphouse",
     "source": "github"
   },
-  "version": "1.5.0",
+  "version": "1.5.1",
   "remotes": [
     {
       "type": "streamable-http",

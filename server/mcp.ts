@@ -136,7 +136,7 @@ Workflow:
 For layout, motion, or timing changes, or a local MP4 render in a code project, point the user to the spec's source.package and source.renderCommand.`;
 
 function createServer(origin: string, ctx: McpContext) {
-  const server = new McpServer({name: 'cliphouse', title: 'cliphou.se motion graphics', version: MCP_VERSION}, {instructions: INSTRUCTIONS});
+  const server = new McpServer({name: 'cliphouse', title: 'cliphou.se release videos', version: MCP_VERSION}, {instructions: INSTRUCTIONS});
   const readOnly = {readOnlyHint: true, openWorldHint: false};
   const who = {client: ctx.client, caller: ctx.caller};
   const event = (entry: Omit<EventLog, 'client' | 'caller'>) => record(ctx.logEvent && (() => ctx.logEvent!({...entry, ...who})));

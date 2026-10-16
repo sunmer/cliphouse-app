@@ -9,7 +9,7 @@ export function Header({children}: {children?: ReactNode}) {
         <Scissors size={22} />
         <span className="logo-copy">
           <span>cliphou.se</span>
-          <span className="logo-tagline">Instant motion graphics for your videos</span>
+          <span className="logo-tagline">You ship it. Cliphouse shows it off.</span>
         </span>
       </a>
       <div className="topbar-slot">{children}</div>
