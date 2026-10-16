@@ -9,7 +9,7 @@ import {HttpError, byteRange, exportFilename, fingerprint, publicExport, publicV
 import type {Exported, Published} from './model.ts';
 import type {createStore} from './store.ts';
 import type {renderThumbnail, renderVideo} from './render.ts';
-import type {createPreviewService} from './preview.ts';
+import type {createLoopService, createPreviewService} from './preview.ts';
 
 type Dependencies = {
   origin: string; origins: Set<string>; version: string;
@@ -24,7 +24,10 @@ type Dependencies = {
   mcpTimeoutMs?: number;
   // Personalized posters for render_preview. Optional so the handler runs without a renderer.
   preview?: ReturnType<typeof createPreviewService>;
+  // Animated WebP loops for render_previews with loop: true. Optional; without it loops come back null.
+  loop?: ReturnType<typeof createLoopService>;
   previewTimeoutMs?: number;
+  loopTimeoutMs?: number;
 };
 async function readBody(req: IncomingMessage, label = 'Video request') {
   if (req.headers['content-type']?.split(';')[0] !== 'application/json') throw new HttpError(415, 'Use JSON.');
@@ -167,14 +170,15 @@ export function createHandler(deps: Dependencies) {
           return;
         }
         const body = await readBody(req, 'MCP request');
-        const call = body as {method?: string; params?: {name?: string}} | null;
+        const call = body as {method?: string; params?: {name?: string; arguments?: {loop?: unknown}}} | null;
         const rendersPreview = call?.method === 'tools/call' && ['render_preview', 'render_previews'].includes(call.params?.name ?? '');
-        // render_preview (25 s) and render_previews (20 s) have their own render budgets inside this limit.
-        const timeout = rendersPreview ? deps.previewTimeoutMs ?? 30_000 : deps.mcpTimeoutMs ?? 10_000;
+        const rendersLoop = rendersPreview && call?.params?.name === 'render_previews' && call.params.arguments?.loop === true;
+        // render_preview (25 s), render_previews (20 s), and its loops (45 s) have their own render budgets inside this limit.
+        const timeout = rendersLoop ? deps.loopTimeoutMs ?? 55_000 : rendersPreview ? deps.previewTimeoutMs ?? 30_000 : deps.mcpTimeoutMs ?? 10_000;
         // Stateless MCP has no session, so clientInfo is only seen on initialize. Use it there, else the User-Agent.
         const info = (body as {method?: string; params?: {clientInfo?: {name?: unknown; version?: unknown}}})?.params?.clientInfo;
         const client = String(info?.name ? `${info.name}/${info.version ?? ''}` : req.headers['user-agent'] || 'unknown').slice(0, 120);
-        const ctx = {client, caller, keyed: Boolean(owner), preview: deps.preview,
+        const ctx = {client, caller, keyed: Boolean(owner), preview: deps.preview, loop: deps.loop,
           logSearch: deps.store.logSearch && ((entry: Parameters<typeof deps.store.logSearch>[0]) => deps.store.logSearch(entry)),
           logEvent: deps.store.logEvent && ((entry: Parameters<typeof deps.store.logEvent>[0]) => deps.store.logEvent(entry))};
         let timer: NodeJS.Timeout | undefined;
@@ -183,17 +187,18 @@ export function createHandler(deps: Dependencies) {
         })]).finally(() => clearTimeout(timer));
         return;
       }
-      const poster = pathname.match(/^\/p\/([a-f0-9]{64})\.jpg$/);
+      const poster = pathname.match(/^\/p\/([a-f0-9]{64})\.(jpg|webp)$/);
       if (poster) {
         publicRoute = true;
         if (!['GET', 'HEAD'].includes(req.method || '')) throw new HttpError(405, 'Method not allowed.');
+        const ext = poster[2] as 'jpg' | 'webp';
         let file;
-        try { file = await deps.store.previewAsset(poster[1]); }
+        try { file = await deps.store.previewAsset(poster[1], ext); }
         catch { throw new HttpError(404, 'This preview is unavailable.'); }
         // Content-addressed, so the bytes never change. Objects expire after 30 days (storage-lifecycle.json).
         res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=2592000');
         res.setHeader('Access-Control-Allow-Origin', '*');
-        await send(req, res, file, 'image/jpeg');
+        await send(req, res, file, ext === 'webp' ? 'image/webp' : 'image/jpeg');
         return;
       }
       if (pathname === '/api/keys' && req.method === 'POST') {

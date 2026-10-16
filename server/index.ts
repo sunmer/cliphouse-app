@@ -5,7 +5,7 @@ import {getAuth} from 'firebase-admin/auth';
 import {createHandler} from './app.ts';
 import {createStore} from './store.ts';
 import {renderThumbnail, renderVideo} from './render.ts';
-import {createPreviewRenderer, createPreviewService} from './preview.ts';
+import {createLoopService, createPreviewRenderer, createPreviewService} from './preview.ts';
 
 const projectId = process.env.GOOGLE_CLOUD_PROJECT;
 const bucket = process.env.SHARE_BUCKET;
@@ -29,6 +29,7 @@ const handler = createHandler({
   store, render: renderThumbnail, renderVideo,
   // Keyed by the deploy, so a template change never serves an old poster.
   preview: createPreviewService({store, render: previewRenderer.render, origin, version: process.env.RENDER_VERSION || '1'}),
+  loop: createLoopService({store, render: previewRenderer.renderLoop, origin, version: process.env.RENDER_VERSION || '1'}),
   verify: (token) => getAuth().verifyIdToken(token, true),
   edgeSecret: process.env.EDGE_SECRET || undefined,
 });
