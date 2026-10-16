@@ -5,8 +5,17 @@ import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {HttpError, validateShare} from './model.ts';
 import {createPreviewRenderer} from './preview.ts';
+import {setLogoReader} from './hyperframes.ts';
 
 const MAX_BODY = 256 * 1024;
+// Logos are read from the share bucket. The worker's service account needs read access to logos/.
+if (process.env.SHARE_BUCKET) {
+  const {initializeApp} = await import('firebase-admin/app');
+  const {getStorage} = await import('firebase-admin/storage');
+  initializeApp({projectId: process.env.GOOGLE_CLOUD_PROJECT, storageBucket: process.env.SHARE_BUCKET});
+  const bucket = getStorage().bucket(process.env.SHARE_BUCKET);
+  setLogoReader(async (id) => (await bucket.file(`logos/${id}.png`).download())[0]);
+}
 const renderer = createPreviewRenderer();
 await Promise.race([Promise.all([renderer.warm(), renderer.warmLoops()]), new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 45_000))])
   .catch((e) => console.error('Loop worker warm-up failed:', (e as Error).message));

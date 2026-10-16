@@ -7,6 +7,8 @@ import {REGISTRY_AUTH, discovery} from './discovery.ts';
 import {hashKey} from './store.ts';
 import {HttpError, byteRange, exportFilename, fingerprint, publicExport, publicVideo, shareHtml, shareSpec, validId, validateShare} from './model.ts';
 import type {Exported, Published} from './model.ts';
+import {logoBytes, processLogo} from './logos.ts';
+import {LOGO_MAX_BYTES, logoOf, logoPath} from '../src/videos/logo.ts';
 import type {createStore} from './store.ts';
 import type {renderThumbnail, renderVideo} from './render.ts';
 import type {createLoopService, createPreviewService} from './preview.ts';
@@ -29,18 +31,22 @@ type Dependencies = {
   previewTimeoutMs?: number;
   loopTimeoutMs?: number;
 };
-async function readBody(req: IncomingMessage, label = 'Video request') {
+async function readBody(req: IncomingMessage, label = 'Video request', max = 16_384) {
   if (req.headers['content-type']?.split(';')[0] !== 'application/json') throw new HttpError(415, 'Use JSON.');
   const chunks: Buffer[] = [];
   let size = 0;
   for await (const chunk of req) {
     size += chunk.length;
-    if (size > 16_384) throw new HttpError(413, `${label} is too large.`);
+    if (size > max) throw new HttpError(413, `${label} is too large.`);
     chunks.push(chunk);
   }
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); }
   catch { throw new HttpError(400, 'Invalid JSON.'); }
 }
+// Base64 adds a third, plus room for the JSON wrapper.
+export const LOGO_BODY_MAX = Math.ceil(LOGO_MAX_BYTES * 4 / 3) + 4_096;
+// MCP calls can carry one logo upload.
+const MCP_BODY_MAX = LOGO_BODY_MAX + 16_384;
 const fromEdge = (secret: string, header: string | string[] | undefined) => {
   const value = Buffer.from(Array.isArray(header) ? header[0] : header ?? '');
   const expected = Buffer.from(secret);
@@ -114,6 +120,11 @@ export function createHandler(deps: Dependencies) {
   return async (req: IncomingMessage, res: ServerResponse) => {
     // Set for public share routes so a 404 can be cached at the CDN.
     let publicRoute = false;
+    // A rendered edit may only reference a logo that was uploaded here.
+    const checkLogo = async (value: {props: unknown}) => {
+      const logo = logoOf(value.props);
+      if (logo && !(await deps.store.logoExists(logo.id))) throw new HttpError(400, 'Unknown logo. Upload it first.');
+    };
     const json = (status: number, data: unknown) => {
       res.writeHead(status, {'Content-Type': 'application/json; charset=utf-8'});
       res.end(JSON.stringify(data));
@@ -149,7 +160,7 @@ export function createHandler(deps: Dependencies) {
         res.end(req.method === 'HEAD' ? undefined : body); return;
       }
       const readOnly = ['GET', 'HEAD'].includes(req.method || '');
-      const edgeOnly = pathname === '/mcp' || (readOnly && (/^\/(s|p)\//.test(pathname) || /^\/api\/shares\/[^/]+$/.test(pathname)));
+      const edgeOnly = pathname === '/mcp' || (readOnly && (/^\/(s|p|l)\//.test(pathname) || /^\/api\/shares\/[^/]+$/.test(pathname)));
       if (deps.edgeSecret && edgeOnly && !fromEdge(deps.edgeSecret, req.headers['x-cliphouse-edge'])) {
         throw new HttpError(403, `Use ${deps.origin}.`);
       }
@@ -169,7 +180,10 @@ export function createHandler(deps: Dependencies) {
           json(429, {jsonrpc: '2.0', id: null, error: {code: -32029, message: `Rate limit exceeded. Retry after ${limit.retryAfter} seconds.${owner ? '' : ` Create a free API key at ${deps.origin} for higher limits.`}`}});
           return;
         }
-        const body = await readBody(req, 'MCP request');
+        // Only an upload_logo call may be large. Its first bytes name the tool, so other calls keep the 16 KB limit.
+        const body = await readBody(req, 'MCP request', MCP_BODY_MAX);
+        const callName = (body as {method?: string; params?: {name?: string}} | null)?.method === 'tools/call' ? (body as {params?: {name?: string}}).params?.name : undefined;
+        if (callName !== 'upload_logo' && Buffer.byteLength(JSON.stringify(body)) > 16_384) throw new HttpError(413, 'MCP request is too large.');
         const call = body as {method?: string; params?: {name?: string; arguments?: {loop?: unknown}}} | null;
         const rendersPreview = call?.method === 'tools/call' && ['render_preview', 'render_previews'].includes(call.params?.name ?? '');
         const rendersLoop = rendersPreview && call?.params?.name === 'render_previews' && call.params.arguments?.loop === true;
@@ -179,6 +193,15 @@ export function createHandler(deps: Dependencies) {
         const info = (body as {method?: string; params?: {clientInfo?: {name?: unknown; version?: unknown}}})?.params?.clientInfo;
         const client = String(info?.name ? `${info.name}/${info.version ?? ''}` : req.headers['user-agent'] || 'unknown').slice(0, 120);
         const ctx = {client, caller, keyed: Boolean(owner), preview: deps.preview, loop: deps.loop,
+          uploadLogo: async (input: {data?: unknown; svg?: unknown}) => {
+            const logo = await processLogo(logoBytes(input));
+            if (!(await deps.store.logoExists(logo.id))) {
+              await deps.store.reserveLogo(caller, Boolean(owner));
+              await deps.store.saveLogo(logo.id, logo.png, caller);
+            }
+            return logo;
+          },
+          logoExists: (id: string) => deps.store.logoExists(id),
           logSearch: deps.store.logSearch && ((entry: Parameters<typeof deps.store.logSearch>[0]) => deps.store.logSearch(entry)),
           logEvent: deps.store.logEvent && ((entry: Parameters<typeof deps.store.logEvent>[0]) => deps.store.logEvent(entry))};
         let timer: NodeJS.Timeout | undefined;
@@ -201,6 +224,30 @@ export function createHandler(deps: Dependencies) {
         await send(req, res, file, ext === 'webp' ? 'image/webp' : 'image/jpeg');
         return;
       }
+      const logoRoute = pathname.match(/^\/l\/([a-f0-9]{64})\.png$/);
+      if (logoRoute) {
+        publicRoute = true;
+        if (!['GET', 'HEAD'].includes(req.method || '')) throw new HttpError(405, 'Method not allowed.');
+        let file;
+        try { file = await deps.store.logoAsset(logoRoute[1]); }
+        catch { throw new HttpError(404, 'This logo is unavailable.'); }
+        // Content-addressed and immutable. The editor and HyperFrames iframes load it cross-origin.
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+        await send(req, res, file, 'image/png');
+        return;
+      }
+      if (pathname === '/api/logos' && req.method === 'POST') {
+        const uid = await user(req);
+        const logo = await processLogo(logoBytes(await readBody(req, 'Logo', LOGO_BODY_MAX) as {data?: unknown; svg?: unknown}));
+        if (!(await deps.store.logoExists(logo.id))) {
+          await deps.store.reserveLogo(`user:${uid}`, true);
+          await deps.store.saveLogo(logo.id, logo.png, `user:${uid}`);
+        }
+        json(201, {id: logo.id, ratio: logo.ratio, mono: logo.transparent, transparent: logo.transparent, url: `${deps.origin}${logoPath(logo.id)}`});
+        return;
+      }
       if (pathname === '/api/keys' && req.method === 'POST') {
         const uid = await user(req);
         json(201, await deps.store.createApiKey(uid)); return;
@@ -218,6 +265,7 @@ export function createHandler(deps: Dependencies) {
       if (pathname === '/api/exports' && req.method === 'POST') {
         const uid = await user(req);
         const value = validateShare(await readBody(req));
+        await checkLogo(value);
         await exclusive(async () => {
           const key = fingerprint(uid, value, `${deps.version}-mp4`);
           let reservation;
@@ -241,6 +289,7 @@ export function createHandler(deps: Dependencies) {
       if (pathname === '/api/shares' && req.method === 'POST') {
         const uid = await user(req);
         const value = validateShare(await readBody(req));
+        await checkLogo(value);
         await exclusive(async () => {
           const key = fingerprint(uid, value, deps.version);
           let reservation;

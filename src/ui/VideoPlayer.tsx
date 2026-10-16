@@ -4,6 +4,8 @@ import {forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState, t
 import type {CompositionDef} from '../videos/registry';
 import {bindHyperframes, hyperframesVariables} from '../videos/hyperframes';
 import type {VideoProps} from '../videos/vocab';
+import {logoOf} from '../videos/logo';
+import {logoUrl} from '../services/sharing';
 
 type FrameEvent = {detail: {frame: number}};
 type Listener = (event: FrameEvent) => void;
@@ -28,10 +30,12 @@ const assetBase = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/hyperframes/as
 const runtimeSrc = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/hyperframes/runtime/hyperframe.runtime.iife.js`;
 
 function hyperframesDocument(c: Extract<CompositionDef, {engine: 'hyperframes'}>, props: VideoProps) {
-  const html = bindHyperframes({html: c.html, meta: c, props, assetBase});
+  const html = bindHyperframes({html: c.html, meta: c, props, assetBase, logoSrc: logoUrl});
   const values = JSON.stringify(hyperframesVariables(props, c)).replace(/</g, '\\u003c');
   return html.replace('<head>', `<head><script>window.__hfVariables=${values};</script>`);
 }
+// The logo is applied when the composition mounts, so a logo change reloads the document.
+const logoKey = (props: VideoProps) => JSON.stringify(logoOf(props) ?? null);
 
 type MusicWindow = Window & {cliphouseFitText?: () => void; cliphouseMusicUpdate?: (vars: Record<string, unknown>) => void;
   cliphouseBeatUpdate?: (vars: Record<string, unknown>) => void; __hfVariables?: Record<string, unknown>};
@@ -63,8 +67,10 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, {
   const listeners = useRef(new Map<string, Set<Listener>>());
   const [readyDocument, setReadyDocument] = useState<Document | null>(null);
   const initialProps = useRef(props);
+  const logo = logoKey(props);
+  if (logo !== logoKey(initialProps.current)) initialProps.current = props;
   const wantsPlay = useRef(autoPlay);
-  const srcdoc = useMemo(() => c.engine === 'hyperframes' ? hyperframesDocument(c, initialProps.current) : '', [c]);
+  const srcdoc = useMemo(() => c.engine === 'hyperframes' ? hyperframesDocument(c, initialProps.current) : '', [c, logo]); // eslint-disable-line react-hooks/exhaustive-deps
   const emit = (type: string, frame?: number) => listeners.current.get(type)?.forEach((listener) => listener({detail: {frame: frame ?? 0}}));
 
   useImperativeHandle(ref, () => ({
@@ -130,7 +136,7 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, {
       p.removeEventListener('pause', pause);
       p.removeEventListener('timeupdate', time);
     };
-  }, [c]);
+  }, [c, srcdoc]);
 
   // Remotion's autoPlay sometimes starts with a stalled clock: isPlaying() is true but the frame never
   // advances, so the editor shows Pause on a frozen picture. A short watchdog restarts a stalled player.

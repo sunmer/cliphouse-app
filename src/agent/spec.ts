@@ -13,6 +13,7 @@ import {isBeatSchema} from './handoff.ts';
 import {MAX_HANDOFF_CHARS, REPOSITORY, TEMPLATE_LICENSE, handoffPath, sourcePath, templateVersion} from './versions.ts';
 import {MUSIC_LICENSE, TRACKS, FADE_IN, FADE_OUT, trackPath} from '../music/library.ts';
 import {usesLibrary} from '../music/schema.ts';
+import {logoOf, supportsLogo} from '../videos/logo.ts';
 
 /** The attribution line agents are asked to keep when they publish a video made from this template. Optional. */
 export const CREDIT = 'Made with cliphou.se';
@@ -83,6 +84,10 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
       ...(slots.length ? {media: Object.fromEntries(slots.map((slot) => [slot, {
         format: 'Image ID', options: slotOptions(schema, slot), current: mediaOf(props)?.[slot],
       }]))} : {}),
+      ...(supportsLogo(schema) ? {logo: {
+        format: '{"id": "<sha256 from upload_logo>", "ratio": number, "mono": boolean}', optional: true, current: logoOf(props) ?? null,
+        note: 'Optional. Upload the logo with the upload_logo MCP tool (or POST /api/logos when signed in) and use the logo it returns. The logo replaces the brand name wherever the template shows it; texts.brand stays as its text alternative. mono: true draws it in the template text color.',
+      }} : {}),
       ...(library ? {
         audio: {format: '{"enabled": boolean, "track": "<track id>"}', current: (props as {audio?: object}).audio,
           options: TRACKS.map((t) => ({id: t.id, title: t.title, genre: t.genre, bpm: t.bpm})),
@@ -142,6 +147,7 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
     },
     instructions: [
       'For text, color, and image edits, change only props.texts, props.theme, and props.media when present. Keep each text within maxLength, each color as #RRGGBB, and each image as one of its listed options.',
+      ...(supportsLogo(schema) ? ['props.logo is optional: add the logo object from upload_logo to show the brand logo in place of the brand name.'] : []),
       ...(music && !beatProps ? ['For music templates, props.hidden lists optional roles to remove and props.audio.enabled turns the score on or off in the MP4.'] : []),
       ...(library ? ['props.audio.track picks the music: use one of editableFields.audio.options. props.audio.enabled turns music on or off in the MP4.'] : []),
       ...(beat?.list ? [`props.texts.list holds ${beat.list.min} to ${beat.list.max} items, one per line, each up to ${beat.list.itemMax} characters.`] : []),

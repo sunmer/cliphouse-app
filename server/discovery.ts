@@ -6,7 +6,7 @@ import {AGENT_CONTRACT_VERSION, MARKETING_GOALS} from '../src/agent/goals.ts';
 export const REGISTRY_AUTH = 'v=MCPv1; k=ed25519; p=DrY6bavQQXK5e5WYZmT+BeTf65mVvktF5SCQVT09YKo=';
 
 export const MCP_VERSION = server.version;
-export const MCP_TOOLS = ['search_templates', 'get_template_spec', 'build_edit_link', 'render_preview', 'render_previews'] as const;
+export const MCP_TOOLS = ['search_templates', 'get_template_spec', 'build_edit_link', 'render_preview', 'render_previews', 'upload_logo'] as const;
 export const agentContract = () => ({
   version: AGENT_CONTRACT_VERSION,
   mcpVersion: MCP_VERSION,

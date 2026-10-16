@@ -7,8 +7,9 @@ import type {VideoProps} from '../src/videos/vocab.ts';
 import {currentVersion, templateVersion} from '../src/agent/versions.ts';
 import {agentSpec} from '../src/agent/spec.ts';
 import {validateProps} from '../src/agent/handoff.ts';
-import {isBeatSchema, propKeys} from '../src/agent/handoff.ts';
+import {isBeatSchema, keysFor, propKeys} from '../src/agent/handoff.ts';
 import {schemas} from '../src/videos/schemas.ts';
+import {logoOf} from '../src/videos/logo.ts';
 
 export class HttpError extends Error {
   constructor(public status: number, message: string) { super(message); }
@@ -32,7 +33,7 @@ export function validateShare(body: unknown) {
   const slots = mediaSlots(schema);
   const keys = propKeys(schema);
   const music = keys.includes('audio');
-  if (!exactKeys(body.props, keys)) throw new HttpError(400, 'Invalid video.');
+  if (!object(body.props) || !exactKeys(body.props, keysFor(schema, body.props))) throw new HttpError(400, 'Invalid video.');
   const {texts, theme, media, hidden, audio} = body.props;
   const roles = Object.keys(schema.shape.texts.shape) as (keyof typeof ROLES)[];
   if (!exactKeys(texts, roles) || !exactKeys(theme, [...THEME_ROLES])) throw new HttpError(400, 'Invalid video fields.');
@@ -49,7 +50,8 @@ export function validateShare(body: unknown) {
     if (typeof theme[role] !== 'string' || !/^#[a-f0-9]{6}$/i.test(theme[role] as string)) throw new HttpError(400, 'Invalid video color.');
   }
   const checked = validateProps(schema, body.props);
-  if (!checked.ok) throw new HttpError(400, music && /hidden|audio/.test(checked.error) ? checked.error : 'Video text is invalid or too long.');
+  if (!checked.ok) throw new HttpError(400, music && /hidden|audio|logo/.test(checked.error) ? checked.error : 'Video text is invalid or too long.');
+  const logo = logoOf(checked.props);
   // Canonical key order makes retries of an identical edit idempotent.
   const props = {
     texts: Object.fromEntries(roles.map((role) => [role, texts[role]])),
@@ -59,6 +61,7 @@ export function validateShare(body: unknown) {
     ...(music && !isBeatSchema(schema) ? {hidden: roles.filter((r) => (hidden as string[]).includes(r))} : {}),
     ...(music ? {audio: {enabled: (audio as {enabled: boolean}).enabled,
       ...(Object.hasOwn(audio as object, 'track') ? {track: (audio as {track: string}).track} : {})}} : {}),
+    ...(logo ? {logo: {id: logo.id, ratio: logo.ratio, mono: logo.mono}} : {}),
   } as VideoProps;
   return {variantId: variant.id, template: variant.template, templateVersion: version, props,
     composition: version === currentVersion(variant.template) ? variant.template : `${variant.template}-v${version}`,

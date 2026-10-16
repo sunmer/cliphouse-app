@@ -15,6 +15,9 @@ import {HttpError, validateShare} from './model.ts';
 import type {EventLog, SearchLog} from './store.ts';
 import {LOOP_SECONDS, type LoopResult, type PreviewResult} from './preview.ts';
 import {checkBrand, tailorProps} from './tailor.ts';
+import {logoOf, logoPath, supportsLogo} from '../src/videos/logo.ts';
+import {schemas} from '../src/videos/schemas.ts';
+import type {ProcessedLogo} from './logos.ts';
 
 // Per-request caller context. Logging is best effort and bounded: it never fails or noticeably delays a tool call.
 export type McpContext = {
@@ -23,6 +26,8 @@ export type McpContext = {
   logEvent?: (entry: EventLog) => Promise<void>;
   preview?: (args: {variantId: string; props: unknown; templateVersion?: number; caller: string; keyed: boolean; editor: string; timeoutMs?: number}) => Promise<PreviewResult>;
   loop?: (args: {variantId: string; props: unknown; caller: string; keyed: boolean; timeoutMs?: number}) => Promise<LoopResult>;
+  uploadLogo?: (input: {data?: unknown; svg?: unknown}) => Promise<ProcessedLogo>;
+  logoExists?: (id: string) => Promise<boolean>;
 };
 // Budget for a whole render_previews batch. Posters not ready by then come back with poster: null.
 export const BATCH_BUDGET_MS = 20_000;
@@ -126,10 +131,10 @@ export function editLink(origin: string, variantId: string, props: unknown, temp
 
 const INSTRUCTIONS = `cliphou.se turns what the user builds into marketing videos. It has editable motion graphics templates for launches, feature announcements, updates, waitlists, events, social proof, and brand intros. Most users are developers and small teams with no marketer, so you also act as their marketer: find the selling points and write copy that sells. Contract ${AGENT_CONTRACT_VERSION}.
 Workflow:
-1. Learn the product before you search. If you can read the user's project, read it first: README, package.json, landing page, CSS variables, Tailwind config, and logo. Otherwise use the conversation, attached files, or a page the user gives. Collect the product name, tagline, 2-3 real features or numbers, call to action, and brand colors. Do not ask for facts the project already contains. Ask only for facts you cannot find. Never invent numbers.
+1. Learn the product before you search. If you can read the user's project, read it first: README, package.json, landing page, CSS variables, Tailwind config, and logo. Otherwise use the conversation, attached files, or a page the user gives. Collect the product name, tagline, 2-3 real features or numbers, call to action, and brand colors. If the project has a logo file (an SVG such as public/logo.svg or logo.svg, else a PNG with a transparent background), call upload_logo with it once and keep the returned logo. Do not ask for a logo the project lacks; the brand name shows instead. Do not ask for facts the project already contains. Ask only for facts you cannot find. Never invent numbers.
 2. Position it before you write copy. From those facts, decide: the audience (who it is for), the problem they feel, what changed in this release (the git log, CHANGELOG, or the user's words), and the one angle for this video. Turn features into benefits ("Search is 3x faster" beats "New search index"). Pick a hook: a pain, a question, a number, or a before/after. Write the headline as that hook and the points as benefits. Use only facts from the project; never invent numbers, customers, or quotes. Tell the user the angle in one line, so they can redirect it.
 3. Choose the marketing goal: ${GOAL_IDS.join(', ')}. Call search_templates with that goal and a short query (for example goal "launch-product", query "developer tool"). Set aspect only when the destination implies it: 9:16 for Reels, TikTok, and Shorts; 16:9 for YouTube and websites; 1:1 or 4:5 for feeds. Do not ask the user to choose a rendering engine.
-4. Pick the best 3-4 results, preferring templates whose structure fits the angle (a problem-and-fix hook, a quickstart, a comparison). Call render_previews once with their ids, the searchId, and one brand object built from steps 1-2 (name, headline, subhead, up to 3 points, cta, and theme colors). It returns a poster of each template with the user's own product. Show each poster as an inline image (Markdown ![title](poster)) with its title, and let the user pick one. If a poster is null, show that template's stock poster from search_templates instead.
+4. Pick the best 3-4 results, preferring templates whose structure fits the angle (a problem-and-fix hook, a quickstart, a comparison). Call render_previews once with their ids, the searchId, and one brand object built from steps 1-2 (name, headline, subhead, up to 3 points, cta, theme colors, and logo when you uploaded one). It returns a poster of each template with the user's own product. Show each poster as an inline image (Markdown ![title](poster)) with its title, and let the user pick one. If a poster is null, show that template's stock poster from search_templates instead.
 5. Call get_template_spec with the searchId. Start from the picked template's tailored props from render_previews, or from the spec's props, and change only texts, theme, and media (and hidden/audio for music templates). Write each field for its role in this template (the hook, the proof, the benefit, the CTA), not by copying the brand fields. Keep each text within maxLength and each color as #RRGGBB, with good contrast.
 6. Call render_preview with the filled props and the searchId. It returns a poster of the template with the user's own product, plus the editor link. Show the poster image first, then the link and a short list of the text you used. If it returns an error, fix the props and call it again. If poster is null, give the editor link. The link opens a live, editable preview; the user exports the MP4 there.
 7. Treat follow-ups ("punchier", "use our green") as prop edits: call render_preview again and show the new poster and link. build_edit_link returns only the link, without rendering. When the user posts the video, offer a caption that leads with the same hook.
@@ -140,6 +145,32 @@ function createServer(origin: string, ctx: McpContext) {
   const readOnly = {readOnlyHint: true, openWorldHint: false};
   const who = {client: ctx.client, caller: ctx.caller};
   const event = (entry: Omit<EventLog, 'client' | 'caller'>) => record(ctx.logEvent && (() => ctx.logEvent!({...entry, ...who})));
+  // Renders and links may reference only logos uploaded through upload_logo.
+  const unknownLogo = async (props: unknown) => {
+    const logo = logoOf(props);
+    if (!logo) return null;
+    if (!ctx.logoExists) return 'Logos are not available here.';
+    return (await ctx.logoExists(logo.id)) ? null : 'Unknown logo id. Call upload_logo first and use the logo it returns.';
+  };
+  server.registerTool('upload_logo', {
+    title: 'Upload brand logo',
+    description: `Upload the product's logo once, then pass the returned logo object as brand.logo to render_previews, or as props.logo in templates that support a logo (their spec lists editableFields.logo). Templates with a logo show it wherever they show the brand name; the brand text stays as its alt text. Send an SVG as text in svg, or a PNG, JPEG, WebP, or SVG file as base64 in data. Up to 1 MB. Prefer the project's SVG logo (for example public/logo.svg) or a PNG with a transparent background. mono: true draws the logo in the template's text color, which keeps it readable on any theme; it needs a transparent background.`,
+    inputSchema: {
+      svg: z.string().max(1_000_000).optional().describe('The logo as SVG text.'),
+      data: z.string().max(1_400_000).optional().describe('The logo file as base64, or as a data: URL.'),
+    },
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
+  }, async ({svg, data}) => {
+    if (!ctx.uploadLogo) return failure('Logo uploads are not available here.');
+    try {
+      const logo = await ctx.uploadLogo({svg, data});
+      return text({logo: {id: logo.id, ratio: logo.ratio, mono: logo.transparent}, url: `${origin}${logoPath(logo.id)}`, transparent: logo.transparent,
+        note: logo.transparent ? 'mono is true, so the logo takes each template\'s text color. Set mono to false to keep its own colors.'
+          : 'The logo has an opaque background, so it keeps its own colors (mono: false). A transparent PNG or an SVG blends in better.'});
+    } catch (e) {
+      return failure(e instanceof HttpError ? e.message : 'The logo could not be uploaded.');
+    }
+  });
   server.registerTool('search_templates', {
     title: 'Search video templates',
     description: 'Find marketing video templates for a product, project, or announcement. Prefer a marketing goal, then add a short product or style query. Returns a searchId and results with id, title, goals, aspect, length, preview MP4, poster image, and editor URL. Engine details appear only when the engine filter is used.',
@@ -185,6 +216,8 @@ function createServer(origin: string, ctx: McpContext) {
       templateVersion: z.number().int().positive().optional().describe('Only for older template versions. Usually omit.'), searchId: searchIdField},
     annotations: readOnly,
   }, async ({variantId, props, templateVersion, searchId}) => {
+    const badLogo = await unknownLogo(props);
+    if (badLogo) return failure(badLogo);
     let url;
     try { url = editLink(origin, variantId, props, templateVersion); }
     catch (e) {
@@ -203,6 +236,8 @@ function createServer(origin: string, ctx: McpContext) {
       templateVersion: z.number().int().positive().optional().describe('Only for older template versions. Usually omit.'), searchId: searchIdField},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
   }, async ({variantId, props, templateVersion, searchId}) => {
+    const badLogo = await unknownLogo(props);
+    if (badLogo) return failure(badLogo);
     let editor;
     try { editor = editLink(origin, variantId, props, templateVersion); }
     catch (e) {
@@ -235,6 +270,8 @@ Animated loops (${LOOP_SECONDS}-second animated WebP of each tailored template) 
         points: z.array(z.string().max(80)).max(6).optional().describe('2-3 benefits backed by real features or facts, short phrases.'),
         cta: z.string().max(60).optional().describe('Call to action, for example "Start free".'),
         date: z.string().max(40).optional().describe('Launch or availability date, only if the project states one.'),
+        logo: z.object({id: z.string().regex(/^[a-f0-9]{64}$/), ratio: z.number().min(0.2).max(8), mono: z.boolean()}).optional()
+          .describe('The logo object from upload_logo. Templates with a logo slot show it in place of the brand name.'),
         theme: z.object({background: hex.optional(), surface: hex.optional(), foreground: hex.optional(), accent: hex.optional(), accent2: hex.optional()})
           .optional().describe('Brand colors as #RRGGBB. Keep good contrast between foreground and background.'),
       }).describe('The product facts from the user\'s project. Never invent numbers.'),
@@ -246,6 +283,7 @@ Animated loops (${LOOP_SECONDS}-second animated WebP of each tailored template) 
     let checked;
     try { checked = checkBrand(brand); }
     catch (e) { return failure(e instanceof HttpError ? e.message : 'The brand could not be validated.'); }
+    if (checked.logo && ctx.logoExists && !(await ctx.logoExists(checked.logo.id))) return failure('Unknown logo id. Call upload_logo first and use the logo it returns.');
     const ids = [...new Set(variantIds)];
     const unknown = ids.find((id) => !visible.some((v) => v.id === id));
     if (unknown) return failure(`Unknown template: ${unknown}. Use ids from search_templates.`);

@@ -141,7 +141,7 @@ export const useCases = [
     intro: 'Short logo stings and brand intros for videos, social posts, and presentations.',
     match: (v) => v.useCases.includes('logo-reveal') || v.useCases.includes('brand-intro'),
     faq: [
-      ['Can I upload an image logo?', 'Not yet. The Wordmark template animates your brand name as text.'],
+      ['Can I upload an image logo?', 'Yes, on the release and developer templates. Sign in, open the Logo panel in the editor, and upload an SVG or PNG; the logo replaces the brand name. The Wordmark template animates your brand name as text.'],
       ['How long is a logo reveal?', 'The Wordmark template runs for 6 seconds, which suits a video opener or sign-off.'],
       ['Can I match my brand colors?', 'Yes. Set the five theme colors, or pick your brand colors in the gallery and every video opens in them.'],
     ],

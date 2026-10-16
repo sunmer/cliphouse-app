@@ -1,4 +1,4 @@
-import {ArrowLeft, Bot, Check, Copy, Download, Eye, EyeOff, FileCode, LoaderCircle, Maximize, Minimize, Music, Palette, Pause, Play, Redo2, RefreshCw, RotateCcw, Save, Share2, Undo2, Volume2, VolumeX, X} from 'lucide-react';
+import {ArrowLeft, Bot, Image as ImageIcon, Check, Copy, Download, Eye, EyeOff, FileCode, LoaderCircle, Maximize, Minimize, Music, Palette, Pause, Play, Redo2, RefreshCw, RotateCcw, Save, Share2, Undo2, Volume2, VolumeX, X} from 'lucide-react';
 import {useCallback, useEffect, useMemo, useRef, useState, type CSSProperties} from 'react';
 import type {Variant} from '../catalog/catalog';
 import {generationLabel} from '../catalog/generation';
@@ -8,7 +8,9 @@ import {hideableRoles, isMusicSchema, scoreOf} from '../videos/music/schema';
 import {compositionFor} from '../videos/registry';
 import {currentVersion, handoffPath, sourcePath, specPath} from '../agent/versions';
 import {readHandoff} from '../agent/handoff';
-import {applyKit, useBrandKit} from './brandKit';
+import {applyKit, setBrandKit, useBrandKit} from './brandKit';
+import {LogoControls} from './LogoControls';
+import {logoOf, supportsLogo, type Logo} from '../videos/logo';
 import {ThemeControls} from './ThemeControls';
 import {derivePalettes, generatePalettes} from './palettes';
 import {TextCanvas} from './TextCanvas';
@@ -46,6 +48,7 @@ function useMediaQuery(query: string) {
 }
 
 const storageKey = (id: string) => `voodoo:v2:${id}`;
+const PANEL_TITLES = {music: 'Music', theme: 'Theme', logo: 'Logo'} as const;
 type LockableOrientation = ScreenOrientation & {lock?: (orientation: 'landscape') => Promise<void>};
 const unlockOrientation = () => {
   try { screen.orientation?.unlock?.(); } catch { /* Some browsers expose unsupported orientation methods. */ }
@@ -85,7 +88,7 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
   const incoming = useMemo(() => handoff === undefined ? null : readHandoff(handoff, c.schema), [handoff, c]);
   // A video without a local edit, draft, share, or agent handoff opens in the brand kit colors. POC entries skip the kit.
   // The kit is read once per opened video, so changing it elsewhere does not rewrite an open edit.
-  const fresh = useMemo(() => poc ? variant.props : applyKit(variant.props, kit), [variant, poc]);
+  const fresh = useMemo(() => poc ? variant.props : applyKit(variant.props, kit, supportsLogo(c.schema)), [variant, poc]);
   const initial = useMemo(() => {
     if (sharedProps) return sharedProps;
     if (incoming?.ok) return incoming.props;
@@ -109,11 +112,11 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
   const [notice, setNotice] = useState(() => versionError || (incoming && !incoming.ok ? `Agent link rejected. ${incoming.error} The video was not changed.` : ''));
   // One side panel at a time slides in from the right over the stage: music or theme.
   const compact = useMediaQuery(COMPACT_QUERY);
-  const [panel, setPanel] = useState<'music' | 'theme' | null>(null);
+  const [panel, setPanel] = useState<'music' | 'theme' | 'logo' | null>(null);
   const [shareMenu, setShareMenu] = useState(false);
   const shareMenuRef = useRef<HTMLDivElement>(null);
   const openShareDialog = useRef<(() => void) | null>(null);
-  const togglePanel = (next: 'music' | 'theme') => {
+  const togglePanel = (next: 'music' | 'theme' | 'logo') => {
     setShareMenu(false);
     setPanel((p) => p === next ? null : next);
     track('panel_open', {variant_id: variant.id, panel: next});
@@ -172,6 +175,12 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
     soundPlayed.current = true;
     track('sound_play', {variant_id: variant.id});
   }, [music, listening, playing, variant.id]);
+  const logoSlot = !poc && supportsLogo(c.schema);
+  const setLogo = (logo: Logo | null) => {
+    const {logo: _old, ...rest} = props as VideoProps & {logo?: Logo};
+    void _old;
+    h.set((logo ? {...rest, logo} : rest) as VideoProps);
+  };
   const toggleRole = (role: Role) => {
     const on = hidden.includes(role);
     const order = optional.filter((r) => r === role ? !on : hidden.includes(r));
@@ -403,6 +412,8 @@ For text and color edits, return a link in the spec's handoff format. For code e
             disabled={!!editing} onClick={toggleExpanded}>{expanded ? <Minimize size={20} /> : <Maximize size={20} />}</button>
           <button className={`overlay-btn ${panel === 'theme' ? 'on' : ''}`} title="Theme" aria-label="Theme" aria-pressed={panel === 'theme'} aria-controls="editor-panel"
             disabled={!!editing} onClick={() => togglePanel('theme')}><Palette size={20} /></button>
+          {logoSlot && <button className={`overlay-btn ${panel === 'logo' ? 'on' : ''}`} title="Logo" aria-label="Logo" aria-pressed={panel === 'logo'} aria-controls="editor-panel"
+            disabled={!!editing} onClick={() => togglePanel('logo')}><ImageIcon size={20} /></button>}
           {music && <button className={`overlay-btn ${panel === 'music' ? 'on' : ''}`} title="Music" aria-label="Music" aria-pressed={panel === 'music'} aria-controls="editor-panel"
             disabled={!!editing} onClick={() => togglePanel('music')}><Music size={20} /></button>}
           <button className="overlay-btn" title="Reset to original" aria-label="Reset to original"
@@ -428,9 +439,9 @@ For text and color edits, return a link in the spec's handoff format. For code e
             trigger={(open) => { openShareDialog.current = open; return null; }} />
           </>}
         </nav>
-        {panel && <aside id="editor-panel" className="editor-panel" aria-label={panel === 'music' ? 'Music' : 'Theme'}>
+        {panel && <aside id="editor-panel" className="editor-panel" aria-label={PANEL_TITLES[panel]}>
           <div className="panel-heading">
-            <h2>{panel === 'music' ? 'Music' : 'Theme'}</h2>
+            <h2>{PANEL_TITLES[panel]}</h2>
             {panel === 'theme' && <button className="icon-btn" title="Generate palettes" aria-label="Generate palettes" disabled={!!editing}
               onClick={() => setGeneratedPalettes(generatePalettes(variant.props.theme))}><RefreshCw size={17} /></button>}
             <button className="icon-btn" title="Close" aria-label="Close panel" onClick={() => setPanel(null)}><X size={17} /></button>
@@ -459,6 +470,12 @@ For text and color edits, return a link in the spec's handoff format. For code e
               <span>Include music in MP4</span>
             </label>
             {library && <p className="music-facts">Royalty-free</p>}
+          </div>}
+          {panel === 'logo' && <div className="panel-body">
+            <LogoControls logo={logoOf(props)} brandName={props.texts.brand} disabled={!!editing} source="editor" onChange={setLogo} />
+            <p className="muted small">The logo replaces the brand name in this video. The name stays as its text alternative.</p>
+            {logoOf(props) && JSON.stringify(logoOf(props)) !== JSON.stringify(kit.logo) && <button type="button" className="link-btn"
+              onClick={() => { setBrandKit((k) => ({...k, logo: logoOf(props)!})); track('logo_kit_save', {variant_id: variant.id}); }}>Use this logo for every video</button>}
           </div>}
           {panel === 'theme' && <div className="panel-body">
             <ThemeControls theme={props.theme} palettes={palettes} disabled={!!editing}
@@ -492,7 +509,7 @@ For text and color edits, return a link in the spec's handoff format. For code e
             variant.format, `${variant.seconds}s`])].map((label) => <span className="tag" key={label}>{label}</span>)}
         </div>
       </section>
-      {incoming?.ok && !agentBannerClosed && <div className="agent-banner" role="note"><Bot size={16} /><span>Made with your coding agent.</span>
+      {incoming?.ok && !agentBannerClosed && !(compact && panel) && <div className="agent-banner" role="note"><Bot size={16} /><span>Made with your coding agent.</span>
         <a href={`${import.meta.env.BASE_URL}agents/`} onClick={() => track('agent_banner_click', {variant_id: variant.id})}>Get the skill</a>
         <button className="overlay-btn" title="Dismiss" aria-label="Dismiss" onClick={() => setAgentBannerClosed(true)}><X size={14} /></button></div>}
       {notice && <div className="editor-notice" role="status">{notice}<button className="link-btn" onClick={() => setNotice('')}>Dismiss</button></div>}

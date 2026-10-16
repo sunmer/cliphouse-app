@@ -6,6 +6,7 @@ import {createHandler} from './app.ts';
 import {createStore} from './store.ts';
 import {renderThumbnail, renderVideo} from './render.ts';
 import {createLoopService, createPreviewRenderer, createPreviewService, createRemoteLoopRenderer, createRenderGate} from './preview.ts';
+import {setLogoReader} from './hyperframes.ts';
 
 const projectId = process.env.GOOGLE_CLOUD_PROJECT;
 const bucket = process.env.SHARE_BUCKET;
@@ -19,6 +20,7 @@ const manifest = JSON.parse(await readFile('dist/.vite/manifest.json', 'utf8'));
 const assets = manifest['index.html'];
 if (!assets) throw new Error('Build the frontend before starting the share server.');
 const store = createStore(bucket);
+setLogoReader((id) => store.readLogo(id));
 const previewRenderer = createPreviewRenderer();
 // Posters and loops share this instance's CPUs; a loop waits while any poster renders.
 const gate = createRenderGate();

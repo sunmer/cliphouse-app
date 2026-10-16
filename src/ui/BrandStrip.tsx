@@ -5,6 +5,7 @@ import {track} from '../services/analytics';
 import {kitActive, setBrandKit, useBrandKit} from './brandKit';
 import {PRESETS, generatePalettes} from './palettes';
 import {ThemeControls, type Palette, type ThemeChange} from './ThemeControls';
+import {LogoControls} from './LogoControls';
 
 // Generated palettes skip the editor's "Original" entry: here Original means "kit off".
 const generate = (): Palette[] => generatePalettes(PRESETS[0].colors).slice(1);
@@ -54,6 +55,10 @@ export function BrandStrip() {
             <span />
           </label>
         </div>
+        {customizing && <div className="brand-logo">
+          <span className="brand-label">Logo</span>
+          <LogoControls logo={kit.logo} source="brandkit" onChange={(logo) => setBrandKit((k) => ({...k, logo}))} />
+        </div>}
       </div>
     </section>
   );

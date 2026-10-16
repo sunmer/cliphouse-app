@@ -3,11 +3,17 @@ import {copyFile, mkdir, readFile, readdir, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {promisify} from 'node:util';
 import {bindHyperframes, hyperframesVariables} from '../src/videos/hyperframes.ts';
+import {logoOf} from '../src/videos/logo.ts';
 import type {Snapshot} from './model.ts';
 
 const run = promisify(execFile);
 const root = process.cwd();
 const assets = ['gsap.min.js', 'fonts/archivo.woff2', 'fonts/fraunces.woff2', 'fonts/fraunces-italic.woff2', 'fonts/inter.woff2', 'fonts/jetbrains-mono.woff2'];
+
+// Reads a stored logo PNG by id. Set once at startup by the share service and the loop worker.
+export type LogoReader = (id: string) => Promise<Buffer>;
+let readLogo: LogoReader | null = null;
+export const setLogoReader = (reader: LogoReader | null) => { readLogo = reader; };
 
 export async function writeHyperframesProject(value: Snapshot, directory: string) {
   const [template, css, js, music, beat] = await Promise.all([
@@ -20,7 +26,14 @@ export async function writeHyperframesProject(value: Snapshot, directory: string
   const html = template.replace('__BASE_CSS__', css).replace('__BASE_JS__', js).replace('__MUSIC_JS__', () => music).replace('__BEAT_JS__', () => beat);
   await mkdir(path.join(directory, 'assets/fonts'), {recursive: true});
   await Promise.all(assets.map((asset) => copyFile(path.join(root, 'public/hyperframes/assets', asset), path.join(directory, 'assets', asset))));
-  await writeFile(path.join(directory, 'index.html'), bindHyperframes({html, meta: value.meta, props: value.props, assetBase: 'assets'}));
+  // The logo is copied into the project, so renders read it from disk and never from the network.
+  const logo = logoOf(value.props);
+  if (logo) {
+    if (!readLogo) throw new Error('Logos are not available on this renderer.');
+    await writeFile(path.join(directory, 'assets', `logo-${logo.id}.png`), await readLogo(logo.id));
+  }
+  await writeFile(path.join(directory, 'index.html'), bindHyperframes({html, meta: value.meta, props: value.props, assetBase: 'assets',
+    logoSrc: (id) => `assets/logo-${id}.png`}));
   await writeFile(path.join(directory, 'variables.json'), JSON.stringify(hyperframesVariables(value.props, value.meta)));
 }
 

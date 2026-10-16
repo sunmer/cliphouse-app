@@ -2,7 +2,9 @@ import {Pencil, Search, SlidersHorizontal, Star, X} from 'lucide-react';
 import {useEffect, useMemo, useState} from 'react';
 import {galleryVariants, searchText, templates, variants, vocab, type Format, type Tone, type Variant} from '../catalog/catalog';
 import {SCENE_TYPES} from '../videos/vocab';
-import {applyKit, kitActive, useBrandKit} from './brandKit';
+import {applyKit, kitApplies, useBrandKit} from './brandKit';
+import {compositions} from '../videos/registry';
+import {supportsLogo} from '../videos/logo';
 import {BrandStrip} from './BrandStrip';
 import {Header} from './Header';
 import {Media} from './Media';
@@ -49,7 +51,7 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
   const account = useAccount();
   const [savedOnly, setSavedOnly] = useState(false);
   const kit = useBrandKit();
-  const applied = kitActive(kit);
+  const applied = kitApplies(kit);
   const saved = useMemo(readView, []);
   const [q, setQ] = useState(saved.q ?? '');
   const [sort, setSort] = useState<Sort>(saved.sort === 'new' ? 'new' : 'featured');
@@ -221,7 +223,10 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
           ) : (
             <div className="grid">
               {results.map((v) => {
-                const props = applied ? applyKit(v.props, kit) : null;
+                // A logo-only kit changes only templates with a logo slot; the others keep their stock previews.
+                const logoSlot = supportsLogo(compositions[v.template]?.schema);
+                const kitted = applied ? applyKit(v.props, kit, logoSlot) : null;
+                const props = kitted && kitted !== v.props ? kitted : null;
                 const theme = (props ?? v.props).theme;
                 return (
                   <article key={v.id} className="card">

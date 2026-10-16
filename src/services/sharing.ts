@@ -54,6 +54,21 @@ export async function exportVideo(variantId: string, props: VideoProps, template
   }, true);
 }
 
+export type UploadedLogo = {id: string; ratio: number; mono: boolean; transparent: boolean; url: string};
+// Rasterized and stored by the share service; the browser sends the file as base64 JSON.
+export async function uploadLogo(file: File): Promise<UploadedLogo> {
+  if (!sharingConfigured) throw new Error('Logo uploads are not available yet.');
+  const data = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error('This file could not be read.'));
+    reader.readAsDataURL(file);
+  });
+  return request('/api/logos', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data})}, true);
+}
+// Logos load from the site in production (cached at the edge) and from the API origin in development.
+export const logoUrl = (id: string) => `${readOrigin || location.origin}/l/${id}.png`;
+
 export type ApiKey = {id: string; createdAt: number; last4: string};
 export const listApiKeys = async (): Promise<ApiKey[]> => (await request('/api/keys', {}, true)).keys;
 export const createApiKey = async (): Promise<ApiKey & {key: string}> =>

@@ -5,6 +5,7 @@ import {textsSchema, themeSchema} from '../videos/contract.ts';
 import type {Role} from '../videos/vocab.ts';
 import {scoreRoles, type BeatScore} from '../videos/beat/score.ts';
 import {storedListErrors} from '../videos/beat/list.ts';
+import {logoSchema} from '../videos/logo.ts';
 import {TRACK_IDS} from './library.ts';
 
 export const libraryAudioSchema = z.object({
@@ -24,13 +25,14 @@ export function trackFor(template: string, props: unknown): string | undefined {
   return audio.track ?? LEGACY_TRACKS[template];
 }
 
-/** A beat-timed template whose sound comes from the music library: texts, theme, and {enabled, track}. */
+/** A beat-timed template whose sound comes from the music library: texts, theme, {enabled, track}, and an optional logo.
+ * The logo replaces the brand name wherever the template shows it; without one the name shows as text. */
 export function librarySchema<R extends Role>(score: BeatScore, roles: readonly R[]) {
   const scored = scoreRoles(score);
   if (roles.some((r) => !scored.includes(r)) || scored.some((r) => !roles.includes(r as R))) {
     throw new Error(`Schema roles (${roles.join(', ')}) must match the score roles (${scored.join(', ')}).`);
   }
-  return z.object({texts: textsSchema(roles), theme: themeSchema, audio: libraryAudioSchema}).strict().superRefine((props, ctx) => {
+  return z.object({texts: textsSchema(roles), theme: themeSchema, audio: libraryAudioSchema, logo: logoSchema.optional()}).strict().superRefine((props, ctx) => {
     const text = (props.texts as Record<string, string>).list;
     if (score.list) for (const message of storedListErrors(score, text ?? '')) ctx.addIssue({code: 'custom', message, path: ['texts', 'list']});
   });
