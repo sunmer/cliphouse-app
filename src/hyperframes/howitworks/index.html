@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1080px; }
+    #root { --count:3; --T:calc(360px - 60px * var(--count)); --H:calc(740px / var(--count)); --gap:calc((var(--H) - var(--T)) / 2); --k:calc(2 - var(--count) / 3); --rx:calc(80px + var(--T) / 2); }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+
+    .brand { position:absolute; left:80px; top:80px; width:640px; height:54px; font-size:44px; line-height:1.2; white-space:nowrap; text-transform:uppercase; color:var(--theme-foreground); z-index:4; }
+    .dot { position:absolute; left:calc(var(--rx) - 22px); top:193px; width:44px; height:44px; border-radius:50%; background:var(--theme-accent); z-index:5; }
+
+    /* Scene 1: the route preview */
+    .pline { position:absolute; left:var(--rx); top:210px; width:calc(1000px - var(--rx)); height:10px; background:var(--theme-accent); z-index:2; }
+    .preview { position:absolute; left:calc(var(--rx) + 80px); top:175px; width:calc(920px - var(--rx)); height:80px; display:flex; justify-content:space-evenly; align-items:center; z-index:4; }
+    .pip { width:80px; height:80px; background:var(--theme-foreground); color:var(--theme-background); font-size:32px; font-weight:700; display:grid; place-items:center; }
+    .headline { position:absolute; left:80px; top:300px; width:920px; height:700px; font-size:190px; line-height:.9; align-content:center; color:var(--theme-foreground); z-index:4; }
+    .label { position:absolute; left:calc(var(--rx) + 48px); top:182px; width:calc(952px - var(--rx)); height:66px; font-size:56px; line-height:1.15; white-space:nowrap; color:var(--theme-foreground); visibility:hidden; z-index:4; }
+
+    /* Scene 2: the steps on the rail */
+    .track { position:absolute; left:calc(var(--rx) - 3px); top:237px; width:6px; height:763px; background:var(--theme-foreground); z-index:1; }
+    .trail { position:absolute; left:calc(var(--rx) - 5px); top:237px; width:10px; height:763px; background:var(--theme-accent2); z-index:3; }
+    .goal { position:absolute; left:calc(var(--rx) - 16px); top:968px; width:32px; height:32px; background:var(--theme-foreground); z-index:3; }
+    .walker { position:absolute; left:calc(var(--rx) - 12px); top:203px; width:24px; height:24px; background:var(--theme-accent2); z-index:3; }
+    .skels, .chips, .ticks { position:absolute; left:0; top:0; width:0; height:0; }
+    .skel { position:absolute; left:calc(var(--T) + 128px); width:calc(872px - var(--T)); top:calc(260px + var(--H) * var(--i) + var(--H) / 2 - 41px); height:82px; }
+    .skel i { position:absolute; left:0; display:block; height:30px; background:var(--theme-surface); }
+    .skel i:first-child { top:0; width:84%; }
+    .skel i:last-child { top:52px; width:52%; }
+    .steps { position:absolute; left:80px; top:260px; width:920px; height:740px; }
+    .row { position:relative; height:var(--H); visibility:hidden; }
+    .link { position:absolute; left:calc(var(--T) / 2 - 5px); width:10px; top:calc(0px - var(--gap)); height:calc(var(--gap) * 2); background:var(--theme-accent); z-index:2; }
+    .row:first-child .link { top:-23px; height:calc(var(--gap) + 23px); }
+    .tile { position:absolute; left:0; top:var(--gap); width:var(--T); height:var(--T); background:var(--theme-surface); z-index:4; }
+    .nummask { position:absolute; left:calc(18px * var(--k)); top:calc(14px * var(--k)); display:block; overflow:hidden; line-height:1.1; }
+    .num { display:block; font-size:calc(38px * var(--k)); font-weight:700; color:var(--theme-foreground); }
+    .glyph { position:absolute; right:calc(20px * var(--k)); bottom:calc(20px * var(--k)); width:72px; height:72px; transform:scale(var(--k)); transform-origin:100% 100%; }
+    .g { position:absolute; display:block; background:var(--theme-foreground); }
+    .g.a2 { background:var(--theme-accent2); }
+    .g.tri { clip-path:polygon(0 0, 100% 50%, 0 100%); }
+    .done { position:absolute; right:0; top:0; width:calc(48px * var(--k)); height:calc(48px * var(--k)); background:var(--theme-accent2); clip-path:polygon(0 0, 100% 0, 100% 100%); }
+    .stext { position:absolute; left:calc(var(--T) + 48px); right:0; top:10px; bottom:10px; font-size:140px; line-height:1; align-content:center; color:var(--theme-foreground); z-index:4; }
+
+    /* Scene 3: the CTA slab and the recap */
+    .chip { position:absolute; left:80px; top:calc(260px + var(--H) * var(--i) + var(--H) / 2 - var(--T) / 2); width:var(--T); height:var(--T); background:var(--theme-surface); visibility:hidden; z-index:5; }
+    .tick { position:absolute; top:976px; width:160px; height:12px; background:var(--theme-accent2); z-index:4; }
+    .slab { position:absolute; left:80px; top:320px; width:920px; height:420px; background:var(--theme-accent); overflow:hidden; visibility:hidden; z-index:6; }
+    .ctext { position:absolute; left:64px; top:40px; width:600px; height:340px; font-size:160px; line-height:.95; align-content:center; color:var(--theme-background); }
+    .arrow { position:absolute; right:64px; top:155px; width:150px; height:110px; }
+    .arrow i { position:absolute; display:block; background:var(--theme-background); }
+    .arrow .bar { left:0; top:39px; width:100px; height:32px; }
+    .arrow .tip { left:80px; top:0; width:70px; height:110px; clip-path:polygon(0 0, 100% 50%, 0 100%); }
+    .rline { position:absolute; left:80px; top:877px; width:920px; height:6px; background:var(--theme-accent); z-index:2; }
+    .rdot { position:absolute; left:80px; top:866px; width:28px; height:28px; background:var(--theme-accent2); visibility:hidden; z-index:7; }
+
+    .flood { position:absolute; inset:0; background:var(--theme-accent); z-index:10; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1080" data-height="1080">
+    <section id="howitworks-main" class="scene" data-start="0" data-duration="10" data-track-index="0">
+      <div class="brand display fit" data-fit-max="44" data-fit-min="30" data-text-role="brand" data-beat-text="brand">Brand</div>
+
+      <div class="track"></div>
+      <div class="rline"></div>
+      <div class="ticks"></div>
+      <div class="pline"></div>
+      <div class="preview"></div>
+      <div class="skels"></div>
+      <div class="trail"></div>
+      <div class="goal"></div>
+      <div class="walker"></div>
+      <div class="dot"></div>
+
+      <h1 class="headline display fit" data-fit-max="190" data-fit-min="96" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <h2 class="label display fit" data-fit-max="56" data-fit-min="32" data-text-role="headline" data-beat-text="headline">Headline</h2>
+
+      <div class="steps" data-list>
+        <template data-list-row>
+          <div class="row">
+            <div class="link" data-list-part="link"></div>
+            <div class="tile" data-list-part="tile" data-list-align="y">
+              <span class="nummask"><span class="num mono" data-list-part="num" data-list-number>01</span></span>
+              <div class="glyph" data-list-part="glyph"></div>
+              <div class="done" data-list-part="done" data-list-group="finale"></div>
+            </div>
+            <div class="stext display fit" data-list-text data-words data-fit-max="140" data-fit-min="44">Step</div>
+          </div>
+        </template>
+      </div>
+
+      <div class="chips"></div>
+      <div class="rdot"></div>
+
+      <div class="slab">
+        <div class="ctext display fit" data-fit-max="160" data-fit-min="64" data-text-role="cta" data-beat-text="cta">CTA</div>
+        <div class="arrow"><i class="bar"></i><i class="tip"></i></div>
+      </div>
+    </section>
+    <div class="flood" data-layout-allow-overflow></div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (x) => m.at(x);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const n = m.items.length;
+      const N = Math.max(1, n);
+      // Reflow by count: bigger tiles and type for fewer steps, the rail on the tile centers.
+      q('#root').style.setProperty('--count', String(N));
+      window.cliphouseFitText?.();
+      const T = 360 - 60 * N;
+      const H = 740 / N;
+      const RX = 80 + T / 2;
+      const rowY = (i) => 260 + i * H + H / 2;
+      const C = 160, RY = 880;
+      const gapR = (920 - N * C) / (N + 1);
+      const chipX = (i) => 80 + gapR * (i + 1) + C * i + C / 2;
+      const RAIL = 763;
+      const DROP = 83 / RAIL;
+
+      // Glyphs by position in the flow: input, process, output.
+      const kinds = N === 1 ? ['out'] : N === 2 ? ['in', 'out'] : ['in', 'mid', 'out'];
+      const SHAPES = {
+        in: [[0, 8, 72, 12, 0], [0, 30, 56, 12, 0], [0, 52, 38, 12, 1]],
+        mid: [[0, 0, 32, 32, 0], [40, 0, 32, 32, 0], [0, 40, 32, 32, 0], [40, 40, 32, 32, 1]],
+        out: [[0, 29, 46, 14, 0], [38, 14, 34, 44, 1, 1]],
+      };
+      const glyph = (box, kind) => {
+        box.textContent = '';
+        for (const [x, y, w, h, a, tri] of SHAPES[kind]) {
+          const s = document.createElement('i');
+          s.className = 'g' + (a ? ' a2' : '') + (tri ? ' tri' : '');
+          Object.assign(s.style, {left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px'});
+          box.append(s);
+        }
+        return [...box.children];
+      };
+      const numeral = (i) => String(i + 1).padStart(2, '0');
+      const rise = (el, at, step = 0.25, cap = 2, dur = 0.75) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, at + Math.min(i, cap) * B(step)));
+      const sink = (el, at) => tl.to(m.spans(el), {yPercent: -125, duration: B(0.5), ease: 'power3.in', stagger: B(0.0625)}, at);
+      const pop = (el, at, ease = 'expo.out', origin = '50% 50%', dur = 0.6) =>
+        tl.fromTo(el, {scale: 0, transformOrigin: origin}, {scale: 1, duration: B(dur), ease}, at);
+      const flood = q('.flood');
+
+      // Beat 0: the orange field collapses into the route dot; the headline rises.
+      tl.fromTo(flood, {clipPath: `circle(1300px at ${RX}px 215px)`},
+        {clipPath: `circle(0px at ${RX}px 215px)`, duration: B(0.6), ease: 'power2.inOut'}, t('open'));
+      rise(q('.headline'), t('headline'));
+      // Beat 1: the brand.
+      rise(q('.brand'), t('brand'));
+      // Beat 2: the route line shoots across. Beat 3: one stop per step (scaffold preview on the top route).
+      tl.fromTo('.pline', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('preview'));
+      const pips = m.parts(q('.preview'), 'pip', (item) => {
+        const el = document.createElement('div');
+        el.className = 'pip mono';
+        el.dataset.listGroup = 'scaffold';
+        el.textContent = numeral(item.index);
+        return el;
+      });
+      pips.forEach((p, i) => pop(p, t('pips') + i * B(0.125), 'back.out(1.2)'));
+
+      // Beat 4: the headline sinks, the route retracts, the rail drops, and the stops fall onto their slots.
+      const turn = t('turn');
+      sink(q('.headline'), turn);
+      tl.set('.headline', {visibility: 'hidden'}, turn + B(0.875));
+      tl.to('.pline', {scaleX: 0, duration: B(0.5), ease: 'power3.in'}, turn);
+      tl.fromTo('.track', {scaleY: 0, transformOrigin: '50% 0%'}, {scaleY: 1, duration: B(0.875), ease: 'expo.out'}, turn);
+      pips.forEach((p, i) => {
+        const cx = RX + 80 + p.offsetLeft + 40;
+        tl.to(p, {x: RX - cx, y: rowY(i) - 215, duration: B(0.875), ease: 'power3.inOut'}, turn + i * B(0.0625));
+      });
+      // Skeleton rows draw beside each slot: the content to come.
+      const skels = m.parts(q('.skels'), 'skel', () => {
+        const el = document.createElement('div');
+        el.className = 'skel';
+        el.dataset.listGroup = 'scaffold';
+        el.dataset.listAlign = 'y';
+        el.append(document.createElement('i'), document.createElement('i'));
+        return el;
+      });
+      skels.forEach((s, i) => [...s.children].forEach((bar, k) =>
+        tl.fromTo(bar, {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.6), ease: 'expo.out'},
+          turn + B(0.25) + i * B(0.125) + k * B(0.0625))));
+
+      // Beat 5: the headline returns as the route's title.
+      const label = q('.label');
+      tl.set(label, {visibility: 'visible'}, t('label'));
+      rise(label, t('label'), 0.125, 2, 0.6);
+
+      // Steps: the path draws on the item start; the tile and text land on its accent as the skeleton clears.
+      m.items.forEach((item) => {
+        const row = m.row(item.index);
+        if (!row) return;
+        const shapes = glyph(row.querySelector('.glyph'), kinds[item.index]);
+        tl.set(row, {visibility: 'visible'}, item.start);
+        tl.fromTo(row.querySelector('.link'), {scaleY: 0, transformOrigin: '50% 0%'},
+          {scaleY: 1, duration: B(0.75), ease: 'expo.out'}, item.start);
+        pop(row.querySelector('.tile'), item.accent, 'back.out(1.2)');
+        tl.fromTo(row.querySelector('.num'), {yPercent: 110}, {yPercent: 0, duration: B(0.5), ease: 'expo.out'}, item.accent + B(0.125));
+        shapes.forEach((s, k) => pop(s, item.accent + B(0.125) + k * B(0.125), 'expo.out', '0% 50%', 0.5));
+        rise(row.querySelector('.stext'), item.accent, 0.125, 2, 0.6);
+        if (pips[item.index]) tl.set(pips[item.index], {visibility: 'hidden'}, item.accent + B(0.625));
+        const sk = skels[item.index];
+        if (sk) {
+          tl.to([...sk.children], {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.375), ease: 'power3.in'}, item.accent);
+          tl.set(sk, {visibility: 'hidden'}, item.accent + B(0.375));
+        }
+      });
+
+      // Beat 8: the goal block lands at the end of the rail.
+      pop('.goal', t('goal'), 'back.out(1.2)');
+
+      // Beat 9: the marker shoots down the path, leaving a blue trail, and lands on the goal.
+      tl.fromTo('.trail', {scaleY: 0, transformOrigin: '50% 0%'}, {scaleY: 1, duration: B(1), ease: 'expo.out'}, t('walk'));
+      tl.fromTo('.walker', {y: 0}, {y: 769, duration: B(1), ease: 'expo.out'}, t('walk'));
+      // Beat 10: every step is checked off.
+      m.items.forEach((item) => {
+        const row = m.row(item.index);
+        if (row) pop(row.querySelector('.done'), t('check') + item.index * B(0.125), 'expo.out', '100% 0%', 0.5);
+      });
+
+      // Recap chips: exact twins of the finished tiles, waiting at the tile positions.
+      const chips = m.parts(q('.chips'), 'recap', (item) => {
+        const el = document.createElement('div');
+        el.className = 'chip';
+        el.dataset.listGroup = 'finale';
+        const mask = document.createElement('span');
+        mask.className = 'nummask';
+        const num = document.createElement('span');
+        num.className = 'num mono';
+        num.textContent = numeral(item.index);
+        mask.append(num);
+        const g = document.createElement('div');
+        g.className = 'glyph';
+        glyph(g, kinds[item.index]);
+        const done = document.createElement('div');
+        done.className = 'done';
+        el.append(mask, g, done);
+        return el;
+      });
+
+      // Beat 11: the text sinks, each tile hands off to its chip, the chips fly down to the recap row,
+      // and the rail shortens into the drop line.
+      const fold = t('fold');
+      m.items.forEach((item) => {
+        const row = m.row(item.index);
+        if (!row) return;
+        sink(row.querySelector('.stext'), fold);
+        tl.to(row.querySelector('.link'), {scaleY: 0, duration: B(0.5), ease: 'power3.in'}, fold);
+        tl.set(row.querySelector('.tile'), {visibility: 'hidden'}, fold);
+        tl.set(row, {visibility: 'hidden'}, fold + B(0.875));
+        const chip = chips[item.index];
+        if (!chip) return;
+        tl.set(chip, {visibility: 'visible'}, fold);
+        tl.fromTo(chip, {x: 0, y: 0, scale: 1, transformOrigin: '50% 50%'},
+          {x: chipX(item.index) - RX, y: RY - rowY(item.index), scale: C / T,
+           duration: B(0.875), ease: 'power3.inOut', immediateRender: false}, fold + item.index * B(0.0625));
+      });
+      tl.to('.goal', {scale: 0, duration: B(0.375), ease: 'power3.in'}, fold);
+      tl.to(['.track', '.trail'], {scaleY: DROP, duration: B(0.625), ease: 'power3.inOut'}, fold + B(0.125));
+      tl.to('.walker', {y: 97, duration: B(0.625), ease: 'power3.inOut'}, fold + B(0.125));
+
+      // Beat 12: the drop line spreads into the CTA slab. Beat 13: the CTA rises.
+      const slab = q('.slab');
+      tl.set(slab, {visibility: 'visible'}, t('slab'));
+      tl.fromTo(slab, {clipPath: `inset(0px ${995 - RX}px 420px ${RX - 85}px)`},
+        {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.75), ease: 'expo.out'}, t('slab'));
+      rise(q('.ctext'), t('cta'), 0.25, 1, 0.75);
+
+      // Beat 14: the stamp. The slab presses and the arrow slams in from the slab's right edge.
+      tl.fromTo(slab, {scale: 1, transformOrigin: '50% 50%'}, {scale: 1.04, duration: B(0.125), ease: 'power2.out'}, t('stamp') - B(0.125));
+      tl.to(slab, {scale: 1, duration: B(0.75), ease: 'expo.out'}, t('stamp'));
+      tl.fromTo('.arrow', {x: 300}, {x: 0, duration: B(0.5), ease: 'expo.out'}, t('stamp'));
+
+      // Beat 15: the recap line draws through the chips.
+      tl.fromTo('.rline', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('recap'));
+      // Beat 16: the marker pops and shoots along the line; a done bar stamps under each chip.
+      const replay = t('replay');
+      tl.set('.rdot', {visibility: 'visible'}, replay);
+      tl.fromTo('.rdot', {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.25), ease: 'expo.out'}, replay);
+      tl.fromTo('.rdot', {x: 0}, {x: 892, duration: B(1), ease: 'expo.out'}, replay);
+      const ticks = m.parts(q('.ticks'), 'tick', (item) => {
+        const el = document.createElement('div');
+        el.className = 'tick';
+        el.dataset.listGroup = 'finale';
+        el.style.left = (chipX(item.index) - C / 2) + 'px';
+        return el;
+      });
+      ticks.forEach((k, i) => tl.fromTo(k, {scaleX: 0, transformOrigin: '0% 50%'},
+        {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, replay + i * B(0.125)));
+
+      // Beats 17-18: the arrow steps toward the click on each beat.
+      tl.to('.arrow', {x: 14, duration: B(0.75), ease: 'expo.out'}, t('nudge'));
+      tl.to('.arrow', {x: 28, duration: B(0.75), ease: 'expo.out'}, t('nudgeAgain'));
+
+      // Beat 19: the slab floods orange to the farthest corner, the first frame.
+      tl.fromTo(flood, {clipPath: 'circle(0px at 540px 530px)'},
+        {clipPath: 'circle(800px at 540px 530px)', duration: B(2 / 3), ease: 'power2.out', immediateRender: false}, t('loop'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

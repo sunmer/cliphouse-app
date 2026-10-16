@@ -998,5 +998,101 @@
       "sha256": "317ca79271a9225671e5380bdbf1abac198978e2821db064aa6cf3b7af135c3c",
       "createdAt": "2026-10-14"
     }
+  ],
+  "hookanswer": [
+    {
+      "version": 1,
+      "hash": "2816f98ce2cc949d",
+      "sha256": "8eaff0a5c701ff1dee4e3b34a28e081d1dcd3ba0e733898a7f6e1502d81dfe00",
+      "createdAt": "2026-10-16"
+    }
+  ],
+  "quickstart": [
+    {
+      "version": 1,
+      "hash": "92a7a6a1765671c6",
+      "sha256": "1869ba3e63bf34ebc90f62839bd94fb6f3f251efc3f1f772658d815cca4b4cac",
+      "createdAt": "2026-10-16"
+    }
+  ],
+  "foundernote": [
+    {
+      "version": 1,
+      "hash": "a6f639518685e11f",
+      "sha256": "f9f30e3471f993b1010bb06fe7f8d1cf2887d62d1d43ecd76988eb2b436ff893",
+      "createdAt": "2026-10-16"
+    }
+  ],
+  "weeklyshipped": [
+    {
+      "version": 1,
+      "hash": "ae70c991db637a99",
+      "sha256": "85f6430ca1893b2b44551035e3ce34f24f905e792808b52ee195efda96dff50b",
+      "createdAt": "2026-10-16"
+    }
+  ],
+  "whyswitch": [
+    {
+      "version": 1,
+      "hash": "28e100a6a55ec54d",
+      "sha256": "7fa28bcf20f0068117333557fa69e5c27640e1388573aa9ed5077f8b4711755a",
+      "createdAt": "2026-10-16"
+    }
+  ],
+  "stathook": [
+    {
+      "version": 1,
+      "hash": "475597bd13d70421",
+      "sha256": "c98a8ea3f1616e230136153bedbaf1f62f0d613383a022dd77c9a32097742637",
+      "createdAt": "2026-10-16"
+    }
+  ],
+  "youasked": [
+    {
+      "version": 1,
+      "hash": "c23a84559a0e64f7",
+      "sha256": "351513599b9d9407b81b25f4f42d08a039fabf8f543efd22bceb7082e924bddd",
+      "createdAt": "2026-10-16"
+    }
+  ],
+  "featuredemo": [
+    {
+      "version": 1,
+      "hash": "590e2baca8821103",
+      "sha256": "b115a3203a893edacf3e2481c5b3f3eef69427743255657af150eb4fff79b13d",
+      "createdAt": "2026-10-16"
+    }
+  ],
+  "workswith": [
+    {
+      "version": 1,
+      "hash": "602ab7a45bb9b320",
+      "sha256": "5f3ef704d7711157d8b854779603149d1fff46a5379e42157da16906ad049856",
+      "createdAt": "2026-10-16"
+    }
+  ],
+  "howitworks": [
+    {
+      "version": 1,
+      "hash": "12e735359fa3a798",
+      "sha256": "d1376aca84c517361bf33f48c482e9d12e3418edfd6efbd635e2d0aedb2e8a36",
+      "createdAt": "2026-10-16"
+    }
+  ],
+  "launchweek": [
+    {
+      "version": 1,
+      "hash": "f663cc8701325ed0",
+      "sha256": "f491436641acc9562ab2d00117660328c915290210451f2ec16bbd10e61c848b",
+      "createdAt": "2026-10-16"
+    }
+  ],
+  "builtfor": [
+    {
+      "version": 1,
+      "hash": "474dc49506f9c6ac",
+      "sha256": "3aff70772d0e5a5d7191121db9548dbef68b6af9eec060750007bb368ac1995b",
+      "createdAt": "2026-10-16"
+    }
   ]
 }

@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1920" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1920px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+    .fit.keep { overflow-wrap:normal; word-break:normal; }
+
+    .brand { position:absolute; left:80px; top:72px; width:820px; height:96px; font-size:60px; line-height:1; align-content:center; text-transform:uppercase; color:var(--theme-foreground); z-index:20; }
+    .mark { position:absolute; left:960px; top:100px; width:40px; height:40px; background:var(--theme-accent2); z-index:20; }
+
+    .stamp, .cstamp { position:absolute; left:80px; width:920px; height:400px; transform-origin:0 0; }
+    .stamp { top:180px; z-index:4; }
+    .cstamp { top:220px; }
+    .stampin, .cstampin { position:absolute; inset:0; background:var(--theme-accent); transform-origin:50% 50%; }
+    .stampin::after, .cstampin::after { content:""; position:absolute; inset:16px; border:6px solid var(--theme-background); }
+    .date { position:absolute; left:56px; right:56px; top:40px; bottom:40px; font-size:150px; line-height:.95; text-transform:uppercase; text-align:center; align-content:center; color:var(--theme-background); z-index:1; }
+
+    .hwrap, .chwrap { position:absolute; left:80px; width:920px; height:560px; transform-origin:0 0; }
+    .hwrap { top:410px; z-index:3; }
+    .chwrap { top:680px; }
+    .headline { width:920px; height:560px; font-size:200px; line-height:.92; color:var(--theme-foreground); }
+
+    .cwrap, .ccwrap { position:absolute; width:720px; height:470px; transform-origin:0 0; }
+    .cwrap { left:568px; top:294px; z-index:5; }
+    .ccwrap { left:180px; top:1310px; }
+    .count, .ccount { position:absolute; inset:0; overflow:hidden; font-size:520px; line-height:470px; text-align:center; font-variant-numeric:tabular-nums; transform-origin:50% 50%; }
+    .count { color:var(--ink, var(--theme-foreground)); }
+    .ccount { color:var(--theme-foreground); }
+    .n0, .tick, .cn0 { position:absolute; inset:0; }
+
+    .rail { position:absolute; left:80px; top:704px; width:920px; height:32px; display:flex; gap:12px; z-index:4; }
+    .day { position:relative; flex:1; background:color-mix(in srgb, var(--theme-foreground) 22%, transparent); transform-origin:0 50%; }
+    .day i { position:absolute; inset:0; background:var(--theme-accent2); transform-origin:0 50%; }
+
+    .slots, .stack { position:absolute; left:80px; top:760px; width:920px; height:1080px; --ch: calc((1080px - (var(--count, 5) - 1) * 24px) / var(--count, 5)); }
+    .slots { z-index:1; }
+    .stack { z-index:2; }
+    .slot { position:absolute; left:0; width:100%; top:calc(var(--i) * (var(--ch) + 24px)); height:var(--ch); border:4px solid color-mix(in srgb, var(--theme-foreground) 22%, transparent); }
+    .card { position:absolute; left:0; width:100%; top:calc(var(--i) * (var(--ch) + 24px)); height:var(--ch); background:var(--theme-surface); }
+    .edge { position:absolute; left:0; top:0; bottom:0; width:16px; background:var(--theme-accent2); }
+    .hot { position:absolute; inset:0; background:var(--theme-accent); }
+    .check { position:absolute; left:52px; top:calc(50% - var(--ck, 88px) / 2); width:var(--ck, 88px); height:var(--ck, 88px); background:var(--theme-accent2); transform-origin:50% 50%; }
+    .tk { position:absolute; left:25%; top:25%; width:50%; height:30%; border-left:calc(var(--ck, 88px) * .14) solid var(--theme-background); border-bottom:calc(var(--ck, 88px) * .14) solid var(--theme-background); transform:rotate(-45deg); }
+    .ctext { position:absolute; left:calc(var(--ck, 88px) + 88px); right:48px; top:20px; bottom:20px; font-weight:700; font-size:76px; line-height:1.04; align-content:center; color:var(--theme-foreground); }
+
+    .ctapanel { position:absolute; left:80px; top:760px; width:920px; height:1080px; background:var(--theme-accent); z-index:6; visibility:hidden; transform-origin:50% 50%; }
+    .cta { position:absolute; left:64px; top:120px; width:792px; height:620px; font-size:176px; line-height:.92; align-content:center; color:var(--theme-background); }
+    .arrow { position:absolute; left:64px; bottom:96px; width:620px; height:120px; }
+    .shaft { position:absolute; left:0; top:46px; width:560px; height:28px; background:var(--theme-background); transform-origin:0 50%; }
+    .headwrap { position:absolute; left:470px; top:0; width:120px; height:120px; transform-origin:60% 50%; }
+    .head { position:absolute; left:18px; top:18px; width:84px; height:84px; border-top:28px solid var(--theme-background); border-right:28px solid var(--theme-background); transform:rotate(45deg); }
+
+    .wipe { position:absolute; inset:0; background:var(--theme-background); z-index:15; clip-path:circle(0px at 806px 1684px); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1080" data-height="1920">
+    <section id="weeklyshipped-main" class="scene" data-start="0" data-duration="10" data-track-index="0">
+      <div class="brand display fit keep" data-fit-max="60" data-fit-min="40" data-text-role="brand" data-beat-text="brand"></div>
+      <div class="mark"></div>
+
+      <div class="slots" id="slots"></div>
+      <div class="stack" id="stack" data-list>
+        <template data-list-row>
+          <div class="card">
+            <div class="edge"><div class="hot" data-list-part="seal" data-list-group="finale" data-list-align="y"></div></div>
+            <div class="check" data-list-part="check" data-list-align="y"><div class="tk"></div></div>
+            <div class="ctext fit" data-list-text data-words></div>
+          </div>
+        </template>
+      </div>
+
+      <div class="rail"><div class="day"><i></i></div><div class="day"><i></i></div><div class="day"><i></i></div><div class="day"><i></i></div><div class="day"><i></i></div><div class="day"><i></i></div><div class="day"><i></i></div></div>
+
+      <div class="hwrap" id="hwrap">
+        <h1 class="headline display fit keep" data-fit-max="200" data-fit-min="96" data-text-role="headline" data-beat-text="headline"></h1>
+      </div>
+
+      <div class="stamp" id="stamp">
+        <div class="stampin" id="stampin">
+          <div class="date display fit keep" data-fit-max="150" data-fit-min="64" data-text-role="date" data-beat-text="date"></div>
+        </div>
+      </div>
+
+      <div class="cwrap" id="cwrap">
+        <div class="count display" id="count"><div class="n0" id="n0">00</div></div>
+      </div>
+
+      <div class="ctapanel" id="ctapanel">
+        <div class="cta display fit keep" id="cta" data-fit-max="176" data-fit-min="80" data-text-role="cta" data-beat-text="cta"></div>
+        <div class="arrow"><div class="shaft"></div><div class="headwrap"><div class="head"></div></div></div>
+      </div>
+
+      <div class="wipe" data-layout-allow-overflow>
+        <div class="chwrap">
+          <div class="headline display fit keep" id="chead" data-fit-max="200" data-fit-min="96" data-text-copy="headline" data-beat-text="headline"></div>
+        </div>
+        <div class="cstamp">
+          <div class="cstampin" id="cstampin">
+            <div class="date display fit keep" id="cdate" data-fit-max="150" data-fit-min="64" data-text-copy="date" data-beat-text="date"></div>
+          </div>
+        </div>
+        <div class="ccwrap">
+          <div class="ccount display"><div class="cn0" id="cn0">00</div></div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const n = m.items.length;
+      const IN = 'inset(0% 0% 0% 0%)';
+      // Words rise through masks; later words share the last slot so long text settles early.
+      const rise = (el, at, step = 0.125, cap = 3, dur = 0.75) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 115}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, at + Math.min(i, cap) * B(step)));
+
+      // Reflow per count: card type and checks scale with the slot height.
+      const fmax = [76, 140, 116, 100, 88, 76][n] || 76;
+      const ck = [88, 150, 128, 108, 96, 88][n] || 88;
+      q('#stack').style.setProperty('--ck', ck + 'px');
+      qa('#stack .ctext').forEach((el) => { el.dataset.fitMax = String(fmax); el.dataset.fitMin = '44'; });
+      const slotsHost = q('#slots');
+      slotsHost.style.setProperty('--count', String(Math.max(n, 1)));
+
+      // Display text shrinks instead of breaking inside a word; only a word too long at the minimum size may break.
+      const keep = qa('.keep');
+      keep.forEach((el) => { el.style.overflowWrap = ''; });
+      window.cliphouseFitText?.();
+      let refit = false;
+      keep.forEach((el) => { if (el.scrollWidth > el.clientWidth + 1) { el.style.overflowWrap = 'anywhere'; refit = true; } });
+      if (refit) window.cliphouseFitText?.();
+
+      // Beat 0: the hook frame. The stamp, carried in by the loop, slams down and settles.
+      tl.fromTo('#stampin', {scale: 1.12, rotation: -6}, {scale: 1, rotation: -2, duration: B(0.5), ease: 'expo.out'}, t('stamp'));
+
+      // Beat 1: the week rail draws along the bottom edge.
+      tl.fromTo('.day', {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out', stagger: B(0.0625)}, t('rail'));
+      qa('.day i').forEach((f) => tl.set(f, {scaleX: 0}, 0));
+
+      // Beat 2: everything docks into the header grid.
+      const dock = {duration: B(1), ease: 'expo.out'};
+      tl.fromTo('#stamp', {scale: 1, y: 40, transformOrigin: '0% 0%'}, {scale: 0.5, y: 0, ...dock}, t('dock'));
+      tl.to('#stampin', {rotation: 0, ...dock}, t('dock'));
+      tl.fromTo('#hwrap', {scale: 1, y: 270, transformOrigin: '0% 0%'}, {scale: 0.5, y: 0, ...dock}, t('dock'));
+      tl.fromTo('#cwrap', {scale: 1, x: -388, y: 1016, transformOrigin: '0% 0%'}, {scale: 0.6, x: 0, y: 0, ...dock}, t('dock') + B(0.125));
+      tl.fromTo('.rail', {y: 1092}, {y: 0, ...dock}, t('dock'));
+
+      // Beats 2.5-3: scaffold slots draw into the freed stack area, one per item.
+      const slots = m.parts(slotsHost, 'slot', () => {
+        const d = document.createElement('div');
+        d.className = 'slot';
+        d.setAttribute('data-list-group', 'scaffold');
+        d.setAttribute('data-list-align', 'y');
+        return d;
+      });
+      slots.forEach((s, i) => tl.fromTo(s, {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: IN, duration: B(0.5), ease: 'expo.out'}, t('slots') + i * B(0.125)));
+
+      // Beats 4-10: one day of the week fills per beat, whatever the item count.
+      qa('.day i').forEach((f, k) => tl.fromTo(f, {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out', immediateRender: false}, m.scene(1, k)));
+
+      // Items: each card unmasks upward in its slot on its start beat; the check stamps and the counter rolls on its accent beat.
+      const ticks = m.parts(q('#count'), 'tick', (it) => {
+        const d = document.createElement('div');
+        d.className = 'tick';
+        d.textContent = String(it.index + 1).padStart(2, '0');
+        return d;
+      });
+      let prev = q('#n0');
+      m.items.forEach((it, i) => {
+        const row = m.row(it.index);
+        if (!row) return;
+        tl.fromTo(row, {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: IN, duration: B(0.5), ease: 'power3.out'}, it.start);
+        rise(row.querySelector('.ctext'), it.start + B(0.125), 0.0625, 3, 0.5);
+        tl.fromTo(row.querySelector('.check'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, it.accent);
+        tl.fromTo(row.querySelector('.tk'), {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: IN, duration: B(0.375), ease: 'expo.out'}, it.accent + B(0.125));
+        tl.to(prev, {yPercent: -100, duration: B(0.5), ease: 'expo.out'}, it.accent);
+        tl.fromTo(ticks[i], {yPercent: 100}, {yPercent: 0, duration: B(0.5), ease: 'expo.out'}, it.accent);
+        prev = ticks[i];
+      });
+
+      // Beat 11: the week is complete; the count pops and turns accent2.
+      tl.set('#count', {'--ink': 'var(--theme-accent2)'}, t('weekDone'));
+      tl.fromTo('#count', {scale: 1.1}, {scale: 1, duration: B(0.75), ease: 'expo.out', immediateRender: false}, t('weekDone'));
+
+      // Beat 12: the finale seal wipes down each card edge, rippling down the stack.
+      m.items.forEach((it) => {
+        const row = m.row(it.index);
+        if (!row) return;
+        tl.fromTo(row.querySelector('.hot'), {clipPath: 'inset(0% 0% 100% 0%)'}, {clipPath: IN, duration: B(0.5), ease: 'expo.out'}, t('seal') + it.index * B(0.125));
+      });
+
+      // Beat 13: card words drop, the CTA panel floods up from the stack.
+      m.items.forEach((it) => {
+        const row = m.row(it.index);
+        if (!row) return;
+        m.spans(row.querySelector('.ctext')).forEach((w) => tl.to(w, {yPercent: 115, duration: B(0.375), ease: 'power3.in'}, t('flood')));
+      });
+      tl.set('#ctapanel', {visibility: 'visible'}, t('flood'));
+      tl.fromTo('#ctapanel', {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: IN, duration: B(0.667), ease: 'power3.out'}, t('flood'));
+      tl.set(['#stack', '#slots'], {visibility: 'hidden'}, t('flood') + B(0.75));
+
+      // Beat 14: the CTA stamps.
+      tl.fromTo('#ctapanel', {scale: 1.04}, {scale: 1, duration: B(0.75), ease: 'expo.out', immediateRender: false}, t('cta'));
+      rise(q('#cta'), t('cta'), 0.125, 2, 0.75);
+
+      // Beat 15: the arrow draws.
+      tl.fromTo('.shaft', {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('arrow'));
+      tl.fromTo('.headwrap', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('arrow') + B(0.25));
+
+      // Beats 16-18: the arrow steps forward while the message holds.
+      ['nudge1', 'nudge2', 'nudge3'].forEach((id, k) =>
+        tl.to('.arrow', {x: 24 * (k + 1), duration: B(0.5), ease: 'expo.out'}, t(id)));
+
+      // Beat 19: a flood from the arrow tip rebuilds the hook frame; the stamp accelerates in to land on frame 0.
+      const L = t('loop');
+      tl.fromTo('.wipe', {clipPath: 'circle(0px at 806px 1684px)'},
+        {clipPath: 'circle(1900px at 806px 1684px)', duration: B(0.667), ease: 'power3.out'}, L);
+      rise(q('#chead'), L + B(0.375), 0.0625, 2, 0.375);
+      tl.fromTo('#cstampin', {clipPath: 'inset(50% 50% 50% 50%)'}, {clipPath: IN, duration: B(0.375), ease: 'expo.out'}, L + B(0.375));
+      tl.fromTo('#cstampin', {scale: 1.5, rotation: -6}, {scale: 1.12, rotation: -6, duration: B(0.5), ease: 'power2.in'}, L + B(0.375));
+      rise(q('#cdate'), L + B(0.4375), 0.0625, 1, 0.375);
+      tl.fromTo('#cn0', {yPercent: 100}, {yPercent: 0, duration: B(0.375), ease: 'expo.out'}, L + B(0.5));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

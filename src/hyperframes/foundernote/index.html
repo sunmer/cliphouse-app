@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1350" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1350px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:.06em .06em .16em; margin:-.06em -.06em -.16em; }
+    .w { display:inline-block; }
+    /* Room for the mask overhang, so the fit helper measures the real text. */
+    .pad { padding:0 .1em .2em 0; }
+
+    .letter, .endwrap { position:absolute; inset:0; }
+    .sheet { position:absolute; left:48px; top:48px; width:984px; height:1254px; background:var(--theme-surface); }
+    .margin { position:absolute; left:94px; top:48px; width:4px; height:1254px; background:var(--theme-accent2); transform-origin:50% 0; }
+    .rules i { position:absolute; left:98px; width:886px; height:2px; top:calc(102px + var(--k) * 82px); background:color-mix(in srgb, var(--theme-foreground) 12%, transparent); transform-origin:0 50%; }
+    .postmark { position:absolute; left:840px; top:96px; width:120px; height:120px; background:var(--theme-accent2); visibility:hidden; }
+    .postmark::before { content:""; position:absolute; inset:12px; border:4px solid var(--theme-surface); }
+    .postmark::after { content:""; position:absolute; left:42px; top:42px; width:36px; height:36px; background:var(--theme-accent); }
+    .head { position:absolute; left:120px; top:250px; width:840px; height:760px; }
+    .headline { display:block; width:100%; height:100%; font-weight:650; line-height:1; color:var(--theme-foreground); }
+    /* The ink is a 100 px unit square driven only by GSAP transforms: x/y place it, scaleX/scaleY size it. */
+    .ink { position:absolute; left:0; top:0; width:100px; height:100px; background:var(--theme-accent); transform-origin:0 0; }
+    .quotebox { position:absolute; left:120px; top:440px; width:840px; height:610px; visibility:hidden; }
+    .quote { position:absolute; left:0; top:0; width:840px; height:610px; font-style:italic; font-weight:420; line-height:1.22; color:var(--theme-foreground); align-content:center; }
+    .author { position:absolute; left:120px; top:1100px; width:840px; height:80px; padding-right:.1em; font-weight:600; line-height:1.25; white-space:nowrap; color:var(--theme-foreground); visibility:hidden; }
+    .seal { position:absolute; left:0; top:1069px; width:30px; height:30px; background:var(--theme-accent2); }
+
+    .endwrap { background:var(--theme-accent); visibility:hidden; }
+    .endwrap .rules i { transform:none; background:color-mix(in srgb, var(--theme-surface) 18%, transparent); }
+    .endwrap .margin { background:color-mix(in srgb, var(--theme-surface) 40%, transparent); }
+    .brand { position:absolute; left:120px; top:130px; width:840px; height:650px; font-weight:700; line-height:1; color:var(--theme-surface); align-content:end; align-content:safe end; }
+    .brule { position:absolute; left:120px; top:810px; width:840px; height:12px; background:var(--theme-surface); transform-origin:0 50%; }
+    .sealEnd { position:absolute; left:930px; top:801px; width:30px; height:30px; background:var(--theme-accent2); }
+    .tab { position:absolute; left:120px; top:900px; width:840px; height:220px; background:var(--theme-surface); display:flex; align-items:center; justify-content:space-between; padding:0 52px 0 56px; }
+    .ctatext { width:620px; height:180px; padding-right:.1em; font-weight:700; line-height:1.05; color:var(--theme-foreground); align-content:center; }
+    .arrowbox { position:relative; width:110px; height:56px; overflow:hidden; }
+    .arrow { position:absolute; left:0; top:0; width:90px; height:56px; }
+    .arrow::before { content:""; position:absolute; left:0; top:23px; width:78px; height:10px; background:var(--theme-accent2); }
+    .arrow::after { content:""; position:absolute; left:44px; top:12px; width:32px; height:32px; border-top:10px solid var(--theme-accent2); border-right:10px solid var(--theme-accent2); transform:rotate(45deg); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1080" data-height="1350">
+    <section id="foundernote-letter" class="scene s1" data-start="0" data-duration="10" data-track-index="0">
+      <div class="letter">
+        <div class="sheet"></div>
+        <div class="rules">
+          <i style="--k:0"></i><i style="--k:1"></i><i style="--k:2"></i><i style="--k:3"></i><i style="--k:4"></i>
+          <i style="--k:5"></i><i style="--k:6"></i><i style="--k:7"></i><i style="--k:8"></i><i style="--k:9"></i>
+          <i style="--k:10"></i><i style="--k:11"></i><i style="--k:12"></i><i style="--k:13"></i><i style="--k:14"></i>
+        </div>
+        <div class="margin"></div>
+        <div class="postmark"></div>
+        <div class="head">
+          <h1 class="headline serif fit pad" data-fit-max="230" data-fit-min="110" data-text-role="headline" data-beat-text="headline">Headline</h1>
+        </div>
+        <div class="quotebox">
+          <p class="quote serif fit pad" data-fit-max="84" data-fit-min="48" data-text-role="quote" data-beat-text="quote">Quote</p>
+        </div>
+        <div class="author" data-fit-max="52" data-fit-min="30" data-text-role="author" data-beat-text="author">Author</div>
+        <div class="ink"></div>
+        <div class="seal"></div>
+      </div>
+    </section>
+
+    <section id="foundernote-end" class="scene s2" data-start="0" data-duration="10" data-track-index="1">
+      <div class="endwrap">
+        <div class="rules">
+          <i style="--k:0"></i><i style="--k:1"></i><i style="--k:2"></i><i style="--k:3"></i><i style="--k:4"></i>
+          <i style="--k:5"></i><i style="--k:6"></i><i style="--k:7"></i><i style="--k:8"></i><i style="--k:9"></i>
+          <i style="--k:10"></i><i style="--k:11"></i><i style="--k:12"></i><i style="--k:13"></i><i style="--k:14"></i>
+        </div>
+        <div class="margin"></div>
+        <div class="brand serif fit pad" data-fit-max="300" data-fit-min="120" data-text-role="brand" data-beat-text="brand">Brand</div>
+        <div class="brule"></div>
+        <div class="sealEnd"></div>
+        <div class="tab">
+          <div class="ctatext fit" data-fit-max="84" data-fit-min="40" data-text-role="cta" data-beat-text="cta">CTA</div>
+          <div class="arrowbox"><div class="arrow"></div></div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const root = q('#root');
+      const U = 100;        // The ink's unit size in px; scale = target size / U.
+      const S = 0.4;        // Letterhead scale of the headline.
+      const HEAD_TOP = 250; // Matches .head top.
+      // Position of an element inside the frame, read from live layout (transforms ignored).
+      const pos = (el) => {
+        let x = 0, y = 0;
+        for (let n = el; n && n !== root; n = n.offsetParent) { x += n.offsetLeft; y += n.offsetTop; }
+        return {x, y};
+      };
+      // Words rise through masks; later words share the last slot so long text settles early.
+      const rise = (spans, start, step, cap, dur = 0.75, immediate = true) => spans.forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 130}, {yPercent: 0, duration: B(dur), ease: 'expo.out', immediateRender: immediate}, start + Math.min(i, cap) * B(step)));
+
+      // Headline geometry: the ink drop sits under its last line; the letterhead lands with its top at 110 px.
+      const headline = q('.headline');
+      const hs = m.spans(headline);
+      const hfs = () => parseFloat(getComputedStyle(headline).fontSize) || 200;
+      const dropY = () => {
+        const l = hs[hs.length - 1];
+        return l ? Math.min(1240, Math.round(pos(l).y + l.offsetHeight + hfs() * 0.06)) : 1000;
+      };
+      const liftY = () => {
+        const f = hs[0];
+        const d = f ? pos(f).y - HEAD_TOP : 0;
+        return 110 - HEAD_TOP - d * S;
+      };
+
+      // Phrase split depends only on the words, never on layout.
+      const quote = q('.quote');
+      const qs = m.spans(quote);
+      const n = qs.length;
+      const P = Math.min(4, n);
+      const cuts = [0];
+      for (let k = 1; k < P; k++) {
+        const lo = cuts[k - 1] + 1, hi = n - (P - k);
+        const ideal = Math.max(lo, Math.min(hi, Math.round(k * n / P)));
+        let cut = ideal;
+        for (const d of [0, -1, 1, -2, 2]) {
+          const j = ideal + d;
+          if (j >= lo && j <= hi && /[,.;:!?\u2014]$/.test(qs[j - 1].textContent)) { cut = j; break; }
+        }
+        cuts.push(cut);
+      }
+      cuts.push(n);
+      const phrases = [];
+      for (let k = 0; k < P; k++) phrases.push(qs.slice(cuts[k], cuts[k + 1]));
+
+      // Layout-dependent values are functions, read when each tween first renders.
+      const fs = () => parseFloat(getComputedStyle(quote).fontSize) || 60;
+      const caretH = () => Math.round(fs() * 0.9);
+      const caretW = () => Math.max(8, Math.round(fs() * 0.14));
+      const first = qs[0];
+      const startX = () => first ? pos(first).x - caretW() - fs() * 0.15 : 120;
+      const startY = () => first ? pos(first).y + (first.offsetHeight - caretH()) / 2 : 440;
+      const afterX = (w) => () => pos(w).x + w.offsetWidth + fs() * 0.12;
+      const afterY = (w) => () => pos(w).y + (w.offsetHeight - caretH()) / 2;
+      const as = m.spans(q('.author'));
+      const lastA = as[as.length - 1];
+      const sigW = () => {
+        const nameW = lastA ? pos(lastA).x + lastA.offsetWidth - 120 : 360;
+        return Math.round(Math.max(220, Math.min(800, nameW + 24)));
+      };
+
+      // Frame 0 (and the last frame): the sheet, the huge headline, and the ink drop under it.
+      tl.set('.ink', {x: 120, y: dropY, scaleX: 18 / U, scaleY: 18 / U, transformOrigin: '0% 0%'}, 0);
+
+      // Beat 0: the navy margin rule draws down beside the headline.
+      tl.fromTo('.letter .margin', {scaleY: 0}, {scaleY: 1, duration: B(1), ease: 'expo.out'}, t('headline'));
+      // Beat 1: the ink drop draws out into the underline.
+      tl.to('.ink', {scaleX: 360 / U, duration: B(0.75), ease: 'expo.out'}, t('ink'));
+      // Beat 2: the stationery lines draw across.
+      tl.fromTo('.letter .rules i', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out', stagger: B(0.0625)}, t('lines'));
+      // Beat 3: the postage stamp presses onto the corner.
+      tl.set('.postmark', {visibility: 'visible'}, t('postmark'));
+      tl.fromTo('.postmark', {scale: 1.4, rotation: -8, transformOrigin: '50% 50%'},
+        {scale: 1, rotation: 0, duration: B(0.6), ease: 'expo.out', immediateRender: false}, t('postmark'));
+
+      // Beat 4: the headline becomes the letterhead; the ink becomes the pen nib.
+      tl.to('.head', {y: liftY, scale: S, transformOrigin: '0% 0%', duration: B(0.75), ease: 'expo.out'}, t('lift'));
+      tl.to('.ink', {x: startX, y: startY, scaleX: () => caretW() / U, scaleY: () => caretH() / U, duration: B(0.75), ease: 'expo.inOut'}, t('lift'));
+      tl.set('.quotebox', {visibility: 'visible'}, t('lift') + B(0.75));
+
+      // Beats 5-8: the note writes itself in, phrase by phrase, chased by the nib.
+      const phraseIds = ['quote', 'phrase2', 'phrase3', 'phrase4'];
+      phrases.forEach((ph, k) => {
+        const at = t(phraseIds[k]);
+        const last = ph[ph.length - 1];
+        rise(ph, at, 0.125, 3);
+        tl.to('.ink', {x: afterX(last), y: afterY(last), duration: B(0.5), ease: 'power3.out'}, at);
+      });
+
+      // Beat 9: the nib drops and signs; the name rises under the line.
+      tl.to('.ink', {x: 120, y: 1080, scaleX: () => sigW() / U, scaleY: 8 / U, duration: B(0.75), ease: 'expo.out'}, t('author'));
+      tl.set('.author', {visibility: 'visible'}, t('author'));
+      tl.set('.seal', {x: () => 120 + sigW() + 14}, t('author'));
+      rise(as, t('author'), 0.125, 2);
+      // Beat 10: the seal presses onto the signature.
+      tl.fromTo('.seal', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('seal'));
+      // Beat 11: the signature pools into a thick band across the sheet; the margin widens into ink.
+      tl.to('.ink', {x: 48, y: 1196, scaleX: 984 / U, scaleY: 64 / U, duration: B(0.75), ease: 'expo.out'}, t('extend'));
+      tl.set('.letter .margin', {backgroundColor: 'var(--theme-accent)'}, t('extend'));
+      tl.to('.letter .margin', {scaleX: 5, duration: B(0.75), ease: 'expo.out'}, t('extend'));
+
+      // Beat 12: the ink band floods the frame (10 frames, corner to corner).
+      tl.set('.endwrap', {visibility: 'visible'}, t('flood'));
+      tl.fromTo('.endwrap', {clipPath: 'inset(1196px 48px 90px 48px)'},
+        {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.6667), ease: 'power3.out', immediateRender: false}, t('flood'));
+      tl.set('.letter', {opacity: 0}, t('flood') + B(0.75));
+
+      // Beat 13: the brand rises out of the ink.
+      rise(m.spans(q('.brand')), t('brand'), 0.25, 2);
+      // Beat 14: the rule draws under it.
+      tl.fromTo('.brule', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('rule'));
+      // Beat 15: the paper tab wipes in and stamps; the CTA settles early so it reads before the fold.
+      tl.fromTo('.tab', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('ctaStamp') - B(0.5));
+      tl.fromTo('.tab', {scale: 1.12, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.6), ease: 'expo.out'}, t('ctaStamp'));
+      const cs = m.spans(q('.ctatext'));
+      rise(cs, t('ctaStamp'), 0.125, 1, 0.6);
+      // Beat 16: the arrow slides in. Beat 17: the seal lands on the brand rule.
+      tl.fromTo('.arrow', {x: -100}, {x: 0, duration: B(0.75), ease: 'expo.out'}, t('arrow'));
+      tl.fromTo('.sealEnd', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('sealEnd'));
+
+      // Beat 18: the letter resets to its opening state under the color, the CTA words drop away,
+      // and the orange page folds into the paper tab, which becomes the blank sheet.
+      const F = t('fold');
+      tl.set('.letter', {opacity: 1}, F);
+      tl.set('.head', {y: 0, scale: 1}, F);
+      tl.set('.quotebox, .author, .postmark', {visibility: 'hidden'}, F);
+      tl.set('.seal', {scale: 0}, F);
+      tl.set('.letter .rules i', {scaleX: 0}, F);
+      tl.set('.letter .margin', {scaleY: 0, scaleX: 1, backgroundColor: 'var(--theme-accent2)'}, F);
+      tl.set('.ink', {x: 120, y: dropY, scaleX: 0, scaleY: 0}, F);
+      tl.set(hs, {yPercent: 130}, F);
+      tl.to(cs, {yPercent: -130, duration: B(0.4), ease: 'power3.in'}, F);
+      tl.to('.arrow', {x: 120, duration: B(0.4), ease: 'power3.in'}, F);
+      tl.to('.endwrap', {clipPath: 'inset(900px 120px 230px 120px)', duration: B(0.6667), ease: 'power3.out'}, F);
+      tl.set('.endwrap', {visibility: 'hidden'}, F + B(0.75));
+
+      // Beat 19: the headline rises back onto the sheet and the ink drop lands: frame 0 again.
+      rise(hs, t('unfold'), 0.0625, 3, 0.5, false);
+      tl.to('.ink', {scaleX: 18 / U, scaleY: 18 / U, duration: B(0.5), ease: 'back.out(1.2)'}, t('unfold'));
+    });
+    document.fonts?.ready.then(() => window.cliphouseBeatUpdate && window.cliphouseBeatUpdate({}));
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

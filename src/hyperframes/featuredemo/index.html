@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; }
+    #root {
+      --f6: color-mix(in srgb, var(--theme-foreground) 6%, var(--theme-surface));
+      --f12: color-mix(in srgb, var(--theme-foreground) 12%, var(--theme-surface));
+      --f22: color-mix(in srgb, var(--theme-foreground) 22%, var(--theme-surface));
+      --f55: color-mix(in srgb, var(--theme-foreground) 55%, var(--theme-surface));
+      --f72: color-mix(in srgb, var(--theme-foreground) 72%, var(--theme-surface));
+      --a8: color-mix(in srgb, var(--theme-accent) 8%, var(--theme-surface));
+      --a14: color-mix(in srgb, var(--theme-accent) 14%, var(--theme-surface));
+      --y28: color-mix(in srgb, var(--theme-accent2) 28%, var(--theme-surface));
+      --edge: color-mix(in srgb, var(--theme-foreground) 16%, var(--theme-background));
+      --slot: color-mix(in srgb, var(--theme-foreground) 11%, var(--theme-background));
+      --pip: color-mix(in srgb, var(--theme-surface) 22%, var(--theme-foreground));
+      --onA: color-mix(in srgb, var(--theme-surface) 72%, var(--theme-accent));
+      --dim: color-mix(in srgb, var(--theme-surface) 35%, var(--theme-foreground));
+    }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+
+    /* Left column: a fixed grid of headline, bar, and steps */
+    .headline { position:absolute; left:100px; top:100px; width:700px; height:340px; font-size:172px; line-height:.9; color:var(--theme-foreground); overflow-wrap:normal; text-wrap:balance; align-content:end; z-index:16; }
+    .hbar { position:absolute; left:100px; top:456px; width:700px; height:14px; border-radius:7px; background:var(--theme-accent2); }
+    .steps { position:absolute; left:100px; top:490px; width:700px; height:500px; display:flex; flex-direction:column; justify-content:center;
+      --rowh:calc(153px + (3 - var(--count, 3)) * 64px); --gap:calc(20px + (3 - var(--count, 3)) * 24px);
+      --sz:min(calc(var(--rowh) * .62), 128px); gap:var(--gap); }
+    .step { position:relative; flex:none; display:flex; align-items:center; gap:28px; height:var(--rowh); }
+    .slot { position:relative; flex:none; width:var(--sz); height:var(--sz); border-radius:16px; background:var(--slot); }
+    .mfill { position:absolute; inset:0; border-radius:16px; background:var(--theme-accent); display:grid; place-items:center; }
+    .num { font-size:calc(var(--sz) * .36); font-weight:700; color:var(--theme-surface); }
+    .check { position:absolute; inset:0; border-radius:16px; background:var(--theme-accent2); }
+    .check i { position:absolute; left:38%; top:18%; width:24%; height:46%; border-right:calc(var(--sz) * .08) solid var(--theme-foreground); border-bottom:calc(var(--sz) * .08) solid var(--theme-foreground); transform:rotate(45deg); }
+    .cap { flex:none; width:calc(700px - var(--sz) - 28px); height:var(--rowh); font-size:68px; line-height:1.06; font-weight:700; color:var(--theme-foreground); align-content:center; overflow-wrap:normal; }
+    .rule { position:absolute; left:0; right:0; bottom:calc(var(--gap) / -2 - 1.5px); height:3px; background:var(--edge); }
+
+    /* The app window, built from flat shapes */
+    .win { position:absolute; left:860px; top:90px; width:960px; height:900px; background:var(--theme-surface); border:2px solid var(--edge); border-radius:20px; overflow:hidden; }
+    .tbar { position:absolute; left:0; top:0; right:0; height:84px; background:var(--theme-foreground); }
+    .d { position:absolute; top:32px; width:20px; height:20px; border-radius:50%; }
+    .d0 { left:30px; background:var(--theme-accent2); } .d1 { left:60px; background:var(--theme-accent); } .d2 { left:90px; background:var(--dim); }
+    .brand { position:absolute; left:130px; top:17px; width:540px; height:50px; font-size:44px; line-height:1.1; white-space:nowrap; color:var(--theme-surface); }
+    .pips { position:absolute; right:30px; top:36px; display:flex; gap:10px; }
+    .pip { position:relative; width:52px; height:12px; border-radius:6px; background:var(--pip); overflow:hidden; }
+    .pfill { position:absolute; inset:0; background:var(--theme-accent2); }
+    .side { position:absolute; left:0; top:84px; width:210px; height:816px; background:var(--a8); }
+    .logo { position:absolute; left:28px; top:28px; width:48px; height:48px; border-radius:12px; background:var(--theme-accent); }
+    .nav { position:absolute; left:24px; width:162px; height:40px; border-radius:12px; background:var(--f12); overflow:hidden; }
+    .n0 { top:120px; } .n1 { top:184px; } .n2 { top:248px; } .n3 { top:312px; }
+    .nav .on { position:absolute; inset:0; border-radius:12px; background:var(--theme-accent); }
+    .nav.n1 .on { background:var(--theme-accent2); }
+    .search { position:absolute; left:230px; top:104px; width:560px; height:48px; border-radius:24px; background:var(--f6); }
+    .tool { position:absolute; left:810px; top:104px; width:126px; height:48px; border-radius:14px; background:var(--y28); overflow:hidden; }
+    .tool .on { position:absolute; inset:0; border-radius:14px; background:var(--theme-accent2); }
+    .row { position:absolute; left:230px; width:700px; height:108px; border-radius:14px; background:var(--theme-surface); }
+    .r0 { top:176px; } .r1 { top:294px; } .r2 { top:412px; } .r3 { top:530px; }
+    .hl { position:absolute; inset:0; border-radius:14px; background:var(--a14); }
+    .hl::before { content:""; position:absolute; left:0; top:0; bottom:0; width:8px; background:var(--theme-accent); }
+    .av { position:absolute; left:20px; top:24px; width:60px; height:60px; border-radius:50%; }
+    .r0 .av { background:var(--theme-accent2); } .r1 .av { background:var(--theme-accent); } .r2 .av { background:var(--f55); } .r3 .av { background:var(--y28); }
+    .b1 { position:absolute; left:100px; top:30px; width:230px; height:20px; border-radius:10px; background:var(--f72); }
+    .b2 { position:absolute; left:100px; top:62px; width:380px; height:14px; border-radius:7px; background:var(--f22); }
+    .dot { position:absolute; left:660px; top:46px; width:16px; height:16px; border-radius:50%; background:var(--theme-accent); }
+    .panel { position:absolute; left:400px; top:84px; width:560px; height:816px; background:var(--theme-surface); border-left:2px solid var(--edge); }
+    .pbar { position:absolute; left:30px; top:32px; width:300px; height:26px; border-radius:13px; background:var(--f72); }
+    .pmeta { position:absolute; left:30px; top:72px; width:180px; height:16px; border-radius:8px; background:var(--f22); }
+    .bub { position:absolute; left:30px; border-radius:16px; background:var(--f6); }
+    .bub1 { top:120px; width:380px; height:110px; } .bub2 { top:250px; width:320px; height:84px; }
+    .bl { position:absolute; left:22px; height:12px; border-radius:6px; background:var(--f22); }
+    .sent { position:absolute; left:150px; top:370px; width:380px; height:120px; border-radius:16px; background:var(--theme-accent); }
+    .sent .bl { background:var(--onA); }
+    .tick { position:absolute; left:478px; top:494px; width:52px; height:52px; border-radius:50%; background:var(--theme-accent2); }
+    .tick i { position:absolute; left:19px; top:10px; width:13px; height:24px; border-right:5px solid var(--theme-foreground); border-bottom:5px solid var(--theme-foreground); transform:rotate(45deg); }
+    .composer { position:absolute; left:30px; top:560px; width:490px; height:230px; border-radius:18px; border:3px solid var(--edge); background:var(--theme-surface); }
+    .chip { position:absolute; left:22px; top:22px; width:84px; height:32px; border-radius:10px; background:var(--y28); overflow:hidden; }
+    .chip .on { position:absolute; inset:0; border-radius:10px; background:var(--theme-accent2); }
+    .ln { position:absolute; left:24px; height:14px; border-radius:7px; background:var(--f55); }
+    .l0 { top:74px; width:440px; } .l1 { top:102px; width:400px; } .l2 { top:130px; width:420px; } .l3 { top:158px; width:250px; }
+    .send { position:absolute; left:330px; top:166px; width:140px; height:48px; border-radius:12px; background:var(--f12); overflow:hidden; }
+    .send .on { position:absolute; inset:0; border-radius:12px; background:var(--theme-accent); }
+    .arrow { position:absolute; left:56px; top:12px; width:28px; height:24px; background:var(--theme-surface); clip-path:polygon(0 0, 100% 50%, 0 100%, 22% 50%); }
+
+    /* The CTA: the Send button, grown */
+    .cta { position:absolute; left:900px; top:728px; width:880px; height:240px; border-radius:18px; background:var(--theme-accent); visibility:hidden; z-index:10; }
+    .hov { position:absolute; inset:0; border-radius:18px; background:var(--theme-foreground); }
+    .ctext { position:absolute; left:40px; top:35px; width:800px; height:170px; font-size:104px; line-height:1; text-align:center; align-content:center; color:var(--theme-surface); overflow-wrap:normal; text-wrap:balance; }
+
+    .wipe { position:absolute; inset:0; background:var(--theme-background); z-index:15; }
+    .cursor { position:absolute; left:1701px; top:928px; width:64px; height:80px; z-index:20; transform-origin:4px 4px; }
+    .cursor path { fill:var(--theme-foreground); stroke:var(--theme-surface); stroke-width:2.4; stroke-linejoin:round; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+    <section id="featuredemo-main" class="scene" data-start="0" data-duration="10" data-track-index="0">
+      <h1 class="headline display" data-fit-max="172" data-fit-min="84" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <div class="hbar"></div>
+
+      <div class="steps" data-list>
+        <template data-list-row>
+          <div class="step">
+            <div class="slot" data-list-part="slot" data-list-group="scaffold">
+              <div class="mfill" data-list-part="marker"><span class="num mono" data-list-number>01</span></div>
+              <div class="check" data-list-part="check" data-list-group="finale"><i></i></div>
+            </div>
+            <div class="cap display" data-list-text data-words data-fit-max="68" data-fit-min="34">Action</div>
+            <div class="rule" data-list-part="rule" data-list-group="scaffold"></div>
+          </div>
+        </template>
+      </div>
+
+      <div class="win">
+        <div class="side">
+          <div class="logo"></div>
+          <div class="nav n0"><div class="on"></div></div>
+          <div class="nav n1"><div class="on"></div></div>
+          <div class="nav n2"></div>
+          <div class="nav n3"></div>
+        </div>
+        <div class="search"></div>
+        <div class="tool"><div class="on"></div></div>
+        <div class="row r0"><div class="av"></div><div class="b1"></div><div class="b2"></div><div class="dot"></div></div>
+        <div class="row r1"><div class="hl"></div><div class="av"></div><div class="b1"></div><div class="b2"></div><div class="dot"></div></div>
+        <div class="row r2"><div class="av"></div><div class="b1"></div><div class="b2"></div><div class="dot"></div></div>
+        <div class="row r3"><div class="av"></div><div class="b1"></div><div class="b2"></div><div class="dot"></div></div>
+        <div class="panel">
+          <div class="pbar"></div><div class="pmeta"></div>
+          <div class="bub bub1"><div class="bl" style="top:28px;width:300px"></div><div class="bl" style="top:52px;width:260px"></div><div class="bl" style="top:76px;width:180px"></div></div>
+          <div class="bub bub2"><div class="bl" style="top:26px;width:240px"></div><div class="bl" style="top:50px;width:160px"></div></div>
+          <div class="sent"><div class="bl" style="top:28px;width:300px"></div><div class="bl" style="top:52px;width:320px"></div><div class="bl" style="top:76px;width:200px"></div></div>
+          <div class="tick"><i></i></div>
+          <div class="composer">
+            <div class="chip"><div class="on"></div></div>
+            <div class="ln l0"></div><div class="ln l1"></div><div class="ln l2"></div><div class="ln l3"></div>
+            <div class="send"><div class="on"></div><div class="arrow"></div></div>
+          </div>
+        </div>
+        <div class="tbar">
+          <div class="d d0"></div><div class="d d1"></div><div class="d d2"></div>
+          <div class="brand display" data-fit-max="44" data-fit-min="28" data-text-role="brand" data-beat-text="brand">Brand</div>
+          <div class="pips"></div>
+        </div>
+      </div>
+
+      <div class="cta display">
+        <div class="hov"></div>
+        <div class="ctext" data-fit-max="104" data-fit-min="52" data-text-role="cta" data-beat-text="cta">CTA</div>
+      </div>
+    </section>
+    <div class="wipe"></div>
+    <div class="cursor"><svg width="64" height="80" viewBox="0 0 32 40"><path d="M2 2 L2 32 L10 25 L15 37 L21 34.5 L16 23 L27 23 Z" /></svg></div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const cueBeat = (id) => m.score.cues.find((c) => c.id === id).beat;
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const n = m.items.length;
+      const X = 'expo.out';
+
+      // Reflow per count: fewer actions get taller rows and bigger captions.
+      const capMax = n === 1 ? 96 : n === 2 ? 80 : 68;
+      qa('.steps .cap').forEach((el) => { el.dataset.fitMax = String(capMax); });
+      window.cliphouseFitText?.();
+
+      const words = (el, at, cap = 2, step = 0.25) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 120}, {yPercent: 0, duration: B(0.75), ease: X}, at + B(Math.min(i, cap) * step)));
+      const pop = (el, at, d = 0.6) => tl.fromTo(el, {scale: 0}, {scale: 1, duration: B(d), ease: 'back.out(1.2)'}, at);
+      const wipeX = (el, at, d = 0.5, r = '0px') => tl.fromTo(el, {clipPath: `inset(0% 100% 0% 0% round ${r})`},
+        {clipPath: `inset(0% 0% 0% 0% round ${r})`, duration: B(d), ease: X}, at);
+      const grow = (el, at, d = 0.5) => tl.fromTo(el, {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(d), ease: X}, at);
+
+      // The cursor rests on the CTA spot (its CSS home), so the first and last frames match.
+      const P = {inbox: {x: 980, y: 318}, row: {x: 1300, y: 442}, tool: {x: 1735, y: 222}, chip: {x: 1355, y: 777}, aside: {x: 1600, y: 690}, send: {x: 1705, y: 932}};
+      const HOME = P.send;
+      let cur = HOME;
+      const moveTo = (p, end, d = 0.75) => {
+        tl.fromTo('.cursor', {x: cur.x - HOME.x, y: cur.y - HOME.y},
+          {x: p.x - HOME.x, y: p.y - HOME.y, duration: B(d), ease: 'power3.out', immediateRender: false}, end - B(d));
+        cur = p;
+      };
+      const press = (at) => {
+        tl.fromTo('.cursor', {scale: 1}, {scale: 0.8, duration: B(0.125), ease: 'power2.out', immediateRender: false}, at);
+        tl.fromTo('.cursor', {scale: 0.8}, {scale: 1, duration: B(0.375), ease: 'power3.out', immediateRender: false}, at + B(0.125));
+      };
+
+      // Per-item progress pips in the title bar, drawn before the items.
+      const pips = m.parts(q('.pips'), 'pip', () => {
+        const d = document.createElement('div');
+        d.className = 'pip';
+        d.dataset.listGroup = 'scaffold';
+        const f = document.createElement('div');
+        f.className = 'pfill';
+        d.append(f);
+        return d;
+      });
+
+      // Beat 0: the headline already holds the frame (it survives the loop flood).
+      // The click opens the window from the cursor tip.
+      press(t('shell'));
+      tl.fromTo('.win', {clipPath: 'inset(842px 115px 58px 845px round 20px)'},
+        {clipPath: 'inset(0px 0px 0px 0px round 20px)', duration: B(0.75), ease: X}, t('shell'));
+      tl.set('.hbar', {scaleX: 0, transformOrigin: '0% 50%'}, 0);
+
+      // Beat 1: the brand names the app, the sidebar slides in, step slots draw.
+      words(q('.brand'), t('brand'), 2, 0.25);
+      qa('.tbar .d').forEach((d, i) => pop(d, t('brand') + B(i * 0.125)));
+      tl.fromTo('.side', {xPercent: -100}, {xPercent: 0, duration: B(0.75), ease: X}, t('brand'));
+      qa('.steps .slot').forEach((el, i) => pop(el, t('brand') + B(i * 0.125)));
+      qa('.steps .rule').forEach((el, i) => grow(el, t('brand') + B(i * 0.125), 0.75));
+
+      // Beat 2: search bar and thread rows.
+      wipeX('.search', t('rows'), 0.6, '24px');
+      qa('.win .row').forEach((r, i) => tl.fromTo(r, {x: 90, clipPath: 'inset(0% 0% 0% 100% round 14px)'},
+        {x: 0, clipPath: 'inset(0% 0% 0% 0% round 14px)', duration: B(0.75), ease: X}, t('rows') + B(i * 0.125)));
+
+      // Beat 3: nav, toolbar, pips; the cursor heads for Inbox.
+      pop('.logo', t('scaffold'));
+      qa('.nav').forEach((el, i) => grow(el, t('scaffold') + B(i * 0.125)));
+      pop('.tool', t('scaffold') + B(0.25));
+      pips.forEach((p, i) => grow(p, t('scaffold') + B(i * 0.125)));
+      moveTo(P.inbox, t('inbox'));
+
+      // Beat 4: Inbox click.
+      press(t('inbox'));
+      wipeX('.nav.n0 .on', t('inbox'), 0.5, '12px');
+      tl.set('.nav.n1 .on', {clipPath: 'inset(0% 100% 0% 0% round 12px)'}, 0);
+      qa('.win .row .dot').forEach((d, i) => pop(d, t('inbox') + B(i * 0.125)));
+
+      // The actions: one click per item, the UI answers, the caption lands on the accent.
+      const kinds = {1: ['draft'], 2: ['row', 'draft'], 3: ['row', 'panel', 'draft']}[n] || [];
+      let panelShown = false;
+      let drafted = false;
+      const panelIn = (at) => {
+        panelShown = true;
+        tl.fromTo('.panel', {xPercent: 100}, {xPercent: 0, duration: B(0.75), ease: X}, at);
+        wipeX('.bub1', at + B(0.5), 0.5, '16px');
+        wipeX('.bub2', at + B(1), 0.5, '16px');
+      };
+      m.items.forEach((it, i) => {
+        const pi = m.plan.items[i];
+        const row = m.row(i);
+        const kind = kinds[i];
+        if (row) {
+          pop(row.querySelector('.mfill'), it.start, 0.5);
+          words(row.querySelector('.cap'), it.accent, 2, 0.25);
+        }
+        if (pips[i]) grow(pips[i].querySelector('.pfill'), it.accent);
+        if (kind === 'row') {
+          moveTo(P.row, it.start);
+          press(it.start);
+          wipeX('.row.r1 .hl', it.start, 0.5, '14px');
+          tl.fromTo('.row.r1 .dot', {scale: 1}, {scale: 0, duration: B(0.4), ease: X, immediateRender: false}, B(pi.start + 1));
+        } else if (kind === 'panel') {
+          moveTo(P.tool, it.start);
+          press(it.start);
+          pop('.tool .on', it.start, 0.5);
+          panelIn(it.start);
+        } else if (kind === 'draft') {
+          if (!panelShown) panelIn(it.start - B(1));
+          moveTo(P.chip, it.start);
+          press(it.start);
+          pop('.chip .on', it.start, 0.5);
+          moveTo(P.aside, it.start + B(0.75), 0.5);
+          // Draft lines fill on the grid: eighths when time is short, whole beats when there is room.
+          const room = cueBeat('ready') - pi.accent;
+          const step = Math.min(1, Math.max(0.5, Math.floor((room / 4) * 2) / 2));
+          const first = step >= 1 ? Math.ceil(pi.accent) : pi.accent;
+          qa('.composer .ln').forEach((ln, k) => grow(ln, B(first + k * step), 0.5));
+          drafted = true;
+        }
+      });
+
+      // Beat 11: Send arms; the cursor glides onto it.
+      wipeX('.send .on', t('ready'), 0.5, '12px');
+      pop('.send .arrow', t('ready') + B(0.25), 0.5);
+      moveTo(P.send, t('send'));
+
+      // Beat 12: Send. The draft lifts into the thread.
+      press(t('send'));
+      tl.fromTo('.send', {scale: 0.9}, {scale: 1, duration: B(0.5), ease: X, immediateRender: false}, t('send'));
+      if (drafted) {
+        tl.fromTo('.composer .ln', {scaleX: 1, transformOrigin: '100% 50%'},
+          {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.4), ease: X, immediateRender: false}, t('send'));
+        tl.fromTo('.chip', {scale: 1}, {scale: 0, duration: B(0.4), ease: X, immediateRender: false}, t('send'));
+      }
+      tl.fromTo('.sent', {y: 60, clipPath: 'inset(100% 0% 0% 0% round 16px)'},
+        {y: 0, clipPath: 'inset(0% 0% 0% 0% round 16px)', duration: B(0.75), ease: X}, t('send') + B(0.125));
+
+      // Beat 13: the Send button grows into the CTA bar.
+      tl.set('.cta', {visibility: 'visible'}, t('grow'));
+      tl.fromTo('.cta', {clipPath: 'inset(177px 13px 15px 727px round 12px)'},
+        {clipPath: 'inset(0px 0px 0px 0px round 18px)', duration: B(0.75), ease: X}, t('grow'));
+
+      // Beat 14: the CTA stamps.
+      tl.fromTo('.cta', {scale: 1.1}, {scale: 1, duration: B(0.75), ease: X, immediateRender: false}, t('cta'));
+      words(q('.ctext'), t('cta'), 1, 0.25);
+
+      // Beat 15: every step checks off together.
+      qa('.steps .check').forEach((c) => wipeX(c, t('checks'), 0.5, '16px'));
+
+      // Beat 16: delivered. The tick pops, the Sent folder fills, the headline bar draws.
+      pop('.tick', t('delivered'), 0.5);
+      wipeX('.nav.n1 .on', t('delivered'), 0.5, '12px');
+      tl.fromTo('.hbar', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: X, immediateRender: false}, t('delivered'));
+
+      // Beat 17: hover. Beat 18: press.
+      wipeX('.cta .hov', t('hover'), 0.5, '18px');
+      press(t('press'));
+      tl.fromTo('.cta', {scale: 0.96}, {scale: 1, duration: B(0.6), ease: X, immediateRender: false}, t('press'));
+
+      // Beat 19: everything but the headline floods back from the cursor tip, matching frame 0.
+      tl.fromTo('.wipe', {clipPath: 'circle(0px at 1705px 932px)'},
+        {clipPath: 'circle(1960px at 1705px 932px)', duration: B(2 / 3), ease: 'power3.out'}, t('loop'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

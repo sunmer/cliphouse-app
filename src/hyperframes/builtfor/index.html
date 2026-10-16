@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1350" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1350px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .1em; margin-bottom:-.1em; }
+    .w { display:inline-block; }
+
+    .brand { position:absolute; left:80px; top:64px; width:480px; height:76px; font-size:52px; line-height:1.2; white-space:nowrap; color:var(--theme-accent); }
+    .pips { position:absolute; right:80px; top:88px; height:24px; display:flex; gap:10px; }
+    .pip { position:relative; width:56px; height:24px; overflow:hidden; background:color-mix(in srgb, var(--theme-foreground) 14%, transparent); }
+    .pip i { position:absolute; inset:0; transform-origin:0 50%; }
+    .pf { background:var(--theme-accent); }
+    .pc { background:var(--theme-accent2); }
+
+    .headline { position:absolute; left:80px; top:136px; width:920px; height:240px; padding-bottom:.12em; font-size:210px; line-height:.92; align-content:end; color:var(--theme-foreground); }
+    .pointer { position:absolute; left:80px; top:388px; width:260px; height:14px; background:var(--theme-accent2); transform-origin:0 50%; transform:scaleX(0); }
+
+    .panel { position:absolute; left:80px; top:430px; width:920px; height:840px; background:var(--theme-surface); overflow:hidden; }
+    .under, .over { position:absolute; inset:0; }
+    .under { z-index:1; }
+    .over { z-index:3; }
+    .reel { position:absolute; inset:0; z-index:2; display:flex; flex-direction:column-reverse; }
+    .row { position:relative; flex:none; height:calc(840px / var(--count)); background:var(--theme-accent); --tk:calc(72px - var(--count) * 5px); }
+    .mark { position:absolute; left:0; top:14px; bottom:0; width:24px; background:var(--theme-accent2); }
+    .rtbox { position:absolute; left:56px; right:calc(80px + var(--tk)); top:14px; bottom:0; display:flex; align-items:center; }
+    .rt { width:100%; height:80%; line-height:.98; align-content:center; color:var(--theme-surface); text-wrap:balance; }
+    .tick { position:absolute; right:40px; width:var(--tk); height:var(--tk); top:calc(14px + (100% - 14px - var(--tk)) / 2); background:color-mix(in srgb, var(--theme-surface) 26%, transparent); }
+    .check { position:absolute; inset:18%; background:var(--theme-accent2); }
+
+    .slotline { position:absolute; left:0; width:100%; height:14px; background:var(--theme-background); transform-origin:0 50%; }
+    .ghost { position:absolute; left:96px; width:52%; background:color-mix(in srgb, var(--theme-foreground) 7%, transparent); transform-origin:0 50%; }
+    .slotbox { position:absolute; right:40px; background:color-mix(in srgb, var(--theme-foreground) 12%, transparent); }
+
+    .caret { position:absolute; left:56px; top:0; width:16px; height:120px; background:var(--theme-accent2); z-index:4; }
+    .btn { position:absolute; left:0; bottom:0; width:920px; height:220px; z-index:5; visibility:hidden; }
+    .bfill { position:absolute; inset:0; background:var(--theme-accent); }
+    .btext { position:absolute; left:56px; top:24px; width:720px; height:172px; line-height:1; align-content:center; color:var(--theme-surface); transform-origin:0% 50%; text-wrap:balance; }
+    .bcheck { position:absolute; right:56px; top:82px; width:56px; height:56px; background:var(--theme-accent2); }
+
+    .sub { position:absolute; left:80px; top:456px; width:920px; height:560px; font-size:124px; font-style:italic; font-weight:500; line-height:1.04; align-content:center; color:var(--theme-foreground); z-index:5; visibility:hidden; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="9.333" data-width="1080" data-height="1350">
+    <section id="builtfor-stage" class="scene" data-start="0" data-duration="9.333" data-track-index="0">
+      <div class="brand display" data-fit-max="52" data-fit-min="30" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="pips"></div>
+      <h1 class="headline display fit" data-fit-max="210" data-fit-min="88" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <div class="pointer"></div>
+      <div class="panel">
+        <div class="under"></div>
+        <div class="reel" data-list>
+          <template data-list-row>
+            <div class="row">
+              <div class="mark" data-list-part="mark" data-list-group="finale" data-list-align="y"></div>
+              <div class="rtbox"><div class="rt display" data-list-text data-words data-fit-max="170" data-fit-min="40"></div></div>
+              <div class="tick" data-list-part="tick" data-list-align="y"><div class="check" data-list-part="check" data-list-align="y"></div></div>
+            </div>
+          </template>
+        </div>
+        <div class="over"></div>
+        <div class="caret"></div>
+        <div class="btn">
+          <div class="bfill"></div>
+          <div class="btext display" data-fit-max="96" data-fit-min="44" data-text-role="cta" data-beat-text="cta">CTA</div>
+          <div class="bcheck"></div>
+        </div>
+      </div>
+      <p class="sub serif fit" data-fit-max="124" data-fit-min="56" data-text-role="subhead" data-beat-text="subhead">Subhead</p>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    // All audience names share one size: the largest size that fits every row.
+    const unify = () => {
+      const rs = [...document.querySelectorAll('.reel > .row .rt')];
+      if (!rs.length) return;
+      const s = Math.min(...rs.map((r) => parseFloat(r.style.fontSize) || 170));
+      rs.forEach((r) => { r.style.fontSize = s + 'px'; });
+    };
+    document.fonts?.ready.then(unify);
+
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      // Words rise through masks; long text shares the last stagger slot so it settles early.
+      const rise = (el, at, step = 0.0625, cap = 3, dur = 0.5) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 118}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, at + Math.min(i, cap) * B(step)));
+      const sink = (el, at) => { const s = m.spans(el); if (s.length) tl.to(s, {yPercent: -118, duration: B(0.375), ease: 'power3.in'}, at); };
+
+      const n = m.items.length;
+      const rowH = 840 / n;
+      const tk = 72 - n * 5;
+      const mid = (i) => i * rowH + 14 + (rowH - 14) / 2;
+      const rows = m.items.map((it) => m.row(it.index));
+      const pick = (sel) => rows.map((r) => r.querySelector(sel));
+      const marks = pick('.mark'), ticks = pick('.tick'), checks = pick('.check'), texts = pick('.rt');
+      unify();
+
+      // Fixed form scaffold: slot dividers above the names, placeholder bars and empty boxes below them.
+      const block = (cls, css) => {
+        const el = document.createElement('div');
+        el.className = cls;
+        el.setAttribute('data-list-group', 'scaffold');
+        Object.assign(el.style, css);
+        return el;
+      };
+      const gh = Math.min(64, rowH * 0.22);
+      const lines = m.parts(q('.over'), 'slotline', (it) => block('slotline', {top: it.index * rowH + 'px', ...(it.index === 0 ? {display: 'none'} : {})}));
+      const ghosts = m.parts(q('.under'), 'ghost', (it) => block('ghost', {top: mid(it.index) - gh / 2 + 'px', height: gh + 'px'}));
+      const boxes = m.parts(q('.under'), 'slotbox', (it) => block('slotbox', {top: mid(it.index) - tk / 2 + 'px', width: tk + 'px', height: tk + 'px'}));
+      const pips = m.parts(q('.pips'), 'pip', () => {
+        const p = block('pip', {});
+        p.append(Object.assign(document.createElement('i'), {className: 'pf'}), Object.assign(document.createElement('i'), {className: 'pc'}));
+        return p;
+      });
+
+      // The reel: every name waits hidden in the hero slot, right under the headline.
+      rows.forEach((r, k) => gsap.set(r, {y: (k + 1 - n) * rowH, visibility: 'hidden'}));
+
+      // The caret waits in the hero slot.
+      const caret = q('.caret');
+      const ch = Math.min(150, (rowH - 14) * 0.5);
+      gsap.set(caret, {top: mid(0) - ch / 2, height: ch, scaleY: 1, autoAlpha: 1, transformOrigin: '50% 50%'});
+
+      // Beats 0-3: brand, pips, slots and placeholders, empty boxes.
+      rise(q('.brand'), t('brand'), 0.125, 2, 0.625);
+      pips.forEach((p, i) => tl.fromTo(p, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('pips') + i * B(0.0625)));
+      lines.forEach((l, i) => { if (i) tl.fromTo(l, {scaleX: 0}, {scaleX: 1, duration: B(0.625), ease: 'expo.out'}, t('slots') + (i - 1) * B(0.0625)); });
+      ghosts.forEach((g, i) => tl.fromTo(g, {scaleX: 0}, {scaleX: 1, duration: B(0.625), ease: 'expo.out'}, t('slots') + i * B(0.0625)));
+      boxes.forEach((b, i) => tl.fromTo(b, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('ticks') + i * B(0.0625)));
+
+      // The caret blinks back on every beat until the first name rolls in.
+      const firstBeat = m.plan.items[0].start;
+      for (let b = 1; b < firstBeat; b++) {
+        tl.set(caret, {autoAlpha: 0}, B(b + 0.5));
+        tl.set(caret, {autoAlpha: 1}, B(b + 1));
+      }
+      tl.to(caret, {scaleY: 0, duration: B(0.25), ease: 'power3.in'}, m.items[0].start);
+
+      // Beats 4-8: earlier names roll down a slot, the new name unrolls into the hero slot. Check and pip land on the accent.
+      m.items.forEach((it, j) => {
+        for (let i = 0; i < j; i++) {
+          tl.fromTo(rows[i], {y: (j - n) * rowH}, {y: (j + 1 - n) * rowH, duration: B(0.5), ease: 'expo.out', immediateRender: false}, it.start);
+        }
+        tl.set(rows[j], {visibility: 'visible'}, it.start);
+        tl.fromTo(rows[j], {clipPath: 'inset(0% 0% 100% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, it.start);
+        rise(texts[j], it.start + B(0.0625));
+        tl.fromTo(checks[j], {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, it.accent);
+        tl.fromTo(pips[j].querySelector('.pf'), {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, it.accent);
+      });
+
+      // Beats 9-11: every slot is marked from its center, the headline points at the list, the pips flip to coral.
+      marks.forEach((k, i) => tl.fromTo(k, {scaleY: 0, transformOrigin: '50% 50%'}, {scaleY: 1, duration: B(0.5), ease: 'expo.out'}, t('marks') + i * B(0.0625)));
+      tl.fromTo('.pointer', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('pointer'));
+      pips.forEach((p, i) => tl.fromTo(p.querySelector('.pc'), {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('pipsFinale') + i * B(0.0625)));
+
+      // Beat 12: names sink, slots roll up, and the form folds into its bottom slot.
+      const F = t('fold');
+      texts.forEach((x) => sink(x, F));
+      tl.to(marks, {scaleY: 0, duration: B(0.375), ease: 'power3.in'}, F);
+      tl.to(ticks, {scale: 0, duration: B(0.375), ease: 'power3.in'}, F);
+      tl.to(lines, {scaleX: 0, duration: B(0.375), ease: 'power3.in'}, F);
+      tl.set([...ghosts, ...boxes], {autoAlpha: 0}, F);
+      rows.forEach((r, i) => tl.to(r, {clipPath: 'inset(0% 0% 100% 0%)', duration: B(0.5), ease: 'power3.inOut'}, F + B(0.125) + i * B(0.0625)));
+      tl.set(texts, {autoAlpha: 0}, F + B(0.5));
+      tl.set(rows, {visibility: 'hidden'}, F + B(1));
+      tl.fromTo('.panel', {clipPath: 'inset(0px 0px 0px 0px)'}, {clipPath: 'inset(620px 0px 0px 0px)', duration: B(0.75), ease: 'expo.out'}, F + B(0.5));
+
+      // Beat 12.5: the promise rises in the freed space. Beat 13: the last slot fills and becomes the button.
+      const sub = q('.sub');
+      tl.set(sub, {visibility: 'visible'}, t('subhead'));
+      rise(sub, t('subhead'), 0.125, 4, 0.625);
+      tl.set('.btn', {visibility: 'visible'}, t('buttonFill'));
+      tl.fromTo('.bfill', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('buttonFill'));
+
+      // Beat 14: the CTA stamps. Beat 15: its check pops.
+      rise(q('.btext'), t('cta'), 0.0625, 2);
+      tl.fromTo('.btext', {scale: 1.2}, {scale: 1, duration: B(0.75), ease: 'expo.out'}, t('cta'));
+      tl.fromTo('.bcheck', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('check'));
+
+      // Beats 16-17: the pips drain right to left, and the pointer retracts.
+      pips.forEach((p, i) => tl.to(p.querySelectorAll('.pf, .pc'), {scaleX: 0, duration: B(0.375), ease: 'power3.out'}, t('drain') + (n - 1 - i) * B(0.375)));
+      tl.set('.pointer', {transformOrigin: '100% 50%'}, t('unpoint'));
+      tl.to('.pointer', {scaleX: 0, duration: B(0.5), ease: 'power3.inOut'}, t('unpoint'));
+
+      // Beats 18-19: everything returns to the empty field with its caret, matching frame 0.
+      const R = t('reset');
+      sink(q('.brand'), R);
+      sink(sub, R);
+      sink(q('.btext'), R);
+      tl.to('.bcheck', {scale: 0, duration: B(0.375), ease: 'power3.in'}, R);
+      tl.to('.bfill', {clipPath: 'inset(0% 100% 0% 0%)', duration: B(0.375), ease: 'power3.in'}, R + B(0.25));
+      pips.forEach((p, i) => tl.to(p, {scale: 0, duration: B(0.375), ease: 'power3.in'}, R + i * B(0.0625)));
+      tl.set([sub, '.btn'], {visibility: 'hidden'}, t('panelReturn') + B(0.25));
+      tl.to('.panel', {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.5), ease: 'expo.out'}, t('panelReturn'));
+      tl.set(caret, {autoAlpha: 1}, R);
+      tl.fromTo(caret, {scaleY: 0}, {scaleY: 1, duration: B(0.5), ease: 'expo.out', immediateRender: false}, t('caret'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

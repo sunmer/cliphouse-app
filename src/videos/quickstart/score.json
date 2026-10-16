@@ -1,0 +1,45 @@
+{
+  "beatFrames": 15,
+  "scenes": [
+    {"type": "title-reveal", "bars": 1, "focusBeat": 0, "roles": ["brand", "stat", "headline", "cta"], "energy": 1},
+    {"type": "typing", "bars": 2, "focusBeat": 10, "roles": ["brand", "stat", "list"], "energy": 2},
+    {"type": "end-screen", "bars": 2, "focusBeat": 17, "roles": ["brand", "stat", "headline", "cta"], "energy": 3}
+  ],
+  "cues": [
+    {"id": "hook", "beat": 0, "sound": "snap", "velocity": 0.6},
+    {"id": "collapse", "beat": 1, "sound": "zap", "velocity": 0.7},
+    {"id": "brand", "beat": 1.5, "sound": "blip", "role": "brand", "velocity": 0.6},
+    {"id": "rail", "beat": 2, "sound": "pluck", "velocity": 0.5},
+    {"id": "prompts", "beat": 3, "sound": "blip", "velocity": 0.5},
+    {"id": "go", "beat": 4, "sound": "snap", "velocity": 0.8},
+    {"id": "lock", "beat": 9, "sound": "stamp", "role": "stat", "velocity": 0.9},
+    {"id": "ready", "beat": 10, "sound": "blip", "velocity": 0.5},
+    {"id": "scroll", "beat": 11, "sound": "tom", "velocity": 0.6},
+    {"id": "headline", "beat": 12, "sound": "lead", "role": "headline", "velocity": 0.7},
+    {"id": "button", "beat": 13, "sound": "zap", "velocity": 0.7},
+    {"id": "cta", "beat": 14, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "flood", "beat": 15, "sound": "crash", "velocity": 0.9},
+    {"id": "punch", "beat": 16, "sound": "tom", "velocity": 0.5},
+    {"id": "nudge", "beat": 17, "sound": "snap", "velocity": 0.5},
+    {"id": "blink", "beat": 18, "sound": "blip", "velocity": 0.4},
+    {"id": "loop", "beat": 19, "sound": "clap", "velocity": 0.5}
+  ],
+  "list": {
+    "role": "list",
+    "label": "Commands",
+    "scene": 1,
+    "min": 1,
+    "max": 3,
+    "itemMax": 32,
+    "schedules": {
+      "1": [8],
+      "2": [7, 8],
+      "3": [6, 7, 8]
+    },
+    "accentOffset": 1,
+    "voice": "pluck"
+  },
+  "risers": [
+    {"beat": 12, "beats": 3}
+  ]
+}

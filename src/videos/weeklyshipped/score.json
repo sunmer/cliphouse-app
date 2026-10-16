@@ -1,0 +1,61 @@
+{
+  "beatFrames": 15,
+  "scenes": [
+    {
+      "type": "date-card",
+      "bars": 1,
+      "focusBeat": 1,
+      "roles": ["brand", "date", "headline"],
+      "energy": 1
+    },
+    {
+      "type": "list",
+      "bars": 2,
+      "focusBeat": 10,
+      "roles": ["brand", "date", "headline", "list"],
+      "energy": 2
+    },
+    {
+      "type": "end-screen",
+      "bars": 2,
+      "focusBeat": 15,
+      "roles": ["brand", "date", "headline", "cta"],
+      "energy": 3
+    }
+  ],
+  "cues": [
+    {"id": "stamp", "beat": 0, "sound": "stamp", "role": "date", "velocity": 0.9},
+    {"id": "rail", "beat": 1, "sound": "snap", "velocity": 0.6},
+    {"id": "dock", "beat": 2, "sound": "impact", "velocity": 0.7},
+    {"id": "slots", "beat": 2.5, "sound": "tom", "velocity": 0.5},
+    {"id": "weekDone", "beat": 11, "sound": "clap", "velocity": 0.8},
+    {"id": "seal", "beat": 12, "sound": "snap", "velocity": 0.7},
+    {"id": "flood", "beat": 13, "sound": "zap", "velocity": 0.8},
+    {"id": "cta", "beat": 14, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "arrow", "beat": 15, "sound": "pluck", "velocity": 0.6},
+    {"id": "nudge1", "beat": 16, "sound": "blip", "velocity": 0.5},
+    {"id": "nudge2", "beat": 17, "sound": "blip", "velocity": 0.5},
+    {"id": "nudge3", "beat": 18, "sound": "blip", "velocity": 0.5},
+    {"id": "loop", "beat": 19, "sound": "zap", "velocity": 0.6}
+  ],
+  "list": {
+    "role": "list",
+    "label": "Shipped",
+    "scene": 1,
+    "min": 1,
+    "max": 5,
+    "itemMax": 28,
+    "schedules": {
+      "1": [5],
+      "2": [4, 6],
+      "3": [4, 6, 8],
+      "4": [4, 5, 6, 7],
+      "5": [4, 5, 6, 7, 8]
+    },
+    "accentOffset": 1,
+    "voice": "marimba"
+  },
+  "risers": [
+    {"beat": 11, "beats": 2}
+  ]
+}

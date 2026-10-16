@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1920" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1920px; }
+    .wmask { position:relative; display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+    .layer { position:absolute; inset:0; }
+    .base { z-index:1; }
+    .answer { z-index:2; }
+
+    /* Header row: the pain chip that flips to the fix color. */
+    .chip, .chipfix { position:absolute; left:80px; top:100px; width:64px; height:64px; }
+    .chip { background:var(--theme-accent2); }
+    .chipfix { background:var(--theme-accent); }
+    .hrule { position:absolute; left:176px; top:128px; width:824px; height:8px; background:var(--theme-surface); }
+
+    /* The hook question: as big as its longest word allows. */
+    .hl { position:absolute; left:80px; top:220px; width:920px; height:1180px; font-size:300px; line-height:.88; color:var(--theme-foreground); align-content:center; }
+    .strike { position:absolute; left:0; right:0; top:.46em; height:.12em; background:var(--theme-accent); transform-origin:0 50%; }
+
+    /* The answer. */
+    .sub { position:absolute; left:80px; top:200px; width:920px; height:520px; font-size:112px; line-height:1.04; font-weight:800; color:var(--theme-foreground); align-content:center; visibility:hidden; }
+
+    /* Benefits: each row is a card; the card is the scaffold rail, its yellow edge is the finale. */
+    .list { position:absolute; left:80px; top:780px; width:920px; height:640px; display:flex; flex-direction:column; justify-content:center; gap:24px; visibility:hidden; }
+    .row { position:relative; flex:none; height:min(400px, calc((640px - (var(--count, 3) - 1) * 24px) / var(--count, 3))); display:flex; align-items:center; gap:36px; padding:0 40px 0 64px; }
+    .rail { position:absolute; inset:0; z-index:0; background:var(--theme-surface); transform-origin:0 50%; }
+    .done { position:absolute; left:0; top:0; bottom:0; width:28px; z-index:1; background:var(--theme-accent); transform-origin:50% 50%; }
+    .check { position:relative; z-index:1; flex:none; width:112px; height:112px; visibility:hidden; }
+    .cbox, .cfill { position:absolute; inset:0; }
+    .cbox { background:var(--theme-background); }
+    .cfill { background:var(--theme-accent); }
+    .check svg { position:absolute; left:14px; top:14px; width:84px; height:84px; overflow:visible; }
+    .tick { fill:none; stroke:var(--theme-background); stroke-width:14; stroke-linecap:square; stroke-linejoin:miter; stroke-dasharray:100; }
+    .rtext { position:relative; z-index:1; flex:1; min-width:0; height:100%; font-size:84px; line-height:1; font-weight:800; color:var(--theme-foreground); align-content:center; }
+
+    /* Yellow flood from the finished bar. */
+    .flood { position:absolute; inset:0; z-index:5; background:var(--theme-accent); visibility:hidden; }
+
+    /* The progress meter: pink stalls, yellow finishes, the brand lives inside. */
+    .bargrp { z-index:6; }
+    .bar { position:absolute; left:80px; top:1500px; width:920px; height:220px; background:var(--theme-surface); overflow:hidden; }
+    .pfill, .yfill { position:absolute; inset:0; transform-origin:0 50%; }
+    .pfill { background:var(--theme-accent2); }
+    .yfill { background:var(--theme-accent); }
+    .brandbox { position:absolute; left:128px; top:1560px; width:600px; height:100px; font-size:96px; line-height:1; text-transform:uppercase; color:var(--theme-background); align-content:center; }
+    .pips { position:absolute; right:128px; top:1582px; height:56px; display:flex; gap:16px; }
+    .pip { width:56px; height:56px; background:var(--theme-background); }
+
+    /* End screen on the yellow field. */
+    .end { z-index:7; visibility:hidden; }
+    .rule1 { position:absolute; left:80px; top:330px; width:920px; height:16px; background:var(--theme-background); transform-origin:0 50%; }
+    .cta-btn { position:absolute; left:80px; top:420px; width:920px; height:1000px; background:var(--theme-background); overflow:hidden; }
+    .cta { position:absolute; left:64px; top:72px; width:792px; height:700px; font-size:240px; line-height:.92; color:var(--theme-accent); align-content:center; }
+    .arrowmask { position:absolute; right:64px; bottom:72px; width:220px; height:140px; overflow:hidden; }
+    .arrow { position:absolute; inset:0; background:var(--theme-accent2); clip-path:polygon(0 34%, 62% 34%, 62% 0, 100% 50%, 62% 100%, 62% 66%, 0 66%); }
+    .rule2 { position:absolute; left:80px; top:1602px; width:700px; height:16px; background:var(--theme-background); transform-origin:0 50%; }
+
+    /* The CTA button floods dark back into the hook. */
+    .ink { position:absolute; inset:0; z-index:9; background:var(--theme-background); visibility:hidden; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="9.333" data-width="1080" data-height="1920">
+    <section id="hookanswer-hook" class="scene s1" data-start="0" data-duration="9.333" data-track-index="0">
+      <div class="layer base">
+        <div class="chip"></div><div class="chipfix"></div>
+        <div class="hrule"></div>
+        <h1 class="hl display fit" data-fit-max="300" data-fit-min="110" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      </div>
+    </section>
+    <section id="hookanswer-answer" class="scene s2" data-start="0" data-duration="9.333" data-track-index="1">
+      <div class="layer answer">
+        <p class="sub fit" data-fit-max="112" data-fit-min="64" data-text-role="subhead" data-beat-text="subhead">Subhead</p>
+        <div class="list" data-list>
+          <template data-list-row>
+            <div class="row">
+              <div class="rail" data-list-part="rail" data-list-group="scaffold" data-list-align="y"></div>
+              <div class="done" data-list-part="done" data-list-group="finale" data-list-align="y"></div>
+              <div class="check" data-list-part="check" data-list-align="y">
+                <div class="cbox"></div><div class="cfill"></div>
+                <svg viewBox="0 0 100 100" aria-hidden="true"><path class="tick" pathLength="100" d="M16 54 L40 78 L86 26"/></svg>
+              </div>
+              <div class="rtext fit" data-list-text data-words data-fit-max="84" data-fit-min="60"></div>
+            </div>
+          </template>
+        </div>
+      </div>
+      <div class="flood" data-layout-allow-overflow></div>
+      <div class="layer bargrp">
+        <div class="bar"><div class="pfill"></div><div class="yfill"></div></div>
+        <div class="brandbox display fit" data-fit-max="96" data-fit-min="48" data-text-role="brand" data-beat-text="brand">Brand</div>
+        <div class="pips"></div>
+      </div>
+    </section>
+    <section id="hookanswer-end" class="scene s3" data-start="0" data-duration="9.333" data-track-index="2">
+      <div class="layer end">
+        <div class="rule1"></div>
+        <div class="cta-btn">
+          <div class="cta display fit" data-fit-max="240" data-fit-min="96" data-text-role="cta" data-beat-text="cta">CTA</div>
+          <div class="arrowmask"><div class="arrow"></div></div>
+        </div>
+        <div class="rule2"></div>
+      </div>
+      <div class="ink" data-layout-allow-overflow></div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const S = (target, vars, at) => {
+        if (Array.isArray(target) && !target.length) return;
+        tl.set(target, {...vars, immediateRender: false}, at);
+      };
+      // Words rise through their masks on sixteenths or eighths; long text shares the last slot so it settles early.
+      const rise = (el, at, cap = 3, step = 0.125, dur = 0.75, later = false) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: 'expo.out', immediateRender: !later}, at + Math.min(i, cap) * B(step)));
+
+      // Cap each fit so its widest word stays whole: big type never breaks a word mid-mask.
+      const capWords = (el, hi, lo) => {
+        if (!el) return;
+        const ws = m.spans(el);
+        let top = hi;
+        if (ws.length && el.clientWidth > 2) {
+          el.style.fontSize = '100px';
+          ws.forEach((w) => { w.style.whiteSpace = 'nowrap'; });
+          const widest = Math.max(1, ...ws.map((w) => w.getBoundingClientRect().width + 8));
+          ws.forEach((w) => { w.style.whiteSpace = ''; });
+          el.style.fontSize = '';
+          top = Math.max(24, Math.min(hi, Math.floor((el.clientWidth * 0.94 / widest) * 50) * 2));
+        }
+        el.dataset.fitMax = String(top);
+        el.dataset.fitMin = String(Math.min(lo, top));
+      };
+
+      // Reflow the benefits per count: fewer items get taller cards and larger type.
+      const n = m.items.length;
+      const listMax = n === 1 ? 120 : n === 2 ? 100 : 84;
+      capWords(q('.hl'), 300, 110);
+      capWords(q('.sub'), 112, 64);
+      capWords(q('.brandbox'), 96, 48);
+      capWords(q('.cta'), 240, 96);
+      qa('.list [data-list-text]').forEach((el) => capWords(el, listMax, 60));
+      window.cliphouseFitText?.();
+
+      const hl = q('.hl');
+      const strikes = [...hl.querySelectorAll('.wmask')].map((mk) => {
+        const s = document.createElement('span');
+        s.className = 'strike';
+        mk.append(s);
+        return s;
+      });
+
+      // Beats 0-3: the question holds, the pink meter steps and stalls.
+      const pf = q('.pfill');
+      tl.fromTo(pf, {scaleX: 0}, {scaleX: 0.24, duration: B(0.75), ease: 'expo.out'}, t('meter1'));
+      tl.to(pf, {scaleX: 0.48, duration: B(0.75), ease: 'expo.out'}, t('meter2'));
+      tl.to(pf, {scaleX: 0.7, duration: B(0.75), ease: 'expo.out'}, t('meter3'));
+      tl.to(pf, {scaleX: 0.82, duration: B(0.75), ease: 'expo.out'}, t('meter4'));
+
+      // Beat 4: the yellow strike pens through each word.
+      strikes.forEach((s, i) => tl.fromTo(s, {scaleX: 0, transformOrigin: '0% 50%'},
+        {scaleX: 1, duration: B(0.375), ease: 'power3.out'}, t('strike') + Math.min(i, 5) * B(0.125)));
+
+      // Beat 5: the words drop out from behind their strikes, yellow finishes the meter, the chip flips.
+      m.spans(hl).forEach((w, i) => tl.to(w, {yPercent: 125, duration: B(0.375), ease: 'power3.in'}, t('fix') + Math.min(i, 4) * B(0.0625)));
+      tl.fromTo('.yfill', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('fix'));
+      tl.fromTo('.chipfix', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('fix'));
+      rise(q('.brandbox'), t('brand'), 2);
+
+      // Beat 6: the strikes lift away, the answer rises.
+      strikes.forEach((s, i) => tl.to(s, {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.375), ease: 'expo.out'}, t('subhead') + Math.min(i, 2) * B(0.0625)));
+      S('.sub', {visibility: 'visible'}, t('subhead'));
+      rise(q('.sub'), t('subhead'), 4);
+      S(hl, {visibility: 'hidden'}, t('rails'));
+      S('.list', {visibility: 'visible'}, t('rails'));
+
+      // Beat 6.5: the empty benefit cards wipe open, one per slot.
+      qa('.list .rail').forEach((r, i) => tl.fromTo(r, {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('rails') + i * B(0.125)));
+
+      // Beats 7-9: one benefit per beat; the check box pops on the start, fills and ticks on the accent.
+      const checks = [];
+      m.items.forEach((it) => {
+        const row = m.row(it.index);
+        if (!row) return;
+        const check = row.querySelector('.check');
+        checks.push(check);
+        rise(row.querySelector('[data-list-text]'), it.start, 3);
+        S(check, {visibility: 'visible'}, it.start);
+        tl.fromTo(check, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, it.start);
+        tl.fromTo(row.querySelector('.cfill'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, it.accent);
+        tl.fromTo(row.querySelector('.tick'), {strokeDashoffset: 100}, {strokeDashoffset: 0, duration: B(0.375), ease: 'power3.out'}, it.accent);
+      });
+
+      // Beat 10: one done pip per benefit stamps into the bar. Beat 11: every card's yellow edge grows from its middle.
+      const pips = m.parts(q('.pips'), 'pip', () => {
+        const p = document.createElement('div');
+        p.className = 'pip';
+        p.dataset.listGroup = 'finale';
+        return p;
+      });
+      pips.forEach((p, i) => tl.fromTo(p, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('tally') + i * B(0.125)));
+      qa('.list .done').forEach((d, i) => tl.fromTo(d, {scaleY: 0}, {scaleY: 1, duration: B(0.75), ease: 'expo.out'}, t('done') + i * B(0.0625)));
+      const ph = q('.pips');
+      q('.rule2').style.width = Math.max(120, ph.offsetLeft - 112) + 'px';
+
+      // Beat 12: the finished bar floods yellow to every corner. Beat 12.5: the brand lifts into the top lockup.
+      S('.flood', {visibility: 'visible'}, t('flood'));
+      tl.fromTo('.flood', {clipPath: 'inset(1500px 80px 200px 80px)'},
+        {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.75), ease: 'power3.out'}, t('flood'));
+      S('.end', {visibility: 'visible'}, t('brandLift'));
+      tl.to('.brandbox', {x: -48, y: -1364, duration: B(0.75), ease: 'expo.out'}, t('brandLift'));
+
+      // Beat 13: the benefits clear under the flood; the CTA button wipes open.
+      S(['.sub', '.list'], {visibility: 'hidden'}, t('door'));
+      S(checks, {visibility: 'hidden'}, t('door'));
+      tl.fromTo('.cta-btn', {clipPath: 'inset(0% 100% 0% 0%)'},
+        {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.75), ease: 'expo.out'}, t('door'));
+
+      // Beat 14: the CTA stamps.
+      tl.fromTo('.cta-btn', {scale: 1.08, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.75), ease: 'expo.out'}, t('ctaStamp'));
+      rise(q('.cta'), t('ctaStamp'), 1);
+
+      // Beats 15-17: rule, arrow, and the bottom rule that runs to the done pips.
+      tl.fromTo('.rule1', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('rule'));
+      tl.fromTo('.arrow', {xPercent: -101}, {xPercent: 0, duration: B(0.5), ease: 'expo.out'}, t('arrow'));
+      tl.fromTo('.rule2', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('tail'));
+
+      // Beat 18: the dark CTA button floods to every edge.
+      S('.ink', {visibility: 'visible'}, t('ink'));
+      tl.fromTo('.ink', {clipPath: 'inset(420px 80px 500px 80px)'},
+        {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.75), ease: 'power3.out'}, t('ink'));
+
+      // Under the ink: reset the hook state.
+      const R = B(18.875);
+      S('.end', {visibility: 'hidden'}, R);
+      S('.brandbox', {x: 0, y: 0}, R);
+      S(m.spans(q('.brandbox')), {yPercent: 125}, R);
+      S(['.pfill', '.yfill'], {scaleX: 0}, R);
+      S(pips, {scale: 0}, R);
+      S(checks, {scale: 0}, R);
+      S('.chipfix', {scale: 0}, R);
+      S(hl, {visibility: 'visible'}, R);
+
+      // Beat 19: the ink lifts and the question rises back, matching frame 0.
+      S(['.ink', '.flood'], {visibility: 'hidden'}, t('hookReturn'));
+      rise(hl, t('hookReturn'), 2, 0.125, 0.625, true);
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

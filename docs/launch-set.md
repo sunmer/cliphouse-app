@@ -1,10 +1,12 @@
 # Launch set and music library
 
-Thirteen HyperFrames templates for SaaS launches and changelogs, plus a library of 8 royalty-free tracks the user picks from.
+HyperFrames templates for SaaS launches, developer updates, and hook-first social clips, plus a library of 8 royalty-free tracks the user picks from.
 
 ## Templates
 
-`changelog`, `nowinbeta`, `versionreveal`, `shipped`, `featurelist`, `metricbump`, `integration`, `pricingchange`, `waitlist`, `launchday`, `releasenotes`, `beforenow`, `customerquote`.
+- **Launch set (2026-10-13):** `changelog`, `nowinbeta`, `versionreveal`, `shipped`, `featurelist`, `metricbump`, `integration`, `pricingchange`, `waitlist`, `launchday`, `releasenotes`, `beforenow`, `customerquote`.
+- **Developer set (2026-10-14):** `apirelease`, `breakingchange`, `migration`, `codediff`, `githubstars`, `contributors`, `roadmap`, `benchmark`, `modelrelease`, `statusupdate`, `securityadvisory`, `docslaunch`, `hackathon`, `devtalk`, `opensource`.
+- **Hook set (2026-10-16):** `hookanswer`, `quickstart`, `howitworks`, `foundernote`, `weeklyshipped`, `whyswitch`, `stathook`, `youasked`, `featuredemo`, `launchweek`, `builtfor`, `workswith`. Briefs with `hook: true` get a scroll-stopping, benefit-led direction. Briefs can set `goals`; otherwise the catalog writer keeps the goals already in the manifest.
 
 - **Briefs:** `scripts/launch/briefs.mjs` fixes each template's id, size, roles, list limits, starter copy, theme, and facets.
 - **Generation:** Claude Opus 5.5 at high effort on the Anthropic API (`ANTHROPIC_API_KEY` in `.env`). Opus writes `score.json` (beat timing only) and `src/hyperframes/<id>/index.html`. `scripts/launch/scaffold.mjs` writes `schema.ts`, `meta.ts`, `score.ts`, and the registry module `src/videos/launch/`.
