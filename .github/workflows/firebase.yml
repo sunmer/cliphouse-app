@@ -66,15 +66,16 @@ jobs:
           ${{ vars.EDGE_SECRET_ENABLED == 'true' && '--set-secrets EDGE_SECRET=cliphouse-edge-secret:latest' || '' }}
           --quiet
       # Private loop worker: the share service image with its own CPUs, so preview loops never slow posters.
-      # Scales to zero; only the share service account may call it. It reuses the image just built.
+      # One warm instance renders one gallery (3 loops) at once with its persistent browsers; busier times
+      # add instances up to the cap. Only the share service account may call it. It reuses the image just built.
       - name: Deploy loop worker
         if: ${{ vars.VITE_SHARE_API_ORIGIN != '' && vars.LOOP_WORKER_URL != '' }}
         run: >-
           gcloud run deploy cliphouse-loop --project cliphouse-app --region europe-west1
           --image "$(gcloud run services describe cliphouse-share --project cliphouse-app --region europe-west1 --format='value(spec.template.spec.containers[0].image)')"
           --service-account cliphouse-loop@cliphouse-app.iam.gserviceaccount.com
-          --no-allow-unauthenticated --cpu 4 --memory 4Gi --concurrency 1
-          --min-instances 0 --max-instances 4 --timeout 150 --cpu-boost
+          --no-allow-unauthenticated --cpu 4 --memory 4Gi --concurrency 3
+          --min-instances 1 --max-instances 8 --timeout 150 --cpu-boost
           --command node --args=--import,tsx,server/loop-worker.ts
           --set-env-vars HYPERFRAMES_NO_TELEMETRY=1,HYPERFRAMES_BROWSER_PATH=/usr/local/bin/hyperframes-chrome,NODE_ENV=production
           --quiet

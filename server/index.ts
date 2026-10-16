@@ -36,7 +36,7 @@ const handler = createHandler({
   preview: createPreviewService({store, render: previewRenderer.render, origin, version: process.env.RENDER_VERSION || '1', gate}),
   loop: loopWorker
     ? createLoopService({store, render: createRemoteLoopRenderer(loopWorker), origin, version: process.env.RENDER_VERSION || '1',
-      concurrency: Number(process.env.LOOP_CONCURRENCY || 4)})
+      concurrency: Number(process.env.LOOP_CONCURRENCY || 24), maxQueue: 120})
     : createLoopService({store, render: previewRenderer.renderLoop, origin, version: process.env.RENDER_VERSION || '1', gate,
       concurrency: Number(process.env.LOOP_CONCURRENCY || 1)}),
   verify: (token) => getAuth().verifyIdToken(token, true),
