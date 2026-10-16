@@ -152,18 +152,37 @@ export type PreviewResult = {
   poster: string | null; video: string | null; editor: string; previewId: string; cached: boolean; ms: number;
   image?: Buffer; message?: string;
 };
-export type LoopResult = {video: string | null; previewId: string; cached: boolean; ms: number; message?: string};
+export type LoopResult = {video: string | null; previewId: string; cached: boolean; ms: number; message?: string; pending?: boolean};
 type Store = Pick<ReturnType<typeof createStore>, 'previewExists' | 'savePreview' | 'reservePreview' | 'previewAsset'>;
 type AssetArgs = {variantId: string; props: unknown; templateVersion?: number; caller: string; keyed: boolean; timeoutMs?: number};
 export type PreviewExt = 'jpg' | 'webp';
 
+// Posters and loops share the instance's CPUs. Posters always go first: a loop starts only when no
+// poster is rendering, so a slow loop can never starve the gallery posters.
+export function createRenderGate() {
+  let posters = 0;
+  const idle: (() => void)[] = [];
+  return {
+    async poster<T>(job: () => Promise<T>) {
+      posters++;
+      try { return await job(); } finally { if (--posters === 0) idle.splice(0).forEach((resolve) => resolve()); }
+    },
+    async whenIdle() { while (posters > 0) await new Promise<void>((resolve) => idle.push(resolve)); },
+  };
+}
+type Gate = ReturnType<typeof createRenderGate>;
+const PENDING = Symbol('pending');
+
 // Orchestrates one personalized asset (poster or loop): cache lookup, a per-instance queue that shares and
 // exports never hold, the daily preview quota (cache misses only), and a hard time budget. Every failure
 // degrades to url: null with a message, so the agent flow always completes.
-function createAssetService({store, render, origin, version, ext, budgetMs, maxQueue, concurrency, readBack}: {
+// A detached asset (the loop) renders under its own budget, not the caller's: when the caller stops
+// waiting, the render goes on, and a later call gets it from the cache or joins the render in flight.
+function createAssetService({store, render, origin, version, ext, budgetMs, maxQueue, concurrency, readBack, gate, detachedBudgetMs}: {
   store: Store; render: RenderPreview; origin: string; version: string; ext: PreviewExt;
-  budgetMs: number; maxQueue: number; concurrency: number; readBack: boolean;
+  budgetMs: number; maxQueue: number; concurrency: number; readBack: boolean; gate?: Gate; detachedBudgetMs?: number;
 }) {
+  const detached = detachedBudgetMs !== undefined;
   let queued = 0;
   let running = 0;
   const waiting: (() => void)[] = [];
@@ -174,11 +193,12 @@ function createAssetService({store, render, origin, version, ext, budgetMs, maxQ
     if (queued >= maxQueue) throw new HttpError(429, 'The preview renderer is busy.');
     queued++;
     try {
+      if (detached) await gate?.whenIdle();
       if (running >= concurrency) await new Promise<void>((resolve) => waiting.push(resolve));
       running++;
       try {
         if (signal.aborted) throw new HttpError(504, 'Preview timed out.');
-        return await job();
+        return await (gate && !detached ? gate.poster(job) : job());
       } finally { running--; waiting.shift()?.(); }
     } finally { queued--; }
   };
@@ -197,9 +217,11 @@ function createAssetService({store, render, origin, version, ext, budgetMs, maxQ
     // Posters and loops of one edit share the hash; the extension tells them apart.
     const hash = fingerprint('', value, `${version}-preview`);
     const url = `${origin}/p/${hash}.${ext}`;
-    const done = (partial: {url?: string; image?: Buffer; message?: string; cached: boolean}) =>
+    const done = (partial: {url?: string; image?: Buffer; message?: string; cached: boolean; pending?: boolean}) =>
       ({url: null as string | null, previewId: hash, ...partial, ms: Date.now() - started});
-    const signal = AbortSignal.timeout(Math.min(timeoutMs ?? budgetMs, budgetMs));
+    const wait = Math.max(0, Math.min(timeoutMs ?? budgetMs, budgetMs));
+    // The render's own budget. For a poster it is the caller's wait; a detached loop gets a longer one.
+    const signal = AbortSignal.timeout(detached ? detachedBudgetMs : wait);
     try {
       if (await store.previewExists(hash, ext).catch(() => false)) {
         if (!readBack) return done({url, cached: true});
@@ -219,6 +241,13 @@ function createAssetService({store, render, origin, version, ext, budgetMs, maxQ
         inflight.set(hash, job);
         job.catch(() => {}).finally(() => inflight.delete(hash));
       }
+      if (detached) {
+        if (wait === 0) return done({cached: false, pending: true});
+        let timer: NodeJS.Timeout | undefined;
+        const result = await Promise.race([job, new Promise<typeof PENDING>((resolve) => { timer = setTimeout(() => resolve(PENDING), wait); })])
+          .finally(() => clearTimeout(timer));
+        return result === PENDING ? done({cached: false, pending: true}) : done({url, cached: false});
+      }
       const image = await Promise.race([job, new Promise<never>((_, reject) => {
         if (signal.aborted) reject(new HttpError(504, 'Preview timed out.'));
         signal.addEventListener('abort', () => reject(new HttpError(504, 'Preview timed out.')), {once: true});
@@ -233,10 +262,10 @@ function createAssetService({store, render, origin, version, ext, budgetMs, maxQ
 }
 
 // Personalized poster (JPEG). Returns the image bytes too, so MCP hosts can show it inline.
-export function createPreviewService({store, render, origin, version, budgetMs = 25_000, maxQueue = 12, concurrency = 3}: {
-  store: Store; render: RenderPreview; origin: string; version: string; budgetMs?: number; maxQueue?: number; concurrency?: number;
+export function createPreviewService({store, render, origin, version, budgetMs = 25_000, maxQueue = 12, concurrency = 3, gate}: {
+  store: Store; render: RenderPreview; origin: string; version: string; budgetMs?: number; maxQueue?: number; concurrency?: number; gate?: Gate;
 }) {
-  const poster = createAssetService({store, render, origin, version, ext: 'jpg', budgetMs, maxQueue, concurrency, readBack: true});
+  const poster = createAssetService({store, render, origin, version, ext: 'jpg', budgetMs, maxQueue, concurrency, readBack: true, gate});
   return async ({editor, ...args}: AssetArgs & {editor: string}): Promise<PreviewResult> => {
     const {url, image, message, ...rest} = await poster(args);
     return {...rest, poster: url, video: null, editor, image,
@@ -244,11 +273,15 @@ export function createPreviewService({store, render, origin, version, budgetMs =
   };
 }
 
-// Personalized animated WebP loop. Slower than a poster, so it has its own queue: loops never delay posters.
-export function createLoopService({store, render, origin, version, budgetMs = 45_000, maxQueue = 8, concurrency = 2}: {
-  store: Store; render: RenderPreview; origin: string; version: string; budgetMs?: number; maxQueue?: number; concurrency?: number;
+// Personalized animated WebP loop. Slower than a poster, so it has its own queue, one at a time, and it
+// waits for posters to finish (gate). It renders in the background: a call waits at most budgetMs,
+// returns pending: true if the loop is not ready, and the next call picks it up.
+export function createLoopService({store, render, origin, version, budgetMs = 45_000, renderBudgetMs = 120_000, maxQueue = 12, concurrency = 1, gate}: {
+  store: Store; render: RenderPreview; origin: string; version: string; budgetMs?: number; renderBudgetMs?: number;
+  maxQueue?: number; concurrency?: number; gate?: Gate;
 }) {
-  const loop = createAssetService({store, render, origin, version, ext: 'webp', budgetMs, maxQueue, concurrency, readBack: false});
+  const loop = createAssetService({store, render, origin, version, ext: 'webp', budgetMs, maxQueue, concurrency, readBack: false,
+    gate, detachedBudgetMs: renderBudgetMs});
   return async (args: AssetArgs): Promise<LoopResult> => {
     const {url, image: _image, ...rest} = await loop(args);
     return {...rest, video: url};
