@@ -177,7 +177,7 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
         </aside>
 
         <main>
-          <h1 className="visually-hidden">Free agent-compatible motion graphics templates</h1>
+          <h1 className="visually-hidden">You ship it. Cliphouse shows it off.</h1>
           <div className="results-bar">
             <div className="segmented collection-tabs" role="group" aria-label="Collection">
               <button className={!savedOnly ? 'on' : ''} aria-pressed={!savedOnly} onClick={() => setSavedOnly(false)}>All videos</button>
