@@ -1,14 +1,14 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "se.cliphou/templates",
-  "title": "cliphou.se motion graphics templates",
-  "description": "Launch videos that auto adapt to what you're building, right in your coding agent.",
+  "title": "cliphou.se release videos",
+  "description": "Turn every release into a social video, right in your coding agent.",
   "websiteUrl": "https://cliphou.se/agents/",
   "repository": {
     "url": "https://github.com/sunmer/cliphouse",
     "source": "github"
   },
-  "version": "1.4.0",
+  "version": "1.4.1",
   "remotes": [
     {
       "type": "streamable-http",

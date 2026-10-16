@@ -10,7 +10,7 @@ See [agents.md](docs/agents.md) for agent specs, handoff links, source packages,
 
 ## Use cliphou.se from your agent
 
-[![Demo: a coding agent suggests launch video templates, the user picks one, and the agent fills it from the repo](public/agents/poster-16x9-a1.jpg)](https://cliphou.se/agents/)
+[![Demo: a coding agent suggests release video templates, the user picks one, and the agent fills it from the repo](public/agents/poster-16x9-a1.jpg)](https://cliphou.se/agents/)
 
 - Coding agents (Codex, Claude Code): `npx skills add sunmer/cliphouse`
 - Chat apps (Claude, ChatGPT, Cursor): connect the MCP server at `https://cliphou.se/mcp`
