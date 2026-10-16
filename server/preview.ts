@@ -1,5 +1,5 @@
 import {execFile} from 'node:child_process';
-import {mkdtemp, rename, rm, stat} from 'node:fs/promises';
+import {mkdtemp, rename, rm, stat, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {promisify} from 'node:util';
@@ -14,6 +14,38 @@ import type {createStore} from './store.ts';
 
 export type PreviewImage = {image: string; cleanup: () => Promise<void>};
 export type RenderPreview = (value: Snapshot, signal: AbortSignal) => Promise<PreviewImage>;
+
+// Renders loops on the private loop worker (server/loop-worker.ts) instead of this instance.
+// The Google ID token proves the caller is this service's account; Cloud Run IAM checks it.
+// On Cloud Run the metadata server issues the token; it is cached until shortly before it expires.
+export function createRemoteLoopRenderer(workerUrl: string, getToken?: () => Promise<string>): RenderPreview {
+  let cached: {value: string; until: number} | null = null;
+  const token = getToken ?? (async () => {
+    if (cached && Date.now() < cached.until) return cached.value;
+    const audience = encodeURIComponent(workerUrl.replace(/\/$/, ''));
+    const res = await fetch(`http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=${audience}`,
+      {headers: {'Metadata-Flavor': 'Google'}, signal: AbortSignal.timeout(5_000)});
+    if (!res.ok) throw new Error(`Metadata server answered ${res.status}.`);
+    // ID tokens live an hour; refresh after 50 minutes.
+    cached = {value: `Bearer ${(await res.text()).trim()}`, until: Date.now() + 50 * 60_000};
+    return cached.value;
+  });
+  return async (value, signal) => {
+    const res = await fetch(`${workerUrl.replace(/\/$/, '')}/render-loop`, {
+      method: 'POST', signal,
+      headers: {'Content-Type': 'application/json', Authorization: await token()},
+      body: JSON.stringify({variantId: value.variantId, props: value.props, templateVersion: value.templateVersion}),
+    });
+    if (!res.ok) throw new Error(`Loop worker answered ${res.status}: ${(await res.text().catch(() => '')).slice(0, 120)}`);
+    if (res.headers.get('content-type') !== 'image/webp') throw new Error('Loop worker returned no WebP.');
+    const bytes = Buffer.from(await res.arrayBuffer());
+    if (bytes.length > MAX_LOOP_BYTES) throw new Error('Rendered loop exceeds size limit.');
+    const directory = await mkdtemp(path.join(tmpdir(), 'cliphouse-remote-loop-'));
+    const image = path.join(directory, 'loop.webp');
+    await writeFile(image, bytes);
+    return {image, cleanup: () => rm(directory, {recursive: true, force: true})};
+  };
+}
 
 const run = promisify(execFile);
 // Preview loop: a few seconds around the poster frame, silent, small enough for a chat grid.

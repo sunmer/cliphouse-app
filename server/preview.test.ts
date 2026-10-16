@@ -8,7 +8,9 @@ import {Readable} from 'node:stream';
 import manifest from '../src/catalog/manifest.json' with {type: 'json'};
 import {createHandler} from './app.ts';
 import {HttpError} from './model.ts';
-import {createLoopService, createPreviewService, createRenderGate, loopWindow, type RenderPreview} from './preview.ts';
+import {createLoopService, createPreviewService, createRemoteLoopRenderer, createRenderGate, loopWindow, type RenderPreview} from './preview.ts';
+import {readFile} from 'node:fs/promises';
+import {validateShare} from './model.ts';
 import type {EventLog, SearchLog, createStore} from './store.ts';
 
 const variant = manifest.variants.find((v) => v.id === 'showreel-nocturne')!;
@@ -340,4 +342,30 @@ test('loopWindow keeps four seconds inside the video, ending just after the post
   assert.deepEqual(loopWindow({fps: 30, durationInFrames: 300, posterFrame: 20}), {start: 0, length: 120});
   assert.deepEqual(loopWindow({fps: 30, durationInFrames: 300, posterFrame: 299}), {start: 180, length: 120});
   assert.deepEqual(loopWindow({fps: 30, durationInFrames: 90, posterFrame: 60}), {start: 0, length: 90});
+});
+test('the remote loop renderer posts the edit with the ID token and checks the reply', async () => {
+  const seen: {auth?: string; body?: {variantId: string; props: unknown}}[] = [];
+  let reply: {status: number; type: string; body: Buffer} = {status: 200, type: 'image/webp', body: webp};
+  const worker = createServer(async (req, res) => {
+    const chunks: Buffer[] = [];
+    for await (const c of req) chunks.push(c as Buffer);
+    seen.push({auth: req.headers.authorization, body: JSON.parse(Buffer.concat(chunks).toString('utf8'))});
+    res.writeHead(reply.status, {'Content-Type': reply.type}).end(reply.body);
+  });
+  await new Promise<void>((resolve) => worker.listen(0, '127.0.0.1', resolve));
+  const url = `http://127.0.0.1:${(worker.address() as {port: number}).port}`;
+  try {
+    const remote = createRemoteLoopRenderer(url, async () => 'Bearer test-token');
+    const value = validateShare({variantId: variant.id, props});
+    const out = await remote(value, AbortSignal.timeout(2_000));
+    assert.deepEqual(await readFile(out.image), webp);
+    await out.cleanup();
+    assert.equal(seen[0].auth, 'Bearer test-token');
+    assert.equal(seen[0].body?.variantId, variant.id);
+    assert.deepEqual(seen[0].body?.props, value.props);
+    reply = {status: 200, type: 'text/html', body: Buffer.from('<html>')};
+    await assert.rejects(remote(value, AbortSignal.timeout(2_000)), /no WebP/);
+    reply = {status: 500, type: 'text/plain', body: Buffer.from('boom')};
+    await assert.rejects(remote(value, AbortSignal.timeout(2_000)), /answered 500/);
+  } finally { await new Promise<void>((resolve) => worker.close(() => resolve())); }
 });
