@@ -27,5 +27,17 @@ import docslaunch from '../../hyperframes/docslaunch/index.html?raw';
 import hackathon from '../../hyperframes/hackathon/index.html?raw';
 import devtalk from '../../hyperframes/devtalk/index.html?raw';
 import opensource from '../../hyperframes/opensource/index.html?raw';
+import hookanswer from '../../hyperframes/hookanswer/index.html?raw';
+import quickstart from '../../hyperframes/quickstart/index.html?raw';
+import howitworks from '../../hyperframes/howitworks/index.html?raw';
+import foundernote from '../../hyperframes/foundernote/index.html?raw';
+import weeklyshipped from '../../hyperframes/weeklyshipped/index.html?raw';
+import whyswitch from '../../hyperframes/whyswitch/index.html?raw';
+import stathook from '../../hyperframes/stathook/index.html?raw';
+import youasked from '../../hyperframes/youasked/index.html?raw';
+import featuredemo from '../../hyperframes/featuredemo/index.html?raw';
+import launchweek from '../../hyperframes/launchweek/index.html?raw';
+import builtfor from '../../hyperframes/builtfor/index.html?raw';
+import workswith from '../../hyperframes/workswith/index.html?raw';
 
-export const launchSources: Record<string, string> = {changelog, nowinbeta, versionreveal, shipped, featurelist, metricbump, integration, pricingchange, waitlist, launchday, releasenotes, beforenow, customerquote, apirelease, breakingchange, migration, codediff, githubstars, contributors, roadmap, benchmark, modelrelease, statusupdate, securityadvisory, docslaunch, hackathon, devtalk, opensource};
+export const launchSources: Record<string, string> = {changelog, nowinbeta, versionreveal, shipped, featurelist, metricbump, integration, pricingchange, waitlist, launchday, releasenotes, beforenow, customerquote, apirelease, breakingchange, migration, codediff, githubstars, contributors, roadmap, benchmark, modelrelease, statusupdate, securityadvisory, docslaunch, hackathon, devtalk, opensource, hookanswer, quickstart, howitworks, foundernote, weeklyshipped, whyswitch, stathook, youasked, featuredemo, launchweek, builtfor, workswith};

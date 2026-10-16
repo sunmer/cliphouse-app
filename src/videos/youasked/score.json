@@ -1,0 +1,54 @@
+{
+  "beatFrames": 14,
+  "scenes": [
+    {
+      "type": "quote",
+      "bars": 2,
+      "focusBeat": 5,
+      "roles": ["brand", "quote", "author"],
+      "energy": 1
+    },
+    {
+      "type": "announcement",
+      "bars": 1,
+      "focusBeat": 11.5,
+      "roles": ["brand", "headline"],
+      "energy": 2
+    },
+    {
+      "type": "end-screen",
+      "bars": 2,
+      "focusBeat": 16,
+      "roles": ["headline", "cta", "brand"],
+      "energy": 3
+    }
+  ],
+  "cues": [
+    {"id": "quote", "beat": 0, "sound": "pluck", "role": "quote", "velocity": 0.7},
+    {"id": "avatar", "beat": 1, "sound": "snap", "velocity": 0.5},
+    {"id": "author", "beat": 2, "sound": "blip", "role": "author", "velocity": 0.6},
+    {"id": "vote1", "beat": 3, "sound": "bell", "note": 4, "velocity": 0.5},
+    {"id": "vote2", "beat": 3.5, "sound": "bell", "note": 5, "velocity": 0.55},
+    {"id": "vote3", "beat": 4, "sound": "bell", "note": 7, "velocity": 0.6},
+    {"id": "commit1", "beat": 5, "sound": "marimba", "note": 0, "velocity": 0.6},
+    {"id": "commit2", "beat": 6, "sound": "marimba", "note": 2, "velocity": 0.65},
+    {"id": "commit3", "beat": 7, "sound": "marimba", "note": 4, "velocity": 0.7},
+    {"id": "flip", "beat": 8, "sound": "flap", "velocity": 0.9},
+    {"id": "flood", "beat": 9, "sound": "zap", "velocity": 0.8},
+    {"id": "badge", "beat": 10, "sound": "tom", "velocity": 0.6},
+    {"id": "finaleBrand", "beat": 10, "sound": "blip", "role": "brand", "velocity": 0.5},
+    {"id": "headline", "beat": 10.5, "sound": "stab", "role": "headline", "velocity": 0.9},
+    {"id": "rule", "beat": 12, "sound": "pluck", "velocity": 0.5},
+    {"id": "terminal", "beat": 13, "sound": "tom", "velocity": 0.7},
+    {"id": "prompt", "beat": 13.5, "sound": "snap", "velocity": 0.5},
+    {"id": "ctaStamp", "beat": 14, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "output", "beat": 15, "sound": "marimba", "note": 7, "velocity": 0.6},
+    {"id": "check", "beat": 16, "sound": "clap", "velocity": 0.7},
+    {"id": "cursor", "beat": 17, "sound": "blip", "velocity": 0.35},
+    {"id": "loopFlood", "beat": 18, "sound": "zap", "velocity": 0.7},
+    {"id": "shell", "beat": 19, "sound": "tom", "velocity": 0.6}
+  ],
+  "risers": [
+    {"beat": 5, "beats": 3}
+  ]
+}

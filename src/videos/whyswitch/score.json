@@ -1,0 +1,65 @@
+{
+  "beatFrames": 15,
+  "scenes": [
+    {
+      "type": "title-reveal",
+      "bars": 1,
+      "focusBeat": 3,
+      "roles": ["brand", "headline"],
+      "energy": 1
+    },
+    {
+      "type": "comparison",
+      "bars": 2,
+      "focusBeat": 10,
+      "roles": ["brand", "headline", "list"],
+      "energy": 2
+    },
+    {
+      "type": "end-screen",
+      "bars": 2,
+      "focusBeat": 16,
+      "roles": ["brand", "cta"],
+      "energy": 3
+    }
+  ],
+  "cues": [
+    {"id": "greenBand", "beat": 0, "sound": "impact", "velocity": 0.7},
+    {"id": "teaseCheck", "beat": 1, "sound": "pluck", "velocity": 0.6},
+    {"id": "greyBand", "beat": 2, "sound": "snap", "velocity": 0.5},
+    {"id": "teaseCross", "beat": 3, "sound": "blip", "velocity": 0.5},
+    {"id": "table", "beat": 4, "sound": "tom", "role": "headline", "velocity": 0.7},
+    {"id": "scaffold", "beat": 5, "sound": "snap", "velocity": 0.5},
+    {"id": "redacted", "beat": 6, "sound": "blip", "velocity": 0.5},
+    {"id": "columnStep", "beat": 9, "sound": "tom", "velocity": 0.5},
+    {"id": "checksPunch", "beat": 10, "sound": "clap", "velocity": 0.7},
+    {"id": "headRule", "beat": 11, "sound": "pluck", "velocity": 0.5},
+    {"id": "flood", "beat": 12, "sound": "zap", "role": "brand", "velocity": 0.8},
+    {"id": "brandRule", "beat": 13, "sound": "lead", "role": "brand", "velocity": 0.7},
+    {"id": "ctaStamp", "beat": 14, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "arrow", "beat": 15, "sound": "pluck", "velocity": 0.6},
+    {"id": "bigPunch", "beat": 16, "sound": "tom", "velocity": 0.5},
+    {"id": "arrowStep", "beat": 17, "sound": "blip", "velocity": 0.5},
+    {"id": "loopFlood", "beat": 18, "sound": "zap", "velocity": 0.7},
+    {"id": "headline", "beat": 19, "sound": "pluck", "role": "headline", "velocity": 0.6}
+  ],
+  "list": {
+    "role": "list",
+    "label": "Reasons",
+    "scene": 1,
+    "min": 1,
+    "max": 4,
+    "itemMax": 26,
+    "schedules": {
+      "1": [7],
+      "2": [7, 8],
+      "3": [6, 7, 8],
+      "4": [6, 7, 8, 9]
+    },
+    "accentOffset": 1,
+    "voice": "marimba"
+  },
+  "risers": [
+    {"beat": 10, "beats": 2}
+  ]
+}

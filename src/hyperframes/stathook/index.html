@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1920" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1920px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+    .stage { z-index:1; }
+    .s1 { z-index:2; }
+    .fin { z-index:3; }
+    .btnlayer { z-index:4; }
+    .wipe { z-index:6; background:var(--theme-background); }
+    .statlayer { z-index:7; }
+    .band { position:absolute; left:0; top:1460px; width:1080px; height:460px; background:var(--theme-surface); }
+    .field { position:absolute; left:0; top:0; width:1080px; height:1460px; background:var(--theme-accent); }
+    .pip { position:absolute; top:1268px; width:218px; height:24px; background:var(--theme-accent2); transform-origin:0 50%; }
+    .btnwrap { position:absolute; inset:0; transform-origin:540px 970px; }
+    .meter { position:absolute; left:80px; top:1440px; width:920px; height:56px; overflow:hidden; transform-origin:0 0; }
+    .seg { position:absolute; top:0; width:218px; height:100%; background:var(--theme-accent2); transform-origin:0 50%; }
+    .barfill { position:absolute; inset:0; background:var(--theme-accent2); transform-origin:0 50%; }
+    .cta { position:absolute; left:120px; top:780px; width:840px; height:380px; font-size:140px; line-height:.95; text-align:center; display:grid; align-content:center; color:var(--theme-accent); visibility:hidden; }
+    .tile { position:absolute; left:80px; top:140px; width:920px; height:480px; background:var(--theme-accent); }
+    .statwrap { position:absolute; left:80px; top:140px; width:920px; height:1480px; }
+    .statfit { position:absolute; inset:0; font-size:1400px; line-height:1; text-align:center; display:grid; place-items:center; color:var(--theme-foreground); }
+    .stat { display:inline-block; max-width:920px; line-height:1; }
+    .headline { position:absolute; left:80px; top:720px; width:920px; height:700px; font-size:230px; line-height:.9; text-align:center; display:grid; align-content:center; color:var(--theme-foreground); visibility:hidden; }
+    .subhead { position:absolute; left:230px; top:1520px; width:770px; height:340px; font-size:84px; line-height:1.08; font-weight:800; display:grid; align-content:center; color:var(--theme-accent); visibility:hidden; }
+    .check { position:absolute; left:80px; top:1635px; width:110px; height:110px; background:var(--theme-accent); }
+    .check svg { display:block; width:110px; height:110px; }
+    .check path { fill:none; stroke:var(--theme-accent2); stroke-width:12; stroke-linecap:square; stroke-dasharray:80; stroke-dashoffset:80; }
+    .brand { position:absolute; left:80px; top:1540px; width:920px; height:300px; font-size:160px; line-height:.95; text-align:center; display:grid; align-content:center; color:var(--theme-accent); visibility:hidden; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1080" data-height="1920">
+    <section id="stathook-stage" class="scene stage" data-start="0" data-duration="8" data-track-index="0">
+      <div class="band"></div>
+    </section>
+    <section id="stathook-sentence" class="scene s1" data-start="0" data-duration="8" data-track-index="1">
+      <h1 class="headline display fit" data-fit-max="230" data-fit-min="120" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <div class="check"><svg viewBox="0 0 96 96"><path d="M24 50 L42 68 L74 30" /></svg></div>
+      <p class="subhead fit" data-fit-max="84" data-fit-min="56" data-text-role="subhead" data-beat-text="subhead">Subhead</p>
+      <div class="brand display fit" data-fit-max="160" data-fit-min="80" data-text-role="brand" data-beat-text="brand">Brand</div>
+    </section>
+    <section id="stathook-finale" class="scene fin" data-start="0" data-duration="8" data-track-index="2">
+      <div class="field"></div>
+      <div class="pip" style="left:80px"></div>
+      <div class="pip" style="left:314px"></div>
+      <div class="pip" style="left:548px"></div>
+      <div class="pip" style="left:782px"></div>
+    </section>
+    <section id="stathook-button" class="scene btnlayer" data-start="0" data-duration="8" data-track-index="3">
+      <div class="btnwrap">
+        <div class="meter">
+          <div class="seg" style="left:0px"></div>
+          <div class="seg" style="left:234px"></div>
+          <div class="seg" style="left:468px"></div>
+          <div class="seg" style="left:702px"></div>
+          <div class="barfill"></div>
+        </div>
+        <div class="cta display fit" data-fit-max="140" data-fit-min="64" data-text-role="cta" data-beat-text="cta">CTA</div>
+      </div>
+    </section>
+    <section id="stathook-loop" class="scene wipe" data-start="0" data-duration="8" data-track-index="4"></section>
+    <section id="stathook-stat" class="scene statlayer" data-start="0" data-duration="8" data-track-index="5">
+      <div class="tile"></div>
+      <div class="statwrap">
+        <div class="statfit display fit" data-fit-max="1400" data-fit-min="100"><span class="stat" data-text-role="stat" data-beat-text="stat">0</span></div>
+      </div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      // Words rise through masks; later words share the cap slot so long text settles early.
+      const rise = (el, start, cap, step) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, start + Math.min(i, cap) * B(step)));
+      const sink = (el, at) => tl.to(m.spans(el), {yPercent: -125, duration: B(0.4), ease: 'power3.in'}, at);
+      const show = (el, at) => tl.set(el, {visibility: 'visible'}, at);
+      const hide = (el, at) => tl.set(el, {visibility: 'hidden'}, at);
+      const stat = q('.stat'), head = q('.headline'), sub = q('.subhead'), brand = q('.brand'), cta = q('.cta');
+      const segs = qa('.seg'), pips = qa('.pip');
+
+      // The stat plate: scale the fitted number into a 840 x 440 box centered at (540, 380).
+      const sw = Math.max(1, stat.offsetWidth), sh = Math.max(1, stat.offsetHeight);
+      const cx = stat.offsetLeft + sw / 2, cy = stat.offsetTop + sh / 2;
+      const s = Math.min(1, 840 / sw, 440 / sh);
+      tl.set('.statwrap', {transformOrigin: cx + 'px ' + cy + 'px', x: 0, y: 0, scale: 1}, 0);
+
+      // The meter is 920 x 56 at (80, 1440) with origin 0 0. Every shape change is a translate plus scale.
+      const W = 920, H = 56, X0 = 80, Y0 = 1440;
+      const box = (left, top, width, height) => ({x: left - X0, y: top - Y0, scaleX: width / W, scaleY: height / H});
+      const meterTo = (state, at) => tl.to('.meter', {...state, duration: B(0.75), ease: 'expo.out'}, at);
+      tl.set('.meter', box(80, 1440, 920, 56), 0);
+
+      // Beats 0-3: the meter under the number loads one segment per beat.
+      ['meter1', 'meter2', 'meter3', 'meter4'].forEach((id, i) =>
+        tl.fromTo(segs[i], {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t(id)));
+
+      // Beat 4: the number steps up into its plate, and the meter fills solid and becomes the divider.
+      tl.to('.statwrap', {x: 540 - (80 + cx), y: 380 - (140 + cy), scale: s, duration: B(0.75), ease: 'expo.out'}, t('shrink'));
+      meterTo(box(80, 650, 920, 24), t('shrink'));
+      tl.fromTo('.barfill', {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('shrink'));
+
+      // Beats 5-6: the headline completes the sentence.
+      show(head, t('headline'));
+      rise(head, t('headline'), 2, 0.5);
+
+      // Beat 6: the bar drops and the proof band rises with it as its top edge.
+      meterTo(box(80, 1436, 920, 24), t('strokeDrop'));
+      tl.fromTo('.band', {y: 460}, {y: 0, duration: B(0.75), ease: 'expo.out'}, t('strokeDrop'));
+
+      // Beat 7: the proof rises in the band.
+      show(sub, t('subhead'));
+      rise(sub, t('subhead'), 2, 0.25);
+
+      // Beat 8: the check stamps, and its tick draws on the half beat.
+      tl.fromTo('.check', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('check'));
+      tl.fromTo('.check path', {strokeDashoffset: 80}, {strokeDashoffset: 0, duration: B(0.5), ease: 'power3.out'}, t('check') + B(0.5));
+
+      // Beat 9: a black plate wipes up behind the number.
+      tl.fromTo('.tile', {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('tile'));
+
+      // Beat 10: the bar gathers into a short block, ready to become the button.
+      meterTo(box(420, 1436, 240, 24), t('gather'));
+
+      // Beat 11: the plate floods the upper screen to its farthest corner.
+      tl.fromTo('.fin', {clipPath: 'circle(0px at 540px 380px)'},
+        {clipPath: 'circle(1240px at 540px 380px)', duration: B(0.7), ease: 'power3.out'}, t('flood'));
+      hide(head, t('flood') + B(0.8));
+
+      // Beat 11.5: the block grows into the button, and the proof and check sink away.
+      meterTo(box(80, 740, 920, 460), t('button'));
+      sink(sub, t('button'));
+      tl.to('.check', {scale: 0, duration: B(0.4), ease: 'power3.in'}, t('button'));
+      hide(sub, t('ctaStamp'));
+
+      // Beat 12: the stamp. The button settles from overscale, and the CTA and brand rise.
+      tl.fromTo('.btnwrap', {scale: 1.08}, {scale: 1, duration: B(0.75), ease: 'expo.out', immediateRender: false}, t('ctaStamp'));
+      show(cta, t('ctaStamp'));
+      rise(cta, t('ctaStamp'), 0, 0.5);
+      show(brand, t('brand'));
+      rise(brand, t('brand'), 0, 0.5);
+
+      // Beats 13-14.5: pips load under the button toward the next loop.
+      ['pip1', 'pip2', 'pip3', 'pip4'].forEach((id, i) =>
+        tl.fromTo(pips[i], {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t(id)));
+
+      // Beat 14.5: the number and its plate sink out of the black field.
+      tl.to(m.spans(stat), {yPercent: -125, duration: B(0.4), ease: 'power3.in'}, t('pip4'));
+      tl.to('.tile', {clipPath: 'inset(0% 0% 100% 0%)', duration: B(0.4), ease: 'power3.in'}, t('pip4'));
+
+      // Beat 15: orange floods out of the button back to the opening stage.
+      tl.fromTo('.wipe', {clipPath: 'circle(0px at 540px 970px)'},
+        {clipPath: 'circle(1160px at 540px 970px)', duration: B(0.6), ease: 'power3.out'}, t('wipe'));
+      tl.set('.statwrap', {x: 0, y: 0, scale: 1}, t('wipe') + B(0.25));
+      hide(cta, t('wipe') + B(0.5));
+      hide(brand, t('wipe') + B(0.5));
+
+      // Beat 15.5: the giant number rises back, matching frame 0.
+      tl.fromTo(m.spans(stat), {yPercent: 125}, {yPercent: 0, duration: B(0.4), ease: 'expo.out', immediateRender: false}, t('stat'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

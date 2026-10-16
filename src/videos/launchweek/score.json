@@ -1,0 +1,44 @@
+{
+  "beatFrames": 14,
+  "scenes": [
+    {"type": "date-card", "bars": 1, "focusBeat": 2, "roles": ["brand", "date"], "energy": 1},
+    {"type": "timeline", "bars": 2, "focusBeat": 10, "roles": ["brand", "date", "list"], "energy": 2},
+    {"type": "announcement", "bars": 2, "focusBeat": 17, "roles": ["brand", "headline", "subhead", "cta"], "energy": 3}
+  ],
+  "cues": [
+    {"id": "open", "beat": 0, "sound": "impact", "role": "date", "velocity": 0.8},
+    {"id": "brand", "beat": 1, "sound": "blip", "role": "brand", "velocity": 0.6},
+    {"id": "dateStep", "beat": 2, "sound": "clap", "role": "date", "velocity": 0.6},
+    {"id": "track", "beat": 3, "sound": "snap", "velocity": 0.7},
+    {"id": "todayTab", "beat": 10, "sound": "keys", "velocity": 0.7},
+    {"id": "charge", "beat": 11, "sound": "tom", "velocity": 0.7},
+    {"id": "flood", "beat": 12, "sound": "zap", "velocity": 0.9},
+    {"id": "headline", "beat": 13, "sound": "lead", "role": "headline", "velocity": 0.8},
+    {"id": "bed", "beat": 14, "sound": "tom", "velocity": 0.6},
+    {"id": "subhead", "beat": 15, "sound": "pluck", "role": "subhead", "velocity": 0.6},
+    {"id": "cta", "beat": 16, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "notch", "beat": 17, "sound": "snap", "velocity": 0.6},
+    {"id": "onward", "beat": 18, "sound": "pluck", "velocity": 0.6},
+    {"id": "loop", "beat": 19, "sound": "zap", "velocity": 0.7}
+  ],
+  "list": {
+    "role": "list",
+    "label": "Launches so far",
+    "scene": 1,
+    "min": 1,
+    "max": 5,
+    "itemMax": 18,
+    "schedules": {
+      "1": [9],
+      "2": [8, 9],
+      "3": [7, 8, 9],
+      "4": [6, 7, 8, 9],
+      "5": [5, 6, 7, 8, 9]
+    },
+    "accentOffset": 0.5,
+    "voice": "marimba"
+  },
+  "risers": [
+    {"beat": 10, "beats": 2}
+  ]
+}

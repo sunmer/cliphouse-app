@@ -1,0 +1,51 @@
+{
+  "beatFrames": 15,
+  "scenes": [
+    {
+      "type": "title-reveal",
+      "bars": 1,
+      "focusBeat": 1,
+      "roles": ["headline"],
+      "energy": 1
+    },
+    {
+      "type": "quote",
+      "bars": 2,
+      "focusBeat": 10,
+      "roles": ["headline", "quote", "author"],
+      "energy": 2
+    },
+    {
+      "type": "end-screen",
+      "bars": 2,
+      "focusBeat": 16,
+      "roles": ["brand", "cta"],
+      "energy": 3
+    }
+  ],
+  "cues": [
+    {"id": "headline", "beat": 0, "sound": "pluck", "role": "headline", "velocity": 0.8},
+    {"id": "ink", "beat": 1, "sound": "snap", "velocity": 0.6},
+    {"id": "lines", "beat": 2, "sound": "marimba", "velocity": 0.5},
+    {"id": "postmark", "beat": 3, "sound": "tom", "velocity": 0.6},
+    {"id": "lift", "beat": 4, "sound": "blip", "velocity": 0.6},
+    {"id": "quote", "beat": 5, "sound": "keys", "role": "quote", "velocity": 0.6},
+    {"id": "phrase2", "beat": 6, "sound": "keys", "velocity": 0.55},
+    {"id": "phrase3", "beat": 7, "sound": "keys", "velocity": 0.55},
+    {"id": "phrase4", "beat": 8, "sound": "keys", "velocity": 0.6},
+    {"id": "author", "beat": 9, "sound": "bell", "role": "author", "velocity": 0.7},
+    {"id": "seal", "beat": 10, "sound": "clap", "velocity": 0.6},
+    {"id": "extend", "beat": 11, "sound": "snap", "velocity": 0.6},
+    {"id": "flood", "beat": 12, "sound": "zap", "velocity": 0.8},
+    {"id": "brand", "beat": 13, "sound": "lead", "role": "brand", "velocity": 0.7},
+    {"id": "rule", "beat": 14, "sound": "pluck", "velocity": 0.6},
+    {"id": "ctaStamp", "beat": 15, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "arrow", "beat": 16, "sound": "snap", "velocity": 0.6},
+    {"id": "sealEnd", "beat": 17, "sound": "blip", "velocity": 0.5},
+    {"id": "fold", "beat": 18, "sound": "zap", "velocity": 0.6},
+    {"id": "unfold", "beat": 19, "sound": "pluck", "role": "headline", "velocity": 0.6}
+  ],
+  "risers": [
+    {"beat": 10, "beats": 2}
+  ]
+}

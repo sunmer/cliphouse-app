@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+    .wrap { text-wrap:balance; overflow-wrap:normal; }
+    .brk .wmask { max-width:100%; }
+    .brk .w { overflow-wrap:anywhere; }
+
+    .s1 { z-index:1; }
+    .s2 { z-index:2; background:var(--theme-accent); visibility:hidden; }
+    .brandbar { position:absolute; left:120px; top:84px; width:1200px; height:64px; display:flex; align-items:center; gap:22px; z-index:3; }
+    .wipe { position:absolute; inset:0; background:var(--theme-background); z-index:4; visibility:hidden; }
+
+    .chip { flex:none; width:32px; height:32px; background:var(--theme-accent2); }
+    .brand { font-size:46px; line-height:1; text-transform:uppercase; white-space:nowrap; color:var(--theme-foreground); }
+    #root[data-on="accent"] .brand { color:var(--theme-background); }
+    #root[data-on="accent"] .chip { background:var(--theme-background); }
+
+    .date { position:absolute; left:120px; top:300px; width:1680px; height:460px; font-size:210px; line-height:.9; color:var(--theme-foreground); transform-origin:0 0; }
+
+    .bed { position:absolute; left:0; top:760px; width:1920px; height:320px; background:var(--theme-surface); }
+    .band { position:absolute; left:0; top:768px; width:1920px; height:312px; background:var(--theme-accent); }
+    .tab { position:absolute; left:840px; top:768px; width:240px; height:312px; background:var(--theme-accent); transform-origin:50% 0; }
+    .rail { position:absolute; left:0; top:756px; width:1920px; height:8px; background:color-mix(in srgb, var(--theme-foreground) 55%, transparent); transform-origin:0 50%; }
+    .prog { position:absolute; left:0; top:754px; width:1920px; height:12px; background:var(--theme-accent2); transform-origin:0 50%; }
+    .head { position:absolute; left:0; top:746px; width:28px; height:28px; background:var(--theme-accent2); }
+
+    .list { position:absolute; left:120px; top:0; width:1680px; height:1080px; display:flex; }
+    .row { position:relative; flex:1 1 0; min-width:0; height:100%; }
+    .label { position:absolute; left:calc(8px + 40px / var(--count, 1)); right:calc(8px + 40px / var(--count, 1)); bottom:368px;
+      font-size:120px; line-height:1; text-align:center; overflow-wrap:normal; text-wrap:balance; color:var(--theme-foreground); visibility:hidden; }
+    .row[data-lit="1"] .label { color:var(--theme-accent); }
+    .stopw { position:absolute; left:calc(50% - 22px); top:738px; width:44px; height:44px; }
+    .stop { position:absolute; inset:0; background:var(--theme-background); border:6px solid var(--theme-foreground); }
+    .fill { position:absolute; inset:-6px; background:var(--theme-foreground); }
+    .row[data-today] .stop { border-color:var(--theme-accent); }
+    .row[data-today] .fill { background:var(--theme-accent); }
+    .nmask { position:absolute; left:0; right:0; top:850px; height:140px; overflow:hidden; display:flex; justify-content:center; }
+    .num { font-size:110px; line-height:140px; font-weight:700; color:color-mix(in srgb, var(--theme-foreground) 45%, transparent); }
+    .row[data-today] .num { color:var(--theme-accent); }
+    .row[data-tab="1"] .num { color:var(--theme-background); }
+
+    .headline { position:absolute; left:120px; top:170px; width:1680px; font-size:190px; line-height:.92; color:var(--theme-background); }
+    .bed2 { position:absolute; left:0; top:764px; width:1920px; height:316px; background:var(--theme-background); }
+    .rail2 { position:absolute; left:0; top:756px; width:1920px; height:8px; background:var(--theme-foreground); transform-origin:0 50%; }
+    .onward { position:absolute; left:960px; top:754px; width:960px; height:12px; background:var(--theme-accent2); transform-origin:0 50%; }
+    .subhead { position:absolute; left:120px; top:812px; width:920px; height:200px; font-size:64px; line-height:1.12; font-weight:600; color:var(--theme-foreground); }
+    .cta { position:absolute; left:1120px; top:764px; width:680px; height:236px; background:var(--theme-accent); transform-origin:50% 0; }
+    .notch { position:absolute; left:44px; top:100px; width:36px; height:36px; background:var(--theme-background); }
+    .ctext { position:absolute; left:112px; top:0; width:520px; font-size:76px; line-height:1; overflow-wrap:normal; text-wrap:balance; color:var(--theme-background); }
+    .stops2 { position:absolute; inset:0; }
+    .stop2 { position:absolute; top:742px; width:36px; height:36px; background:var(--theme-accent2); }
+    .stop2.now { top:732px; width:56px; height:56px; background:var(--theme-foreground); }
+  </style>
+</head>
+<body>
+  <div id="root" data-on="dark" data-composition-id="main" data-start="0" data-duration="9.333" data-width="1920" data-height="1080">
+    <section id="launchweek-track" class="scene s1" data-start="0" data-duration="9.333" data-track-index="0">
+      <div class="bed"></div>
+      <div class="band"></div>
+      <div class="tab"></div>
+      <div class="rail"></div>
+      <div class="prog"></div>
+      <div class="head"></div>
+      <div class="list" data-list>
+        <template data-list-row>
+          <div class="row" data-lit="0" data-tab="0">
+            <div class="label display" data-list-text data-words></div>
+            <div class="stopw"><div class="stop" data-list-part="stop" data-list-group="scaffold"><div class="fill" data-list-part="fill"></div></div></div>
+            <div class="nmask"><div class="num mono" data-list-part="num" data-list-number></div></div>
+          </div>
+        </template>
+      </div>
+      <h1 class="date display wrap" data-fit-max="210" data-fit-min="100" data-text-role="date" data-beat-text="date">Launch Week / Day 3</h1>
+    </section>
+    <section id="launchweek-today" class="scene s2" data-start="0" data-duration="9.333" data-track-index="1" data-layout-allow-overflow>
+      <h2 class="headline display wrap" data-text-role="headline" data-beat-text="headline">Realtime sync is here</h2>
+      <div class="bed2"></div>
+      <div class="rail2"></div>
+      <div class="onward"></div>
+      <p class="subhead wrap" data-fit-max="64" data-fit-min="40" data-text-role="subhead" data-beat-text="subhead">Every client in sync, offline first.</p>
+      <div class="cta">
+        <div class="notch"></div>
+        <div class="ctext display" data-text-role="cta" data-beat-text="cta">See all launches</div>
+      </div>
+      <div class="stops2"></div>
+    </section>
+    <div class="brandbar">
+      <div class="chip"></div>
+      <div class="brand display" data-text-role="brand" data-beat-text="brand">Tinybase</div>
+    </div>
+    <div class="wipe" data-layout-allow-overflow>
+      <div class="date dcopy display wrap" data-fit-max="210" data-fit-min="100" data-text-copy="date" data-beat-text="date">Launch Week / Day 3</div>
+    </div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const cueBeat = (id) => m.score.cues.find((c) => c.id === id).beat;
+      const q = (s) => document.querySelector(s);
+      const qa = (s) => [...document.querySelectorAll(s)];
+      const root = q('#root');
+      const W = 1920;
+      const items = m.items;
+      const n = items.length;
+      const rows = items.map((it) => m.row(it.index));
+
+      // Shared fit for fixed boxes; break inside a word only as a last resort at the minimum size.
+      qa('.brk').forEach((el) => el.classList.remove('brk'));
+      window.cliphouseFitText && window.cliphouseFitText();
+      qa('[data-fit-max]').forEach((el) => { if (el.scrollWidth > el.clientWidth + 1) el.classList.add('brk'); });
+
+      // Auto-height boxes: shrink until no word overflows and the block fits its zone.
+      const fits = (el, maxH) => el.scrollWidth <= el.clientWidth + 1 && el.offsetHeight <= maxH + 1;
+      const fitAuto = (el, max, min, maxH) => {
+        el.classList.remove('brk');
+        let s = max;
+        for (; s > min; s -= 2) { el.style.fontSize = s + 'px'; if (fits(el, maxH)) break; }
+        el.style.fontSize = Math.max(min, s) + 'px';
+        if (el.scrollWidth > el.clientWidth + 1) el.classList.add('brk');
+        return el.offsetHeight;
+      };
+
+      // Launch labels share one size, scaled up when the week is short.
+      const labels = rows.map((r) => r.querySelector('.label'));
+      let ls = [170, 170, 150, 120, 100, 88][n] || 88;
+      labels.forEach((el) => {
+        el.classList.remove('brk');
+        let s = ls;
+        for (; s > 36; s -= 2) { el.style.fontSize = s + 'px'; if (fits(el, 250)) break; }
+        ls = Math.max(36, Math.min(ls, s));
+      });
+      labels.forEach((el) => { el.style.fontSize = ls + 'px'; if (el.scrollWidth > el.clientWidth + 1) el.classList.add('brk'); });
+
+      // Headline centered in its zone above the rail; CTA centered in its tab.
+      const hl = q('.headline');
+      const hh = fitAuto(hl, 190, 96, 560);
+      hl.style.top = (170 + Math.max(0, (560 - hh) / 2)) + 'px';
+      const ct = q('.ctext');
+      const ch = fitAuto(ct, 76, 40, 196);
+      ct.style.top = Math.max(0, (236 - ch) / 2) + 'px';
+
+      // Geometry in composition pixels, measured before any tween touches a transform.
+      const o = root.getBoundingClientRect();
+      const k = o.width / W || 1;
+      const box = (el) => { const r = el.getBoundingClientRect(); return {x: (r.left - o.left) / k, y: (r.top - o.top) / k, w: r.width / k, h: r.height / k}; };
+      const centers = rows.map((r) => { const b = box(r.querySelector('.stopw')); return {x: b.x + b.w / 2, y: b.y + b.h / 2, w: b.w}; });
+      const today = centers[n - 1] || {x: 960, y: 760, w: 44};
+      const todayRow = rows[n - 1] || null;
+      if (todayRow) todayRow.setAttribute('data-today', '');
+
+      // Words rise through masks on sixteenths; later words share the last slot so long text settles early.
+      const words = (el, at, cap = 2) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 120}, {yPercent: 0, duration: B(0.5), ease: 'expo.out'}, at + Math.min(i, cap) * B(0.125)));
+
+      // Beat 0: the date is already huge (the loop brings it back); the rail draws edge to edge.
+      tl.fromTo('.s1 .rail', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('open'));
+      // Beat 1: the brand rises and its chip pops.
+      tl.fromTo('.chip', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('brand'));
+      words(q('.brand'), t('brand'));
+      // Beat 2: the date steps up into a header.
+      tl.to('.s1 .date', {scale: 0.55, y: -120, duration: B(0.75), ease: 'expo.out'}, t('dateStep'));
+
+      // Beat 3: the bed slides up, the empty stops pop on, and the head appears at the left edge.
+      const base = cueBeat('track');
+      const pts = [{b: base, x: 0}].concat(m.plan.items.map((it, i) => ({b: it.start, x: centers[i].x})));
+      const xAt = (b) => {
+        for (let j = 1; j < pts.length; j++) {
+          if (b <= pts[j].b) { const a = pts[j - 1], c = pts[j]; return a.x + (c.x - a.x) * (b - a.b) / (c.b - a.b); }
+        }
+        return pts[pts.length - 1].x;
+      };
+      const hx = (b) => Math.max(0, xAt(b) - 14);
+      tl.fromTo('.s1 .bed', {yPercent: 100}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, t('track'));
+      rows.forEach((r, i) => tl.fromTo(r.querySelector('.stop'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('track') + B(0.125) + i * B(0.125)));
+      tl.fromTo('.head', {scale: 0, x: hx(base)}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('track'));
+
+      // Beats 4-9: the head and the week-so-far fill step to the next stop on every beat.
+      const lastStart = n ? m.plan.items[n - 1].start : base;
+      tl.set('.prog', {scaleX: 0}, 0);
+      for (let b = base + 1; b <= lastStart; b++) {
+        const first = b === base + 1;
+        tl.fromTo('.prog', {scaleX: xAt(b - 1) / W}, {scaleX: xAt(b) / W, duration: B(0.5), ease: 'expo.out', immediateRender: first}, B(b));
+        tl.fromTo('.head', {x: hx(b - 1)}, {x: hx(b), duration: B(0.5), ease: 'expo.out', immediateRender: false}, B(b));
+      }
+
+      items.forEach((it, i) => {
+        const r = rows[i];
+        const label = labels[i];
+        tl.set(label, {visibility: 'visible'}, it.start);
+        words(label, it.start, 1);
+        tl.fromTo(r.querySelector('.num'), {yPercent: 110}, {yPercent: 0, duration: B(0.5), ease: 'expo.out'}, it.start);
+        tl.fromTo(r.querySelector('.fill'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, it.accent);
+      });
+      if (todayRow) tl.set(todayRow, {attr: {'data-lit': '1'}}, items[n - 1].accent);
+
+      // Beat 10: today's tab drops from its stop behind its number.
+      q('.tab').style.left = (today.x - 120) + 'px';
+      tl.fromTo('.tab', {scaleY: 0}, {scaleY: 1, duration: B(0.75), ease: 'expo.out'}, t('todayTab'));
+      if (todayRow) tl.set(todayRow, {attr: {'data-tab': '1'}}, t('todayTab') + B(0.125));
+
+      // Beat 11: the tab charges sideways into a full green bed, and today's stop grows.
+      tl.fromTo('.band', {scaleX: 0, transformOrigin: `${today.x}px 50%`}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('charge'));
+      rows.forEach((r) => tl.set(r, {attr: {'data-tab': '1'}}, t('charge') + B(0.375)));
+      if (todayRow) tl.to(todayRow.querySelector('.stopw'), {scale: 1.6, duration: B(0.75), ease: 'expo.out'}, t('charge'));
+
+      // Beat 12: today's stop floods the frame square-out to every corner.
+      const h = today.w * 1.6 / 2;
+      tl.set('.s2', {visibility: 'visible'}, t('flood'));
+      tl.fromTo('.s2',
+        {clipPath: `inset(${today.y - h}px ${W - today.x - h}px ${1080 - today.y - h}px ${today.x - h}px)`},
+        {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.75), ease: 'power3.out'}, t('flood'));
+      tl.set(root, {attr: {'data-on': 'accent'}}, t('flood') + B(0.5));
+      tl.set('.s1', {visibility: 'hidden'}, t('headline'));
+
+      // Beat 13: the headline rises.
+      words(hl, t('headline'));
+
+      // Beat 14: the rail redraws, the dark bed slides up, and the week's stops tick on as a group.
+      tl.fromTo('.rail2', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('bed'));
+      tl.fromTo('.bed2', {yPercent: 100}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, t('bed'));
+      const stops2 = m.parts(q('.stops2'), 'stop2', (it) => {
+        const d = document.createElement('div');
+        const now = it.index === n - 1;
+        d.className = 'stop2' + (now ? ' now' : '');
+        d.setAttribute('data-list-group', 'finale');
+        d.setAttribute('data-list-align', 'x');
+        d.style.left = (centers[it.index].x - (now ? 28 : 18)) + 'px';
+        return d;
+      });
+      stops2.forEach((d, i) => tl.fromTo(d, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('bed') + B(0.25) + i * B(0.125)));
+
+      // Beat 15: the subhead rises in the bed.
+      words(q('.subhead'), t('subhead'), 3);
+
+      // Beat 16: the green CTA tab drops from the rail and stamps.
+      tl.fromTo('.cta', {clipPath: 'inset(0% 0% 100% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('cta') - B(0.5));
+      tl.fromTo('.cta', {scale: 1.12}, {scale: 1, duration: B(0.6), ease: 'expo.out'}, t('cta'));
+      words(ct, t('cta'), 1);
+      // Beat 17: the notch lands. Beat 18: the onward line runs from today to the edge.
+      tl.fromTo('.notch', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('notch'));
+      const onward = q('.onward');
+      onward.style.left = today.x + 'px';
+      onward.style.width = (W - today.x) + 'px';
+      tl.fromTo('.onward', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('onward'));
+
+      // Beat 19: background floods out from the rail, and the date rises back to the opening frame.
+      tl.set('.wipe', {visibility: 'visible'}, t('loop'));
+      tl.fromTo('.wipe', {clipPath: 'inset(756px 0px 316px 0px)'}, {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.75), ease: 'power3.out'}, t('loop'));
+      words(q('.wipe .date'), t('loop'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

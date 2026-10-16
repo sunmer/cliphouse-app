@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1920px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+    .s1 { z-index:1; }
+    .s2 { z-index:2; background:var(--theme-accent); }
+    .bigcaret, .caret2 { position:absolute; left:1720px; top:106px; width:104px; height:200px; display:block; }
+    .bigcaret { background:var(--theme-accent); }
+    .caret2 { background:var(--theme-background); }
+
+    .brand { position:absolute; left:96px; top:150px; width:600px; height:120px; font-size:80px; line-height:1.15; white-space:nowrap; color:var(--theme-foreground); }
+
+    .readout { position:absolute; left:728px; top:96px; width:960px; height:220px; overflow:hidden; }
+    .readline { position:absolute; left:0; top:0; width:960px; height:220px; padding-top:8px; font-size:200px; line-height:196px; text-align:right; white-space:nowrap; color:var(--theme-foreground); }
+    .s1 .readline.real { color:var(--theme-accent); }
+
+    .rail { position:absolute; left:96px; top:352px; width:1728px; height:12px; }
+    .track, .fill { position:absolute; inset:0; display:block; transform-origin:0 50%; }
+    .track { background:var(--theme-surface); }
+    .fill { background:var(--theme-accent); }
+    .stops { position:absolute; inset:0; }
+    .stop { position:absolute; display:block; top:-12px; left:calc(var(--p) * (100% - 36px)); width:36px; height:36px; background:var(--theme-accent2); }
+    .lit { position:absolute; inset:0; display:block; background:var(--theme-accent); }
+
+    .panel { position:absolute; left:96px; top:400px; width:1728px; height:584px; background:var(--theme-surface); overflow:hidden; }
+    .pbody { position:absolute; inset:56px 64px; display:flex; flex-direction:column; justify-content:center;
+      --gap: calc(16px + (3 - var(--count, 3)) * 12px);
+      --rowH: calc(104px + (3 - var(--count, 3)) * 32px);
+      --chk: calc(64px + (3 - var(--count, 3)) * 12px);
+      gap:var(--gap); }
+    .rows { display:flex; flex-direction:column; gap:var(--gap); }
+    .row, .ready { display:flex; align-items:center; gap:32px; height:var(--rowH); flex:none; }
+    .row { position:relative; }
+    .ready { font-size:72px; }
+    .slot { position:absolute; left:76px; right:0; bottom:4px; height:4px; display:block; background:color-mix(in srgb, var(--theme-accent2) 40%, transparent); transform-origin:0 50%; }
+
+    .chev, .rchev, .cchev, .hchev2, .cchev2, .arrow { display:block; flex:none; position:relative; width:44px; height:44px; color:var(--theme-accent2); }
+    .chev::before, .rchev::before, .cchev::before, .hchev2::before, .cchev2::before, .arrow::before {
+      content:""; position:absolute; left:4px; top:11px; width:22px; height:22px;
+      border-top:8px solid currentColor; border-right:8px solid currentColor; transform:rotate(45deg); }
+    .cchev { position:absolute; left:160px; top:856px; }
+    .hchev2 { position:absolute; left:160px; top:498px; color:var(--theme-background); }
+    .cchev2 { position:absolute; left:160px; top:856px; color:var(--theme-background); }
+
+    .cmdbox { flex:1; min-width:0; height:100%; display:flex; align-items:center; overflow:hidden; white-space:nowrap; font-size:72px; color:var(--theme-foreground); }
+    .cmd { display:block; flex:none; white-space:pre; line-height:1.2; }
+    .rcaret, .rslot { display:block; flex:none; width:.55em; height:1.1em; margin-left:.06em; }
+    .rcaret { background:var(--theme-accent); visibility:hidden; }
+    .check { display:block; flex:none; position:relative; width:var(--chk); height:var(--chk); background:var(--theme-accent); }
+    .check::after { content:""; position:absolute; left:36%; top:14%; width:24%; height:48%;
+      border-right:8px solid var(--theme-background); border-bottom:8px solid var(--theme-background); transform:rotate(45deg); }
+
+    .headline { position:absolute; left:232px; top:428px; width:1528px; height:344px; display:flex; align-items:center; align-items:safe center; font-size:180px; color:var(--theme-foreground); }
+    .htext { display:block; width:100%; line-height:.92; text-wrap:balance; overflow-wrap:normal; }
+
+    .btn { position:absolute; left:232px; top:812px; width:1528px; height:132px; display:flex; align-items:center; gap:32px; padding:0 48px; background:var(--theme-accent); color:var(--theme-background); }
+    .bfit { flex:1; min-width:0; height:100%; display:flex; align-items:center; overflow:hidden; white-space:nowrap; font-size:76px; }
+    .btxt { display:block; flex:none; line-height:1; }
+    .btn .arrow { color:inherit; width:48px; height:48px; }
+
+    .s1 .brand, .s1 .readline.real, .reel-copy, .s1 .headline, .s1 .btn { visibility:hidden; }
+
+    .s2 .brand, .s2 .headline, .s2 .readline { color:var(--theme-background); }
+    .s2 .btn { background:var(--theme-background); color:var(--theme-accent); }
+    .s2 .track { background:color-mix(in srgb, var(--theme-background) 22%, transparent); }
+    .s2 .fill { background:var(--theme-background); }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+    <section id="quickstart-run" class="scene s1" data-start="0" data-duration="10" data-track-index="0">
+      <div class="brand display" data-fit-max="80" data-fit-min="40" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="readout"><div class="readline real mono" data-fit-max="200" data-fit-min="90" data-text-role="stat" data-beat-text="stat">Stat</div></div>
+      <div class="rail"><i class="track"></i><i class="fill"></i><div class="stops"></div></div>
+      <div class="panel">
+        <div class="pbody">
+          <div class="rows" data-list>
+            <template data-list-row>
+              <div class="row">
+                <i class="slot" data-list-part="slot" data-list-group="scaffold"></i>
+                <i class="chev" data-list-part="prompt" data-list-group="scaffold"></i>
+                <div class="cmdbox mono"><span class="cmd" data-list-text></span><i class="rcaret" data-list-part="caret"></i></div>
+                <i class="check" data-list-part="check" data-list-align="y"></i>
+              </div>
+            </template>
+          </div>
+          <div class="ready"><i class="rchev"></i><i class="rslot"></i></div>
+        </div>
+      </div>
+      <div class="headline display" data-fit-max="180" data-fit-min="96"><span class="htext" data-text-role="headline" data-beat-text="headline">Headline</span></div>
+      <i class="cchev"></i>
+      <div class="btn display"><div class="bfit" data-fit-max="76" data-fit-min="40"><span class="btxt" data-text-role="cta" data-beat-text="cta">CTA</span></div><i class="arrow"></i></div>
+      <i class="bigcaret"></i>
+    </section>
+
+    <section id="quickstart-end" class="scene s2" data-start="0" data-duration="10" data-track-index="1">
+      <div class="brand display" data-fit-max="80" data-fit-min="40" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="readout"><div class="readline mono" data-fit-max="200" data-fit-min="90" data-text-role="stat" data-beat-text="stat">Stat</div></div>
+      <i class="caret2"></i>
+      <div class="rail"><i class="track"></i><i class="fill"></i></div>
+      <i class="hchev2"></i>
+      <div class="headline display" data-fit-max="180" data-fit-min="96"><span class="htext" data-text-role="headline" data-beat-text="headline">Headline</span></div>
+      <i class="cchev2"></i>
+      <div class="btn display"><div class="bfit" data-fit-max="76" data-fit-min="40"><span class="btxt" data-text-role="cta" data-beat-text="cta">CTA</span></div><i class="arrow"></i></div>
+    </section>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (b) => m.at(b);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      // Words rise through masks on sixteenths; long text shares the last slot so it settles early.
+      const words = (el, at, cap = 2) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, at + Math.min(i, cap) * B(0.25)));
+      const pop = (el, at, ease = 'expo.out') => el && tl.fromTo(el, {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease}, at);
+      // A small punch that returns to rest: two `to` tweens, so seeking backwards always restores scale 1.
+      const bump = (el, peak, at, origin) => {
+        tl.to(el, {scale: peak, transformOrigin: origin, duration: B(0.125), ease: 'power3.out'}, at);
+        tl.to(el, {scale: 1, duration: B(0.625), ease: 'expo.out'}, at + B(0.125));
+      };
+      // A sideways step that returns to rest.
+      const nudge = (el, dx, at) => {
+        if (!el) return;
+        tl.fromTo(el, {x: 0}, {x: dx, duration: B(0.375), ease: 'expo.out', immediateRender: false}, at);
+        tl.fromTo(el, {x: dx}, {x: 0, duration: B(0.5), ease: 'power3.inOut', immediateRender: false}, at + B(0.375));
+      };
+      const fillWords = (el, text) => {
+        el.textContent = '';
+        text.trim().split(/\s+/).filter(Boolean).forEach((word, i) => {
+          if (i) el.append(' ');
+          const mask = document.createElement('span');
+          mask.className = 'wmask';
+          const w = document.createElement('span');
+          w.className = 'w';
+          w.textContent = word;
+          mask.append(w);
+          el.append(mask);
+        });
+      };
+
+      // ---- Terminal reflow per command count: bigger rows and type for fewer commands ----
+      const items = m.items;
+      const n = Math.max(1, items.length);
+      q('.s1 .pbody').style.setProperty('--count', String(n));
+      const rows = items.map((it) => m.row(it.index)).filter(Boolean);
+      const longest = Math.max(4, ...items.map((it) => it.text.length));
+      const fsMax = n >= 3 ? 72 : n === 2 ? 84 : 100;
+      const boxW = rows[0] ? rows[0].querySelector('.cmdbox').clientWidth : 1400;
+      // Mono advance is 0.6em; leave room for the typing caret so the longest command always fits.
+      const fs = Math.max(28, Math.min(fsMax, Math.floor(boxW / (0.6 * longest + 0.8))));
+      for (const row of rows) row.querySelector('.cmdbox').style.fontSize = fs + 'px';
+      q('.s1 .ready').style.fontSize = fs + 'px';
+      // Commands type by character.
+      const chars = rows.map((row) => {
+        const el = row.querySelector('[data-list-text]');
+        const text = el.textContent || '';
+        el.textContent = '';
+        return [...text].map((c) => {
+          const s = document.createElement('span');
+          s.className = 'ch';
+          s.textContent = c;
+          el.append(s);
+          return s;
+        });
+      });
+
+      // ---- Elapsed-time reel: decorative copies of the stat counting up to it ----
+      const box = q('.s1 .readout');
+      const real = q('.s1 .readline.real');
+      for (const old of box.querySelectorAll('.reel-copy')) old.remove();
+      const stat = m.text('stat').trim();
+      const num = stat.match(/\d+(?:\.\d+)?/);
+      const places = num && num[0].includes('.') ? num[0].split('.')[1].length : 0;
+      const target = num ? Number(num[0]) : 0;
+      const STEPS = 10;
+      const value = (i) => {
+        const f = 10 ** places;
+        return (Math.floor(target * (1 - (1 - i / STEPS) ** 2) * f) / f).toFixed(places);
+      };
+      const shown = (i) => num ? stat.slice(0, num.index) + value(i) + stat.slice(num.index + num[0].length) : stat;
+      const reel = Array.from({length: STEPS}, (_, i) => {
+        const el = document.createElement('div');
+        el.className = 'readline mono reel-copy';
+        el.setAttribute('data-text-copy', 'stat');
+        el.setAttribute('aria-hidden', 'true');
+        if (real.style.fontSize) el.style.fontSize = real.style.fontSize;
+        fillWords(el, shown(i));
+        box.insertBefore(el, real);
+        return el;
+      });
+
+      // ---- Measure the cursor path before any tween transforms the layout ----
+      const R = q('#root').getBoundingClientRect();
+      const sc = R.width / 1920 || 1;
+      const rect = (el) => {
+        const r = el.getBoundingClientRect();
+        return {left: (r.left - R.left) / sc, top: (r.top - R.top) / sc, width: r.width / sc, height: r.height / sc};
+      };
+      const HOOK = {left: 1720, top: 106, width: 104, height: 200};
+      const c0 = rect(rows[0].querySelector('.rcaret'));
+      const cmd0 = rect(rows[0].querySelector('.cmd'));
+      const START = {left: cmd0.left + (c0.left - cmd0.left - cmd0.width), top: c0.top, width: c0.width, height: c0.height};
+      const END = rect(rows[rows.length - 1].querySelector('.rcaret'));
+      const SLOT = rect(q('.s1 .rslot'));
+      const rch = rect(q('.s1 .rchev'));
+      const hm = q('.s1 .htext .wmask');
+      const hr = hm ? rect(hm) : {top: 520, height: 180};
+      const hlC = hr.top + hr.height * 0.46;
+      q('.s2 .hchev2').style.top = (hlC - 22) + 'px';
+      const lift = hlC - (rch.top + rch.height / 2);
+      const host = rect(q('.s1 .rows'));
+      const scrollOut = -(host.top + host.height - 388);
+      const LINE = {left: 232, top: 878 - SLOT.height / 2, width: SLOT.width, height: SLOT.height};
+      const BTN = {left: 232, top: 812, width: 1528, height: 132};
+
+      const caret = q('.bigcaret');
+      const geo = (g) => ({left: g.left, top: g.top, width: g.width, height: g.height});
+      let cur = HOOK;
+      const move = (g, at, dur = B(0.75)) => {
+        tl.fromTo(caret, geo(cur), {...geo(g), duration: dur, ease: 'expo.out', immediateRender: false}, at);
+        cur = g;
+      };
+      tl.set(caret, {...geo(HOOK), visibility: 'visible'}, 0);
+
+      // ---- Beat 0: the hook is the finished lockup; its cursor pops on and the arrow nudges ----
+      const s2 = q('.s2');
+      const caret2 = q('.caret2');
+      tl.fromTo(caret2, {scaleY: 0, transformOrigin: '50% 100%'}, {scaleY: 1, duration: B(0.5), ease: 'expo.out'}, t('hook'));
+      nudge(q('.s2 .arrow'), 18, t('hook'));
+
+      // ---- Beat 1: the whole page collapses into the cursor ----
+      tl.set(caret2, {visibility: 'hidden'}, t('collapse'));
+      tl.fromTo(s2, {clipPath: 'inset(0px 0px 0px 0px)'},
+        {clipPath: 'inset(106px 96px 774px 1720px)', duration: B(0.75), ease: 'power3.out'}, t('collapse'));
+      tl.set(s2, {visibility: 'hidden', scaleY: 0}, t('collapse') + B(0.75));
+
+      // ---- Beat 1.5: the brand rises and the clock rolls up to zero ----
+      const brand1 = q('.s1 .brand');
+      tl.set(brand1, {visibility: 'visible'}, t('brand'));
+      words(brand1, t('brand'));
+      const show = (el, at, dur = B(0.5)) => {
+        tl.set(el, {visibility: 'visible'}, at);
+        tl.fromTo(el, {yPercent: 100}, {yPercent: 0, duration: dur, ease: 'expo.out'}, at);
+      };
+      show(reel[0], t('brand'));
+
+      // ---- Beats 2-3: the waiting cursor blinks back on with each setup landing ----
+      [t('rail'), t('prompts')].forEach((on) => {
+        tl.set(caret, {visibility: 'hidden'}, on + B(0.5));
+        tl.set(caret, {visibility: 'visible'}, on + B(1));
+      });
+
+      // ---- Beat 2: the rail draws, stops pop, the terminal drops open ----
+      tl.fromTo('.s1 .track', {scaleX: 0}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('rail'));
+      tl.fromTo('.s1 .panel', {scaleY: 0, transformOrigin: '50% 0%'}, {scaleY: 1, duration: B(1), ease: 'expo.out'}, t('rail') + B(0.25));
+      const stops = m.parts(q('.s1 .stops'), 'stop', (it) => {
+        const el = document.createElement('i');
+        el.className = 'stop';
+        el.dataset.listGroup = 'scaffold';
+        el.style.setProperty('--p', String((it.index + 1) / n));
+        const lit = document.createElement('i');
+        lit.className = 'lit';
+        el.append(lit);
+        return el;
+      });
+      stops.forEach((el, i) => pop(el, t('rail') + B(0.25) + i * B(0.125)));
+
+      // ---- Beat 3: prompts pop and input lines draw ----
+      rows.forEach((row, i) => {
+        const at = t('prompts') + i * B(0.125);
+        pop(row.querySelector('.chev'), at);
+        tl.fromTo(row.querySelector('.slot'), {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, at);
+      });
+
+      // ---- Beat 4: the cursor drops into the first prompt and the clock starts ----
+      move(START, t('go'));
+      const firstStart = m.plan.items[0].start;
+      for (let b = 5; b + 0.5 < firstStart; b += 1) {
+        tl.set(caret, {visibility: 'hidden'}, B(b));
+        tl.set(caret, {visibility: 'visible'}, B(b + 0.5));
+      }
+      tl.set(caret, {visibility: 'hidden'}, items[0].start);
+      for (let s = 1; s < STEPS; s++) {
+        const at = B(4 + 0.5 * s);
+        tl.set(reel[s - 1], {visibility: 'hidden'}, at);
+        show(reel[s], at, B(0.375));
+      }
+
+      // ---- Commands type one per beat; checks and rail stops land on accents ----
+      let prevT = t('go');
+      let prevF = 0;
+      items.forEach((it, i) => {
+        const row = rows[i];
+        if (!row) return;
+        const cs = chars[i];
+        if (cs.length) tl.set(cs, {display: 'none'}, 0);
+        const rc = row.querySelector('.rcaret');
+        tl.set(rc, {visibility: 'visible'}, it.start);
+        cs.forEach((c, j) => tl.set(c, {display: 'inline'}, it.start + B(0.75) * j / cs.length));
+        tl.set(rc, {visibility: 'hidden'}, it.accent);
+        tl.fromTo(row.querySelector('.check'), {scale: 0, transformOrigin: '50% 50%'},
+          {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, it.accent);
+        const f = i === items.length - 1 ? 1 : (((i + 1) / n) * 1692 + 18) / 1728;
+        tl.fromTo('.s1 .fill', {scaleX: prevF}, {scaleX: f, duration: it.accent - prevT, ease: 'sine.inOut', immediateRender: i === 0}, prevT);
+        prevF = f;
+        prevT = it.accent;
+        if (stops[i]) tl.fromTo(stops[i].querySelector('.lit'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, it.accent);
+      });
+      tl.set(caret, {...geo(END), visibility: 'visible'}, items[items.length - 1].accent);
+      cur = END;
+
+      // ---- Beat 9: the clock locks on the stat ----
+      tl.set(reel[STEPS - 1], {visibility: 'hidden'}, t('lock'));
+      show(real, t('lock'));
+      bump(box, 1.06, t('lock'), '100% 50%');
+
+      // ---- Beat 10: carriage return to a fresh prompt ----
+      pop(q('.s1 .rchev'), t('ready'));
+      move(SLOT, t('ready'), B(0.5));
+
+      // ---- Beat 11: the commands scroll away; the prompt rises to the headline line ----
+      tl.fromTo('.s1 .rows', {y: 0}, {y: scrollOut, duration: B(0.75), ease: 'expo.out', immediateRender: false}, t('scroll'));
+      tl.set('.s1 .rows', {visibility: 'hidden', scaleY: 0}, t('scroll') + B(0.75));
+      tl.fromTo('.s1 .ready', {y: 0}, {y: lift, duration: B(0.75), ease: 'expo.out', immediateRender: false}, t('scroll'));
+      move({...SLOT, top: SLOT.top + lift}, t('scroll'));
+
+      // ---- Beat 12: the headline line opens and prints; the cursor drops a line ----
+      tl.fromTo('.s1 .headline', {scaleY: 0, transformOrigin: '50% 50%'},
+        {scaleY: 1, duration: B(0.25), ease: 'expo.out'}, t('headline') - B(0.25));
+      tl.set('.s1 .headline', {visibility: 'visible'}, t('headline'));
+      words(q('.s1 .htext'), t('headline'), 3);
+      pop(q('.s1 .cchev'), t('headline'));
+      move(LINE, t('headline'), B(0.5));
+
+      // ---- Beat 13: the cursor stretches into the CTA bar ----
+      move(BTN, t('button'));
+
+      // ---- Beat 14: the CTA stamps ----
+      tl.set(caret, {visibility: 'hidden'}, t('cta'));
+      tl.set('.s1 .btn', {visibility: 'visible'}, t('cta'));
+      tl.fromTo('.s1 .btn', {scale: 1.05, transformOrigin: '50% 50%'},
+        {scale: 1, duration: B(0.75), ease: 'expo.out', immediateRender: false}, t('cta'));
+      words(q('.s1 .btxt'), t('cta'), 1);
+
+      // ---- Beat 15: the bar floods the frame into the lockup (10 frames) ----
+      tl.set(s2, {visibility: 'visible', scaleY: 1}, t('flood'));
+      tl.set(caret2, {visibility: 'visible'}, t('flood'));
+      tl.fromTo(s2, {clipPath: 'circle(0px at 996px 878px)'},
+        {clipPath: 'circle(1340px at 996px 878px)', duration: B(2 / 3), ease: 'power3.out', immediateRender: false}, t('flood'));
+      tl.set('.s1', {visibility: 'hidden'}, t('flood') + B(2 / 3));
+
+      // ---- Beats 16-19: the lockup holds; the stat punches, the arrow nudges, the cursor blinks, the prompts step ----
+      bump(q('.s2 .readout'), 1.05, t('punch'), '100% 50%');
+      nudge(q('.s2 .arrow'), 18, t('nudge'));
+      tl.set(caret2, {visibility: 'hidden'}, t('blink'));
+      tl.set(caret2, {visibility: 'visible'}, t('blink') + B(0.5));
+      nudge(q('.s2 .hchev2'), 14, t('loop'));
+      nudge(q('.s2 .cchev2'), 14, t('loop') + B(0.125));
+      tl.set(caret2, {visibility: 'hidden'}, t('loop') + B(0.5));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>

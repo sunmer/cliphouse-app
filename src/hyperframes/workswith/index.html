@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en" data-composition-variables='[]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1080" />
+  <script src="__ASSET_BASE__/gsap.min.js"></script>
+  <style>
+    __BASE_CSS__
+    :root { --w: 1080px; --h: 1080px; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    .w { display:inline-block; }
+
+    /* Scenes 1-2: hook, hub, wires, tiles */
+    .dial { position:absolute; width:540px; height:540px; }
+    .dial svg, .fticks svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+    .dline { fill:none; stroke:var(--theme-foreground); stroke-opacity:.22; stroke-width:3; stroke-dasharray:100; stroke-dashoffset:100; }
+    .ticks { position:absolute; inset:0; visibility:hidden; }
+    .dtick { fill:none; stroke:var(--theme-foreground); stroke-opacity:.3; stroke-width:16; stroke-dasharray:1.4 13.6; }
+    .dindex { fill:none; stroke:var(--theme-accent2); stroke-width:30; stroke-dasharray:4 356; }
+    #wires, #ports, #tiles { position:absolute; inset:0; }
+    .wire { position:absolute; height:8px; transform-origin:0 50%; visibility:hidden; }
+    .wline { position:absolute; inset:0; display:block; background:var(--theme-foreground); transform-origin:0 50%; transform:scaleX(0); }
+    .charge .wline { background:var(--theme-accent2); }
+    .hub { position:absolute; left:0; top:0; width:300px; height:300px; background:var(--theme-accent); transform-origin:0 0; transform:scaleX(0); }
+    .port { position:absolute; width:30px; height:30px; visibility:hidden; }
+    .pshell { position:absolute; inset:0; display:block; background:var(--theme-foreground); transform:scale(0); }
+    .pfill { position:absolute; inset:7px; display:block; background:var(--theme-accent2); transform:scale(0); }
+    .hbrand { position:absolute; width:230px; height:130px; font-size:64px; line-height:.95; text-align:center; align-content:center; color:var(--theme-foreground); visibility:hidden; }
+    .tile { position:absolute; height:130px; background:var(--theme-foreground); color:var(--theme-background); visibility:hidden; }
+    .ttext { position:absolute; left:16px; right:16px; top:15px; bottom:15px; font-size:50px; line-height:1; text-align:center; align-content:center; overflow-wrap:normal; text-wrap:balance; }
+    .plug { position:absolute; display:block; background:var(--theme-accent2); transform:scale(0); }
+    .hook { position:absolute; left:90px; top:110px; width:900px; height:860px; font-size:176px; line-height:.92; align-content:center; color:var(--theme-foreground); }
+
+    /* Scene 3: the flooded hub carries the answer */
+    .s2 { background:var(--theme-accent); clip-path:circle(0px at 50% 50%); visibility:hidden; }
+    .fmark { position:absolute; left:90px; top:88px; width:84px; height:84px; }
+    .fdot { position:absolute; inset:24px; display:block; border-radius:50%; background:var(--theme-foreground); transform:scale(0); }
+    .fticks { position:absolute; inset:0; visibility:hidden; }
+    .fticks .dtick { stroke-width:70; stroke-opacity:.6; stroke-dasharray:6 9; }
+    .fticks .dindex { stroke:var(--theme-background); stroke-width:110; stroke-dasharray:12 348; }
+    .fbrand { position:absolute; left:200px; top:88px; width:790px; height:84px; font-size:54px; line-height:1; align-content:center; color:var(--theme-foreground); }
+    .fblock { position:absolute; left:0; top:0; background:var(--theme-background); transform-origin:0 50%; transform:scaleX(0); }
+    .fhead { position:absolute; left:90px; top:196px; width:900px; height:570px; font-size:160px; line-height:.92; align-content:center; color:var(--theme-foreground); }
+    .cta { position:absolute; left:90px; top:800px; width:900px; height:190px; background:var(--theme-foreground); clip-path:inset(0% 100% 0% 0%); }
+    .cplug { position:absolute; left:48px; top:73px; width:44px; height:44px; display:block; background:var(--theme-accent2); transform:scale(0); }
+    .ctext { position:absolute; left:126px; right:56px; top:20px; bottom:20px; font-size:80px; line-height:1; align-content:center; color:var(--theme-background); }
+    .wipe { position:absolute; inset:0; background:var(--theme-background); clip-path:circle(0px at 50% 50%); z-index:5; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="8.667" data-width="1080" data-height="1080">
+    <section id="workswith-hub" class="scene s1" data-start="0" data-duration="8.667" data-track-index="0">
+      <div class="dial">
+        <svg viewBox="0 0 600 600"><circle class="dline" cx="300" cy="300" r="298" pathLength="100"/></svg>
+        <div class="ticks"><svg viewBox="0 0 600 600"><circle class="dtick" cx="300" cy="300" r="282" pathLength="360"/><circle class="dindex" cx="300" cy="300" r="276" pathLength="360"/></svg></div>
+      </div>
+      <div id="wires"></div>
+      <div class="hub"></div>
+      <div id="ports"></div>
+      <div class="hbrand display fit" data-fit-max="64" data-fit-min="28" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div id="tiles" data-list>
+        <template data-list-row><div class="tile"><div class="ttext display" data-list-text data-words data-fit-max="50" data-fit-min="24"></div><i class="plug" data-list-part="plug"></i></div></template>
+      </div>
+      <h1 class="hook display fit" data-fit-max="176" data-fit-min="80" data-text-role="headline" data-beat-text="headline">Headline</h1>
+    </section>
+    <section id="workswith-end" class="scene s2" data-start="0" data-duration="8.667" data-track-index="1">
+      <div class="fmark"><i class="fdot"></i><div class="fticks"><svg viewBox="0 0 600 600"><circle class="dtick" cx="300" cy="300" r="250" pathLength="360"/><circle class="dindex" cx="300" cy="300" r="250" pathLength="360"/></svg></div></div>
+      <div class="fbrand display fit" data-fit-max="54" data-fit-min="30" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="fblock"></div>
+      <h2 class="fhead display fit" data-fit-max="160" data-fit-min="80" data-text-role="headline" data-beat-text="headline">Headline</h2>
+      <div class="cta"><i class="cplug"></i><div class="ctext display fit" data-fit-max="80" data-fit-min="40" data-text-role="cta" data-beat-text="cta">CTA</div></div>
+    </section>
+    <div class="wipe"></div>
+  </div>
+  <script>__BASE_JS__</script>
+  <script>__BEAT_JS__</script>
+  <script>
+    const tl = gsap.timeline({paused: true});
+    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+      const B = (n) => m.at(n);
+      const t = (id) => m.cue(id);
+      const q = (s) => document.querySelector(s);
+      const px = (v) => v + 'px';
+      const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+      const rise = (el, at, gap, cap, dur) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 120}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, at + Math.min(i, cap) * B(gap)));
+
+      // Designed slots per count, filled clockwise: [center x, center y, width, height].
+      const SLOTS = {
+        1: [[540, 875, 620, 150]],
+        2: [[540, 165, 560, 150], [540, 915, 560, 150]],
+        3: [[540, 165, 560, 150], [785, 915, 410, 150], [295, 915, 410, 150]],
+        4: [[240, 160, 300, 130], [840, 160, 300, 130], [840, 920, 300, 130], [240, 920, 300, 130]],
+        5: [[540, 160, 300, 130], [870, 400, 240, 130], [800, 900, 300, 130], [280, 900, 300, 130], [210, 400, 240, 130]],
+        6: [[540, 160, 300, 130], [870, 390, 240, 130], [870, 690, 240, 130], [540, 920, 300, 130], [210, 690, 240, 130], [210, 390, 240, 130]],
+      };
+      const n = m.items.length;
+      const HX = 540, HY = n === 1 ? 420 : 540, HR = 150, HS = HR * 2;
+      const DR = n >= 5 ? 240 : 270;
+      const geo = (SLOTS[clamp(n, 1, 6)] || []).map(([cx, cy, w, h]) => {
+        const dx = cx - HX, dy = cy - HY;
+        const sx = dx ? (w / 2) / Math.abs(dx) : Infinity, sy = dy ? (h / 2) / Math.abs(dy) : Infinity;
+        const k = Math.min(sx, sy);
+        const ex = cx - dx * k, ey = cy - dy * k;
+        const face = sx < sy ? (dx > 0 ? 'left' : 'right') : (dy > 0 ? 'top' : 'bottom');
+        const rad = Math.atan2(dy, dx);
+        return {x: cx - w / 2, y: cy - h / 2, w, h, ex, ey, face, rad, deg: rad * 180 / Math.PI, len: Math.hypot(ex - HX, ey - HY)};
+      });
+      const CLIP = {top: 'inset(0% 0% 100% 0%)', bottom: 'inset(100% 0% 0% 0%)', left: 'inset(0% 100% 0% 0%)', right: 'inset(0% 0% 0% 100%)'};
+      const ORIGIN = {top: '50% 0%', bottom: '50% 100%', left: '0% 50%', right: '100% 50%'};
+      m.items.forEach((it, i) => {
+        const row = m.row(it.index), g = geo[i];
+        if (!row || !g) return;
+        Object.assign(row.style, {left: px(g.x), top: px(g.y), width: px(g.w), height: px(g.h)});
+        row.querySelector('.ttext').dataset.fitMax = g.h >= 150 ? '64' : g.w >= 300 ? '50' : '44';
+        const plug = row.querySelector('.plug');
+        const lx = g.ex - g.x, ly = g.ey - g.y;
+        if (g.face === 'top' || g.face === 'bottom') {
+          Object.assign(plug.style, {width: '48px', height: '12px', left: px(clamp(lx - 24, 0, g.w - 48)), top: px(g.face === 'top' ? 0 : g.h - 12)});
+        } else {
+          Object.assign(plug.style, {width: '12px', height: '48px', top: px(clamp(ly - 24, 0, g.h - 48)), left: px(g.face === 'left' ? 0 : g.w - 12)});
+        }
+        plug.style.transformOrigin = ORIGIN[g.face];
+      });
+      window.cliphouseFitText?.();
+      const DS = Math.round(DR * 2 * 300 / 298);
+      Object.assign(q('.dial').style, {left: px(HX - DS / 2), top: px(HY - DS / 2), width: px(DS), height: px(DS)});
+      Object.assign(q('.hbrand').style, {left: px(HX - 115), top: px(HY - 65)});
+
+      // The block sits behind the last headline word, measured after fitting.
+      const boxOf = (el, pad) => {
+        const ms = el.querySelectorAll('.wmask'), k = ms[ms.length - 1];
+        if (!k) return {left: el.offsetLeft, top: el.offsetTop, width: 1, height: 1};
+        return {left: el.offsetLeft + k.offsetLeft - pad, top: el.offsetTop + k.offsetTop - pad * 0.4, width: k.offsetWidth + pad * 2, height: k.offsetHeight + pad * 0.8};
+      };
+      const hook = q('.s1 .hook'), hub = q('.hub');
+      const hb = boxOf(hook, 14);
+      // The hub is laid out once as the final circle; the block state is the same element under transforms.
+      Object.assign(hub.style, {left: px(HX - HR), top: px(HY - HR), width: px(HS), height: px(HS)});
+      const bx = hb.left - (HX - HR), by = hb.top - (HY - HR);
+      const bsx = hb.width / HS, bsy = hb.height / HS;
+      const fhead = q('.s2 .fhead'), fblock = q('.fblock');
+      const fb = boxOf(fhead, 14);
+      Object.assign(fblock.style, {left: px(fb.left), top: px(fb.top), width: px(fb.width), height: px(fb.height)});
+
+      // Beats 0-3: the hook, its block, and the block rounding into the hub behind the headline.
+      rise(hook, t('hook'), 0.125, 3, 0.6);
+      tl.fromTo(hub, {x: bx, y: by, scaleX: 0, scaleY: bsy, borderRadius: '0%', transformOrigin: '0% 0%'},
+        {scaleX: bsx, duration: B(0.5), ease: 'expo.out'}, t('block'));
+      tl.fromTo(hub, {x: bx, y: by, scaleX: bsx, scaleY: bsy, borderRadius: '0%'},
+        {x: 0, y: 0, scaleX: 1, scaleY: 1, borderRadius: '50%', duration: B(1), ease: 'expo.inOut', immediateRender: false}, t('morph'));
+      tl.fromTo(m.spans(hook), {yPercent: 0}, {yPercent: -120, duration: B(0.375), ease: 'power3.in', immediateRender: false}, t('hub'));
+      tl.set(hook, {visibility: 'hidden'}, t('hub') + B(0.5));
+      tl.set('.hbrand', {visibility: 'visible'}, t('brand'));
+      rise(q('.hbrand'), t('brand'), 0.125, 2, 0.6);
+
+      // The dial draws on, then clicks once per beat through the list scene.
+      tl.fromTo('.s1 .dline', {strokeDashoffset: 100}, {strokeDashoffset: 0, duration: B(0.75), ease: 'expo.out'}, t('dial'));
+      tl.set('.s1 .ticks', {visibility: 'visible'}, t('dial'));
+      tl.fromTo('.s1 .ticks', {rotation: -90}, {rotation: 0, duration: B(0.75), ease: 'expo.out'}, t('dial'));
+      const listBeats = m.score.scenes[1].bars * 4;
+      for (let k = 0; k < listBeats; k++) {
+        tl.fromTo('.s1 .ticks', {rotation: k * 30}, {rotation: (k + 1) * 30, duration: B(0.5), ease: 'expo.out', immediateRender: false}, m.scene(1, k));
+      }
+
+      // Per-item parts: hub sockets (scaffold), wires, and the finale current. All start hidden.
+      const ports = m.parts(q('#ports'), 'port', (it) => {
+        const g = geo[it.index];
+        const d = document.createElement('div');
+        d.className = 'port';
+        d.dataset.listGroup = 'scaffold';
+        Object.assign(d.style, {left: px(HX + HR * Math.cos(g.rad) - 15), top: px(HY + HR * Math.sin(g.rad) - 15), transform: `rotate(${g.deg}deg)`});
+        d.innerHTML = '<i class="pshell"><i class="pfill"></i></i>';
+        return d;
+      });
+      const wireEl = (g, cls) => {
+        const d = document.createElement('div');
+        d.className = 'wire' + cls;
+        Object.assign(d.style, {left: px(HX), top: px(HY - 4), width: px(g.len), transform: `rotate(${g.deg}deg)`});
+        const l = document.createElement('i');
+        l.className = 'wline';
+        d.append(l);
+        return d;
+      };
+      const wires = m.parts(q('#wires'), 'wire', (it) => wireEl(geo[it.index], ''));
+      const charges = m.parts(q('#wires'), 'charge', (it) => {
+        const d = wireEl(geo[it.index], ' charge');
+        d.dataset.listGroup = 'finale';
+        return d;
+      });
+
+      ports.forEach((p, i) => {
+        const at = t('hub') + B(0.125) * i;
+        tl.set(p, {visibility: 'visible'}, at);
+        tl.fromTo(p.querySelector('.pshell'), {scale: 0}, {scale: 1, duration: B(0.375), ease: 'back.out(1.2)'}, at);
+      });
+      m.items.forEach((it, i) => {
+        const row = m.row(it.index), g = geo[i];
+        if (!row || !g) return;
+        // Start: the wire shoots out as the tile opens from the side that faces the hub.
+        tl.set(wires[i], {visibility: 'visible'}, it.start);
+        tl.fromTo(wires[i].firstChild, {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, it.start);
+        tl.set(row, {visibility: 'visible'}, it.start);
+        tl.fromTo(row, {clipPath: CLIP[g.face]}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, it.start);
+        rise(row.querySelector('.ttext'), it.start, 0.125, 1, 0.5);
+        // Accent: the connection clicks in at both ends.
+        tl.fromTo(row.querySelector('.plug'), {scale: 0}, {scale: 1, duration: B(0.375), ease: 'expo.out'}, it.accent);
+        tl.fromTo(ports[i].querySelector('.pfill'), {scale: 0}, {scale: 1, duration: B(0.375), ease: 'expo.out'}, it.accent);
+      });
+      // Beat 11: current runs through every connection at once.
+      charges.forEach((c) => {
+        tl.set(c, {visibility: 'visible'}, t('charge'));
+        tl.fromTo(c.firstChild, {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('charge'));
+      });
+
+      // Beat 12: the hub floods to the farthest corner in 10 frames.
+      const R = Math.ceil(Math.hypot(Math.max(HX, 1080 - HX), Math.max(HY, 1080 - HY))) + 8;
+      tl.set('.s2', {visibility: 'visible'}, t('flood'));
+      tl.fromTo('.s2', {clipPath: `circle(0px at ${HX}px ${HY}px)`},
+        {clipPath: `circle(${R}px at ${HX}px ${HY}px)`, duration: B(0.75), ease: 'power3.out'}, t('flood'));
+      tl.set('.s1', {visibility: 'hidden'}, t('flood') + B(1));
+
+      // Beats 12.5-15: the answer rises in the flood, its block lands, the CTA stamps, the brand locks up.
+      rise(fhead, t('finaleHeadline'), 0.125, 3, 0.6);
+      tl.fromTo(fblock, {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('finaleBlock'));
+      tl.fromTo('.cta', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('ctaStamp') - B(0.5));
+      tl.fromTo('.cta', {scale: 1.16, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.75), ease: 'expo.out'}, t('ctaStamp'));
+      rise(q('.s2 .ctext'), t('ctaStamp'), 0.125, 2, 0.6);
+      tl.fromTo('.cplug', {scale: 0}, {scale: 1, duration: B(0.375), ease: 'back.out(1.2)'}, t('ctaStamp') + B(0.5));
+      tl.fromTo('.fdot', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('brandLock'));
+      tl.set('.fticks', {visibility: 'visible'}, t('brandLock'));
+      tl.fromTo('.fticks', {rotation: -90}, {rotation: 0, duration: B(0.5), ease: 'expo.out'}, t('brandLock'));
+      rise(q('.s2 .fbrand'), t('brandLock'), 0.125, 2, 0.6);
+      // The settle: the dial mark keeps clicking on every beat until the loop wipe.
+      for (let k = 1; t('brandLock') + B(k) < t('loopWipe') - 1e-6; k++) {
+        tl.fromTo('.fticks', {rotation: (k - 1) * 30}, {rotation: k * 30, duration: B(0.5), ease: 'expo.out', immediateRender: false}, t('brandLock') + B(k));
+      }
+
+      // Beat 19: cream floods from the CTA back to the empty first frame.
+      const cx = 540, cy = 895;
+      const R2 = Math.ceil(Math.hypot(Math.max(cx, 1080 - cx), Math.max(cy, 1080 - cy))) + 8;
+      tl.fromTo('.wipe', {clipPath: `circle(0px at ${cx}px ${cy}px)`},
+        {clipPath: `circle(${R2}px at ${cx}px ${cy}px)`, duration: B(0.75), ease: 'power3.out'}, t('loopWipe'));
+    });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+    document.fonts?.ready.then(() => window.cliphouseBeatUpdate?.({}));
+  </script>
+</body>
+</html>

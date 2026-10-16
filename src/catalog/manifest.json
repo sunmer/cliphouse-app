@@ -1808,6 +1808,174 @@
         "provider": "Anthropic",
         "effort": "high"
       }
+    },
+    {
+      "id": "hookanswer",
+      "title": "Hook and Answer",
+      "creator": "cliphouse.studio",
+      "prompt": "A 9:16 hook-and-answer clip for Reels, TikTok, and Shorts. Beat one stops the scroll: the headline is a blunt question or pain the audience feels, big and alone on screen. Then the answer: the question visibly flips into the answer (a strike, a crack, or a wipe), the subhead names the product and how it solves the pain, up to three benefits land one per beat, and the CTA closes. The arc must read as problem, then fix.",
+      "createdAt": "2026-10-16",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "quickstart",
+      "title": "Quickstart",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16:9 quickstart video: how fast a developer goes from nothing to running. An elapsed-time readout counts up toward the stat while up to three commands type into a terminal one per beat, each finishing with a success mark. The clock locks on the stat as the last command lands, the headline states the promise, then the CTA. Speed and ease are shown, not claimed.",
+      "createdAt": "2026-10-16",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "howitworks",
+      "title": "How It Works",
+      "creator": "cliphouse.studio",
+      "prompt": "A 1:1 \"how it works in 3 steps\" explainer for a product page or a launch thread. The headline sets it up, then up to three numbered steps land one per beat, linked by a path that draws from one step to the next. Each step gets a simple glyph built from shapes (no icons, no images). Then the CTA. A stranger must understand the product in 10 seconds.",
+      "createdAt": "2026-10-16",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "foundernote",
+      "title": "Founder Note",
+      "creator": "cliphouse.studio",
+      "prompt": "A 4:5 founder note: the personal \"why we built this\" post that small startups share on launch day. The headline lands first, then the note writes itself in, phrase by phrase, like a letter on paper. The founder name and role sign it off, then the brand and CTA. Warm, human, and editorial, never corporate.",
+      "createdAt": "2026-10-16",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "weeklyshipped",
+      "title": "Weekly Shipped",
+      "creator": "cliphouse.studio",
+      "prompt": "A 9:16 weekly \"what we shipped\" recap for Stories, Reels, and Shorts, for teams that build in public. The week label stamps in, then up to five shipped items rise one per beat like cards stacking up a phone screen, while a running count ticks up with each card. Then the CTA. Momentum is the message: a small team that ships every week.",
+      "createdAt": "2026-10-16",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "whyswitch",
+      "title": "Why Switch",
+      "creator": "cliphouse.studio",
+      "prompt": "A 1:1 \"why teams switch to us\" comparison. The headline sets it up, then up to four reasons land one per beat as rows in a two-column table: the brand column and an \"old way\" column. Each row gets a check under the brand and a muted cross under the old way. The columns and marks are drawn decoration; only the brand and the row text are editable. Confident, and never mocking a named competitor.",
+      "createdAt": "2026-10-16",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "stathook",
+      "title": "Stat Hook",
+      "creator": "cliphouse.studio",
+      "prompt": "A 9:16 one-number hook for Reels, TikTok, and Shorts. The stat fills the screen on the first beat. Then the headline completes the sentence, the subhead gives the proof in one line, then the brand and CTA. One bold claim in huge type, with nothing competing with it.",
+      "createdAt": "2026-10-16",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "youasked",
+      "title": "You Asked",
+      "creator": "cliphouse.studio",
+      "prompt": "A 1:1 \"you asked, we shipped\" post. A user request (the quote) appears on a generic feedback or issue card with its author, a status pill flips from open to shipped, the headline lands with weight, then the CTA names the command or page. No third-party logos. It shows a team that listens, and turns a feature into social proof.",
+      "createdAt": "2026-10-16",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "featuredemo",
+      "title": "Feature Demo",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16:9 feature demo without a screenshot. An app window built from shapes (a title bar, a sidebar, content blocks, all in theme colors) assembles, and the headline names the feature. Then a cursor performs up to three actions, one per beat. Each action label appears as a caption while the mock UI responds: a row highlights, a panel slides in, a draft fills. Then the CTA. It must read as a product demo even though no real UI is shown.",
+      "createdAt": "2026-10-16",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "launchweek",
+      "title": "Launch Week",
+      "creator": "cliphouse.studio",
+      "prompt": "A 16:9 launch week announcement, for startups that ship one big thing a day for a week. The date names the day (for example \"Launch Week / Day 3\"). A day track runs along the frame and up to five launch items land on it one per beat: the last item is today and gets the highlight. Then the headline announces today's launch, the subhead says what it does, and the CTA closes.",
+      "createdAt": "2026-10-16",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "builtfor",
+      "title": "Built For",
+      "creator": "cliphouse.studio",
+      "prompt": "A 4:5 positioning clip that says who the product is for. The headline (\"Built for\") holds in place while up to five audience names swap into the slot after it, one per beat, like a split-flap or a roll. The last name holds, then the subhead states the promise and the CTA closes. It answers \"is this for me?\" at a glance.",
+      "createdAt": "2026-10-16",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "workswith",
+      "title": "Works With",
+      "creator": "cliphouse.studio",
+      "prompt": "A 1:1 \"works with your stack\" post. The brand sits at the center as a hub, then up to six integration names land one per beat as text tiles around it, each joined to the hub by a line that draws as it lands. Then the headline and CTA. Tiles are text only, with no logos. It answers \"will it fit what we already use?\"",
+      "createdAt": "2026-10-16",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
     }
   ],
   "variants": [
@@ -9011,6 +9179,672 @@
       "goals": [
         "launch-product"
       ]
+    },
+    {
+      "template": "hookanswer",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-16",
+      "id": "hookanswer-launch",
+      "title": "Hook and Answer",
+      "description": "A hook-and-answer clip for Reels, TikTok, and Shorts. Beat one stops the scroll: the headline is a blunt question or pain the audience feels, big and alone on screen. Then the answer: the question visibly flips into the answer (a strike, a crack, or a wipe), the subhead names the product and how it solves the pain, up to three benefits land one per beat, and the CTA closes. The arc must read as problem, then fix.",
+      "purpose": "Product launch",
+      "style": [
+        "Bold",
+        "Tech"
+      ],
+      "energy": 4,
+      "keywords": [
+        "hook video template",
+        "problem solution video",
+        "tiktok product video",
+        "saas reel template",
+        "startup social video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Shipyard",
+          "headline": "Still writing YAML?",
+          "subhead": "Shipyard deploys straight from your repo.",
+          "list": "Push to deploy\nA preview for every PR\nRollback in one click",
+          "cta": "Try it free"
+        },
+        "theme": {
+          "background": "#0e0e10",
+          "surface": "#1f1f24",
+          "foreground": "#fafafa",
+          "accent": "#ffd400",
+          "accent2": "#ff3d71"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-rooftop"
+        }
+      },
+      "seoDescription": "A free 9:16 hook and answer template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "product-launch",
+        "instagram-reel",
+        "saas"
+      ],
+      "goals": [
+        "launch-product",
+        "announce-feature"
+      ],
+      "launch": true
+    },
+    {
+      "template": "quickstart",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-16",
+      "id": "quickstart-launch",
+      "title": "Quickstart in Seconds",
+      "description": "A quickstart video: how fast a developer goes from nothing to running. An elapsed-time readout counts up toward the stat while up to three commands type into a terminal one per beat, each finishing with a success mark. The clock locks on the stat as the last command lands, the headline states the promise, then the CTA. Speed and ease are shown, not claimed.",
+      "purpose": "Developer",
+      "style": [
+        "Tech",
+        "Minimal"
+      ],
+      "energy": 3,
+      "keywords": [
+        "quickstart video",
+        "getting started video",
+        "developer onboarding video",
+        "install command animation",
+        "devtools demo template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Tinybase",
+          "headline": "Zero to running",
+          "stat": "30 s",
+          "list": "npx create-tinybase app\ncd app && npm run dev\nOpen localhost:3000",
+          "cta": "Read the quickstart"
+        },
+        "theme": {
+          "background": "#0b1020",
+          "surface": "#151c33",
+          "foreground": "#eef2ff",
+          "accent": "#4ade80",
+          "accent2": "#818cf8"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "techno-grid"
+        }
+      },
+      "seoDescription": "A free 16:9 quickstart in seconds template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "saas",
+        "feature-launch"
+      ],
+      "goals": [
+        "launch-product",
+        "announce-feature"
+      ],
+      "launch": true
+    },
+    {
+      "template": "howitworks",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-16",
+      "id": "howitworks-launch",
+      "title": "How It Works in 3 Steps",
+      "description": "A \"how it works in 3 steps\" explainer for a product page or a launch thread. The headline sets it up, then up to three numbered steps land one per beat, linked by a path that draws from one step to the next. Each step gets a simple glyph built from shapes (no icons, no images). Then the CTA. A stranger must understand the product in 10 seconds.",
+      "purpose": "Product launch",
+      "style": [
+        "Minimal",
+        "Playful"
+      ],
+      "energy": 3,
+      "keywords": [
+        "how it works video",
+        "explainer video template",
+        "three step explainer",
+        "product explainer animation",
+        "saas explainer video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Quill",
+          "headline": "How Quill works",
+          "list": "Paste your notes\nQuill drafts the spec\nShare it with the team",
+          "cta": "Start free"
+        },
+        "theme": {
+          "background": "#fff8ef",
+          "surface": "#ffe7c7",
+          "foreground": "#1c1712",
+          "accent": "#ff5a1f",
+          "accent2": "#2b59ff"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-sunday"
+        }
+      },
+      "seoDescription": "A free 1:1 how it works in 3 steps template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "saas",
+        "product-launch",
+        "social-ad"
+      ],
+      "goals": [
+        "launch-product",
+        "introduce-brand"
+      ],
+      "launch": true
+    },
+    {
+      "template": "foundernote",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-16",
+      "id": "foundernote-launch",
+      "title": "Founder Note",
+      "description": "A founder note: the personal \"why we built this\" post that small startups share on launch day. The headline lands first, then the note writes itself in, phrase by phrase, like a letter on paper. The founder name and role sign it off, then the brand and CTA. Warm, human, and editorial, never corporate.",
+      "purpose": "Product launch",
+      "style": [
+        "Editorial",
+        "Minimal"
+      ],
+      "energy": 2,
+      "keywords": [
+        "founder story video",
+        "why we built this",
+        "founder note template",
+        "startup story video",
+        "launch day founder post"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Halo",
+          "headline": "Why we built Halo",
+          "quote": "We lost good ideas in noisy inboxes for years. Halo is the quiet place we wanted for ourselves.",
+          "author": "Sam Ortiz, cofounder",
+          "cta": "Read our story"
+        },
+        "theme": {
+          "background": "#f4efe6",
+          "surface": "#fffaf2",
+          "foreground": "#231d17",
+          "accent": "#c2410c",
+          "accent2": "#1e3a5f"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-nightshift"
+        }
+      },
+      "seoDescription": "A free 4:5 founder note template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "product-launch",
+        "brand-intro",
+        "quote"
+      ],
+      "goals": [
+        "launch-product",
+        "introduce-brand"
+      ],
+      "launch": true
+    },
+    {
+      "template": "weeklyshipped",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-16",
+      "id": "weeklyshipped-launch",
+      "title": "What We Shipped This Week",
+      "description": "A weekly \"what we shipped\" recap for Stories, Reels, and Shorts, for teams that build in public. The week label stamps in, then up to five shipped items rise one per beat like cards stacking up a phone screen, while a running count ticks up with each card. Then the CTA. Momentum is the message: a small team that ships every week.",
+      "purpose": "Developer",
+      "style": [
+        "Bold",
+        "Tech"
+      ],
+      "energy": 4,
+      "keywords": [
+        "build in public video",
+        "weekly update reel",
+        "what we shipped video",
+        "changelog reel template",
+        "vertical changelog video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Relay",
+          "headline": "Shipped this week",
+          "date": "Week 42",
+          "list": "Shared inbox views\nSearch is 3x faster\nSlack thread replies\nCSV export\nDark mode fixes",
+          "cta": "Full changelog"
+        },
+        "theme": {
+          "background": "#13072e",
+          "surface": "#24104f",
+          "foreground": "#f6f0ff",
+          "accent": "#ff7ac6",
+          "accent2": "#5ef0ff"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-launch"
+        }
+      },
+      "seoDescription": "A free 9:16 what we shipped this week template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "saas",
+        "instagram-reel"
+      ],
+      "goals": [
+        "share-update"
+      ],
+      "launch": true
+    },
+    {
+      "template": "whyswitch",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-16",
+      "id": "whyswitch-launch",
+      "title": "Why Teams Switch",
+      "description": "A \"why teams switch to us\" comparison. The headline sets it up, then up to four reasons land one per beat as rows in a two-column table: the brand column and an \"old way\" column. Each row gets a check under the brand and a muted cross under the old way. The columns and marks are drawn decoration; only the brand and the row text are editable. Confident, and never mocking a named competitor.",
+      "purpose": "Product launch",
+      "style": [
+        "Minimal",
+        "Bold"
+      ],
+      "energy": 3,
+      "keywords": [
+        "why switch video",
+        "comparison table video",
+        "us vs them template",
+        "competitor comparison post",
+        "saas comparison video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Ledgerly",
+          "headline": "Why teams switch",
+          "list": "Set up in 5 minutes\nNo per-seat pricing\nImports from QuickBooks\nHumans answer support",
+          "cta": "Compare plans"
+        },
+        "theme": {
+          "background": "#f3f7f4",
+          "surface": "#ffffff",
+          "foreground": "#0f1f17",
+          "accent": "#10b981",
+          "accent2": "#94a3b8"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "techno-pulse"
+        }
+      },
+      "seoDescription": "A free 1:1 why teams switch template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "saas",
+        "comparison",
+        "social-ad"
+      ],
+      "goals": [
+        "launch-product",
+        "announce-pricing"
+      ],
+      "launch": true
+    },
+    {
+      "template": "stathook",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-16",
+      "id": "stathook-launch",
+      "title": "One Number Hook",
+      "description": "A one-number hook for Reels, TikTok, and Shorts. The stat fills the screen on the first beat. Then the headline completes the sentence, the subhead gives the proof in one line, then the brand and CTA. One bold claim in huge type, with nothing competing with it.",
+      "purpose": "Product launch",
+      "style": [
+        "Bold",
+        "Minimal"
+      ],
+      "energy": 5,
+      "keywords": [
+        "big number video",
+        "stat hook reel",
+        "one number video",
+        "bold claim tiktok",
+        "startup stat video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Shipyard",
+          "stat": "0",
+          "headline": "config files needed",
+          "subhead": "Shipyard reads your repo and deploys it.",
+          "cta": "Deploy free"
+        },
+        "theme": {
+          "background": "#ff4d00",
+          "surface": "#ff7a3d",
+          "foreground": "#ffffff",
+          "accent": "#111111",
+          "accent2": "#ffe14d"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-window"
+        }
+      },
+      "seoDescription": "A free 9:16 one number hook template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "product-launch",
+        "instagram-reel",
+        "counter"
+      ],
+      "goals": [
+        "launch-product",
+        "celebrate-milestone"
+      ],
+      "launch": true
+    },
+    {
+      "template": "youasked",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-16",
+      "id": "youasked-launch",
+      "title": "You Asked, We Shipped",
+      "description": "A \"you asked, we shipped\" post. A user request (the quote) appears on a generic feedback or issue card with its author, a status pill flips from open to shipped, the headline lands with weight, then the CTA names the command or page. No third-party logos. It shows a team that listens, and turns a feature into social proof.",
+      "purpose": "Developer",
+      "style": [
+        "Tech",
+        "Minimal"
+      ],
+      "energy": 3,
+      "keywords": [
+        "you asked we shipped",
+        "feature request video",
+        "customer request post",
+        "developer feature announcement",
+        "feedback shipped video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Forge",
+          "quote": "Please let me pull env vars from the CLI. I copy them by hand every day.",
+          "author": "@devon_k, Forge user",
+          "headline": "You asked. We shipped.",
+          "cta": "forge env pull"
+        },
+        "theme": {
+          "background": "#0d1117",
+          "surface": "#1b222c",
+          "foreground": "#f0f3f6",
+          "accent": "#a371f7",
+          "accent2": "#3fb950"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-shipit"
+        }
+      },
+      "seoDescription": "A free 1:1 you asked, we shipped template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "feature-launch",
+        "testimonial"
+      ],
+      "goals": [
+        "announce-feature",
+        "share-social-proof"
+      ],
+      "launch": true
+    },
+    {
+      "template": "featuredemo",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-16",
+      "id": "featuredemo-launch",
+      "title": "Feature Demo",
+      "description": "A feature demo without a screenshot. An app window built from shapes (a title bar, a sidebar, content blocks, all in theme colors) assembles, and the headline names the feature. Then a cursor performs up to three actions, one per beat. Each action label appears as a caption while the mock UI responds: a row highlights, a panel slides in, a draft fills. Then the CTA. It must read as a product demo even though no real UI is shown.",
+      "purpose": "Product launch",
+      "style": [
+        "Minimal",
+        "Tech"
+      ],
+      "energy": 3,
+      "keywords": [
+        "feature demo video",
+        "product demo template",
+        "ui demo animation",
+        "saas feature video",
+        "app walkthrough video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Northwind",
+          "headline": "Meet AI Drafts",
+          "list": "Open any thread\nPress D to draft\nEdit and send",
+          "cta": "Try AI Drafts"
+        },
+        "theme": {
+          "background": "#eef2f8",
+          "surface": "#ffffff",
+          "foreground": "#111827",
+          "accent": "#2563eb",
+          "accent2": "#f59e0b"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "house-rooftop"
+        }
+      },
+      "seoDescription": "A free 16:9 feature demo template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "feature-launch",
+        "saas",
+        "app-promo"
+      ],
+      "goals": [
+        "announce-feature"
+      ],
+      "launch": true
+    },
+    {
+      "template": "launchweek",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-16",
+      "id": "launchweek-launch",
+      "title": "Launch Week",
+      "description": "A launch week announcement, for startups that ship one big thing a day for a week. The date names the day (for example \"Launch Week / Day 3\"). A day track runs along the frame and up to five launch items land on it one per beat: the last item is today and gets the highlight. Then the headline announces today's launch, the subhead says what it does, and the CTA closes.",
+      "purpose": "Product launch",
+      "style": [
+        "Bold",
+        "Tech"
+      ],
+      "energy": 4,
+      "keywords": [
+        "launch week video",
+        "launch week template",
+        "daily launch announcement",
+        "startup launch week",
+        "devtools launch week"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Tinybase",
+          "date": "Launch Week / Day 5",
+          "list": "Auth\nStorage\nEdge functions\nCron jobs\nRealtime sync",
+          "headline": "Realtime sync is here",
+          "subhead": "Every client in sync, offline first.",
+          "cta": "See all launches"
+        },
+        "theme": {
+          "background": "#0a0a0a",
+          "surface": "#1c1c1c",
+          "foreground": "#fafafa",
+          "accent": "#3ecf8e",
+          "accent2": "#f5a524"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "techno-grid"
+        }
+      },
+      "seoDescription": "A free 16:9 launch week template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "product-launch",
+        "feature-launch",
+        "event-promo"
+      ],
+      "goals": [
+        "launch-product",
+        "announce-feature"
+      ],
+      "launch": true
+    },
+    {
+      "template": "builtfor",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-16",
+      "id": "builtfor-launch",
+      "title": "Built For",
+      "description": "A positioning clip that says who the product is for. The headline (\"Built for\") holds in place while up to five audience names swap into the slot after it, one per beat, like a split-flap or a roll. The last name holds, then the subhead states the promise and the CTA closes. It answers \"is this for me?\" at a glance.",
+      "purpose": "Product launch",
+      "style": [
+        "Bold",
+        "Minimal"
+      ],
+      "energy": 4,
+      "keywords": [
+        "built for video",
+        "target audience video",
+        "positioning video template",
+        "who is it for animation",
+        "saas positioning video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Fieldnote",
+          "headline": "Built for",
+          "list": "Solo founders\nResearch teams\nProduct managers\nWriters\nStudents",
+          "subhead": "Notes that organize themselves.",
+          "cta": "Get started free"
+        },
+        "theme": {
+          "background": "#e8f0ff",
+          "surface": "#ffffff",
+          "foreground": "#0b1533",
+          "accent": "#3355ff",
+          "accent2": "#ff6b4a"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-sunday"
+        }
+      },
+      "seoDescription": "A free 4:5 built for template for SaaS launches, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "saas",
+        "brand-intro",
+        "social-ad"
+      ],
+      "goals": [
+        "launch-product",
+        "introduce-brand"
+      ],
+      "launch": true
+    },
+    {
+      "template": "workswith",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-16",
+      "id": "workswith-launch",
+      "title": "Works With Your Stack",
+      "description": "A \"works with your stack\" post. The brand sits at the center as a hub, then up to six integration names land one per beat as text tiles around it, each joined to the hub by a line that draws as it lands. Then the headline and CTA. Tiles are text only, with no logos. It answers \"will it fit what we already use?\"",
+      "purpose": "Developer",
+      "style": [
+        "Minimal",
+        "Tech"
+      ],
+      "energy": 3,
+      "keywords": [
+        "integrations video",
+        "works with your stack",
+        "integration hub animation",
+        "tech stack video",
+        "devtools integrations post"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Relay",
+          "headline": "Works with your stack",
+          "list": "GitHub\nSlack\nLinear\nVercel\nStripe\nNotion",
+          "cta": "See integrations"
+        },
+        "theme": {
+          "background": "#fbfbf8",
+          "surface": "#efeee6",
+          "foreground": "#151515",
+          "accent": "#ff5c35",
+          "accent2": "#5b5bd6"
+        },
+        "audio": {
+          "enabled": true,
+          "track": "lofi-nightshift"
+        }
+      },
+      "seoDescription": "A free 1:1 works with your stack template for developer teams, with royalty-free music. Edit text, list items, colors, and the track online.",
+      "useCases": [
+        "developer",
+        "partnership",
+        "saas"
+      ],
+      "goals": [
+        "announce-integration"
+      ],
+      "launch": true
     }
   ]
 }
