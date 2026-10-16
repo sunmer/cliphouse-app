@@ -8,6 +8,8 @@ import {agentSpec as buildAgentSpec} from '../src/agent/spec.ts';
 import {sourcePath, templateVersion} from '../src/agent/versions.ts';
 import {generationErrors} from '../src/catalog/generation.ts';
 import {ENGINE_LABELS, engineOf} from '../src/videos/engine.ts';
+import {AGENT_CONTRACT_VERSION, GOAL_IDS, MARKETING_GOALS} from '../src/agent/goals.ts';
+import server from '../server.json' with {type: 'json'};
 
 const root = path.resolve(import.meta.dirname, '..');
 const dist = path.join(root, 'dist');
@@ -24,7 +26,7 @@ const exportFact = mp4 ? 'Signed-in users can download a free full-resolution MP
 const promise = `100% free. Browse without an account; a free Google account unlocks unlimited editing. No watermark, credit card, or attribution required.${mp4 ? ' Free MP4 downloads.' : ''} Built for Claude, ChatGPT, and any coding agent.`;
 const accountFact = 'Browsing is free without an account. Editing more than 3 templates needs a free Google account. Agent handoff links always open.';
 // The MCP section is published only when the share service (which hosts /mcp) is deployed.
-const mcpSection = mp4 ? `## MCP server\n\nStreamable HTTP MCP endpoint: ${site}/mcp (stateless, POST only). Tools: search_templates, get_template_spec, build_edit_link, render_preview, render_previews. render_preview renders a poster image of a template with your props in a few seconds; render_previews renders up to 4 templates at once from one brand description; no tool renders video or reads user data.\n\nAnonymous use is limited to 60 requests per minute and 1,000 per day per IP. A free API key from your cliphou.se account raises this to 600 per minute and 20,000 per day: send Authorization: Bearer <key>. Over the limit, the server answers HTTP 429 with Retry-After and RateLimit-* headers; wait Retry-After seconds before retrying.\n\n` : '';
+const mcpSection = mp4 ? `## MCP server\n\nStreamable HTTP MCP endpoint: ${site}/mcp (stateless, POST only). Tools: search_templates, get_template_spec, build_edit_link, render_preview, render_previews. Search by marketing goal: ${GOAL_IDS.join(', ')}. render_preview renders a poster image of a template with your props in a few seconds; render_previews renders up to 4 templates at once from one brand description; no tool renders video or reads user data.\n\nAnonymous use is limited to 60 requests per minute and 1,000 per day per IP. A free API key from your cliphou.se account raises this to 600 per minute and 20,000 per day: send Authorization: Bearer <key>. Over the limit, the server answers HTTP 429 with Retry-After and RateLimit-* headers; wait Retry-After seconds before retrying.\n\n` : '';
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'src/catalog/manifest.json'), 'utf8'));
 // Use-case slugs for all 50 demand-led templates (#7). Phase 2 batches should not need to add slugs.
 const validCases = new Set(['showreel', 'youtube-intro', 'instagram-reel', 'social-ad', 'product-launch', 'sale', 'saas', 'data-recap', 'brand-intro', 'event-promo', 'lower-thirds', 'kinetic-typography', 'youtube-end-screen', 'black-friday', 'logo-reveal', 'testimonial', 'year-in-review', 'countdown', 'podcast-intro',
@@ -72,8 +74,10 @@ function validate() {
     if (!manifest.vocab.purpose.includes(v.purpose)) errors.push(`${v.id}: invalid purpose`);
     if (!Array.isArray(v.style) || !v.style.length || v.style.some((s) => !manifest.vocab.style.includes(s))) errors.push(`${v.id}: invalid style`);
     if (!Array.isArray(v.useCases) || !v.useCases.length || new Set(v.useCases).size !== v.useCases.length || v.useCases.some((u) => !validCases.has(u))) errors.push(`${v.id}: invalid useCases`);
+    if (v.goals !== undefined && (!Array.isArray(v.goals) || !v.goals.length || new Set(v.goals).size !== v.goals.length || v.goals.some((g) => !GOAL_IDS.includes(g)))) errors.push(`${v.id}: invalid goals`);
     for (const ext of ['jpg', 'mp4']) if (!fs.existsSync(path.join(root, 'public/previews', `${v.id}.${ext}`))) errors.push(`${v.id}: missing preview ${ext}`);
   }
+  for (const goal of GOAL_IDS) if (!visible.some((v) => v.goals?.includes(goal))) errors.push(`goal ${goal}: no visible template`);
   if (errors.length) throw new Error(`SEO catalog validation failed:\n${errors.map((e) => `- ${e}`).join('\n')}`);
   return visible.map((v) => {
     const tmpl = templates.get(v.template);
@@ -266,6 +270,10 @@ for (const {page, html} of outputs) {
 
 fs.copyFileSync(path.join(root, 'src/seo/pages.css'), path.join(dist, 'seo.css'));
 fs.copyFileSync(path.join(root, 'LICENSE'), path.join(dist, 'LICENSE.txt'));
+fs.writeFileSync(path.join(dist, 'agent-contract.json'), `${JSON.stringify({
+  version: AGENT_CONTRACT_VERSION, mcpVersion: server.version, tools: ['search_templates', 'get_template_spec', 'build_edit_link', 'render_preview', 'render_previews'],
+  goals: MARKETING_GOALS.map(({id, label}) => ({id, label})),
+}, null, 2)}\n`);
 const catalogUpdated = date(...visible.map((v) => v.updatedAt));
 const fixed = [{path: '/', updatedAt: catalogUpdated}, {path: '/about/', updatedAt: reviewedAt}, {path: '/benchmark/', updatedAt: '2026-10-08'}, {path: '/benchmark/2026-10/', updatedAt: '2026-10-08'}];
 const urls = [...fixed, ...outputs.map((o) => o.page)];

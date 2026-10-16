@@ -19,6 +19,10 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: sunmer/cliphouse
+          path: .agent-skill
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -26,6 +30,8 @@ jobs:
       - run: npm ci
       - run: npm run test:sharing
       - run: npm run test:agent
+        env:
+          CLIPHOUSE_SKILL_DIR: .agent-skill
       - run: npm run test:benchmark
       - run: npx tsc -p tsconfig.server.json
       - uses: actions/setup-java@v4

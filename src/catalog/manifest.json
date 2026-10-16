@@ -1864,6 +1864,9 @@
         "kinetic-typography",
         "brand-intro",
         "music-video"
+      ],
+      "goals": [
+        "introduce-brand"
       ]
     },
     {
@@ -1918,6 +1921,9 @@
         "product-launch",
         "social-ad",
         "music-video"
+      ],
+      "goals": [
+        "announce-feature"
       ]
     },
     {
@@ -1971,6 +1977,9 @@
         "instagram-reel",
         "app-promo",
         "music-video"
+      ],
+      "goals": [
+        "launch-product"
       ]
     },
     {
@@ -2025,6 +2034,9 @@
         "countdown",
         "tickets",
         "music-video"
+      ],
+      "goals": [
+        "promote-event"
       ]
     },
     {
@@ -2071,6 +2083,9 @@
       "useCases": [
         "showreel",
         "youtube-intro"
+      ],
+      "goals": [
+        "introduce-brand"
       ]
     },
     {
@@ -2340,6 +2355,9 @@
         "instagram-reel",
         "social-ad",
         "product-launch"
+      ],
+      "goals": [
+        "run-promotion"
       ]
     },
     {
@@ -2518,6 +2536,9 @@
       "useCases": [
         "social-ad",
         "sale"
+      ],
+      "goals": [
+        "run-promotion"
       ]
     },
     {
@@ -2703,6 +2724,9 @@
       "useCases": [
         "data-recap",
         "saas"
+      ],
+      "goals": [
+        "celebrate-milestone"
       ]
     },
     {
@@ -2795,6 +2819,9 @@
       "useCases": [
         "brand-intro",
         "youtube-intro"
+      ],
+      "goals": [
+        "introduce-brand"
       ]
     },
     {
@@ -2888,6 +2915,9 @@
       "useCases": [
         "product-launch",
         "saas"
+      ],
+      "goals": [
+        "launch-product"
       ]
     },
     {
@@ -2983,6 +3013,9 @@
         "instagram-reel",
         "product-launch",
         "saas"
+      ],
+      "goals": [
+        "launch-product"
       ]
     },
     {
@@ -3071,6 +3104,9 @@
       "useCases": [
         "social-ad",
         "product-launch"
+      ],
+      "goals": [
+        "run-promotion"
       ]
     },
     {
@@ -3348,6 +3384,9 @@
         "product-launch",
         "saas",
         "youtube-intro"
+      ],
+      "goals": [
+        "launch-product"
       ]
     },
     {
@@ -3399,6 +3438,9 @@
         "instagram-reel",
         "event-promo",
         "product-launch"
+      ],
+      "goals": [
+        "promote-event"
       ]
     },
     {
@@ -3445,6 +3487,9 @@
       "useCases": [
         "social-ad",
         "sale"
+      ],
+      "goals": [
+        "run-promotion"
       ]
     },
     {
@@ -3492,6 +3537,9 @@
       "seoDescription": "A 4:5 Swiss-style studio index with precise grid motion, line draws, and editorial type for agencies and portfolios.",
       "useCases": [
         "brand-intro"
+      ],
+      "goals": [
+        "introduce-brand"
       ]
     },
     {
@@ -3542,6 +3590,9 @@
         "product-launch",
         "saas",
         "youtube-intro"
+      ],
+      "goals": [
+        "launch-product"
       ]
     },
     {
@@ -3640,6 +3691,9 @@
         "kinetic-typography",
         "brand-intro",
         "social-ad"
+      ],
+      "goals": [
+        "introduce-brand"
       ]
     },
     {
@@ -3740,6 +3794,9 @@
         "sale",
         "social-ad",
         "instagram-reel"
+      ],
+      "goals": [
+        "run-promotion"
       ]
     },
     {
@@ -3785,6 +3842,9 @@
         "logo-reveal",
         "brand-intro",
         "youtube-intro"
+      ],
+      "goals": [
+        "introduce-brand"
       ]
     },
     {
@@ -3834,6 +3894,9 @@
       "useCases": [
         "testimonial",
         "saas"
+      ],
+      "goals": [
+        "share-social-proof"
       ]
     },
     {
@@ -3927,6 +3990,9 @@
         "year-in-review",
         "data-recap",
         "instagram-reel"
+      ],
+      "goals": [
+        "celebrate-milestone"
       ]
     },
     {
@@ -3974,6 +4040,9 @@
         "countdown",
         "event-promo",
         "instagram-reel"
+      ],
+      "goals": [
+        "grow-waitlist"
       ]
     },
     {
@@ -4071,6 +4140,9 @@
       "useCases": [
         "hiring",
         "social-ad"
+      ],
+      "goals": [
+        "hire-team"
       ]
     },
     {
@@ -4120,6 +4192,9 @@
         "livestream",
         "youtube-intro",
         "event-promo"
+      ],
+      "goals": [
+        "promote-event"
       ]
     },
     {
@@ -4172,6 +4247,9 @@
         "animated-chart",
         "data-recap",
         "saas"
+      ],
+      "goals": [
+        "celebrate-milestone"
       ]
     },
     {
@@ -4222,6 +4300,9 @@
         "counter",
         "data-recap",
         "instagram-reel"
+      ],
+      "goals": [
+        "celebrate-milestone"
       ]
     },
     {
@@ -4274,6 +4355,9 @@
         "sale",
         "social-ad",
         "instagram-reel"
+      ],
+      "goals": [
+        "run-promotion"
       ]
     },
     {
@@ -4323,6 +4407,9 @@
         "product-launch",
         "instagram-reel",
         "social-ad"
+      ],
+      "goals": [
+        "launch-product"
       ]
     },
     {
@@ -4372,6 +4459,9 @@
         "pricing",
         "saas",
         "product-launch"
+      ],
+      "goals": [
+        "announce-pricing"
       ]
     },
     {
@@ -4421,6 +4511,9 @@
         "case-study",
         "testimonial",
         "saas"
+      ],
+      "goals": [
+        "share-social-proof"
       ]
     },
     {
@@ -4470,6 +4563,9 @@
         "product-launch",
         "saas",
         "youtube-intro"
+      ],
+      "goals": [
+        "announce-feature"
       ]
     },
     {
@@ -4564,6 +4660,9 @@
       "useCases": [
         "animated-chart",
         "data-recap"
+      ],
+      "goals": [
+        "celebrate-milestone"
       ]
     },
     {
@@ -4612,6 +4711,9 @@
         "flash-sale",
         "sale",
         "social-ad"
+      ],
+      "goals": [
+        "run-promotion"
       ]
     },
     {
@@ -4660,7 +4762,10 @@
           "accent": "#ff4f1f",
           "accent2": "#1c6bff"
         }
-      }
+      },
+      "goals": [
+        "grow-waitlist"
+      ]
     },
     {
       "template": "announcement",
@@ -4708,7 +4813,10 @@
           "accent": "#c6ff3d",
           "accent2": "#ff3d8b"
         }
-      }
+      },
+      "goals": [
+        "introduce-brand"
+      ]
     },
     {
       "template": "teamintro",
@@ -4756,7 +4864,10 @@
           "accent": "#0f7b6c",
           "accent2": "#ff7a1a"
         }
-      }
+      },
+      "goals": [
+        "hire-team"
+      ]
     },
     {
       "template": "partnership",
@@ -4805,7 +4916,10 @@
           "accent": "#3d5afe",
           "accent2": "#ff6b4a"
         }
-      }
+      },
+      "goals": [
+        "announce-integration"
+      ]
     },
     {
       "template": "newsletter",
@@ -4900,7 +5014,10 @@
           "accent": "#b23a48",
           "accent2": "#2f6f9f"
         }
-      }
+      },
+      "goals": [
+        "celebrate-milestone"
+      ]
     },
     {
       "template": "grandopening",
@@ -4949,7 +5066,10 @@
           "accent": "#c8302f",
           "accent2": "#f2c14e"
         }
-      }
+      },
+      "goals": [
+        "promote-event"
+      ]
     },
     {
       "template": "beforeafter",
@@ -4997,6 +5117,9 @@
         "before-after",
         "social-ad",
         "product-launch"
+      ],
+      "goals": [
+        "share-update"
       ]
     },
     {
@@ -5044,6 +5167,9 @@
         "timeline",
         "data-recap",
         "brand-intro"
+      ],
+      "goals": [
+        "celebrate-milestone"
       ]
     },
     {
@@ -5231,6 +5357,9 @@
         "progress-bar",
         "data-recap",
         "event-promo"
+      ],
+      "goals": [
+        "celebrate-milestone"
       ]
     },
     {
@@ -5279,6 +5408,9 @@
         "comparison",
         "saas",
         "product-launch"
+      ],
+      "goals": [
+        "announce-pricing"
       ]
     },
     {
@@ -5596,6 +5728,9 @@
         "valentines",
         "sale",
         "social-ad"
+      ],
+      "goals": [
+        "run-promotion"
       ]
     },
     {
@@ -5641,6 +5776,9 @@
       "useCases": [
         "giveaway",
         "social-ad"
+      ],
+      "goals": [
+        "run-promotion"
       ]
     },
     {
@@ -5777,6 +5915,9 @@
       "useCases": [
         "speaker",
         "event-promo"
+      ],
+      "goals": [
+        "promote-event"
       ]
     },
     {
@@ -5823,6 +5964,9 @@
         "agenda",
         "event-promo",
         "instagram-reel"
+      ],
+      "goals": [
+        "promote-event"
       ]
     },
     {
@@ -5870,6 +6014,9 @@
         "tickets",
         "event-promo",
         "instagram-reel"
+      ],
+      "goals": [
+        "promote-event"
       ]
     },
     {
@@ -5917,6 +6064,9 @@
         "webinar",
         "event-promo",
         "saas"
+      ],
+      "goals": [
+        "promote-event"
       ]
     },
     {
@@ -5962,6 +6112,9 @@
         "logo-reveal",
         "brand-intro",
         "youtube-intro"
+      ],
+      "goals": [
+        "introduce-brand"
       ]
     },
     {
@@ -6055,6 +6208,9 @@
         "logo-reveal",
         "brand-intro",
         "youtube-intro"
+      ],
+      "goals": [
+        "introduce-brand"
       ]
     },
     {
@@ -6196,6 +6352,9 @@
         "quote",
         "instagram-reel",
         "testimonial"
+      ],
+      "goals": [
+        "share-social-proof"
       ]
     },
     {
@@ -6335,6 +6494,9 @@
         "product-launch",
         "social-ad",
         "saas"
+      ],
+      "goals": [
+        "launch-product"
       ]
     },
     {
@@ -6380,6 +6542,9 @@
         "countdown",
         "event-promo",
         "youtube-intro"
+      ],
+      "goals": [
+        "grow-waitlist"
       ]
     },
     {
@@ -6425,6 +6590,9 @@
         "brand-intro",
         "youtube-intro",
         "logo-reveal"
+      ],
+      "goals": [
+        "introduce-brand"
       ]
     },
     {
@@ -6472,6 +6640,9 @@
         "saas",
         "product-launch",
         "feature-launch"
+      ],
+      "goals": [
+        "announce-feature"
       ]
     },
     {
@@ -6517,6 +6688,9 @@
         "brand-intro",
         "youtube-intro",
         "social-ad"
+      ],
+      "goals": [
+        "introduce-brand"
       ]
     },
     {
@@ -6653,6 +6827,9 @@
         "saas",
         "feature-launch",
         "brand-intro"
+      ],
+      "goals": [
+        "announce-feature"
       ]
     },
     {
@@ -6744,6 +6921,9 @@
         "brand-intro",
         "saas",
         "product-launch"
+      ],
+      "goals": [
+        "launch-product"
       ]
     },
     {
@@ -7034,6 +7214,9 @@
         "speaker",
         "event-promo",
         "team-intro"
+      ],
+      "goals": [
+        "promote-event"
       ]
     },
     {
@@ -7083,6 +7266,9 @@
         "product-launch",
         "saas",
         "youtube-intro"
+      ],
+      "goals": [
+        "launch-product"
       ]
     },
     {
@@ -7130,6 +7316,9 @@
         "data-recap",
         "counter",
         "saas"
+      ],
+      "goals": [
+        "celebrate-milestone"
       ]
     },
     {
@@ -7179,6 +7368,9 @@
         "event-promo",
         "instagram-reel",
         "tickets"
+      ],
+      "goals": [
+        "promote-event"
       ]
     },
     {
@@ -7226,6 +7418,9 @@
         "testimonial",
         "quote",
         "social-ad"
+      ],
+      "goals": [
+        "share-social-proof"
       ]
     },
     {
@@ -7275,6 +7470,9 @@
         "sale",
         "flash-sale",
         "social-ad"
+      ],
+      "goals": [
+        "run-promotion"
       ]
     },
     {
@@ -7328,7 +7526,10 @@
         "social-ad",
         "developer"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "share-update"
+      ]
     },
     {
       "template": "nowinbeta",
@@ -7379,7 +7580,10 @@
         "product-launch",
         "social-ad"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "launch-product"
+      ]
     },
     {
       "template": "versionreveal",
@@ -7431,7 +7635,10 @@
         "saas",
         "youtube-intro"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "share-update"
+      ]
     },
     {
       "template": "shipped",
@@ -7482,7 +7689,10 @@
         "saas",
         "instagram-reel"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "announce-feature"
+      ]
     },
     {
       "template": "featurelist",
@@ -7533,7 +7743,10 @@
         "product-launch",
         "social-ad"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "announce-feature"
+      ]
     },
     {
       "template": "metricbump",
@@ -7585,7 +7798,10 @@
         "saas",
         "social-ad"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "celebrate-milestone"
+      ]
     },
     {
       "template": "integration",
@@ -7636,7 +7852,10 @@
         "saas",
         "brand-intro"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "announce-integration"
+      ]
     },
     {
       "template": "pricingchange",
@@ -7689,7 +7908,10 @@
         "product-launch",
         "sale"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "announce-pricing"
+      ]
     },
     {
       "template": "waitlist",
@@ -7741,7 +7963,10 @@
         "instagram-reel",
         "saas"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "grow-waitlist"
+      ]
     },
     {
       "template": "launchday",
@@ -7793,7 +8018,10 @@
         "social-ad",
         "saas"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "launch-product"
+      ]
     },
     {
       "template": "releasenotes",
@@ -7846,7 +8074,10 @@
         "youtube-intro",
         "developer"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "share-update"
+      ]
     },
     {
       "template": "beforenow",
@@ -7897,7 +8128,10 @@
         "saas",
         "social-ad"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "share-update"
+      ]
     },
     {
       "template": "customerquote",
@@ -7948,7 +8182,10 @@
         "saas",
         "social-ad"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "share-social-proof"
+      ]
     },
     {
       "template": "apirelease",
@@ -8000,7 +8237,10 @@
         "saas",
         "feature-launch"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "announce-feature"
+      ]
     },
     {
       "template": "breakingchange",
@@ -8052,7 +8292,10 @@
         "announcement",
         "saas"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "share-update"
+      ]
     },
     {
       "template": "migration",
@@ -8103,7 +8346,10 @@
         "saas",
         "youtube-intro"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "share-update"
+      ]
     },
     {
       "template": "codediff",
@@ -8154,7 +8400,10 @@
         "feature-launch",
         "social-ad"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "announce-feature"
+      ]
     },
     {
       "template": "githubstars",
@@ -8206,7 +8455,10 @@
         "data-recap",
         "social-ad"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "celebrate-milestone"
+      ]
     },
     {
       "template": "contributors",
@@ -8258,7 +8510,10 @@
         "thank-you",
         "social-ad"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "share-social-proof"
+      ]
     },
     {
       "template": "roadmap",
@@ -8310,7 +8565,10 @@
         "saas",
         "timeline"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "share-update"
+      ]
     },
     {
       "template": "benchmark",
@@ -8362,7 +8620,10 @@
         "animated-chart",
         "comparison"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "celebrate-milestone"
+      ]
     },
     {
       "template": "modelrelease",
@@ -8415,7 +8676,10 @@
         "feature-launch",
         "announcement"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "announce-feature"
+      ]
     },
     {
       "template": "statusupdate",
@@ -8467,7 +8731,10 @@
         "announcement",
         "timeline"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "share-update"
+      ]
     },
     {
       "template": "securityadvisory",
@@ -8519,7 +8786,10 @@
         "announcement",
         "saas"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "share-update"
+      ]
     },
     {
       "template": "docslaunch",
@@ -8571,7 +8841,10 @@
         "feature-launch",
         "saas"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "announce-feature"
+      ]
     },
     {
       "template": "hackathon",
@@ -8624,7 +8897,10 @@
         "event-promo",
         "instagram-reel"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "promote-event"
+      ]
     },
     {
       "template": "devtalk",
@@ -8677,7 +8953,10 @@
         "event-promo",
         "speaker"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "promote-event"
+      ]
     },
     {
       "template": "opensource",
@@ -8728,7 +9007,10 @@
         "announcement",
         "product-launch"
       ],
-      "launch": true
+      "launch": true,
+      "goals": [
+        "launch-product"
+      ]
     }
   ]
 }
