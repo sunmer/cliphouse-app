@@ -1,0 +1,10 @@
+{
+  "id": "A3",
+  "baselineVersion": "1.1",
+  "edition": "2026-10",
+  "date": "2026-10-17",
+  "policy": "Late addition to the October 2026 edition. It uses the protocol 1.1 contract, briefs, palette, fonts, token limit, renderer image, and single repair rule. The provider is pinned to DeepSeek's first-party endpoint instead of the cheapest-price rule, so the snapshot is served by its publisher. This snapshot is separate from the original DeepSeek V4.1 Flash entry, which is unchanged, as are the original 60 runs and additions A1 and A2. Automated recovery R1 does not apply to this addition.",
+  "models": [
+    {"key": "deepseek-v4-1-flash-1017", "name": "DeepSeek V4.1 Flash 1017", "author": "DeepSeek", "id": "deepseek/deepseek-v4.1-flash-1017", "tier": "Budget", "weights": "Open", "reasoning": "high", "provider": "deepseek"}
+  ]
+}

@@ -72,7 +72,8 @@ in the A2 ledger (`capUsd`, `keyPolicy`). One repair request was rejected upstre
 with HTTP 429 (shared provider rate limit, 268 ms, no generation id, no charge). It
 was reconciled at $0 and recorded under `addition-a2/infrastructure/`; the repair
 then ran with `BENCHMARK_WORKERS=1`. OpenRouter returned generation_time for one of
-the six videos at publication; the other five are published as unavailable.
+the six videos at publication. The other five were published as unavailable
+until October 17, 2026, when a later lookup returned all six.
 
 Definition: `src/benchmark/addition-a2.json`. Results:
 `src/benchmark/addition-a2-results.json`. Raw records and the separate ledger:
@@ -81,6 +82,35 @@ Definition: `src/benchmark/addition-a2.json`. Results:
 ```sh
 BENCHMARK_WORKERS=1 npm run benchmark:run -- --addition-id A2 [--allow-unlimited-key <cap>]
 node scripts/benchmark/publish-addition.mjs --id A2
+node scripts/benchmark/collect-timings.mjs --execute
+```
+
+## Late Addition A3
+
+DeepSeek V4.1 Flash 1017 (`deepseek/deepseek-v4.1-flash-1017`), the October 17,
+2026 snapshot of V4.1 Flash, was added on October 17, 2026, the day it appeared
+on OpenRouter. It is listed first. The original `deepseek-v4-1-flash` entry is a
+separate model and is unchanged. A3 uses the unchanged protocol 1.1 contract,
+briefs, limits, renderer image, and repair rule. The provider is pinned to
+DeepSeek's first-party endpoint (`deepseek`) instead of the cheapest-price rule.
+
+The OpenRouter key is the operator's key without a spending limit (stored in
+the lovd-by-ai project's `supabase/.env`). `--allow-unlimited-key 1` recorded a
+hard $1 cap in the A3 ledger.
+
+One of six runs rendered, on the first attempt, for a total cost of $0.0880.
+Five submissions are invalid and were not repaired, as protocol 1.1 requires: four
+wrapped the source in a Markdown code fence instead of the required JSON, and one
+reached the 32,000-token completion limit. OpenRouter resolves the snapshot to
+`deepseek/deepseek-v4.1-flash-20261017`; the timing check accepts that dated alias.
+
+Definition: `src/benchmark/addition-a3.json`. Results:
+`src/benchmark/addition-a3-results.json`. Raw records and the separate ledger:
+`.benchmark/2026-10/addition-a3/`.
+
+```sh
+BENCHMARK_WORKERS=2 npm run benchmark:run -- --addition-id A3 --allow-unlimited-key 1
+node scripts/benchmark/publish-addition.mjs --id A3
 node scripts/benchmark/collect-timings.mjs --execute
 ```
 

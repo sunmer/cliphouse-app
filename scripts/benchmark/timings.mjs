@@ -16,10 +16,14 @@ const entrySchema = z.object({
   unavailableReason: z.string().min(1).optional(),
 }).strict();
 
+// OpenRouter may resolve a dated alias: a "-MMDD" snapshot to its "-YYYYMMDD" form, or any model to "<model>-<date>".
+const sameModel = (resolved, requested) => resolved === requested || resolved.startsWith(`${requested}-`) ||
+  (/-\d{4}$/.test(requested) && new RegExp(`^${requested.slice(0, -5).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}-\\d{4}${requested.slice(-4)}$`).test(resolved));
+
 export function reportedTiming(metadata, expected) {
   const data = metadata.data;
   if (!data || data.id !== expected.id || typeof data.model !== 'string' ||
-      (data.model !== expected.model && !data.model.startsWith(`${expected.model}-`)) ||
+      !sameModel(data.model, expected.model) ||
       (data.provider_name && data.provider_name !== expected.provider)) {
     throw new Error('OpenRouter metadata does not match the successful response.');
   }
@@ -43,7 +47,7 @@ export function validateTimings(data, baseline, recovery, assetRoot, additions =
     const entry = videos.find(entry => entry.video === timing.video);
     if (!entry || seen.has(timing.video) || ids.has(timing.generationId)) throw new Error('Unknown or duplicate generation timing.');
     if (timing.model !== allModels.find(model => model.key === entry.model)?.id) throw new Error('Timing model does not match video.');
-    if (timing.resolvedModel !== timing.model && !timing.resolvedModel.startsWith(`${timing.model}-`)) throw new Error('Resolved timing model does not match requested model.');
+    if (!sameModel(timing.resolvedModel, timing.model)) throw new Error('Resolved timing model does not match requested model.');
     if ((timing.generationTimeMs === null) !== Boolean(timing.unavailableReason)) throw new Error('Missing timing must have a reason, not an estimate.');
     if (assetRoot && hash(fs.readFileSync(path.join(assetRoot, entry.source))) !== timing.sourceSha256) throw new Error('Timing source does not match published source.');
     seen.add(timing.video);

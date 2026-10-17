@@ -15,7 +15,7 @@ export const additionDigest = hash(JSON.stringify(addition) + digest);
 // Each later addition has its own file, store, ledger, and hash. A1 stays in addition.json unchanged.
 export const loadAddition = (id) => id === 'A1' ? addition : JSON.parse(fs.readFileSync(path.join(root, `src/benchmark/addition-${id.toLowerCase()}.json`), 'utf8'));
 export const additionDigestOf = (value) => hash(JSON.stringify(value) + digest);
-export const laterAdditions = ['A2'].map(loadAddition);
+export const laterAdditions = ['A2', 'A3'].map(loadAddition);
 export const additions = [addition, ...laterAdditions];
 // Newest additions first, matching the page's shortlist order.
 export const allModels = [...[...additions].reverse().flatMap((item) => item.models), ...protocol.models];

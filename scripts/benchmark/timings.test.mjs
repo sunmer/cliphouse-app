@@ -24,6 +24,9 @@ test('metadata must match the successful generation, model, and provider', () =>
   for (const field of ['id', 'model', 'provider_name']) assert.throws(() => reportedTiming({data: {...metadata.data, [field]: 'different'}}, response));
   const resolvedModel = `${response.model}-20260910`;
   assert.equal(reportedTiming({data: {...metadata.data, model: resolvedModel}}, response).resolvedModel, resolvedModel);
+  const snapshot = {...response, model: 'deepseek/deepseek-v4.1-flash-1017'};
+  assert.equal(reportedTiming({data: {...metadata.data, model: 'deepseek/deepseek-v4.1-flash-20261017'}}, snapshot).resolvedModel, 'deepseek/deepseek-v4.1-flash-20261017');
+  for (const model of ['deepseek/deepseek-v4.1-flash-20261018', 'deepseek/deepseek-v4.1-pro-20261017']) assert.throws(() => reportedTiming({data: {...metadata.data, model}}, snapshot));
 });
 test('publication needs one verified timing per video and never substitutes an estimate', () => {
   assert.deepEqual(validateTimings(data([entry]), baseline, recovery), data([entry]));

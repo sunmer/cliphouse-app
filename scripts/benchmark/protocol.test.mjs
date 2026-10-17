@@ -35,8 +35,10 @@ test('late addition keeps the frozen protocol and lists the added model first', 
   assert.equal(digest, '67692ee132be8b02f695632fabe2e49012d5b06fab50329b5dce59d71f65e0af', 'protocol 1.1 must stay unchanged');
   assert.notEqual(additionDigest, digest);
   assert.equal(additionDigest, 'e38d1a3d58adb126bf9017b7214e51971bcb8fd7aa39f983db4e804bd9a76bca', 'addition A1 must stay unchanged');
-  assert.deepEqual(allModels.slice(0, 2).map((model) => model.key), ['muse-spark-open', 'gemini-4-argon'], 'newest addition first');
-  assert.equal(new Set(allModels.map((model) => model.id)).size, 12);
+  assert.deepEqual(allModels.slice(0, 3).map((model) => model.key), ['deepseek-v4-1-flash-1017', 'muse-spark-open', 'gemini-4-argon'], 'newest addition first');
+  assert.equal(new Set(allModels.map((model) => model.id)).size, 13);
+  const planA3 = JSON.parse(execFileSync(process.execPath, ['scripts/benchmark/run.mjs', '--addition-id', 'A3'], {encoding: 'utf8', env: {...process.env, OPENROUTER_API_KEY: ''}}));
+  assert.ok(planA3.jobs.length === 6 && planA3.jobs.every((job) => job.startsWith('deepseek-v4-1-flash-1017-')));
   const planA2 = JSON.parse(execFileSync(process.execPath, ['scripts/benchmark/run.mjs', '--addition-id', 'A2'], {encoding: 'utf8', env: {...process.env, OPENROUTER_API_KEY: ''}}));
   assert.ok(planA2.jobs.length === 6 && planA2.jobs.every((job) => job.startsWith('muse-spark-open-')));
   assert.notEqual(planA2.protocolHash, additionDigest);
