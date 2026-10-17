@@ -5,8 +5,10 @@ import {ViewportVideo} from '../ui/ViewportVideo';
 import protocol from './protocol.json';
 import addition from './addition.json';
 import additionA2 from './addition-a2.json';
+import additionA3 from './addition-a3.json';
 import additionData from './addition-results.json';
 import additionA2Data from './addition-a2-results.json';
+import additionA3Data from './addition-a3-results.json';
 import resultsData from './results.json';
 import recoveryData from './recovery.json';
 import recoveryProtocol from './recovery-protocol.json';
@@ -16,8 +18,8 @@ import {withRecovery, type BenchmarkAdditionResults, type BenchmarkModel, type B
 
 // The publication build validates this JSON against the result schema.
 const defaultResults = resultsData as BenchmarkResults;
-const additionList = [addition, additionA2];
-const defaultAdditions = {entries: [...(additionData as BenchmarkAdditionResults).entries, ...(additionA2Data as BenchmarkAdditionResults).entries]} as Pick<BenchmarkAdditionResults, 'entries'>;
+const additionList = [addition, additionA2, additionA3];
+const defaultAdditions = {entries: [additionData, additionA2Data, additionA3Data].flatMap((item) => (item as BenchmarkAdditionResults).entries)} as Pick<BenchmarkAdditionResults, 'entries'>;
 // Late additions are listed first, newest first.
 const allModels: BenchmarkModel[] = [...[...additionList].reverse().flatMap((item) => item.models), ...protocol.models];
 const shortDate = (date: string) => new Date(`${date}T12:00:00Z`).toLocaleDateString('en-US', {month: 'long', day: 'numeric', timeZone: 'UTC'});
