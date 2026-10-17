@@ -26,11 +26,15 @@ type HFPlayer = HTMLElement & {
   play(): void; pause(): void; seek(seconds: number): void; paused: boolean; currentTime: number; ready: boolean;
   iframeElement: HTMLIFrameElement;
 };
-const assetBase = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/hyperframes/assets`;
-const runtimeSrc = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/hyperframes/runtime/hyperframe.runtime.iife.js`;
+// The HyperFrames iframe is a srcdoc document, so asset URLs resolve against the embedding page. Pages
+// embedded on another origin (the MCP App preview) call setPlayerBase with the absolute site URL.
+let base = import.meta.env.BASE_URL.replace(/\/$/, '');
+export const setPlayerBase = (url: string) => { base = url.replace(/\/$/, ''); };
+const assetBase = () => `${base}/hyperframes/assets`;
+const runtimeSrc = () => `${base}/hyperframes/runtime/hyperframe.runtime.iife.js`;
 
 function hyperframesDocument(c: Extract<CompositionDef, {engine: 'hyperframes'}>, props: VideoProps) {
-  const html = bindHyperframes({html: c.html, meta: c, props, assetBase, logoSrc: logoUrl});
+  const html = bindHyperframes({html: c.html, meta: c, props, assetBase: assetBase(), logoSrc: logoUrl});
   const values = JSON.stringify(hyperframesVariables(props, c)).replace(/</g, '\\u003c');
   return html.replace('<head>', `<head><script>window.__hfVariables=${values};</script>`);
 }
@@ -167,7 +171,7 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, {
   if (c.engine === 'remotion') return <Player ref={remotion} component={c.component} inputProps={props} durationInFrames={c.durationInFrames}
     compositionWidth={c.width} compositionHeight={c.height} fps={c.fps} initialFrame={c.posterFrame} loop autoPlay={autoPlay}
     controls={false} clickToPlay={false} doubleClickToFullscreen={false} spaceKeyToPlayOrPause={false} acknowledgeRemotionLicense style={style} />;
-  return <hyperframes-player ref={hyper} srcdoc={srcdoc} runtime-src={runtimeSrc} width={c.width} height={c.height} loop={true}
+  return <hyperframes-player ref={hyper} srcdoc={srcdoc} runtime-src={runtimeSrc()} width={c.width} height={c.height} loop={true}
     disable-click-to-play="" assets-loading-ui="none" style={{display: 'block', ...style}} />;
 });
 
@@ -184,7 +188,7 @@ export function VideoThumbnail({composition: c, props, style}: {composition: Com
   }, [c, srcdoc]);
   if (c.engine === 'remotion') return <Thumbnail component={c.component} inputProps={props} frameToDisplay={c.posterFrame} durationInFrames={c.durationInFrames}
     compositionWidth={c.width} compositionHeight={c.height} fps={c.fps} style={style} />;
-  return <hyperframes-player ref={ref} srcdoc={srcdoc} runtime-src={runtimeSrc} width={c.width} height={c.height} assets-loading-ui="none" low-power-idle="" style={{display: 'block', ...style}} />;
+  return <hyperframes-player ref={ref} srcdoc={srcdoc} runtime-src={runtimeSrc()} width={c.width} height={c.height} assets-loading-ui="none" low-power-idle="" style={{display: 'block', ...style}} />;
 }
 
 declare module 'react' {

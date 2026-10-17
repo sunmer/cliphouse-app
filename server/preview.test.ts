@@ -8,10 +8,12 @@ import {Readable} from 'node:stream';
 import manifest from '../src/catalog/manifest.json' with {type: 'json'};
 import {createHandler} from './app.ts';
 import {HttpError} from './model.ts';
-import {createLoopService, createPreviewService, createRemoteLoopRenderer, createRenderGate, loopWindow, type RenderPreview} from './preview.ts';
+import {FLAT_EDGE, createLoopService, createPreviewService, createRemoteLoopRenderer, createRenderGate, loopTimes, loopWindow, pickPosterFrame,
+  posterCandidates, rotationIndex, type RenderPreview} from './preview.ts';
 import {readFile} from 'node:fs/promises';
 import {validateShare} from './model.ts';
 import type {EventLog, SearchLog, createStore} from './store.ts';
+import {PREVIEW_APP_URI, previewAppHtml} from './mcp-app.ts';
 
 const variant = manifest.variants.find((v) => v.id === 'showreel-nocturne')!;
 const props = structuredClone(variant.props);
@@ -73,6 +75,8 @@ const deps = {
   render: async () => ({image: '', cleanup: async () => {}}), renderVideo: async () => ({video: '', cleanup: async () => {}}),
   verify: async () => ({uid: 'x'}),
   preview: createPreviewService({store, render, origin: 'https://cliphou.se', version: 'test', budgetMs: 300, maxQueue: 2, concurrency: 1}),
+  previewApp: previewAppHtml({'mcp-app/index.html': {file: 'assets/mcpApp-abc.js', css: ['assets/mcpApp-abc.css'], imports: ['_shared.js']},
+    '_shared.js': {file: 'assets/shared-def.js', css: ['assets/shared-def.css']}}, 'https://cliphou.se'),
 } as unknown as Parameters<typeof createHandler>[0];
 const server = createServer(createHandler(deps));
 let origin = '';
@@ -93,6 +97,12 @@ after(() => Promise.all([server, batchServer].map((s) => new Promise<void>((reso
 beforeEach(() => { searches.length = 0; events.length = 0; failLogs = false; renderDelay = 0; renderFails = false; loopDelay = 0; loopFails = false; });
 
 let ipSeq = 0;
+const rpc = async (method: string, params: unknown, base = origin) => {
+  const res = await fetch(`${base}/mcp`, {method: 'POST', headers: {'Content-Type': 'application/json', Accept: 'application/json, text/event-stream',
+    'CF-Connecting-IP': `10.8.1.${++ipSeq}`}, body: JSON.stringify({jsonrpc: '2.0', id: 1, method, params})});
+  assert.equal(res.status, 200);
+  return (await res.json()).result;
+};
 const call = async (name: string, args: unknown, headers: Record<string, string> = {}, base = origin) => {
   const res = await fetch(`${base}/mcp`, {method: 'POST', headers: {'Content-Type': 'application/json', Accept: 'application/json, text/event-stream',
     'CF-Connecting-IP': headers.ip ?? `10.8.0.${++ipSeq}`, 'User-Agent': 'cliphouse-skill/1.2', ...headers},
@@ -368,11 +378,68 @@ test('a failed loop keeps the poster and returns video null with a message', asy
   assert.equal((await fetch(`${batchOrigin}/p/${'0'.repeat(64)}.webp`)).status, 404);
   assert.equal((await fetch(`${batchOrigin}/p/${'0'.repeat(64)}.gif`)).status, 404);
 });
+test('MCP Apps hosts get a live preview view linked from both render tools', async () => {
+  const {tools} = await rpc('tools/list', {});
+  for (const name of ['render_previews', 'render_preview']) {
+    const tool = tools.find((t: {name: string}) => t.name === name);
+    assert.equal(tool._meta.ui.resourceUri, PREVIEW_APP_URI, name);
+    assert.equal(tool._meta['ui/resourceUri'], PREVIEW_APP_URI);
+    assert.equal(tool._meta['openai/outputTemplate'], PREVIEW_APP_URI);
+  }
+  assert.equal(tools.find((t: {name: string}) => t.name === 'search_templates')._meta, undefined, 'only render tools open the view');
+  const {resources} = await rpc('resources/list', {});
+  const listed = resources.find((r: {uri: string}) => r.uri === PREVIEW_APP_URI);
+  assert.equal(listed.mimeType, 'text/html;profile=mcp-app');
+  assert.deepEqual(listed._meta.ui.csp.resourceDomains, ['https://cliphou.se']);
+  const {contents: [view]} = await rpc('resources/read', {uri: PREVIEW_APP_URI});
+  assert.equal(view.mimeType, 'text/html;profile=mcp-app');
+  assert.match(view.text, /<script type="module" crossorigin src="https:\/\/cliphou\.se\/assets\/mcpApp-abc\.js">/);
+  assert.match(view.text, /href="https:\/\/cliphou\.se\/assets\/shared-def\.css"/, 'CSS of shared chunks is linked');
+  assert.match(view.text, /<link rel="modulepreload" crossorigin href="https:\/\/cliphou\.se\/assets\/shared-def\.js">/);
+  assert.match(view.text, /<meta name="cliphouse-origin" content="https:\/\/cliphou\.se">/);
+
+  const brand = {name: 'LiveCo', headline: 'Plays live', points: ['One', 'Two', 'Three'], cta: 'Try it'};
+  const r = await call('render_previews', {variantIds: ['bento-launch', 'prism-launch'], brand}, {ip: '10.9.2.9'}, batchOrigin);
+  assert.deepEqual(r.structuredContent.previews.map((p: {id: string}) => p.id), ['bento-launch', 'prism-launch']);
+  for (const [i, p] of r.structuredContent.previews.entries()) {
+    assert.deepEqual(p.props, r.data.results[i].props, 'the view plays the tailored props');
+    assert.equal(p.editor, r.data.results[i].editor);
+    assert.ok(p.poster);
+  }
+  const one = await call('render_preview', {variantId: variant.id, props});
+  assert.equal(one.structuredContent.previews[0].id, variant.id);
+  assert.deepEqual(one.structuredContent.previews[0].props, props);
+  assert.equal(previewAppHtml({}, 'https://cliphou.se'), null, 'no view without a built entry');
+});
 test('loopWindow keeps four seconds inside the video, ending just after the poster frame', () => {
   assert.deepEqual(loopWindow({fps: 30, durationInFrames: 300, posterFrame: 178}), {start: 106, length: 120});
   assert.deepEqual(loopWindow({fps: 30, durationInFrames: 300, posterFrame: 20}), {start: 0, length: 120});
   assert.deepEqual(loopWindow({fps: 30, durationInFrames: 300, posterFrame: 299}), {start: 180, length: 120});
   assert.deepEqual(loopWindow({fps: 30, durationInFrames: 90, posterFrame: 60}), {start: 0, length: 90});
+});
+test('loops start on the frame nearest the poster frame', () => {
+  const meta = {fps: 30, durationInFrames: 300, posterFrame: 178};
+  const {times, rotate} = loopTimes(meta, 12);
+  assert.equal(times.length, 48);
+  assert.ok(Math.abs(times[rotate] - 178 / 30) <= 0.5 / 12, 'the first loop frame is the poster frame');
+  assert.equal(rotationIndex(meta, 106, 120, 2), 36, 'Remotion clips keep every second frame from 106');
+  assert.equal(rotationIndex({posterFrame: 5}, 0, 90, 2), 3);
+  assert.equal(rotationIndex({posterFrame: 400}, 0, 90, 2), 44, 'clamped to the last frame');
+});
+test('a flat poster frame falls back to the next scene focus frame', async () => {
+  const meta = {posterFrame: 72, durationInFrames: 270, scenes: [{from: 0, focus: 72}, {from: 102, focus: 48}, {from: 192, focus: 100}]};
+  assert.deepEqual(posterCandidates(meta), [72, 150, 269], 'deduplicated and clamped to the video');
+  const rendered: number[] = [];
+  const scores = new Map([[72, 0.2], [150, FLAT_EDGE + 3]]);
+  let current = 0;
+  const still = async (frame: number) => { rendered.push(frame); current = frame; };
+  assert.equal(await pickPosterFrame(posterCandidates(meta), 'x', still, async () => scores.get(current) ?? 0), 150);
+  assert.deepEqual(rendered, [72, 150]);
+  rendered.length = 0;
+  assert.equal(await pickPosterFrame([72, 150], 'x', still, async () => null), 72, 'an unscored frame is kept');
+  rendered.length = 0;
+  assert.equal(await pickPosterFrame([72, 150], 'x', still, async () => 0), 150, 'the last candidate is kept even when flat');
+  assert.deepEqual(rendered, [72, 150]);
 });
 test('the remote loop renderer posts the edit with the ID token and checks the reply', async () => {
   const seen: {auth?: string; body?: {variantId: string; props: unknown}}[] = [];

@@ -1,0 +1,40 @@
+:root {
+  --bg: #0e0f12;
+  --panel: #16181d;
+  --line: #2a2e37;
+  --text: #eceef2;
+  --muted: #8b91a0;
+  --accent: #4ade80;
+  --accent-ink: #062b14;
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: transparent;
+}
+:root[data-theme='light'] { --panel: #ffffff; --line: #d9dde3; --text: #16181d; --muted: #5d6472; --accent: #15803d; --accent-ink: #ffffff; color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: default; }
+.mcp-status { margin: 0; padding: 16px; color: var(--muted); }
+.mcp-previews { display: grid; gap: 10px; align-items: start; padding: 2px; }
+@media (max-width: 520px) { .mcp-previews { grid-template-columns: 1fr !important; } }
+.mcp-card { min-width: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); overflow: hidden; }
+.mcp-card.picked { border-color: var(--accent); }
+.mcp-media { position: relative; width: 100%; aspect-ratio: var(--ratio, 16 / 9); max-height: 480px; margin: 0 auto; background: #000; overflow: hidden; }
+/* Options in a row share one height, so mixed formats line up. Stacked on a phone, each keeps its own shape. */
+.mcp-previews.row .mcp-media { aspect-ratio: auto; height: 240px; }
+@media (max-width: 520px) { .mcp-previews.row .mcp-media { aspect-ratio: var(--ratio, 16 / 9); height: auto; } }
+.mcp-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.mcp-overlay { position: absolute; right: 6px; bottom: 6px; z-index: 2; display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
+.mcp-media:hover .mcp-overlay, .mcp-media:focus-within .mcp-overlay { opacity: 1; }
+@media (hover: none) { .mcp-overlay { opacity: 1; } }
+.mcp-overlay .mcp-icon { background: rgba(14, 15, 18, 0.86); border-color: #5b606b; color: #fff; }
+.mcp-card footer { display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 8px; }
+.mcp-num { flex: none; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); font-size: 12px; font-weight: 700; }
+.mcp-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; font-size: 13px; }
+.mcp-icon { flex: none; display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: transparent; }
+.mcp-icon:hover { border-color: var(--muted); }
+.mcp-pick { flex: none; display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 10px; border: 0; border-radius: 6px; background: var(--accent); color: var(--accent-ink); font-weight: 650; font-size: 12px; }
+.mcp-pick.on { background: transparent; color: var(--accent); border: 1px solid var(--accent); }

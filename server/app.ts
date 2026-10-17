@@ -30,6 +30,8 @@ type Dependencies = {
   loop?: ReturnType<typeof createLoopService>;
   previewTimeoutMs?: number;
   loopTimeoutMs?: number;
+  // HTML of the MCP Apps live preview view (server/mcp-app.ts). Optional; without it hosts get text and images.
+  previewApp?: string | null;
 };
 async function readBody(req: IncomingMessage, label = 'Video request', max = 16_384) {
   if (req.headers['content-type']?.split(';')[0] !== 'application/json') throw new HttpError(415, 'Use JSON.');
@@ -192,7 +194,7 @@ export function createHandler(deps: Dependencies) {
         // Stateless MCP has no session, so clientInfo is only seen on initialize. Use it there, else the User-Agent.
         const info = (body as {method?: string; params?: {clientInfo?: {name?: unknown; version?: unknown}}})?.params?.clientInfo;
         const client = String(info?.name ? `${info.name}/${info.version ?? ''}` : req.headers['user-agent'] || 'unknown').slice(0, 120);
-        const ctx = {client, caller, keyed: Boolean(owner), preview: deps.preview, loop: deps.loop,
+        const ctx = {client, caller, keyed: Boolean(owner), preview: deps.preview, loop: deps.loop, previewApp: deps.previewApp,
           uploadLogo: async (input: {data?: unknown; svg?: unknown}) => {
             const logo = await processLogo(logoBytes(input));
             if (!(await deps.store.logoExists(logo.id))) {
