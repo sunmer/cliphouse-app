@@ -39,7 +39,7 @@ async function check(engine, viewport, name) {
         await videos.last().scrollIntoViewIfNeeded();
         await page.waitForFunction(() => !document.querySelector('video[data-video-src]').hasAttribute('src'));
         await first.scrollIntoViewIfNeeded();
-        await page.locator('.benchmark-card-media').first().getByRole('button', {name: /^Play /}).click();
+        await page.locator('.benchmark-card-media:has(video)').first().getByRole('button', {name: /^Play /}).click();
         await page.waitForFunction(() => document.querySelector('.benchmark-card-media video').currentTime > 0.2);
       }
       if (await videos.count() > 1) {
@@ -88,7 +88,7 @@ async function check(engine, viewport, name) {
       await unloaded(page);
       if (mode !== 'blocked') assert.equal(requests.length, 0, `${name}/${mode}: no video bytes requested`);
       if (mode === 'blocked') await page.evaluate(() => { window.allowManualPlayback = true; });
-      await page.locator('.benchmark-card-media').first().getByRole('button', {name: /^Play /}).click();
+      await page.locator('.benchmark-card-media:has(video)').first().getByRole('button', {name: /^Play /}).click();
       await page.waitForFunction(() => [...document.querySelectorAll('video[src]')].some(v => v.currentTime > 0.2));
       await page.locator('.benchmark-card-media').last().scrollIntoViewIfNeeded();
       await page.waitForFunction(() => !document.querySelector('.benchmark-card-media video').hasAttribute('src'));
