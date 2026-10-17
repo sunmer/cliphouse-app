@@ -311,6 +311,7 @@ test('MCP lists the catalog tools and answers from the catalog', async () => {
   const bad = await call('build_edit_link', {variantId: variant.id, props: {...props, texts: {...props.texts, headline: 'x'.repeat(25)}}});
   assert.equal(bad.isError, true);
   assert.match(bad.content[0].text, /too long/);
+  assert.match(bad.content[0].text, /texts\.headline is 25 characters; the limit is 24/, 'the error names the field and the limit');
 });
 test('MCP rejects GET and oversized bodies', async () => {
   assert.equal((await fetch(`${origin}/mcp`)).status, 405);
