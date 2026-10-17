@@ -3,6 +3,8 @@ import {test} from 'node:test';
 import manifest from '../src/catalog/manifest.json' with {type: 'json'};
 import {validateShare} from './model.ts';
 import {checkBrand, fit, tailorProps} from './tailor.ts';
+import {rankTemplates, templateSpec} from './mcp.ts';
+import {FIXED_SAMPLE_DATA} from '../src/agent/sample-data.ts';
 
 const visible = manifest.variants.filter((v) => !('hidden' in v && v.hidden));
 const brand = checkBrand({
@@ -35,6 +37,26 @@ test('fit shortens at a word boundary', () => {
   assert.equal(fit('Svarar när ni inte kan svara', 16), 'Svarar när ni');
   assert.equal(fit('Kort', 16), 'Kort');
   assert.equal(fit('Supercalifragilistic', 8), 'Supercal');
+});
+
+test('shortened lists the brand texts that were cut, and only those', () => {
+  const {props, shortened} = tailorProps('bento-launch', brand);
+  const texts = props.texts as Record<string, string>;
+  const headline = shortened.find((s) => s.role === 'headline');
+  assert.deepEqual(headline, {role: 'headline', from: brand.headline, to: texts.headline, max: 24});
+  assert.ok(!shortened.some((s) => s.role === 'cta'), 'a CTA that fits is not listed');
+  assert.ok(shortened.every((s) => s.to.length <= s.max && s.from.length > s.max));
+});
+
+test('templates with fixed sample numbers are flagged in the spec and search, and rank lower', () => {
+  for (const template of Object.keys(FIXED_SAMPLE_DATA)) assert.ok(visible.some((v) => v.template === template), `${template} is not in the catalog`);
+  assert.ok(templateSpec('https://cliphou.se', 'bento-launch')!.fixedSampleContent!.items.length);
+  assert.equal('fixedSampleContent' in templateSpec('https://cliphou.se', 'prism-launch')!, false);
+  assert.ok(rankTemplates({query: 'bento', limit: 20}).some((r) => r.v.id === 'bento-launch'), 'still findable by name');
+  // With no query every launch template starts equal, so a flagged one sits below the unflagged ones.
+  const launch = rankTemplates({goal: 'launch-product', limit: 20});
+  const flagged = launch.filter((r) => FIXED_SAMPLE_DATA[r.v.template]);
+  assert.ok(flagged.length && flagged.every((r) => r.score < launch[0].score));
 });
 
 test('checkBrand rejects a missing name and bad colors, and strips control characters', () => {

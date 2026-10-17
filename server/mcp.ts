@@ -15,6 +15,7 @@ import {HttpError, validateShare} from './model.ts';
 import type {EventLog, SearchLog} from './store.ts';
 import {LOOP_SECONDS, type LoopResult, type PreviewResult} from './preview.ts';
 import {checkBrand, tailorProps} from './tailor.ts';
+import {fixedSampleData} from '../src/agent/sample-data.ts';
 import {logoOf, logoPath, supportsLogo} from '../src/videos/logo.ts';
 import {schemas} from '../src/videos/schemas.ts';
 import type {ProcessedLogo} from './logos.ts';
@@ -103,6 +104,8 @@ export function rankTemplates({query, goal, purpose, engine, aspect: wanted, max
     .filter((v) => !maxSeconds || templateMeta[v.template].durationInFrames / templateMeta[v.template].fps <= maxSeconds)
     .filter((v) => music === undefined || Boolean(scoreOf(templateMeta[v.template])) === music)
     .map((v) => ({v, score: (terms.length ? score(v, terms, phrase) : 1) + (selectedGoal && goalsOf(v).includes(selectedGoal) ? 5 : 0)}))
+    // Templates that draw fixed sample numbers rank a little lower, so they stay findable but rarely lead.
+    .map((r) => (fixedSampleData(r.v.template).length ? {...r, score: r.score - 2} : r))
     .filter(({score}) => score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, Math.min(Math.max(limit, 1), 20));
@@ -110,9 +113,11 @@ export function rankTemplates({query, goal, purpose, engine, aspect: wanted, max
 const card = (origin: string, includeEngine = false) => ({v}: {v: (typeof visible)[number]}) => {
       const meta = templateMeta[v.template];
       const goals = goalsOf(v);
+      const fixed = fixedSampleData(v.template);
       return {id: v.id, title: v.title, description: v.description, purpose: v.purpose, goals, goalLabels: goals.map(goalLabel), template: v.template,
         ...(includeEngine ? {engine: engineOf(v.template)} : {}),
         aspect: aspect(v.template), seconds: Math.round(meta.durationInFrames / meta.fps), music: Boolean(scoreOf(meta)),
+        ...(fixed.length ? {fixedSampleContent: fixed} : {}),
         preview: `${origin}/previews/${v.id}.mp4`, poster: `${origin}/previews/${v.id}.jpg`, page: `${origin}/templates/${v.id}/`,
         spec: `${origin}${specPath(v.id)}`, editor: `${origin}/#/v/${v.id}`};
 };
@@ -134,10 +139,10 @@ Workflow:
 1. Learn the product before you search. If you can read the user's project, read it first: README, package.json, landing page, CSS variables, Tailwind config, and logo. Otherwise use the conversation, attached files, or a page the user gives. Collect the product name, tagline, 2-3 real features or numbers, call to action, and brand colors. If the project has a logo file (an SVG such as public/logo.svg or logo.svg, else a PNG with a transparent background), call upload_logo with it once and keep the returned logo. Do not ask for a logo the project lacks; the brand name shows instead. Do not ask for facts the project already contains. Ask only for facts you cannot find. Never invent numbers.
 2. Position it before you write copy. From those facts, decide: the audience (who it is for), the problem they feel, what changed in this release (the git log, CHANGELOG, or the user's words), and the one angle for this video. Turn features into benefits ("Search is 3x faster" beats "New search index"). Pick a hook: a pain, a question, a number, or a before/after. Write the headline as that hook and the points as benefits. Use only facts from the project; never invent numbers, customers, or quotes. Tell the user the angle in one line, so they can redirect it.
 3. Choose the marketing goal: ${GOAL_IDS.join(', ')}. Call search_templates with that goal and a short query (for example goal "launch-product", query "developer tool"). Set aspect only when the destination implies it: 9:16 for Reels, TikTok, and Shorts; 16:9 for YouTube and websites; 1:1 or 4:5 for feeds. Do not ask the user to choose a rendering engine.
-4. Pick the best 3-4 results, preferring templates whose structure fits the angle (a problem-and-fix hook, a quickstart, a comparison). Call render_previews once with their ids, the searchId, and one brand object built from steps 1-2 (name, headline, subhead, up to 3 points, cta, theme colors, and logo when you uploaded one). It returns a poster of each template with the user's own product. Show each poster as an inline image (Markdown ![title](poster)) with its title, and let the user pick one. If a poster is null, show that template's stock poster from search_templates instead.
-5. Call get_template_spec with the searchId. Start from the picked template's tailored props from render_previews, or from the spec's props, and change only texts, theme, and media (and hidden/audio for music templates). Write each field for its role in this template (the hook, the proof, the benefit, the CTA), not by copying the brand fields. Keep each text within maxLength and each color as #RRGGBB, with good contrast.
-6. Call render_preview with the filled props and the searchId. It returns a poster of the template with the user's own product, plus the editor link. Show the poster image first, then the link and a short list of the text you used. If it returns an error, fix the props and call it again. If poster is null, give the editor link. The link opens a live, editable preview; the user exports the MP4 there.
-7. Treat follow-ups ("punchier", "use our green") as prop edits: call render_preview again and show the new poster and link. build_edit_link returns only the link, without rendering. When the user posts the video, offer a caption that leads with the same hook.
+4. Pick the best 3-4 results, preferring templates whose structure fits the angle (a problem-and-fix hook, a quickstart, a comparison). Skip results with fixedSampleContent (numbers drawn in the design that cannot be edited) unless the project has matching numbers or the user accepts them. Call render_previews once with their ids, the searchId, and one brand object built from steps 1-2 (name, headline, subhead, up to 3 points, cta, theme colors, and logo when you uploaded one). It returns a poster of each template with the user's own product. Show each poster as an inline image (Markdown ![title](poster)) with its title, and let the user pick one. If a poster is null, show that template's stock poster from search_templates instead.
+5. Call get_template_spec with the searchId. Start from the picked template's tailored props from render_previews, or from the spec's props, and change only texts, theme, and media (and hidden/audio for music templates). Rewrite every role in shortened, so no text is cut mid-phrase. Write each field for its role in this template (the hook, the proof, the benefit, the CTA), not by copying the brand fields. Keep each text within maxLength and each color as #RRGGBB, with good contrast.
+6. Call render_preview with the filled props, the searchId, and loop: true. It returns a poster and an animated loop of the template with the user's own product, plus the editor link. Show the loop (or the poster when video is null) first, then the link and a short list of the text you used. If it returns an error, fix the field it names and call it again. If poster is null, give the editor link. The link opens a live, editable preview; the user exports the MP4 there.
+7. Treat follow-ups ("punchier", "use our green") as prop edits: call render_preview again with loop: true and show the new preview and link. build_edit_link returns only the link, without rendering. When the user posts the video, offer a caption that leads with the same hook.
 For layout, motion, or timing changes, or a local MP4 render in a code project, point the user to the spec's source.package and source.renderCommand.`;
 
 function createServer(origin: string, ctx: McpContext) {
@@ -230,12 +235,15 @@ function createServer(origin: string, ctx: McpContext) {
   });
   server.registerTool('render_preview', {
     title: 'Render personalized preview',
-    description: 'Render a poster image of a template filled with the user\'s props, in a few seconds, and return it with the editor link. Call after get_template_spec once the props are filled, and show the image to the user. Invalid props return an error that names the field to fix. If rendering is unavailable, poster is null and the editor link still works. video is reserved for a short animated preview and is null for now.',
+    description: `Render a poster image of a template filled with the user's props, in a few seconds, and return it with the editor link. Call after get_template_spec once the props are filled, and show the image to the user. Invalid props return an error that names the field to fix. If rendering is unavailable, poster is null and the editor link still works.
+With loop: true it also waits for a ${LOOP_SECONDS}-second animated WebP loop of these props and returns it as video. A loop still rendering has video: null and videoPending: true; call again with the same props to get it. loop: "start" returns the poster now and starts the loop in the background. Show the loop as an image (Markdown ![title](video)) where the host renders images.`,
     inputSchema: {variantId: z.string().regex(/^[a-z0-9-]{1,100}$/).describe('Template id.'),
       props: z.record(z.string(), z.unknown()).describe('The full props object from get_template_spec with edited texts, theme, and media.'),
-      templateVersion: z.number().int().positive().optional().describe('Only for older template versions. Usually omit.'), searchId: searchIdField},
+      templateVersion: z.number().int().positive().optional().describe('Only for older template versions. Usually omit.'),
+      loop: z.union([z.literal('start'), z.boolean()]).optional().describe(`true waits for a ${LOOP_SECONDS}-second animated loop of these props and returns it as video. "start" only starts it.`),
+      searchId: searchIdField},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
-  }, async ({variantId, props, templateVersion, searchId}) => {
+  }, async ({variantId, props, templateVersion, loop, searchId}) => {
     const badLogo = await unknownLogo(props);
     if (badLogo) return failure(badLogo);
     let editor;
@@ -246,13 +254,24 @@ function createServer(origin: string, ctx: McpContext) {
       return failure(message);
     }
     const engine = engineOf(visible.find((v) => v.id === variantId)!.template);
+    const loopDeadline = Date.now() + LOOP_BUDGET_MS;
     const result: PreviewResult = ctx.preview
       ? await ctx.preview({variantId, props, templateVersion, caller: ctx.caller, keyed: Boolean(ctx.keyed), editor})
       : {poster: null, video: null, editor, previewId: '', cached: false, ms: 0, message: 'Previews are not available here. Open the editor link to see the video.'};
     await event({searchId: searchId ?? null, type: 'preview', variantId, engine, ms: result.ms, cached: result.cached, poster: Boolean(result.poster),
       ...(result.poster ? {} : {error: (result.message ?? 'no poster').slice(0, 200)})});
+    // Loops render only after the poster, the same as in render_previews. Older template versions have no loop.
+    const clip: LoopResult | null = loop && templateVersion === undefined
+      ? (ctx.loop
+        ? await ctx.loop({variantId, props, caller: ctx.caller, keyed: Boolean(ctx.keyed), timeoutMs: loop === 'start' ? 0 : Math.max(1_000, loopDeadline - Date.now())})
+        : {video: null, previewId: '', cached: false, ms: 0, message: 'Loops are not available here.'})
+      : null;
+    if (clip && !clip.pending) await event({searchId: searchId ?? null, type: 'loop', variantId, engine, ms: clip.ms, cached: clip.cached,
+      poster: Boolean(clip.video), ...(clip.video ? {} : {error: (clip.message ?? 'no loop').slice(0, 200)})});
     const {image, ...data} = result;
-    const body = {poster: data.poster, video: data.video, editor: data.editor, ...(data.message ? {message: data.message} : {})};
+    const body = {poster: data.poster, video: clip?.video ?? data.video, editor: data.editor,
+      ...(clip?.pending ? {videoPending: true} : clip && !clip.video ? {videoMessage: clip.message} : {}),
+      ...(data.message ? {message: data.message} : {})};
     return {content: [{type: 'text' as const, text: JSON.stringify(body, null, 2)},
       ...(image ? [{type: 'image' as const, data: image.toString('base64'), mimeType: 'image/jpeg'}] : [])]};
   });
@@ -260,6 +279,7 @@ function createServer(origin: string, ctx: McpContext) {
   server.registerTool('render_previews', {
     title: 'Render tailored previews',
     description: `Render posters of up to ${MAX_BATCH} templates at once, each filled with one brand description, so the user picks from options that already show their product. The server maps the brand onto each template's text fields and shortens text to fit. Returns, per template: id, title, poster URL (null if it was not ready in time), editor link, the tailored props to start from after the pick, and keptSample: text fields that still hold the template's sample text (fill them with real facts after the pick). Inline images follow the text, in the same order as the results.
+shortened lists brand texts that were cut to fit a field ({role, from, to, max}); rewrite them for that field after the pick.
 Animated loops (${LOOP_SECONDS}-second animated WebP of each tailored template) take two calls. First call with loop: "start": it returns the posters as fast as without loops and starts the loops in the background. Show the posters. Then call again with the same arguments and loop: true: it waits for the loops and returns video (the loop URL) per template. A loop still rendering has video: null and videoPending: true; call once more to get it. Show each loop as an image (Markdown ![title](video)) where the host renders images, so the options animate.`,
     inputSchema: {
       variantIds: z.array(z.string().regex(/^[a-z0-9-]{1,100}$/)).min(1).max(MAX_BATCH).describe('Template ids from search_templates.'),
@@ -293,7 +313,7 @@ Animated loops (${LOOP_SECONDS}-second animated WebP of each tailored template) 
     const loopWait = () => (loop === 'start' ? 0 : Math.max(1_000, loopDeadline - Date.now()));
     const results = await Promise.all(ids.map(async (variantId) => {
       const v = visible.find((x) => x.id === variantId)!;
-      const {props, kept} = tailorProps(variantId, checked);
+      const {props, kept, shortened} = tailorProps(variantId, checked);
       const editor = editLink(origin, variantId, props);
       const result = await (ctx.preview
         ? ctx.preview({variantId, props, caller: ctx.caller, keyed: Boolean(ctx.keyed), editor, timeoutMs: Math.max(1_000, deadline - Date.now())})
@@ -310,7 +330,9 @@ Animated loops (${LOOP_SECONDS}-second animated WebP of each tailored template) 
       // A pending loop is not an outcome yet; log it when it arrives or fails.
       if (clip && !clip.pending) await event({searchId: searchId ?? null, type: 'loop', variantId, engine: engineOf(v.template), ms: clip.ms, cached: clip.cached,
         poster: Boolean(clip.video), batch: true, ...(clip.video ? {} : {error: (clip.message ?? 'no loop').slice(0, 200)})});
-      return {id: variantId, title: v.title, aspect: aspect(v.template), poster: result.poster, editor, props, keptSample: kept,
+      const fixed = fixedSampleData(v.template);
+      return {id: variantId, title: v.title, aspect: aspect(v.template), poster: result.poster, editor, props, keptSample: kept, shortened,
+        ...(fixed.length ? {fixedSampleContent: fixed} : {}),
         ...(clip ? {video: clip.video, ...(clip.pending ? {videoPending: true} : clip.video ? {} : {videoMessage: clip.message})} : {}),
         ...(result.poster ? {} : {stockPoster: `${origin}/previews/${variantId}.jpg`, message: result.message}), image: result.image};
     }));

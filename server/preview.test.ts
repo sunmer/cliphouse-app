@@ -293,6 +293,37 @@ test('loop: "start" returns posters at once with loops pending; loop: true then 
   for (const x of second.data.results) assert.match(x.video, /\.webp$/);
   assert.equal(events.filter((e) => e.type === 'loop' && e.poster).length, 2);
 });
+test('render_preview with loop: true returns an animated loop of the edited props', async () => {
+  const edited = structuredClone(manifest.variants.find((v) => v.id === 'prism-launch')!.props);
+  edited.texts.headline = 'Edited copy';
+  const before = loops;
+  const r = await call('render_preview', {variantId: 'prism-launch', props: edited, loop: true, searchId: 'editloop1234'}, {ip: '10.9.3.5'}, batchOrigin);
+  assert.ok(r.data.poster);
+  assert.match(r.data.video, /^https:\/\/cliphou\.se\/p\/[a-f0-9]{64}\.webp$/);
+  assert.equal(r.data.video.replace('.webp', '.jpg'), r.data.poster, 'the loop is of the same edit as the poster');
+  assert.equal(loops, before + 1);
+  assert.ok(events.some((e) => e.searchId === 'editloop1234' && e.type === 'loop' && e.poster));
+  const plain = await call('render_preview', {variantId: 'prism-launch', props: edited}, {ip: '10.9.3.5'}, batchOrigin);
+  assert.equal(plain.data.video, null, 'without loop there is no loop');
+  assert.equal(loops, before + 1);
+  loopDelay = 2_000;
+  edited.texts.headline = 'Slow edit';
+  const slow = await call('render_preview', {variantId: 'prism-launch', props: edited, loop: true}, {ip: '10.9.3.5'}, batchOrigin);
+  assert.ok(slow.data.poster);
+  assert.equal(slow.data.video, null);
+  assert.equal(slow.data.videoPending, true);
+});
+test('render_previews reports shortened brand text and fixed sample numbers', async () => {
+  const r = await call('render_previews', {variantIds: ['bento-launch', 'prism-launch'], brand: {name: 'HejVinter',
+    headline: 'Jobba vidare. Vinter tar telefonen.', points: ['Tar ärenden när ni inte kan svara', 'Kort']}}, {ip: '10.9.3.6'}, batchOrigin);
+  const bento = r.data.results[0];
+  const headline = bento.shortened.find((s: {role: string}) => s.role === 'headline');
+  assert.deepEqual(headline, {role: 'headline', from: 'Jobba vidare. Vinter tar telefonen.', to: bento.props.texts.headline, max: 24});
+  assert.ok(bento.shortened.some((s: {role: string}) => s.role === 'point1'));
+  assert.ok(!bento.shortened.some((s: {role: string}) => s.role === 'point2'), 'text that fits is not listed');
+  assert.ok(bento.fixedSampleContent.length > 0);
+  assert.equal('fixedSampleContent' in r.data.results[1], false);
+});
 test('a loop waits while a poster renders', async () => {
   const order: string[] = [];
   const g = createRenderGate();

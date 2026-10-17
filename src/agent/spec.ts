@@ -14,6 +14,7 @@ import {MAX_HANDOFF_CHARS, REPOSITORY, TEMPLATE_LICENSE, handoffPath, sourcePath
 import {MUSIC_LICENSE, TRACKS, FADE_IN, FADE_OUT, trackPath} from '../music/library.ts';
 import {usesLibrary} from '../music/schema.ts';
 import {logoOf, supportsLogo} from '../videos/logo.ts';
+import {fixedSampleData} from './sample-data.ts';
 
 /** The attribution line agents are asked to keep when they publish a video made from this template. Optional. */
 export const CREDIT = 'Made with cliphou.se';
@@ -59,6 +60,7 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
   const library = usesLibrary(schema);
   const generation = manifest.templates.find((t) => t.id === variant.template)?.generation;
   if (!generation) throw new Error(`Missing generation metadata for template ${variant.template}.`);
+  const fixed = fixedSampleData(variant.template);
   const old = pinned.version !== latest.version ? `&v=${pinned.version}` : '';
   return {
     schemaVersion: '1.3', kind, id, variantId: variant.id, template: variant.template, engine, engineLabel: ENGINE_LABELS[engine], title, url,
@@ -77,6 +79,8 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
       seconds: Math.round(meta.durationInFrames / meta.fps),
     },
     scenes: meta.scenes.map((s) => ({type: s.type, label: SCENE_TYPES[s.type], from: s.from, duration: s.duration, roles: s.roles})),
+    ...(fixed.length ? {fixedSampleContent: {items: fixed,
+      note: 'These numbers are part of the design and cannot be edited. Use this template only when the user is fine showing them.'}} : {}),
     props,
     editableFields: {
       texts,

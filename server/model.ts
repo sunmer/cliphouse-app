@@ -42,8 +42,12 @@ export function validateShare(body: unknown) {
   }
   for (const role of roles) {
     const text = texts[role];
-    if (typeof text !== 'string' || !text.trim() || text.length > ROLES[role].max || /[\u0000-\u0009\u000b\u000c\u000e-\u001f]/.test(text)) {
-      throw new HttpError(400, 'Video text is invalid or too long.');
+    // Name the field and its limit, so an agent can shorten the right text in one step.
+    if (typeof text === 'string' && text.length > ROLES[role].max) {
+      throw new HttpError(400, `Video text is too long: texts.${role} is ${text.length} characters; the limit is ${ROLES[role].max}.`);
+    }
+    if (typeof text !== 'string' || !text.trim() || /[\u0000-\u0009\u000b\u000c\u000e-\u001f]/.test(text)) {
+      throw new HttpError(400, `Video text is invalid: texts.${role} must contain visible text without control characters.`);
     }
   }
   for (const role of THEME_ROLES) {

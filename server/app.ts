@@ -186,8 +186,8 @@ export function createHandler(deps: Dependencies) {
         if (callName !== 'upload_logo' && Buffer.byteLength(JSON.stringify(body)) > 16_384) throw new HttpError(413, 'MCP request is too large.');
         const call = body as {method?: string; params?: {name?: string; arguments?: {loop?: unknown}}} | null;
         const rendersPreview = call?.method === 'tools/call' && ['render_preview', 'render_previews'].includes(call.params?.name ?? '');
-        const rendersLoop = rendersPreview && call?.params?.name === 'render_previews' && call.params.arguments?.loop === true;
-        // render_preview (25 s), render_previews (20 s), and its loops (45 s) have their own render budgets inside this limit.
+        const rendersLoop = rendersPreview && call?.params?.arguments?.loop === true;
+        // render_preview (25 s), render_previews (20 s), and loops (45 s) have their own render budgets inside this limit.
         const timeout = rendersLoop ? deps.loopTimeoutMs ?? 55_000 : rendersPreview ? deps.previewTimeoutMs ?? 30_000 : deps.mcpTimeoutMs ?? 10_000;
         // Stateless MCP has no session, so clientInfo is only seen on initialize. Use it there, else the User-Agent.
         const info = (body as {method?: string; params?: {clientInfo?: {name?: unknown; version?: unknown}}})?.params?.clientInfo;

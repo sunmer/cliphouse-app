@@ -63,10 +63,14 @@ export function tailorProps(variantId: string, brand: Brand) {
   const props = structuredClone(variant.props) as unknown as Record<string, unknown> & {texts: Record<string, string>; theme: Record<string, string>};
   const roles = Object.keys(props.texts) as Role[];
   const points = brand.points ?? [];
+  // Roles whose brand text was cut to fit, with the full text and the limit, so the agent rewrites them.
+  const cut: Record<string, {from: string; to: string; max: number}> = {};
   const set = (role: Role, value: string | undefined) => {
     if (!roles.includes(role) || !value) return;
     const short = fit(value, ROLES[role].max);
-    if (short) props.texts[role] = short;
+    if (!short) return;
+    props.texts[role] = short;
+    if (short !== value) cut[role] = {from: value, to: short, max: ROLES[role].max};
   };
   set('brand', brand.name);
   set('headline', brand.headline);
@@ -91,9 +95,11 @@ export function tailorProps(variantId: string, brand: Brand) {
   // Templates with a logo slot show the logo instead of the brand name; the name stays as its alt text.
   if (brand.logo && supportsLogo(schema)) (props as Record<string, unknown>).logo = {...brand.logo};
   const original = variant.props as unknown as {texts: Record<string, string>};
-  // Roles that still show the template's sample text, so the agent can fill or flag them after the pick.
+  // Roles that still show the template's sample text, so the agent can fill or flag them after the pick,
+  // and roles that show a shortened brand text.
   const result = (p: typeof props) => ({props: p, template: variant.template,
-    kept: roles.filter((r) => p.texts[r] === original.texts[r])});
+    kept: roles.filter((r) => p.texts[r] === original.texts[r]),
+    shortened: Object.entries(cut).filter(([r, c]) => p.texts[r] === c.to).map(([role, c]) => ({role, ...c}))});
   if (validateProps(schema, props).ok) return result(props);
   // Restore the template's own text one role at a time until the edit is valid again.
   const attempt = structuredClone(props);
