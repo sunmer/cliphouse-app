@@ -9,93 +9,90 @@
     :root { --w: 1080px; --h: 1080px; }
     .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
     .w { display:inline-block; }
-    svg path { fill:none; stroke-linecap:square; stroke-linejoin:miter; stroke-dasharray:100; stroke-dashoffset:100; }
+    .s1 { position:absolute; inset:0; z-index:1; }
+    .s2 { position:absolute; inset:0; z-index:3; visibility:hidden; }
 
-    .s1 { background:var(--theme-background); }
-    .stage { position:absolute; inset:0; }
-    .seed, .endbox { position:absolute; left:340px; top:340px; width:400px; height:400px; }
-    .seed { background:var(--theme-accent); }
-    .seed svg, .endbox svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
-    .seed path, .endbox path { stroke:var(--theme-surface); stroke-dashoffset:0; }
-    .ol { stroke-width:3.5; }
-    .ck { stroke-width:9; }
+    /* The carrier: one checkbox for the whole film. The wrapper moves by transforms only; the box pulses. */
+    .carrier { position:absolute; left:280px; top:280px; width:520px; height:520px; z-index:2; transform-origin:50% 50%; }
+    .cbox { position:absolute; inset:0; border:22px solid var(--theme-accent); border-radius:8px; transform-origin:50% 50%; }
+    .cfill { position:absolute; inset:-22px; border-radius:8px; background:var(--theme-accent); }
+    .csvg { position:absolute; left:-22px; top:-22px; width:calc(100% + 44px); height:calc(100% + 44px); overflow:visible; }
+    .ck { fill:none; stroke-width:11; stroke-linecap:butt; stroke-linejoin:miter; stroke-dasharray:1; stroke-dashoffset:1; }
+    .ck-a { stroke:var(--theme-accent); }
+    .ck-s { stroke:var(--theme-surface); }
 
-    .brand { position:absolute; left:160px; top:80px; width:840px; height:56px; font-size:46px; line-height:1; text-transform:uppercase; align-content:center; color:var(--theme-foreground); }
-    .headline { position:absolute; left:80px; top:168px; width:920px; height:250px; font-size:124px; line-height:.94; align-content:center; color:var(--theme-foreground); }
+    /* Header: top-aligned boxes with room for the mask padding, so the fit lands on the largest size. */
+    .brandh { position:absolute; left:80px; top:72px; width:700px; height:64px; font-size:48px; line-height:1; white-space:nowrap; text-transform:uppercase; color:var(--theme-foreground); }
+    .hl { position:absolute; left:80px; top:150px; width:920px; height:250px; font-size:124px; line-height:.95; text-wrap:balance; overflow-wrap:normal; color:var(--theme-foreground); }
+    .mark { position:absolute; left:80px; top:414px; width:160px; height:16px; background:var(--theme-accent2); transform-origin:0 50%; }
 
-    .list { position:absolute; left:80px; top:440px; width:920px; height:440px; display:flex; flex-direction:column; justify-content:center;
-      --rh: calc(440px / var(--count, 6)); }
-    .row { position:relative; flex:none; height:var(--rh); display:flex; align-items:center; gap:28px; }
-    .box { --bs: min(104px, calc(var(--rh) * .52)); --bw: max(3px, calc(var(--bs) * .06)); position:relative; flex:none; width:var(--bs); height:var(--bs); border:var(--bw) solid var(--theme-foreground); }
-    .box > * { position:absolute; left:calc(var(--bw) * -1); top:calc(var(--bw) * -1); width:calc(100% + var(--bw) * 2); height:calc(100% + var(--bw) * 2); }
-    .box .bf { background:var(--theme-accent); }
-    .box path { stroke:var(--theme-surface); stroke-width:12; }
-    .itext { flex:1; min-width:0; height:calc(var(--rh) - 12px); font-size:132px; font-weight:750; line-height:1; align-content:center; color:var(--theme-foreground); }
-    .itext.fit { overflow-wrap:normal; word-break:normal; }
-    .nm { flex:none; overflow:hidden; padding:0 0 .06em; }
-    .num { display:block; font-size:min(56px, max(32px, calc(var(--rh) * .44))); line-height:1; color:color-mix(in srgb, var(--theme-foreground) 42%, transparent); }
-    .rule { position:absolute; left:0; right:0; bottom:0; height:3px; background:color-mix(in srgb, var(--theme-foreground) 16%, transparent); }
+    /* The list reflows with --count. */
+    .list { position:absolute; left:80px; top:456px; width:920px; height:544px; display:flex; flex-direction:column; gap:12px;
+      --count:6;
+      --rowh:calc((544px - (var(--count) - 1) * 12px) / var(--count));
+      --box:clamp(48px, calc(var(--rowh) * .62), 150px);
+      --th:min(240px, calc(var(--rowh) * .7)); }
+    .row { position:relative; flex:1 1 0; min-height:0; }
+    .card { position:absolute; left:calc(var(--box) + 18px); right:0; top:0; bottom:0; background:var(--theme-surface); border-radius:6px; transform-origin:0 50%; }
+    .slot, .tick { position:absolute; left:0; top:calc(50% - var(--box) / 2); width:var(--box); height:var(--box); border-radius:6px; }
+    .slot { border:clamp(4px, calc(var(--box) * .09), 12px) solid color-mix(in srgb, var(--theme-accent) 32%, transparent); }
+    .tick { background:var(--theme-accent); overflow:hidden; }
+    .done { position:absolute; inset:0; background:var(--theme-accent2); clip-path:inset(100% 0% 0% 0%); }
+    .tick svg { position:absolute; inset:0; width:100%; height:100%; }
+    .tick .ck, .pip .ck { stroke:var(--theme-surface); stroke-dashoffset:0; }
+    .ltext { position:absolute; left:calc(var(--box) + 50px); right:120px; top:calc(50% - var(--th) / 2); height:var(--th); font-size:56px; line-height:1.08; font-weight:600; text-wrap:balance; overflow-wrap:normal; align-content:center; color:var(--theme-foreground); }
+    .nmask { position:absolute; right:28px; top:50%; transform:translateY(-50%); overflow:hidden; }
+    .num { display:block; font-size:clamp(26px, calc(var(--rowh) * .3), 56px); line-height:1.1; color:var(--theme-accent); }
 
-    .track { position:absolute; left:80px; top:912px; width:920px; height:88px; display:flex; gap:12px; }
-    .seg { position:relative; flex:1; height:100%; background:color-mix(in srgb, var(--theme-foreground) 10%, transparent); }
-    .sf { position:absolute; inset:0; background:var(--theme-accent); }
-    .seg svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
-    .seg path { stroke:var(--theme-surface); stroke-width:12; }
-    .tdone { position:absolute; left:80px; top:912px; width:920px; height:88px; background:var(--theme-accent); transform:scaleX(0); transform-origin:0 50%; }
-    .phead { position:absolute; left:80px; top:1012px; width:40px; height:14px; background:var(--theme-accent2); transform:scaleY(0); transform-origin:50% 0; }
-
-    .s2 { z-index:2; }
-    .field { position:absolute; inset:0; background:var(--theme-accent); }
-    .s2c { position:absolute; inset:0; clip-path:inset(0px 0px 0px 0px); }
-    .brand2 { position:absolute; left:80px; top:80px; width:920px; height:140px; font-size:120px; line-height:1; align-content:center; color:var(--theme-surface); }
-    .button { position:absolute; left:80px; top:252px; width:920px; height:468px; background:var(--theme-surface); }
-    .cbox { position:absolute; left:64px; top:144px; width:180px; height:180px; border:10px solid var(--theme-foreground); }
-    .cbox > * { position:absolute; left:-10px; top:-10px; width:calc(100% + 20px); height:calc(100% + 20px); }
-    .cbox .bf { background:var(--theme-accent2); }
-    .cbox path { stroke:var(--theme-foreground); stroke-width:11; }
-    .ctext { position:absolute; left:292px; top:54px; width:580px; height:360px; font-size:128px; line-height:.94; align-content:center; color:var(--theme-foreground); }
-    .pips { position:absolute; left:80px; top:760px; height:104px; display:flex; gap:16px; }
-    .pip { position:relative; width:104px; height:104px; flex:none; background:var(--theme-accent2); }
-    .pip svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
-    .pip path { stroke:var(--theme-foreground); stroke-width:12; }
-    .loopbar { position:absolute; left:80px; top:912px; width:920px; height:88px; background:var(--theme-accent2); transform:scaleX(0); transform-origin:0 50%; }
+    /* Finale */
+    .brandf { position:absolute; left:80px; top:130px; width:920px; height:200px; font-size:180px; line-height:.95; white-space:nowrap; color:var(--theme-foreground); }
+    .rule { position:absolute; left:80px; top:342px; width:200px; height:18px; background:var(--theme-accent2); transform-origin:0 50%; }
+    .cta { position:absolute; left:140px; top:450px; width:680px; height:240px; font-size:120px; line-height:.95; text-wrap:balance; overflow-wrap:normal; align-content:center; color:var(--theme-surface); }
+    .arrow { position:absolute; left:870px; top:520px; width:100px; height:100px; overflow:visible; }
+    .arrow path { fill:none; stroke:var(--theme-surface); stroke-width:10; stroke-linecap:butt; stroke-linejoin:miter; stroke-dasharray:1; stroke-dashoffset:1; }
+    .pips { position:absolute; left:80px; top:810px; width:920px; height:120px; display:flex; gap:16px; }
+    .pip { position:relative; flex:1 1 0; min-width:0; height:120px; border-radius:6px; background:var(--theme-accent); transform-origin:50% 50%; }
+    .pip svg { position:absolute; left:calc(50% - 60px); top:0; width:120px; height:120px; }
   </style>
 </head>
 <body>
   <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1080" data-height="1080">
-    <section id="featurelist-list" class="scene s1" data-start="0" data-duration="10" data-track-index="0">
-      <div class="stage">
-        <div class="brand display fit" data-fit-max="46" data-fit-min="30" data-text-role="brand" data-beat-text="brand">Brand</div>
-        <h1 class="headline display fit" data-fit-max="124" data-fit-min="64" data-text-role="headline" data-beat-text="headline">Headline</h1>
-        <div class="list" data-list>
-          <template data-list-row>
-            <div class="row">
-              <div class="box" data-list-part="box" data-list-group="scaffold" data-list-align="y"><div class="bf" data-list-part="check" data-list-align="y"></div><svg class="tick" viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
-              <div class="itext display fit" data-list-text data-words data-fit-max="132" data-fit-min="34"></div>
-              <div class="nm"><span class="num mono" data-list-number data-list-part="number" data-list-group="scaffold"></span></div>
-              <div class="rule" data-list-part="rule" data-list-group="scaffold"></div>
+    <section id="featurelist-list" class="s1" data-start="0" data-duration="10" data-track-index="0">
+      <div class="brandh display" data-fit-max="48" data-fit-min="28" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <h1 class="hl display" data-fit-max="124" data-fit-min="48" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <div class="mark"></div>
+      <div class="list" data-list>
+        <template data-list-row>
+          <div class="row">
+            <div class="card" data-list-part="card" data-list-group="scaffold"></div>
+            <div class="slot" data-list-part="slot" data-list-group="scaffold" data-list-align="y"></div>
+            <div class="tick" data-list-part="check" data-list-align="y">
+              <div class="done" data-list-part="done" data-list-group="finale" data-list-align="y"></div>
+              <svg viewBox="0 0 100 100"><path class="ck" pathLength="1" d="M24 52 L43 70 L77 32" /></svg>
             </div>
-          </template>
-        </div>
-        <div class="track"></div>
-        <div class="phead"></div>
-        <div class="tdone"></div>
-        <div class="seed"><svg viewBox="0 0 100 100"><path class="ol" pathLength="100" d="M1.75 1.75 H98.25 V98.25 H1.75 Z"/><path class="ck" pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
+            <div class="ltext" data-list-text data-words data-fit-max="104" data-fit-min="30"></div>
+            <span class="nmask"><span class="num display" data-list-part="num" data-list-number></span></span>
+          </div>
+        </template>
       </div>
     </section>
-    <section id="featurelist-end" class="scene s2" data-start="0" data-duration="10" data-track-index="1">
-      <div class="field">
-        <div class="s2c">
-          <div class="brand2 display fit" data-fit-max="120" data-fit-min="56" data-text-role="brand" data-beat-text="brand">Brand</div>
-          <div class="button">
-            <div class="cbox"><div class="bf"></div><svg class="tick" viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
-            <div class="ctext display fit" data-fit-max="128" data-fit-min="48" data-text-role="cta" data-beat-text="cta">CTA</div>
-          </div>
-          <div class="pips"></div>
-          <div class="loopbar"></div>
-        </div>
-        <div class="endbox"><svg viewBox="0 0 100 100"><path class="ol" pathLength="100" d="M1.75 1.75 H98.25 V98.25 H1.75 Z"/><path class="ck" pathLength="100" d="M26 52 L44 69 L76 34"/></svg></div>
+
+    <div class="carrier" data-layout-allow-overflow>
+      <div class="cbox">
+        <div class="cfill"></div>
+        <svg class="csvg" viewBox="0 0 100 100">
+          <path class="ck ck-a" pathLength="1" d="M24 52 L43 70 L77 32" />
+          <path class="ck ck-s" pathLength="1" d="M24 52 L43 70 L77 32" />
+        </svg>
       </div>
+    </div>
+
+    <section id="featurelist-end" class="s2" data-start="0" data-duration="10" data-track-index="1">
+      <div class="brandf display" data-fit-max="180" data-fit-min="56" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <div class="rule"></div>
+      <div class="cta display" data-fit-max="120" data-fit-min="44" data-text-role="cta" data-beat-text="cta">CTA</div>
+      <svg class="arrow" viewBox="0 0 100 100"><path pathLength="1" d="M10 50 H86 M60 22 L88 50 L60 78" /></svg>
+      <div class="pips"></div>
     </section>
   </div>
   <script>__BASE_JS__</script>
@@ -106,121 +103,117 @@
       const B = (n) => m.at(n);
       const t = (id) => m.cue(id);
       const q = (s) => document.querySelector(s);
-      const qa = (s) => [...document.querySelectorAll(s)];
       const root = q('#root');
-      const W = root.offsetWidth, H = root.offsetHeight;
-      const rectInset = (el) => `inset(${el.offsetTop}px ${W - el.offsetLeft - el.offsetWidth}px ${H - el.offsetTop - el.offsetHeight}px ${el.offsetLeft}px)`;
-      // Words rise through masks on eighth notes; later words share the last slot so long text settles early.
-      const words = (el, start, cap = 2, dur = 0.75) => m.spans(el).forEach((w, i) =>
-        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, start + Math.min(i, cap) * B(0.5)));
-      const draw = (path, at, dur = 0.5, ir = true) => tl.fromTo(path, {strokeDashoffset: 100},
-        {strokeDashoffset: 0, duration: B(dur), ease: 'power3.out', immediateRender: ir}, at);
-      const stamp = (el, at) => tl.fromTo(el, {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, at);
+      const C = q('.carrier'), K = q('.cbox'), FILL = q('.cfill'), SVG = q('.csvg'), CKA = q('.ck-a'), CKS = q('.ck-s');
+      // The carrier's home box: 520 px square centered in the frame.
+      const HOME = 520, CX = 540, CY = 540;
+      // A target rectangle as a transform of the home box (origin at its center).
+      const fit = (r) => ({x: r.left + r.width / 2 - CX, y: r.top + r.height / 2 - CY, scaleX: r.width / HOME, scaleY: r.height / HOME});
+      // Layout position inside the root, ignoring transforms.
+      const pos = (el) => {
+        let x = 0, y = 0, n = el;
+        while (n && n !== root) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
+        return {left: x, top: y, width: el.offsetWidth, height: el.offsetHeight};
+      };
+      // Words rise through masks on sixteenths; later words share the last slot so long text settles early.
+      const words = (el, at, cap = 2) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, at + Math.min(i, cap) * B(0.25)));
+      const out = (el, at) => { const s = m.spans(el); if (s.length) tl.to(s, {yPercent: 125, duration: B(0.5), ease: 'power3.in'}, at); };
+      const draw = (el, at, d = 0.5, ri = true) =>
+        tl.fromTo(el, {strokeDashoffset: 1}, {strokeDashoffset: 0, duration: B(d), ease: 'power3.out', immediateRender: ri}, at);
+      const pulse = (at, from) => tl.fromTo(K, {scale: from}, {scale: 1, duration: B(0.5), ease: 'expo.out', immediateRender: false}, at);
+      const rows = m.items.map((it) => m.row(it.index));
 
-      const field = q('.field');
-      const endbox = q('.endbox');
-      const seed = q('.seed');
+      // Beat 0: the giant empty box gets its check.
+      draw(CKA, t('tick'), 0.75);
 
-      // Beat 0: the accent field folds into the checked box; the meter slots draw underneath.
-      tl.fromTo(field, {clipPath: 'inset(0px 0px 0px 0px)'},
-        {clipPath: rectInset(endbox), duration: B(0.6), ease: 'power3.inOut'}, t('fold'));
-      tl.set([field, endbox], {visibility: 'hidden'}, t('fold') + B(0.6));
-      // The meter: one slot per feature, generated from the item count.
-      const segs = m.parts(q('.track'), 'meter', () => {
-        const seg = document.createElement('div');
-        seg.className = 'seg';
-        seg.dataset.listGroup = 'scaffold';
-        seg.innerHTML = '<div class="sf"></div><svg viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg>';
-        return seg;
-      });
-      segs.forEach((seg, i) => m.tag(seg.querySelector('.sf'), 'meter-fill', m.items[i].index));
-      tl.fromTo(segs, {scaleX: 0, transformOrigin: '0% 50%'},
-        {scaleX: 1, duration: B(0.75), ease: 'expo.out', stagger: B(0.0625)}, t('fold'));
+      // Beat 1: the box fills, its check turns white, and it drops below the headline. The headline rises.
+      tl.fromTo(FILL, {scale: 0}, {scale: 1, duration: B(0.375), ease: 'expo.out'}, t('headline'));
+      tl.set(CKA, {strokeDashoffset: 1}, t('headline') + B(0.375));
+      draw(CKS, t('headline') + B(0.25));
+      tl.to(C, {...fit({left: 340, top: 528, width: 400, height: 400}), duration: B(1), ease: 'expo.out'}, t('headline'));
+      words(q('.hl'), t('headline'));
 
-      // Beat 1: the box becomes the brand mark; the brand rises beside it.
-      tl.fromTo(seed, {x: 0, y: 0, scale: 1, transformOrigin: '0% 0%'},
-        {x: 80 - seed.offsetLeft, y: 80 - seed.offsetTop, scale: 56 / seed.offsetWidth, duration: B(0.75), ease: 'expo.out'}, t('brand'));
-      words(q('.s1 .brand'), t('brand'));
+      // Beat 2: brand.
+      words(q('.brandh'), t('brand'));
 
-      // Beats 1.5-2: the hero headline rises and stays as the header.
-      words(q('.headline'), t('headline'), 1);
-
-      // Beats 2-3: the empty checklist: rules draw, then boxes and numbers land.
-      const rows = m.items.map((it) => q(`.list [data-list-item="${it.index}"]`));
+      // Beat 3: the carrier snaps onto slot 1 and the cards roll out from the slots.
       rows.forEach((row, i) => {
-        if (!row) return;
-        tl.fromTo(row.querySelector('.rule'), {scaleX: 0, transformOrigin: '0% 50%'},
-          {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('rules') + B(0.0625 * i));
-        stamp(row.querySelector('.box'), t('boxes') + B(0.0625 * i));
-        tl.fromTo(row.querySelector('.num'), {yPercent: 110}, {yPercent: 0, duration: B(0.5), ease: 'expo.out'}, t('boxes') + B(0.0625 * i));
+        const at = t('scaffold') + B(0.125) + i * B(0.0625);
+        tl.fromTo(row.querySelector('.card'), {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, at);
+        tl.fromTo(row.querySelector('.slot'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, at);
       });
 
-      // Beats 4.5-10: each feature rises on its start; on its accent its box and its meter block tick together.
+      // Then the carrier steps down the rail and stamps every item.
       m.items.forEach((it, i) => {
         const row = rows[i];
-        if (!row) return;
-        m.spans(row.querySelector('[data-list-text]')).forEach((w) =>
-          tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.5), ease: 'expo.out'}, it.start));
-        stamp(row.querySelector('.bf'), it.accent);
-        draw(row.querySelector('.tick path'), it.accent);
-        stamp(segs[i].querySelector('.sf'), it.accent);
-        draw(segs[i].querySelector('path'), it.accent);
+        const slot = pos(row.querySelector('.slot'));
+        const arrive = i === 0 ? t('scaffold') : it.start;
+        tl.set(CKS, {strokeDashoffset: 1}, arrive);
+        tl.to(C, {...fit(slot), duration: B(0.5), ease: 'expo.out'}, arrive);
+        words(row.querySelector('[data-list-text]'), it.start);
+        tl.fromTo(row.querySelector('.num'), {yPercent: 110}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, it.start);
+        pulse(it.accent, 1.22);
+        draw(CKS, it.accent, 0.5, false);
+        tl.fromTo(row.querySelector('.tick'), {scale: 0}, {scale: 1, duration: B(0.25), ease: 'expo.out'}, it.accent + B(0.25));
       });
 
-      // Beats 4-10: a playhead steps across the meter on every beat, so the beat lands between item accents too.
-      const track = q('.track');
-      const steps = Math.round((t('done') - t('meter')) / B(1));
-      tl.fromTo('.phead', {scaleY: 0, x: 0}, {scaleY: 1, duration: B(0.25), ease: 'expo.out'}, t('meter'));
-      for (let k = 1; k <= steps; k++) tl.to('.phead', {x: (track.offsetWidth - 40) * k / steps, duration: B(0.4), ease: 'expo.out'}, t('meter') + B(k));
-      tl.to('.phead', {scaleY: 0, duration: B(0.25), ease: 'power3.in'}, t('done') + B(0.25));
+      // Free beats 4-9: the carrier pulses on the slot it holds, so every beat lands at every count.
+      const landed = new Set([8, ...m.plan.items.map((it) => it.start)]);
+      for (let b = 4; b <= 9; b++) if (!landed.has(b)) pulse(B(b), 1.1);
 
-      // Beat 11: the done bar wipes across the full meter.
-      tl.fromTo('.tdone', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('done'));
+      // Beat 8: the amber mark under the headline.
+      tl.fromTo('.mark', {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('mark'));
 
-      // Beat 12: the done bar floods the frame; the CTA slab wipes in behind it.
-      tl.set(field, {visibility: 'visible'}, t('flood'));
-      tl.fromTo(field, {clipPath: rectInset(q('.tdone'))},
-        {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.75), ease: 'power3.out', immediateRender: false}, t('flood'));
-      tl.set('.stage', {visibility: 'hidden'}, t('ctaBrand'));
-      tl.fromTo('.button', {clipPath: 'inset(0% 100% 0% 0%)'},
-        {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('flood') + B(0.5));
+      // Beat 10: every check wipes amber, top to bottom, clipped in place; the carrier pulses on the last row.
+      rows.forEach((row, i) => tl.fromTo(row.querySelector('.done'), {clipPath: 'inset(100% 0% 0% 0%)'},
+        {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('allDone') + i * B(0.125)));
+      pulse(t('allDone'), 1.12);
 
-      // Beat 13: the brand rises large.
-      words(q('.brand2'), t('ctaBrand'));
+      // Beat 11: the carrier charges on the last slot.
+      tl.to(K, {scale: 1.45, duration: B(0.75), ease: 'back.out(1.2)'}, t('charge'));
 
-      // Beat 14: the slab settles with a stamp and the CTA rises.
-      tl.fromTo('.button', {scale: 1.08, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.75), ease: 'expo.out'}, t('ctaStamp'));
-      words(q('.ctext'), t('ctaStamp'), 1, 0.5);
+      // Beat 12: it floods from its own edges past every corner of the frame in 10 frames.
+      tl.to(SVG, {scale: 0, transformOrigin: '50% 50%', duration: B(0.25), ease: 'power3.in'}, t('flood'));
+      tl.to(K, {scale: 1, duration: B(2 / 3), ease: 'power3.out'}, t('flood'));
+      tl.to(C, {...fit({left: -60, top: -60, width: 1200, height: 1200}), duration: B(2 / 3), ease: 'power3.out'}, t('flood'));
+      tl.set(CKS, {strokeDashoffset: 1}, t('flood') + B(0.25));
+      tl.set(SVG, {scale: 1}, t('flood') + B(0.25));
+      tl.set('.s1', {visibility: 'hidden'}, t('flood') + B(0.75));
+      tl.set('.s2', {visibility: 'visible'}, t('flood') + B(0.75));
 
-      // Beat 15: the CTA box fills amber and ticks.
-      stamp(q('.cbox .bf'), t('ctaTick'));
-      draw(q('.cbox path'), t('ctaTick'));
+      // Beat 13: the flood contracts into the CTA button; the brand rises.
+      tl.to(C, {...fit({left: 80, top: 390, width: 920, height: 360}), duration: B(1), ease: 'expo.out'}, t('button'));
+      words(q('.brandf'), t('button'));
 
-      // Beat 16: one ticked pip per feature, a group recap on the end card.
-      const pipHost = q('.pips');
-      m.parts(pipHost, 'pip', () => {
+      // Beat 14: the CTA stamps.
+      tl.fromTo(K, {scale: 1.06}, {scale: 1, duration: B(0.75), ease: 'expo.out', immediateRender: false}, t('ctaStamp'));
+      words(q('.cta'), t('ctaStamp'));
+
+      // Beat 15: one shipped segment per feature, filling the width like a finished progress bar.
+      const pips = m.parts(q('.pips'), 'pip', () => {
         const p = document.createElement('div');
         p.className = 'pip';
-        p.dataset.listGroup = 'finale';
-        p.innerHTML = '<svg viewBox="0 0 100 100"><path pathLength="100" d="M26 52 L44 69 L76 34"/></svg>';
+        p.setAttribute('data-list-group', 'finale');
+        p.innerHTML = '<svg viewBox="0 0 100 100"><path class="ck" pathLength="1" d="M24 52 L43 70 L77 32" /></svg>';
         return p;
-      }).forEach((p, i) => {
-        tl.fromTo(p, {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('pips') + B(0.0625 * i));
-        draw(p.querySelector('path'), t('pips') + B(0.25 + 0.0625 * i));
       });
+      pips.forEach((p, i) => tl.fromTo(p, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('pips') + i * B(0.125)));
 
-      // Beat 17: the amber bar draws where the meter stood.
-      tl.fromTo('.loopbar', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('loopBar'));
+      // Beats 16-17: the arrow draws, the amber rule draws.
+      draw(q('.arrow path'), t('arrow'));
+      tl.fromTo('.rule', {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('rule'));
 
-      // Beat 18: the content snaps shut to the center line on the beat; the big box outline draws on the clean field.
-      tl.fromTo('.s2c', {clipPath: 'inset(0px 0px 0px 0px)'},
-        {clipPath: `inset(${H / 2}px 0px ${H / 2}px 0px)`, duration: B(0.5), ease: 'expo.out', immediateRender: false}, t('slice'));
-      tl.set('.endbox .ol, .endbox .ck', {strokeDashoffset: 100}, t('slice'));
-      tl.set(endbox, {visibility: 'visible'}, t('slice') + B(0.5));
-      draw(q('.endbox .ol'), t('slice') + B(0.5), 0.5, false);
+      // Beat 18: everything drops out; the button shrinks back into the giant box.
+      out(q('.brandf'), t('exit'));
+      out(q('.cta'), t('exit'));
+      tl.to(q('.arrow path'), {strokeDashoffset: 1, duration: B(0.375), ease: 'power3.in'}, t('exit'));
+      if (pips.length) tl.to(pips, {scale: 0, duration: B(0.375), ease: 'power3.in'}, t('exit'));
+      tl.to('.rule', {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.375), ease: 'power3.in'}, t('exit'));
+      tl.to(C, {x: 0, y: 0, scaleX: 1, scaleY: 1, duration: B(0.75), ease: 'expo.out'}, t('exit') + B(0.5));
 
-      // Beat 19: the big box ticks, landing on frame 0.
-      draw(q('.endbox .ck'), t('loop'), 0.5, false);
+      // Beat 19: the box empties to its first-frame outline.
+      tl.to(FILL, {scale: 0, duration: B(0.75), ease: 'power3.inOut'}, t('loop'));
     });
     window.__timelines = window.__timelines || {};
     window.__timelines.main = tl;

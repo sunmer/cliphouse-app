@@ -801,10 +801,10 @@
   ],
   "featurelist": [
     {
-      "version": 3,
-      "hash": "dcdb2957299c29e3",
-      "sha256": "158b58f965989af0f24c5d81b1ec256628375ddfd8979af30c3a47f5a71002e7",
-      "createdAt": "2026-10-14"
+      "version": 4,
+      "hash": "36b3c89e110859c5",
+      "sha256": "f436f884d49a5726ef59576c9bf5d5a5d6cfdcd885e4f02d315b4fb14de370bf",
+      "createdAt": "2026-10-17"
     }
   ],
   "metricbump": [
@@ -865,18 +865,18 @@
   ],
   "customerquote": [
     {
-      "version": 3,
-      "hash": "b8a9b8df578ad740",
-      "sha256": "5498d053180f47f3fed1a946d76fcddd79fd4cd0c87cd057634a9560036d2bca",
-      "createdAt": "2026-10-14"
+      "version": 4,
+      "hash": "596086f846351cd8",
+      "sha256": "3f1658ba77244d9644e2e917898a272ced2915c16f0de403fb56a8a313437dfe",
+      "createdAt": "2026-10-17"
     }
   ],
   "nowinbeta": [
     {
-      "version": 3,
-      "hash": "9557caa264fed779",
-      "sha256": "7fd931ab93e28729763f136cf66925f71c6c6b573daff989f3f8bc598e8826f6",
-      "createdAt": "2026-10-14"
+      "version": 4,
+      "hash": "8b2a818a3295dad3",
+      "sha256": "dae288984449ad626ec170c1f34cb681e23527929cedffa02a42a9735aa0d928",
+      "createdAt": "2026-10-17"
     }
   ],
   "apirelease": [

@@ -1,29 +1,47 @@
 {
   "beatFrames": 14,
   "scenes": [
-    {"type": "quote", "bars": 2, "focusBeat": 6, "roles": ["quote"], "energy": 1},
-    {"type": "byline", "bars": 1, "focusBeat": 10, "roles": ["quote", "author"], "energy": 2},
-    {"type": "end-screen", "bars": 2, "focusBeat": 16, "roles": ["brand", "cta"], "energy": 3}
+    {
+      "type": "quote",
+      "bars": 2,
+      "focusBeat": 6,
+      "roles": ["quote"],
+      "energy": 1
+    },
+    {
+      "type": "byline",
+      "bars": 1,
+      "focusBeat": 10,
+      "roles": ["quote", "author"],
+      "energy": 2
+    },
+    {
+      "type": "end-screen",
+      "bars": 2,
+      "focusBeat": 16,
+      "roles": ["brand", "cta"],
+      "energy": 3
+    }
   ],
   "cues": [
-    {"id": "open", "beat": 0, "sound": "impact", "velocity": 0.8},
-    {"id": "quote", "beat": 1, "sound": "pluck", "role": "quote", "velocity": 0.7},
-    {"id": "closeMark", "beat": 6, "sound": "snap", "velocity": 0.8},
-    {"id": "signature", "beat": 7, "sound": "pluck", "velocity": 0.5},
-    {"id": "author", "beat": 8, "sound": "blip", "role": "author", "velocity": 0.6},
-    {"id": "badge", "beat": 9, "sound": "tom", "velocity": 0.6},
-    {"id": "check", "beat": 10, "sound": "blip", "velocity": 0.6},
-    {"id": "windup", "beat": 11, "sound": "tom", "velocity": 0.7},
-    {"id": "closeFlood", "beat": 12, "sound": "zap", "velocity": 0.8},
-    {"id": "brand", "beat": 13, "sound": "lead", "role": "brand", "velocity": 0.7},
+    {"id": "open", "beat": 0, "sound": "impact", "velocity": 0.6},
+    {"id": "quote", "beat": 1, "sound": "pluck", "role": "quote", "velocity": 0.6},
+    {"id": "closeMark", "beat": 6, "sound": "snap", "velocity": 0.6},
+    {"id": "lift", "beat": 7, "sound": "tom", "velocity": 0.6},
+    {"id": "author", "beat": 8, "sound": "blip", "role": "author", "velocity": 0.7},
+    {"id": "verify", "beat": 10, "sound": "pluck", "velocity": 0.6},
+    {"id": "breath", "beat": 11, "sound": "snap", "velocity": 0.5},
+    {"id": "fold", "beat": 12, "sound": "zap", "velocity": 0.8},
+    {"id": "brand", "beat": 12.5, "sound": "lead", "role": "brand", "velocity": 0.7},
+    {"id": "windup", "beat": 13, "sound": "tom", "velocity": 0.6},
     {"id": "ctaStamp", "beat": 14, "sound": "stamp", "role": "cta", "velocity": 1},
-    {"id": "arrow", "beat": 15, "sound": "pluck", "velocity": 0.6},
-    {"id": "brandRule", "beat": 16, "sound": "snap", "velocity": 0.5},
-    {"id": "nudge", "beat": 17, "sound": "clap", "velocity": 0.5},
-    {"id": "nudgeAgain", "beat": 18, "sound": "clap", "velocity": 0.5},
-    {"id": "loopFlood", "beat": 19, "sound": "zap", "velocity": 0.7}
+    {"id": "arrow", "beat": 15, "sound": "blip", "velocity": 0.6},
+    {"id": "markTurn", "beat": 16, "sound": "snap", "velocity": 0.6},
+    {"id": "arrowStep", "beat": 17, "sound": "clap", "velocity": 0.5},
+    {"id": "press", "beat": 18, "sound": "tom", "velocity": 0.6},
+    {"id": "release", "beat": 19, "sound": "snap", "velocity": 0.7}
   ],
   "risers": [
-    {"beat": 9, "beats": 3}
+    {"beat": 10, "beats": 2}
   ]
 }
