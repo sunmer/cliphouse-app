@@ -99,7 +99,7 @@ the lovd-by-ai project's `supabase/.env`). `--allow-unlimited-key 1` recorded a
 hard $1 cap in the A3 ledger.
 
 One of six runs rendered, on the first attempt, for a total cost of $0.0880.
-Five submissions are invalid and were not repaired, as protocol 1.1 requires: four
+Five submissions are invalid, so protocol 1.1 gave them no repair: four
 wrapped the source in a Markdown code fence instead of the required JSON, and one
 reached the 32,000-token completion limit. OpenRouter resolves the snapshot to
 `deepseek/deepseek-v4.1-flash-20261017`; the timing check accepts that dated alias.
@@ -111,6 +111,34 @@ Definition: `src/benchmark/addition-a3.json`. Results:
 ```sh
 BENCHMARK_WORKERS=2 npm run benchmark:run -- --addition-id A3 --allow-unlimited-key 1
 node scripts/benchmark/publish-addition.mjs --id A3
+node scripts/benchmark/collect-timings.mjs --execute
+```
+
+### A3 Recovery R1
+
+On October 17, 2026, the operator asked for the five A3 failures to be repaired
+the same way R1 repaired the original edition's failures. The unchanged R1
+protocol ran on the A3 store: up to three additional attempts, 64,000 tokens,
+direct TSX output, the same pinned DeepSeek provider, and no human edits. All five
+rendered after one additional attempt each, for $0.0185. A3 now has six playable
+videos in the repaired view; the original A3 results keep one video and five
+failures. The A3 definition and hash are unchanged, so its policy text still
+says R1 does not apply; the page footnote and each card record the recovery.
+
+Each recovered card has a repair note generated from the recorded responses:
+
+- product-launch 1: the original reached the token limit; the repair returned a complete module.
+- product-launch 2: raw TSX in a `tsx` fence; the repair revised the code (24,170 to 22,528 characters).
+- kinetic-type 1: fenced JSON; the repair returned identical code, so the video is the original submission.
+- kinetic-type 2 and data-story 2: fenced JSON; the repair made small revisions.
+
+The same $1 ledger cap covers the A3 generation and repair spend. Repairs are in
+`src/benchmark/addition-a3-recovery.json` and `.benchmark/2026-10/addition-a3/recovery-r1/`.
+
+```sh
+npm run benchmark:repair -- --addition-id A3
+npm run benchmark:repair -- --execute --addition-id A3 --allow-unlimited-key 1
+npm run benchmark:publish-repairs -- --addition-id A3
 node scripts/benchmark/collect-timings.mjs --execute
 ```
 

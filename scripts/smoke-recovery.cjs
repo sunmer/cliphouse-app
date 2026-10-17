@@ -15,7 +15,9 @@ async function check(engine, viewport, name) {
     const additionsA1 = await (await page.request.get(`${base}benchmark/addition-results.json`)).json();
     const additionsA2 = await (await page.request.get(`${base}benchmark/addition-a2-results.json`)).json();
     const additionsA3 = await (await page.request.get(`${base}benchmark/addition-a3-results.json`)).json();
+    const repairsA3 = await (await page.request.get(`${base}benchmark/addition-a3-recovery.json`)).json();
     const additions = {entries: [...additionsA1.entries, ...additionsA2.entries, ...additionsA3.entries]};
+    const additionRepairs = repairsA3.entries;
     assert.equal(repairs.entries.length, baseline.entries.filter(entry => entry.status === 'failed').length);
     assert.equal(await page.locator('.benchmark-recovery-summary, .benchmark-progress').count(), 0);
     const originalLink = await page.getByRole('link', {name: 'Original results', exact: true}).getAttribute('href');
@@ -26,10 +28,19 @@ async function check(engine, viewport, name) {
         await page.getByRole('button', {name: `Run ${run}`, exact: true}).click();
         const originals = baseline.entries.filter(entry => entry.brief === brief.id && entry.run === run);
         const recoveries = repairs.entries.filter(entry => entry.brief === brief.id && entry.run === run);
-        const added = additions.entries.filter(entry => entry.brief === brief.id && entry.run === run && entry.status === 'rendered');
+        const addedRepairs = additionRepairs.filter(entry => entry.brief === brief.id && entry.run === run);
+        const added = additions.entries.filter(entry => entry.brief === brief.id && entry.run === run && (entry.status === 'rendered' || addedRepairs.some(item => item.model === entry.model && item.status === 'rendered')));
         assert.equal(await page.locator('.benchmark-card-media video').count(),
           originals.filter(entry => entry.status === 'rendered').length + recoveries.filter(entry => entry.status === 'rendered').length + added.length);
-        assert.equal(await page.locator('.benchmark-recovery-label').count(), recoveries.length);
+        assert.equal(await page.locator('.benchmark-recovery-label').count(), recoveries.length + addedRepairs.length);
+        for (const repair of addedRepairs) {
+          const card = page.locator('.benchmark-card').filter({has: page.getByRole('heading', {name: 'DeepSeek V4.1 Flash 1017', exact: true})});
+          await card.locator('summary').click();
+          assert.match(await card.innerText(), /Repair note/);
+          assert.match(await card.innerText(), /Original outcome/);
+          if (repair.video) assert.equal(await card.locator('video').getAttribute('data-video-src'), `/${repair.video}`);
+          await card.locator('summary').click();
+        }
         for (const original of originals) {
           const recovery = recoveries.find(entry => entry.model === original.model);
           const entry = recovery ? {...recovery, generationMs: original.generationMs + recovery.generationMs, renderMs: original.renderMs + recovery.renderMs} : original;

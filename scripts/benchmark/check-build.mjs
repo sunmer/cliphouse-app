@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import {additionResultsFile, laterAdditions, loadAdditionResults, root, validateAddition, validateResults} from './protocol.mjs';
-import {validateRecovery} from './recovery.mjs';
+import {additionResultsFile, laterAdditions, loadAddition, loadAdditionResults, root, validateAddition, validateResults} from './protocol.mjs';
+import {loadAdditionRecoveries, recoveredAdditions, recoveryResultsFile, validateRecovery} from './recovery.mjs';
 import {validateTimings} from './timings.mjs';
 
 const dist = path.join(root, 'dist');
@@ -20,7 +20,12 @@ for (const item of laterAdditions) {
 const additions = loadAdditionResults(published, dist);
 const recovery = validateRecovery(JSON.parse(fs.readFileSync(path.join(dist, 'benchmark/recovery.json'), 'utf8')), published, dist);
 assert.deepEqual(recovery, JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/recovery.json'), 'utf8')), 'Every recovery must be published.');
-const timings = validateTimings(JSON.parse(fs.readFileSync(path.join(dist, 'benchmark/timings.json'), 'utf8')), published, recovery, dist, additions);
+for (const id of recoveredAdditions) {
+  const file = recoveryResultsFile(loadAddition(id));
+  if (fs.existsSync(file)) assert.deepEqual(JSON.parse(fs.readFileSync(path.join(dist, `benchmark/${path.basename(file)}`), 'utf8')), JSON.parse(fs.readFileSync(file, 'utf8')), `Every ${id} recovery must be published.`);
+}
+const additionRecoveries = loadAdditionRecoveries(dist, loadAddition, additionResultsFile);
+const timings = validateTimings(JSON.parse(fs.readFileSync(path.join(dist, 'benchmark/timings.json'), 'utf8')), published, recovery, dist, {entries: [...additions.entries, ...additionRecoveries]});
 assert.deepEqual(timings, JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/timings.json'), 'utf8')), 'Every video must have its OpenRouter timing record.');
 for (const route of ['benchmark/index.html', `benchmark/${published.edition}/index.html`]) {
   const html = fs.readFileSync(path.join(dist, route), 'utf8');

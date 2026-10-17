@@ -732,6 +732,56 @@
       "provider": "DeepSeek",
       "generationTimeMs": 103365,
       "fetchedAt": "2026-10-17T17:22:56.443Z"
+    },
+    {
+      "video": "benchmark/media/recovery-r1-deepseek-v4-1-flash-1017-product-launch-1/video.mp4",
+      "sourceSha256": "9ab381af9a5657f2bcbdb3a0f49919cc7380337df02a02a9201cf6ac664f3c38",
+      "generationId": "gen-1792260839-E2w5GrF2GYh7TCcsdbE9",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "resolvedModel": "deepseek/deepseek-v4.1-flash-20261017",
+      "provider": "DeepSeek",
+      "generationTimeMs": 22878,
+      "fetchedAt": "2026-10-17T18:17:51.741Z"
+    },
+    {
+      "video": "benchmark/media/recovery-r1-deepseek-v4-1-flash-1017-product-launch-2/video.mp4",
+      "sourceSha256": "b4ccfc377cdbf6faad346066be0db5161f1bde14d8d359c602d39ef3adada4a4",
+      "generationId": "gen-1792260839-SC5BwG5vIJs46vDQf5Gf",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "resolvedModel": "deepseek/deepseek-v4.1-flash-20261017",
+      "provider": "DeepSeek",
+      "generationTimeMs": 15630,
+      "fetchedAt": "2026-10-17T18:17:52.050Z"
+    },
+    {
+      "video": "benchmark/media/recovery-r1-deepseek-v4-1-flash-1017-kinetic-type-1/video.mp4",
+      "sourceSha256": "26dde494906a9dc629edad9ff0d837a52a82033e267b2fceb9b7478a64d00757",
+      "generationId": "gen-1792260839-yWIhguKWp5JZucOIdJZ4",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "resolvedModel": "deepseek/deepseek-v4.1-flash-20261017",
+      "provider": "DeepSeek",
+      "generationTimeMs": 8754,
+      "fetchedAt": "2026-10-17T18:17:52.375Z"
+    },
+    {
+      "video": "benchmark/media/recovery-r1-deepseek-v4-1-flash-1017-kinetic-type-2/video.mp4",
+      "sourceSha256": "a9524c8448553e0f2f1bf1e49773a32c81d8f30e2a5c30df59e6d12730b531ff",
+      "generationId": "gen-1792260839-OPLVdnPmxfVyPUKv89n0",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "resolvedModel": "deepseek/deepseek-v4.1-flash-20261017",
+      "provider": "DeepSeek",
+      "generationTimeMs": 8859,
+      "fetchedAt": "2026-10-17T18:17:52.627Z"
+    },
+    {
+      "video": "benchmark/media/recovery-r1-deepseek-v4-1-flash-1017-data-story-2/video.mp4",
+      "sourceSha256": "ab2b22c0ec1876367a83c4339dbf0a789c102664a708b160f1dbbf102bd6adc4",
+      "generationId": "gen-1792260885-gQsCzdEei60s1Rp2ztzl",
+      "model": "deepseek/deepseek-v4.1-flash-1017",
+      "resolvedModel": "deepseek/deepseek-v4.1-flash-20261017",
+      "provider": "DeepSeek",
+      "generationTimeMs": 9559,
+      "fetchedAt": "2026-10-17T18:17:52.884Z"
     }
   ]
 }

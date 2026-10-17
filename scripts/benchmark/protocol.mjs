@@ -22,7 +22,7 @@ export const allModels = [...[...additions].reverse().flatMap((item) => item.mod
 export const additionResultsFile = (item) => path.join(root, `src/benchmark/${item.id === 'A1' ? 'addition-results' : `addition-${item.id.toLowerCase()}-results`}.json`);
 const localAsset = z.string().regex(/^benchmark\/media\/[a-z0-9-]+\/[a-z0-9-]+\.(mp4|jpg|tsx|json)$/);
 const scores = z.object(Object.fromEntries(protocol.rubric.map((criterion) => [criterion.id, z.number().min(1).max(5)]))).strict();
-const entrySchema = (models) => z.object({
+export const entrySchema = (models) => z.object({
   model: z.enum(models.map((model) => model.key)),
   brief: z.enum(protocol.briefs.map((brief) => brief.id)),
   run: z.number().int().min(1).max(protocol.runs),

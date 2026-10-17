@@ -11,6 +11,7 @@ import additionA2Data from './addition-a2-results.json';
 import additionA3Data from './addition-a3-results.json';
 import resultsData from './results.json';
 import recoveryData from './recovery.json';
+import additionA3RecoveryData from './addition-a3-recovery.json';
 import recoveryProtocol from './recovery-protocol.json';
 import timingsData from './timings.json';
 import contractData from './contract.json';
@@ -77,6 +78,7 @@ function ResultCard({model, entry, timing, base, run, brief}: {model: BenchmarkM
           {entry?.recovery && <><div><dt>Original outcome</dt><dd>Failed after {entry.recovery.originalAttempts} attempt{entry.recovery.originalAttempts === 1 ? '' : 's'}. {entry.recovery.originalError}</dd></div>
             <div><dt>Original API cost</dt><dd>{money(entry.recovery.originalCostUsd)}</dd></div>
             <div><dt>Additional repair cost</dt><dd>{money(entry.recovery.costUsd)}</dd></div>
+            {entry.recovery.note && <div><dt>Repair note</dt><dd>{entry.recovery.note}</dd></div>}
             <div><dt>Total attempts</dt><dd>{entry.attempts}</dd></div></>}
           {entry && <><div><dt>Provider</dt><dd>{entry.provider}</dd></div><div><dt>Generated</dt><dd>{entry.generatedAt}</dd></div></>}
         </dl>
@@ -91,7 +93,7 @@ function ResultCard({model, entry, timing, base, run, brief}: {model: BenchmarkM
   </article>;
 }
 
-export function BenchmarkPage({base = '/', edition = false, data = defaultResults, additions = defaultAdditions, recoveries = recoveryData as BenchmarkRecoveries, timings = timingsData as BenchmarkTimings}: {base?: string; edition?: boolean; data?: BenchmarkResults; additions?: Pick<BenchmarkAdditionResults, 'entries'>; recoveries?: BenchmarkRecoveries; timings?: BenchmarkTimings}) {
+export function BenchmarkPage({base = '/', edition = false, data = defaultResults, additions = defaultAdditions, recoveries = recoveryData as BenchmarkRecoveries, additionRecoveries = additionA3RecoveryData as BenchmarkRecoveries, timings = timingsData as BenchmarkTimings}: {base?: string; edition?: boolean; data?: BenchmarkResults; additions?: Pick<BenchmarkAdditionResults, 'entries'>; recoveries?: BenchmarkRecoveries; additionRecoveries?: BenchmarkRecoveries; timings?: BenchmarkTimings}) {
   const results = data;
   const [briefId, setBriefId] = useState(protocol.briefs[0].id);
   const [run, setRun] = useState(1);
@@ -100,9 +102,11 @@ export function BenchmarkPage({base = '/', edition = false, data = defaultResult
   const [copyError, setCopyError] = useState(false);
   const brief = protocol.briefs.find((item) => item.id === briefId)!;
   const completed = results.entries.length + additions.entries.length;
+  const repairOf = (list: BenchmarkRecoveries, entry: BenchmarkResult) => list.entries.find(item => item.model === entry.model && item.brief === entry.brief && item.run === entry.run);
   const entries = [...results.entries.filter((entry) => entry.brief === briefId && entry.run === run)
-    .map(entry => withRecovery(entry, recoveries.entries.find(item => item.model === entry.model && item.brief === entry.brief && item.run === entry.run))),
-    ...additions.entries.filter((entry) => entry.brief === briefId && entry.run === run)];
+    .map(entry => withRecovery(entry, repairOf(recoveries, entry))),
+    ...additions.entries.filter((entry) => entry.brief === briefId && entry.run === run)
+      .map(entry => withRecovery(entry, repairOf(additionRecoveries, entry)))];
   const findEntry = (key: string) => entries.find((entry) => entry.model === key);
   const models = [...allModels].sort((a, b) => {
     if (sort === 'name') return a.name.localeCompare(b.name);
@@ -194,7 +198,7 @@ export function BenchmarkPage({base = '/', edition = false, data = defaultResult
         <p className="benchmark-footnote">A curated selection across price tiers, not a popularity ranking. Empty entries are untested, not failed.</p>
         <p className="benchmark-footnote">Time to video is an estimate from prompt submission until the MP4 was ready. It adds every model response and render attempt, including repairs. It excludes waiting in the render queue and small file-handling overhead. <a href={`${base}benchmark/timings.json`}>OpenRouter timing records</a></p>
         {recoveries.entries.length > 0 && <p className="benchmark-footnote">Recovered entries show total API cost, including original attempts. The additional repair cost is itemized in run details. Recovery means the code compiled and rendered. It is not first-attempt success.</p>}
-        <p className="benchmark-footnote"><strong>Late additions:</strong> {additionList.map((item) => `${item.models.map((model) => model.name).join(', ')} (${shortDate(item.date)})`).join(' and ')} were added after the original ten models. They used the same protocol, briefs, token limit, renderer, and repair rule. They did not receive the R1 recovery pass.</p>
+        <p className="benchmark-footnote"><strong>Late additions:</strong> {additionList.map((item) => `${item.models.map((model) => model.name).join(', ')} (${shortDate(item.date)})`).join(', ')} were added after the original ten models. They used the same protocol, briefs, token limit, renderer, and repair rule. Argon and Muse rendered every run and needed no R1 recovery. DeepSeek V4.1 Flash 1017's five failed runs received the same R1 recovery pass as the original models, and are marked as recovered.</p>
       </section>
 
       <section id="methodology" className="benchmark-section">

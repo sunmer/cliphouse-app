@@ -4,8 +4,8 @@ import React from 'react';
 import {loadEnv} from 'vite';
 import {renderToString} from 'react-dom/server';
 import {BenchmarkPage} from '../src/benchmark/BenchmarkPage';
-import {addition, additionDigest, additionDigestOf, additionResultsFile, allModels, contract, digest, laterAdditions, loadAdditionResults, protocol, root, validateAddition, validateResults} from './benchmark/protocol.mjs';
-import {recoveryProtocol, validateRecovery} from './benchmark/recovery.mjs';
+import {addition, additionDigest, additionDigestOf, additionResultsFile, allModels, contract, digest, laterAdditions, loadAddition, loadAdditionResults, protocol, root, validateAddition, validateResults} from './benchmark/protocol.mjs';
+import {loadAdditionRecoveries, recoveredAdditions, recoveryProtocol, recoveryResultsFile, validateRecovery} from './benchmark/recovery.mjs';
 import {validateTimings} from './benchmark/timings.mjs';
 
 const dist = path.join(root, 'dist');
@@ -14,7 +14,8 @@ const results = validateResults(JSON.parse(fs.readFileSync(path.join(root, 'src/
 const a1 = validateAddition(JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/addition-results.json'), 'utf8')), results, path.join(root, 'public'));
 const additions = loadAdditionResults(results, path.join(root, 'public'));
 const recovery = validateRecovery(JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/recovery.json'), 'utf8')), results, path.join(root, 'public'));
-const timings = validateTimings(JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/timings.json'), 'utf8')), results, recovery, path.join(root, 'public'), additions);
+const additionRecoveries = loadAdditionRecoveries(path.join(root, 'public'), loadAddition, additionResultsFile);
+const timings = validateTimings(JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/timings.json'), 'utf8')), results, recovery, path.join(root, 'public'), {entries: [...additions.entries, ...additionRecoveries]});
 const ga = process.env.VITE_GA_MEASUREMENT_ID ?? loadEnv('production', root, 'VITE_').VITE_GA_MEASUREMENT_ID ?? '';
 const runCount = results.entries.length + additions.entries.length;
 const description = results.entries.length
@@ -51,6 +52,10 @@ for (const item of laterAdditions) {
   fs.writeFileSync(path.join(dist, `benchmark/${path.basename(file)}`), `${JSON.stringify({...data, addition: item, additionHash: additionDigestOf(item)}, null, 2)}\n`);
 }
 fs.writeFileSync(path.join(dist, 'benchmark/recovery.json'), `${JSON.stringify(recovery, null, 2)}\n`);
+for (const id of recoveredAdditions) {
+  const file = recoveryResultsFile(loadAddition(id));
+  if (fs.existsSync(file)) fs.copyFileSync(file, path.join(dist, `benchmark/${path.basename(file)}`));
+}
 fs.writeFileSync(path.join(dist, 'benchmark/recovery-protocol.json'), `${JSON.stringify(recoveryProtocol, null, 2)}\n`);
 fs.writeFileSync(path.join(dist, 'benchmark/timings.json'), `${JSON.stringify(timings, null, 2)}\n`);
 console.log('Prerendered benchmark and October edition, validated results, and exported protocol.');
