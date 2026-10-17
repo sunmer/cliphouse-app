@@ -1,197 +1,379 @@
 <!doctype html>
 <html lang="en" data-composition-variables='[]'>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=1920, height=1080" />
-  <script src="__ASSET_BASE__/gsap.min.js"></script>
-  <style>
-    __BASE_CSS__
-    :root { --w: 1920px; --h: 1080px; }
-    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .1em; margin-bottom:-.1em; }
-    .w { display:inline-block; }
-    .wrapfit { overflow-wrap:normal; text-wrap:balance; }
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920, height=1080">
+<title>Release Notes</title>
+<style>__BASE_CSS__
+:root { --w: 1920px; --h: 1080px; }
+#root { --count: 6; }
 
-    /* Scene 1: the editor, header left, document right */
-    .s1 { z-index:1; }
-    .brand { position:absolute; left:170px; top:120px; width:690px; height:64px; font-size:48px; line-height:1.25; white-space:nowrap; color:var(--theme-accent); }
-    .headline { position:absolute; left:170px; top:220px; width:690px; height:520px; font-size:156px; line-height:.95; align-content:center; color:var(--theme-foreground); }
-    .date { position:absolute; left:170px; top:780px; width:690px; height:120px; font-size:52px; line-height:1.1; align-content:end; color:var(--theme-accent2); }
-    .panel { position:absolute; left:940px; top:120px; width:860px; height:780px; background:var(--theme-surface); }
-    .gutter { position:absolute; left:0; top:0; width:8px; height:100%; background:var(--theme-accent2); transform-origin:50% 0%; transform:scaleY(0); }
-    .notes { position:absolute; left:48px; right:40px; top:40px; bottom:40px; display:flex; flex-direction:column; justify-content:center; --rh: min(300px, calc(700px / var(--count, 6))); }
-    .row { position:relative; flex:none; height:var(--rh); display:flex; align-items:center; }
-    .hl { position:absolute; left:-40px; right:-40px; top:6px; bottom:6px; background:color-mix(in srgb, var(--theme-accent2) 14%, transparent); transform-origin:0% 50%; transform:scaleX(0); }
-    .nummask { position:relative; display:block; flex:none; width:72px; overflow:hidden; font-size:clamp(28px, calc(var(--rh) * .2), 40px); line-height:1.2; color:var(--theme-foreground); opacity:.45; }
-    .num { display:block; }
-    .plus { position:relative; flex:none; width:28px; height:28px; margin-right:30px; }
-    .plus::before, .plus::after { content:""; position:absolute; background:var(--theme-accent2); }
-    .plus::before { left:0; top:11px; width:28px; height:6px; }
-    .plus::after { left:11px; top:0; width:6px; height:28px; }
-    .rtext { position:relative; flex:1; min-width:0; height:calc(var(--rh) - 14px); font-size:44px; line-height:1.1; font-weight:500; align-content:center; color:var(--theme-foreground); }
+/* Page furniture: the thin rule system and the thumb index strip. */
+.strip { position: absolute; left: 96px; top: 172px; width: 168px; height: 744px; background: var(--theme-surface); }
+.hr { position: absolute; left: 96px; width: 1728px; height: 2px; background: var(--theme-foreground); }
+.hr-top { top: 158px; }
+.hr-bot { top: 932px; }
+.vr-index { position: absolute; left: 263px; top: 172px; width: 1px; height: 744px; background: color-mix(in srgb, var(--theme-foreground) 35%, transparent); }
+.vr-margin { position: absolute; left: 1563px; top: 312px; width: 2px; height: 604px; background: color-mix(in srgb, var(--theme-foreground) 55%, transparent); }
 
-    /* Scene 2: the surface floods out from the diff gutter */
-    .s2 { z-index:2; background:var(--theme-surface); clip-path:inset(120px 980px 180px 940px); }
-    .headline2 { position:absolute; left:120px; top:150px; width:1680px; height:220px; font-size:170px; line-height:1.1; white-space:nowrap; color:var(--theme-foreground); }
-    .rule { position:absolute; left:120px; top:770px; width:1680px; height:6px; background:var(--theme-accent2); transform-origin:0% 50%; transform:scaleX(0); }
-    .brand2 { position:absolute; left:120px; top:806px; width:700px; height:70px; font-size:52px; line-height:1.25; white-space:nowrap; color:var(--theme-accent2); }
-    .date2 { position:absolute; left:860px; top:806px; width:940px; height:70px; font-size:52px; line-height:1.25; white-space:nowrap; text-align:right; color:var(--theme-foreground); }
+/* Word masks. */
+.wmask { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .12em; margin-bottom: -.12em; }
+.w { display: inline-block; }
 
-    /* Loop reset: the empty editor of frame 0 */
-    .wipe { position:absolute; inset:0; z-index:3; background:var(--theme-background); clip-path:circle(0px at 129px 480px); }
-    .wpanel { position:absolute; left:940px; top:120px; width:860px; height:780px; background:var(--theme-surface); }
+/* Roles. Brand and date hug their text so their boxes never leave the frame when scaled. */
+.brand { position: absolute; left: 96px; top: 88px; max-width: 480px; height: 56px; line-height: 56px; white-space: nowrap; overflow: hidden; font-weight: 700; color: var(--theme-foreground); }
+.date { position: absolute; right: 96px; top: 90px; max-width: 720px; height: 52px; line-height: 52px; white-space: nowrap; overflow: hidden; font-weight: 500; color: color-mix(in srgb, var(--theme-foreground) 78%, transparent); }
+.headline { position: absolute; left: 300px; top: 300px; width: 1240px; height: 370px; overflow: hidden; font-weight: 780; line-height: 1.0; letter-spacing: -0.02em; color: var(--theme-foreground); }
+.cta { position: absolute; left: 300px; top: 540px; width: 1460px; height: 140px; line-height: 140px; white-space: nowrap; overflow: hidden; font-weight: 650; letter-spacing: -0.01em; color: var(--theme-background); }
 
-    /* Build rail: lives above both scenes, so it carries the build into the end screen */
-    .rail { position:absolute; left:120px; top:956px; width:1680px; height:12px; z-index:4; display:grid; grid-template-columns:repeat(var(--steps, 12), 1fr); gap:12px; }
-    .seg { position:relative; background:color-mix(in srgb, var(--theme-foreground) 16%, transparent); }
-    .seg i { position:absolute; inset:0; background:var(--theme-accent2); transform-origin:0% 50%; transform:scaleX(0); }
+/* Parallel columns share the row geometry so index, clause, callouts and marks align. */
+.col { position: absolute; top: 312px; height: 604px; display: flex; flex-direction: column; justify-content: center; --rh: min(220px, calc(604px / var(--count, 1))); }
+.col-index { left: 96px; width: 168px; }
+.col-list { left: 300px; width: 1240px; }
+.col-notes { left: 1600px; width: 224px; }
+.col-marks { left: 1556px; width: 16px; }
 
-    /* The caret: one block for the whole loop */
-    .caret { position:absolute; left:120px; top:430px; width:1680px; height:250px; z-index:5; background:var(--theme-accent); transform-origin:0 0; transform:translate(0px, -25px) scale(0.0107143, 0.6); }
-    .ctalayer { position:absolute; inset:0; z-index:6; pointer-events:none; }
-    .cta { position:absolute; left:200px; top:455px; width:1540px; height:200px; font-size:150px; line-height:1.1; font-weight:700; white-space:nowrap; align-content:center; color:var(--theme-background); --cur:0; }
-    .cta::after { content:""; display:inline-block; vertical-align:top; width:.5em; height:.78em; margin:.17em 0 0 .14em; background:var(--theme-background); opacity:var(--cur); }
-  </style>
+.row { position: relative; flex: none; height: var(--rh); display: flex; align-items: center; }
+.ltext { width: 1240px; max-height: calc(var(--rh) - 18px); overflow: hidden; font-weight: 600; line-height: 1.08; letter-spacing: -0.01em; color: var(--theme-foreground); }
+.rule { position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: color-mix(in srgb, var(--theme-foreground) 30%, transparent); }
+.ink { position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: var(--theme-accent); }
+
+.idx { flex: none; height: var(--rh); display: flex; align-items: center; padding-left: 28px; }
+.imask { display: inline-block; overflow: hidden; font-size: 40px; line-height: 1.2; font-weight: 650; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--theme-foreground) 60%, transparent); }
+.imask span { display: inline-block; }
+.idx[data-on="1"] .imask { color: var(--theme-background); }
+
+/* Callouts: an italic clause mark with a leader that reaches back to the clause. */
+.lead { position: absolute; height: 2px; background: var(--theme-accent2); }
+.lead::before { content: ""; position: absolute; left: -5px; top: -4px; width: 10px; height: 10px; background: var(--theme-accent2); }
+.note { flex: none; position: relative; height: var(--rh); }
+.nmask { position: absolute; left: 0; overflow: hidden; padding: .06em 0 .14em; line-height: 1; }
+.note-lab { display: inline-block; font-size: 44px; line-height: 1; font-style: italic; font-weight: 500; color: var(--theme-accent2); white-space: nowrap; }
+.tnote { position: absolute; left: 1600px; top: 0; width: 224px; height: 0; }
+
+.mark { flex: none; height: var(--rh); display: flex; align-items: center; justify-content: center; }
+.mark i { display: block; width: 16px; height: 16px; background: var(--theme-accent2); }
+
+.tally { position: absolute; left: 300px; top: 942px; height: 56px; overflow: hidden; }
+.tally-in { display: inline-block; font-size: 40px; line-height: 56px; font-style: italic; font-weight: 500; white-space: nowrap; color: color-mix(in srgb, var(--theme-foreground) 80%, transparent); }
+
+.folio { position: absolute; right: 96px; top: 946px; width: 140px; height: 64px; overflow: hidden; }
+.folio-stack span { display: block; height: 64px; line-height: 64px; text-align: right; font-size: 56px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--theme-foreground); }
+
+/* The carrier: one accent block driven by transforms (y = top, scaleY = height / 100, scaleX = width / 168). */
+.tab { position: absolute; left: 96px; top: 0; width: 168px; height: 100px; background: var(--theme-accent); transform-origin: 0 0; }
+.bandrule { position: absolute; left: 300px; top: 700px; width: 1460px; height: 3px; background: var(--theme-background); }
+
+.annot { position: absolute; left: 300px; top: 730px; width: 320px; height: 100px; }
+.annot-lead { position: absolute; left: 0; top: 0; width: 2px; height: 58px; background: var(--theme-accent2); }
+.annot-dot { position: absolute; left: -4px; top: 0; width: 10px; height: 10px; background: var(--theme-accent2); }
+.annot .nmask { left: 24px; top: 18px; }
+</style>
 </head>
 <body>
-  <div id="root" data-composition-id="main" data-start="0" data-duration="12" data-width="1920" data-height="1080">
-    <section id="releasenotes-doc" class="scene s1" data-start="0" data-duration="12" data-track-index="0">
-      <div class="brand mono" data-fit-max="48" data-fit-min="32" data-text-role="brand" data-beat-text="brand">Brand</div>
-      <div class="headline display wrapfit" data-fit-max="156" data-fit-min="44" data-text-role="headline" data-beat-text="headline">Headline</div>
-      <div class="date mono wrapfit" data-fit-max="52" data-fit-min="34" data-text-role="date" data-beat-text="date">Date</div>
-      <div class="panel">
-        <div class="gutter"></div>
-        <div class="notes" data-list>
-          <template data-list-row>
-            <div class="row">
-              <div class="hl" data-list-part="highlight" data-list-align="y"></div>
-              <span class="nummask mono"><span class="num" data-list-number data-list-part="number" data-list-align="y">01</span></span>
-              <span class="plus" data-list-part="marker" data-list-align="y"></span>
-              <div class="rtext mono wrapfit" data-list-text data-words data-fit-max="44" data-fit-min="32"></div>
-            </div>
-          </template>
-        </div>
-      </div>
-    </section>
-    <section id="releasenotes-end" class="scene s2" data-start="0" data-duration="12" data-track-index="1">
-      <div class="headline2 display" data-fit-max="170" data-fit-min="60" data-text-role="headline" data-beat-text="headline">Headline</div>
-      <div class="rule"></div>
-      <div class="brand2 mono" data-fit-max="52" data-fit-min="32" data-text-role="brand" data-beat-text="brand">Brand</div>
-      <div class="date2 mono" data-fit-max="52" data-fit-min="32" data-text-role="date" data-beat-text="date">Date</div>
-    </section>
-    <div class="wipe" data-layout-allow-overflow><div class="wpanel"></div></div>
-    <div class="rail"></div>
-    <div class="caret" data-layout-allow-overflow></div>
-    <div class="ctalayer">
-      <div class="cta mono" data-fit-max="150" data-fit-min="64" data-text-role="cta" data-beat-text="cta">CTA</div>
-    </div>
+<div id="root" data-composition-id="main" data-start="0" data-duration="12" data-width="1920" data-height="1080">
+  <div class="strip"></div>
+  <i class="hr hr-top"></i>
+  <i class="hr hr-bot"></i>
+  <i class="vr-index"></i>
+  <i id="marginRule" class="vr-margin"></i>
+
+  <div id="tab" class="tab"></div>
+
+  <div id="index" class="col col-index"></div>
+  <div id="list" class="col col-list" data-list>
+    <template data-list-row><div class="row"><div class="ltext fit" data-list-text data-words data-fit-max="80" data-fit-min="40"></div><i class="rule" data-list-part="rule" data-list-group="scaffold"></i><i class="ink" data-list-part="ink"></i></div></template>
   </div>
-  <script>__BASE_JS__</script>
-  <script>__BEAT_JS__</script>
-  <script>
-    const tl = gsap.timeline({paused: true});
-    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
-      const B = (n) => m.at(n);
-      const t = (id) => m.cue(id);
-      const cueBeat = (id) => m.score.cues.find((c) => c.id === id).beat;
-      const q = (s) => document.querySelector(s);
-      const qa = (s) => [...document.querySelectorAll(s)];
+  <div id="notes" class="col col-notes"></div>
+  <div id="marks" class="col col-marks"></div>
 
-      // Words rise through masks on eighth notes; later words share the last slot.
-      const words = (el, start, cap = 1) => m.spans(el).forEach((w, i) =>
-        tl.fromTo(w, {yPercent: 120}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, start + Math.min(i, cap) * B(0.5)));
-      const out = (el, at) => tl.to(m.spans(el), {yPercent: -120, duration: B(0.5), ease: 'power3.in'}, at);
+  <div class="tally"><span id="tallyIn" class="serif tally-in"></span></div>
+  <div class="folio"><div id="folioStack" class="folio-stack"></div></div>
 
-      // Reflow the notes per count: fewer notes get larger type, then refit.
-      const n = m.items.length;
-      const fitMax = [44, 76, 68, 60, 54, 48, 44][n] || 44;
-      qa('.notes .rtext').forEach((el) => { el.dataset.fitMax = String(fitMax); });
-      window.cliphouseFitText?.();
+  <div id="tnote" class="tnote"><i id="tLead" class="lead"></i><span id="tMask" class="nmask" style="top:-27px"><span id="tLab" class="serif note-lab">§&nbsp;1</span></span></div>
+  <div id="annot" class="annot"><i id="annotLead" class="annot-lead"></i><i id="annotDot" class="annot-dot"></i><span class="nmask"><span id="annotLab" class="serif note-lab">§&nbsp;2</span></span></div>
 
-      // Build rail: one segment per beat of the list scene, from the score.
-      const rail = q('.rail');
-      rail.textContent = '';
-      const steps = m.score.scenes[1].bars * 4;
-      rail.style.setProperty('--steps', String(steps));
-      for (let i = 0; i < steps; i++) {
-        const seg = document.createElement('div');
-        seg.className = 'seg';
-        seg.append(document.createElement('i'));
-        rail.append(seg);
-      }
-      const fills = qa('.rail .seg i');
+  <div id="brand" class="brand" data-text-role="brand" data-beat-text="brand" data-fit-max="44" data-fit-min="26"></div>
+  <div id="date" class="date" data-text-role="date" data-beat-text="date" data-fit-max="40" data-fit-min="26"></div>
+  <div id="headline" class="headline fit" data-text-role="headline" data-beat-text="headline" data-fit-max="176" data-fit-min="96"></div>
+  <div id="cta" class="cta" data-text-role="cta" data-beat-text="cta" data-fit-max="120" data-fit-min="56"></div>
+  <i id="bandRule" class="bandrule"></i>
+</div>
+<script src="__ASSET_BASE__/gsap.min.js"></script>
+<script>__BASE_JS__</script>
+<script>__BEAT_JS__</script>
+<script>
+(() => {
+  const tl = gsap.timeline({paused: true});
+  const FOLIO = 64;
+  const TAB_W = 168, TAB_H = 100;
+  const PAGE_TOP = 172, PAGE_H = 744, PAGE_W = 1728, PAGE_R = 1824;
+  const COL_X = 300, MARGIN_X = 1600, LEAD_END = MARGIN_X - 14;
+  const HEAD_TOP = 300, HEADING_TOP = 190;
+  const BAND_TOP = 490, BAND_H = 240;
+  const DATE_TOP = 90, DATE_LINE = 52, DATE_SCALE = 1.5, DATE_END_TOP = 762;
+  const BRAND_TOP = 88, BRAND_LEFT = 96, BRAND_LINE = 56;
+  const tabAt = (top, h) => ({y: top, scaleY: h / TAB_H});
+  const COVER = {scaleX: PAGE_W / TAB_W, ...tabAt(PAGE_TOP, PAGE_H)};
 
-      // The caret: frame 0 and the last frame share this pose, centered on the headline slot.
-      const caret = q('.caret');
-      const CW = 1680, CH = 250;
-      const CARET = {x: 0, y: -25, scaleX: 18 / CW, scaleY: 150 / CH};
-      tl.set(caret, {transformOrigin: '0 0', ...CARET}, 0);
+  // Line geometry of word masks, relative to the element's offset parent.
+  const lineInfo = (el) => {
+    const ms = el ? [...el.querySelectorAll('.wmask')] : [];
+    if (!ms.length) return {count: 1, firstEnd: 0, firstMid: 0, lastEnd: 0, lastMid: 0, minLeft: 0};
+    const tops = [...new Set(ms.map((x) => x.offsetTop))].sort((a, b) => a - b);
+    const on = (t) => ms.filter((x) => x.offsetTop === t);
+    const end = (arr) => Math.max(...arr.map((x) => x.offsetLeft + x.offsetWidth));
+    const mid = (arr) => arr[0].offsetTop + arr[0].offsetHeight * 0.45;
+    const first = on(tops[0]), last = on(tops[tops.length - 1]);
+    return {count: tops.length, firstEnd: end(first), firstMid: mid(first), lastEnd: end(last), lastMid: mid(last), minLeft: Math.min(...ms.map((x) => x.offsetLeft))};
+  };
+  // A leader from the margin back to x = tip, at height top inside its callout.
+  const placeLead = (el, tip, top) => {
+    const left = Math.min(tip, LEAD_END - 24);
+    el.style.left = (left - MARGIN_X) + 'px';
+    el.style.width = (LEAD_END - left) + 'px';
+    el.style.top = (top - 1) + 'px';
+  };
 
-      // Beat 0: brand. Beat 1: headline rises, the caret grows into the full headline bar.
-      words(q('.s1 .brand'), t('brand'));
-      words(q('.s1 .headline'), t('headline'), 2);
-      tl.to(caret, {y: -210, scaleY: 520 / CH, duration: B(0.75), ease: 'expo.out'}, t('headline'));
+  CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+    const $ = (id) => document.getElementById(id);
+    const T = (b) => m.at(b);
+    const C = (id) => m.cue(id);
+    const n = m.items.length;
+    const BEATS = Math.round(m.duration / m.at(1));
+    $('root').style.setProperty('--count', String(Math.max(1, n)));
 
-      // Beat 2: the date rises in one move, still before the scene focus.
-      words(q('.s1 .date'), t('date'), 0);
+    const brand = $('brand'), date = $('date'), headline = $('headline'), cta = $('cta'), tab = $('tab');
+    const dateWords = m.spans(date), headWords = m.spans(headline), ctaWords = m.spans(cta);
+    const marginRule = $('marginRule'), tallyIn = $('tallyIn'), bandRule = $('bandRule');
+    const annotLead = $('annotLead'), annotDot = $('annotDot'), annotLab = $('annotLab');
+    const tnote = $('tnote'), tLead = $('tLead'), tLab = $('tLab');
+    const folio = $('folioStack');
 
-      // Beat 3: the diff gutter draws down the document.
-      tl.fromTo('.gutter', {scaleY: 0}, {scaleY: 1, duration: B(0.75), ease: 'expo.out'}, t('gutter'));
+    // Clauses: one shared size, the smallest any clause needed, so the spec reads as one typeset column.
+    const listEl = $('list');
+    const rows = m.items.map((it) => m.row(it.index));
+    const texts = rows.map((r) => r.querySelector('[data-list-text]'));
+    const sizes = texts.map((t) => parseFloat(t.style.fontSize) || parseFloat(getComputedStyle(t).fontSize));
+    const clauseSize = sizes.length ? Math.min(...sizes) : 80;
+    texts.forEach((t) => { t.style.fontSize = clauseSize + 'px'; });
+    const rowWords = texts.map((t) => m.spans(t));
+    const allRowWords = rowWords.flat();
+    const rules = rows.map((r) => r.querySelector('.rule'));
+    const inks = rows.map((r) => r.querySelector('.ink'));
+    const rowTop = rows.map((r) => listEl.offsetTop + r.offsetTop);
+    const rowH = rows.map((r) => r.offsetHeight);
+    const clauseLine = texts.map((t) => lineInfo(t));
 
-      // Each beat of the list scene lights one rail segment; the last lands on "shipped".
-      fills.forEach((fill, i) => {
-        const at = i === steps - 1 ? t('shipped') : m.scene(1, i);
-        tl.fromTo(fill, {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, at);
-      });
-
-      // Notes commit: highlight, marker, number, words; the highlight settles back out.
-      m.items.forEach((it) => {
-        const row = q(`.notes [data-list-item="${it.index}"]`);
-        if (!row) return;
-        const hl = row.querySelector('.hl');
-        tl.fromTo(hl, {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, it.start);
-        tl.to(hl, {scaleX: 0, duration: B(0.75), ease: 'power3.inOut'}, it.start + B(1.5));
-        tl.fromTo(row.querySelector('.num'), {yPercent: 110}, {yPercent: 0, duration: B(0.5), ease: 'expo.out'}, it.start);
-        tl.fromTo(row.querySelector('.plus'), {scale: 0, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, it.start);
-        words(row.querySelector('.rtext'), it.start, 1);
-      });
-
-      // Beat 16: the surface floods out from the gutter line; the caret drops to the command line.
-      tl.fromTo('.s2', {clipPath: 'inset(120px 980px 180px 940px)'}, {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.6), ease: 'power3.out'}, t('flood'));
-      tl.set('.s1', {visibility: 'hidden'}, t('flood') + B(0.75));
-      tl.to(caret, {y: 0, scaleY: 1, duration: B(0.75), ease: 'expo.out'}, t('flood'));
-
-      // Beat 17: the caret sweeps open into the CTA bar; the command rises.
-      const cta = q('.cta');
-      tl.to(caret, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('ctaStamp'));
-      words(cta, t('ctaStamp'), 1);
-
-      // Beats 18-20: headline, then brand and date, then the rule.
-      words(q('.s2 .headline2'), t('endHeadline'), 2);
-      words(q('.s2 .brand2'), t('endBrand'), 0);
-      words(q('.s2 .date2'), t('endBrand'), 0);
-      tl.fromTo('.rule', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('rule'));
-
-      // The terminal cursor blinks: on at every whole beat, off at every half beat.
-      for (let b = cueBeat('ctaStamp') + 1, k = 0; b < cueBeat('collapse'); b += 0.5, k++) {
-        tl.set(cta, {'--cur': k % 2 ? 0 : 1}, B(b));
-      }
-
-      // Beat 22: text exits up, the rule retracts, the lit rail drains back to dim.
-      out(cta, t('collapse'));
-      out(q('.s2 .headline2'), t('collapse'));
-      out(q('.s2 .brand2'), t('collapse'));
-      out(q('.s2 .date2'), t('collapse'));
-      tl.set(cta, {'--cur': 0}, t('collapse'));
-      tl.to('.rule', {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.5), ease: 'power3.in'}, t('collapse'));
-      tl.to(fills, {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.5), ease: 'power3.in'}, t('collapse'));
-
-      // Beat 23: the bar folds back into the caret while the empty editor floods out from it.
-      tl.to(caret, {...CARET, duration: B(0.75), ease: 'expo.out'}, t('loopFold'));
-      tl.fromTo('.wipe', {clipPath: 'circle(0px at 129px 480px)'},
-        {clipPath: 'circle(1960px at 129px 480px)', duration: B(0.6), ease: 'power3.out'}, t('loopFold'));
+    // Running index: scaffold numerals in the thumb strip, reversed out when the tab sits on them.
+    const idx = m.parts($('index'), 'index', (it) => {
+      const d = document.createElement('div');
+      d.className = 'idx';
+      d.dataset.listGroup = 'scaffold';
+      d.dataset.listAlign = 'y';
+      const mask = document.createElement('span');
+      mask.className = 'imask';
+      const s = document.createElement('span');
+      s.textContent = '1.' + (it.index + 1);
+      mask.append(s);
+      d.append(mask);
+      return d;
     });
-    window.__timelines = window.__timelines || {};
-    window.__timelines.main = tl;
-  </script>
+    const idxNums = idx.map((d) => d.querySelector('.imask span'));
+
+    // Margin callouts: an italic clause mark whose leader reaches back to the clause's last word.
+    const notes = m.parts($('notes'), 'note', (it) => {
+      const L = clauseLine[it.index];
+      const d = document.createElement('div');
+      d.className = 'note';
+      d.dataset.listAlign = 'y';
+      const lead = document.createElement('i');
+      lead.className = 'lead';
+      placeLead(lead, COL_X + L.lastEnd + 22, L.lastMid);
+      const mask = document.createElement('span');
+      mask.className = 'nmask';
+      mask.style.top = (L.lastMid - 27) + 'px';
+      const lab = document.createElement('span');
+      lab.className = 'serif note-lab';
+      lab.textContent = '§\u00a01.' + (it.index + 1);
+      mask.append(lab);
+      d.append(lead, mask);
+      return d;
+    });
+    const noteLeads = notes.map((d) => d.querySelector('.lead'));
+    const noteLabs = notes.map((d) => d.querySelector('.note-lab'));
+
+    // Finale proof marks on the margin rule, one beside every clause.
+    const marks = m.parts($('marks'), 'mark', () => {
+      const d = document.createElement('div');
+      d.className = 'mark';
+      d.dataset.listGroup = 'finale';
+      d.dataset.listAlign = 'y';
+      d.append(document.createElement('i'));
+      return d;
+    });
+    const markDots = marks.map((d) => d.firstElementChild);
+
+    // Folio: one page per beat, ending on 00 so the loop closes.
+    folio.textContent = '';
+    for (let p = 0; p <= BEATS; p++) {
+      const s = document.createElement('span');
+      s.textContent = String(p === BEATS ? 0 : p).padStart(2, '0');
+      folio.append(s);
+    }
+    tallyIn.textContent = n > 1 ? '§\u00a01.1 – 1.' + n : '§\u00a01.1';
+
+    // Title block: headline plus date, centred in the page area.
+    const headFs = parseFloat(headline.style.fontSize) || 176;
+    const H = lineInfo(headline);
+    const headTextH = H.count * headFs;
+    const groupH = headTextH + 24 + DATE_LINE * DATE_SCALE;
+    const groupTop = Math.round(PAGE_TOP + (PAGE_H - groupH) / 2);
+    const headTitle = {y: groupTop - HEAD_TOP, scale: 1};
+    const hs = Math.min(0.5, 110 / headTextH);
+    const headingH = headTextH * hs;
+    const headHeading = {y: HEADING_TOP - HEAD_TOP, scale: hs};
+    const dateBoxW = date.offsetWidth;
+    const dateTitle = {x: COL_X - (PAGE_R - dateBoxW), y: groupTop + headTextH + 24 - DATE_TOP, scale: DATE_SCALE};
+    const dateEnd = {x: 0, y: DATE_END_TOP - DATE_TOP, scale: 1};
+    const titleMid = groupTop + H.firstMid;
+    const headingMid = HEADING_TOP + headingH / 2;
+    placeLead(tLead, COL_X + H.firstEnd + 32, 0);
+
+    // Brand hero above the install band.
+    const brandFs = parseFloat(brand.style.fontSize) || 44;
+    const brandBoxW = Math.max(1, brand.offsetWidth);
+    const bs = Math.min(150 / brandFs, (PAGE_R - COL_X) / brandBoxW);
+    const brandHero = {x: COL_X - BRAND_LEFT, y: (BAND_TOP - 40 - BRAND_LINE * bs) - BRAND_TOP, scale: bs};
+
+    // ---------- Frame 0 state (also the loop state): the accent cover fills the page ----------
+    tl.set(tab, {transformOrigin: '0% 0%', x: 0, ...COVER}, 0);
+    tl.set(headline, {transformOrigin: '0% 0%', height: headTextH + Math.round(headFs * 0.12), ...headTitle}, 0);
+    tl.set([...dateWords, ...headWords, ...ctaWords, ...allRowWords, ...idxNums, ...noteLabs, tallyIn, annotLab, tLab], {yPercent: 105}, 0);
+    tl.set(brand, {transformOrigin: '0% 0%', x: 0, y: 0, scale: 1}, 0);
+    tl.set(date, {transformOrigin: '0% 0%', ...dateTitle}, 0);
+    tl.set(cta, {transformOrigin: '0% 50%', scale: 1.08}, 0);
+    tl.set(idx, {autoAlpha: 0, attr: {'data-on': '0'}}, 0);
+    tl.set([...rules, ...inks], {scaleX: 0, transformOrigin: '0% 50%'}, 0);
+    tl.set(noteLeads, {scaleX: 0, transformOrigin: '100% 50%'}, 0);
+    tl.set(notes, {autoAlpha: 0}, 0);
+    tl.set(marks, {autoAlpha: 0}, 0);
+    tl.set(markDots, {scale: 0}, 0);
+    tl.set(marginRule, {scaleY: 0, transformOrigin: '50% 0%'}, 0);
+    tl.set(bandRule, {scaleX: 0, transformOrigin: '0% 50%'}, 0);
+    tl.set(annotLead, {scaleY: 0, transformOrigin: '50% 0%'}, 0);
+    tl.set(annotDot, {scale: 0, y: 0}, 0);
+    tl.set(tnote, {y: titleMid}, 0);
+    tl.set(tLead, {scaleX: 0, transformOrigin: '100% 50%'}, 0);
+    tl.set(folio, {y: 0}, 0);
+
+    // ---------- Folio: a page turns on every beat ----------
+    for (let b = 0; b < BEATS; b++) tl.to(folio, {y: -(b + 1) * FOLIO, duration: 0.3, ease: 'power3.out'}, T(b));
+
+    // ---------- Scene 0: the cover folds into the thumb tab, the title is set ----------
+    tl.to(tab, {scaleX: 1, ...tabAt(groupTop, headTextH), duration: 0.45, ease: 'expo.out'}, C('open'));
+    tl.to(headWords, {yPercent: 0, duration: 0.5, ease: 'expo.out', stagger: 0.06}, C('headline'));
+    tl.to(dateWords, {yPercent: 0, duration: 0.45, ease: 'expo.out', stagger: 0.05}, C('date'));
+    tl.to(tLead, {scaleX: 1, duration: 0.4, ease: 'expo.out'}, C('titleNote'));
+    tl.to(tLab, {yPercent: 0, duration: 0.4, ease: 'expo.out'}, C('titleNote'));
+
+    // ---------- Scene 1: the specification ----------
+    tl.to(headline, {...headHeading, duration: 0.5, ease: 'power3.inOut'}, C('section'));
+    tl.to(date, {x: 0, y: 0, scale: 1, duration: 0.5, ease: 'power3.inOut'}, C('section'));
+    tl.to(tab, {...tabAt(HEADING_TOP, headingH), duration: 0.45, ease: 'expo.out'}, C('section'));
+    tl.to(tLead, {scaleX: 0, duration: 0.25, ease: 'power3.in'}, C('section'));
+    tl.to(tnote, {y: headingMid, duration: 0.5, ease: 'power3.inOut'}, C('section'));
+    tl.set(idx, {autoAlpha: 1}, C('section'));
+    tl.to(idxNums, {yPercent: 0, duration: 0.4, ease: 'expo.out', stagger: 0.04}, C('section') + 0.15);
+    tl.to(rules, {scaleX: 1, duration: 0.5, ease: 'expo.out', stagger: 0.04}, C('section'));
+    tl.to(marginRule, {scaleY: 1, duration: 0.5, ease: 'expo.out'}, C('margin'));
+
+    m.items.forEach((it, i) => {
+      tl.to(tab, {...tabAt(rowTop[i] + 8, rowH[i] - 16), duration: 0.35, ease: 'expo.out'}, it.start);
+      tl.set(idx[i], {attr: {'data-on': '1'}}, it.start + 0.05);
+      if (i) tl.set(idx[i - 1], {attr: {'data-on': '0'}}, it.start + 0.05);
+      tl.to(rowWords[i], {yPercent: 0, duration: 0.45, ease: 'expo.out', stagger: 0.04}, it.start);
+      tl.to(inks[i], {scaleX: 1, duration: 0.5, ease: 'expo.out'}, it.accent);
+      tl.set(notes[i], {autoAlpha: 1}, it.accent);
+      tl.to(noteLeads[i], {scaleX: 1, duration: 0.35, ease: 'expo.out'}, it.accent);
+      tl.to(noteLabs[i], {yPercent: 0, duration: 0.4, ease: 'expo.out'}, it.accent);
+      if (i) {
+        tl.to(noteLeads[i - 1], {scaleX: 0, duration: 0.25, ease: 'power3.in'}, it.accent);
+        tl.to(notes[i - 1], {opacity: 0.55, duration: 0.25, ease: 'power2.out'}, it.accent);
+      }
+    });
+
+    tl.to(tallyIn, {yPercent: 0, duration: 0.4, ease: 'expo.out'}, C('tally'));
+    tl.set(marks, {autoAlpha: 1}, C('marks'));
+    tl.to(markDots, {scale: 1, duration: 0.35, ease: 'back.out(1.2)', stagger: 0.05}, C('marks'));
+    if (n) tl.to(noteLeads[n - 1], {scaleX: 0, duration: 0.25, ease: 'power3.in'}, C('marks'));
+    tl.to(tab, {...tabAt(PAGE_TOP, PAGE_H), duration: 0.45, ease: 'expo.out'}, C('select'));
+    tl.set(idx, {attr: {'data-on': '1'}}, C('select') + 0.05);
+
+    tl.to([...noteLabs, tLab], {yPercent: 105, duration: 0.3, ease: 'power3.in', stagger: 0.03}, C('turn'));
+    tl.to(markDots, {scale: 0, duration: 0.25, ease: 'power3.in'}, C('turn'));
+    tl.set(marginRule, {transformOrigin: '50% 100%'}, C('turn'));
+    tl.to(marginRule, {scaleY: 0, duration: 0.35, ease: 'power3.in'}, C('turn'));
+    tl.to(tallyIn, {yPercent: 105, duration: 0.3, ease: 'power3.in'}, C('turn'));
+
+    tl.set([...notes, ...marks], {autoAlpha: 0}, C('exit'));
+    rowWords.forEach((w, i) => tl.to(w, {yPercent: -105, duration: 0.3, ease: 'power3.in'}, C('exit') + i * 0.03));
+    tl.to(headWords, {yPercent: -105, duration: 0.3, ease: 'power3.in', stagger: 0.03}, C('exit'));
+    tl.to(idxNums, {yPercent: -105, duration: 0.3, ease: 'power3.in', stagger: 0.03}, C('exit'));
+    tl.set(idx, {autoAlpha: 0, attr: {'data-on': '0'}}, C('exit') + 0.45);
+    tl.set([...rules, ...inks], {transformOrigin: '100% 50%'}, C('exit'));
+    tl.to([...rules, ...inks], {scaleX: 0, duration: 0.35, ease: 'power3.in'}, C('exit'));
+    tl.to(tab, {...tabAt(BAND_TOP, BAND_H), duration: 0.4, ease: 'power3.inOut'}, C('exit'));
+
+    // ---------- Scene 2: the install band ----------
+    tl.to(tab, {scaleX: PAGE_W / TAB_W, duration: T(2 / 3), ease: 'expo.out'}, C('extend'));
+    tl.to(ctaWords, {yPercent: 0, duration: 0.3, ease: 'power4.out', stagger: 0.04}, C('ctaStamp'));
+    tl.to(cta, {scale: 1, duration: 0.4, ease: 'back.out(1.2)'}, C('ctaStamp'));
+    tl.to(brand, {...brandHero, duration: 0.55, ease: 'power3.inOut'}, C('brand'));
+    tl.to(annotLead, {scaleY: 1, duration: 0.3, ease: 'expo.out'}, C('annotate'));
+    tl.to(annotDot, {scale: 1, duration: 0.2, ease: 'power3.out'}, C('annotate'));
+    tl.to(annotLab, {yPercent: 0, duration: 0.4, ease: 'expo.out'}, C('annotate'));
+    tl.to(annotDot, {y: 46, duration: C('fold') - (C('annotate') + T(0.5)), ease: 'none'}, C('annotate') + T(0.5));
+
+    // The date leaves the running head and lands under the band.
+    tl.to(dateWords, {yPercent: -105, duration: 0.2, ease: 'power3.in', stagger: 0.02}, C('dateDrop') - T(0.5));
+    tl.set(dateWords, {yPercent: 105}, C('dateDrop') - 0.02);
+    tl.set(date, dateEnd, C('dateDrop') - 0.02);
+    tl.to(dateWords, {yPercent: 0, duration: 0.4, ease: 'expo.out', stagger: 0.04}, C('dateDrop'));
+
+    tl.to(bandRule, {scaleX: 1, duration: 0.5, ease: 'expo.out'}, C('rule'));
+
+    // ---------- Fold: the band grows back into the cover ----------
+    tl.to(ctaWords, {yPercent: 105, duration: 0.3, ease: 'power3.in', stagger: 0.02}, C('fold'));
+    tl.to(dateWords, {yPercent: 105, duration: 0.3, ease: 'power3.in', stagger: 0.02}, C('fold'));
+    tl.to(annotLab, {yPercent: 105, duration: 0.3, ease: 'power3.in'}, C('fold'));
+    tl.to(annotDot, {scale: 0, duration: 0.2, ease: 'power3.in'}, C('fold'));
+    tl.set(annotLead, {transformOrigin: '50% 100%'}, C('fold'));
+    tl.to(annotLead, {scaleY: 0, duration: 0.3, ease: 'power3.in'}, C('fold'));
+    tl.set(bandRule, {transformOrigin: '100% 50%'}, C('fold'));
+    tl.to(bandRule, {scaleX: 0, duration: 0.3, ease: 'power3.in'}, C('fold'));
+    tl.to(brand, {x: 0, y: 0, scale: 1, duration: 0.45, ease: 'power3.inOut'}, C('fold'));
+
+    tl.to(tab, {...COVER, duration: 0.4, ease: 'expo.out'}, C('home'));
+
+    // Invisible resets so the last frame equals frame 0.
+    const reset = C('home') + T(0.9);
+    tl.set(folio, {y: 0}, reset);
+    tl.set(headline, headTitle, reset);
+    tl.set(date, dateTitle, reset);
+    tl.set(cta, {scale: 1.08}, reset);
+    tl.set([...headWords, ...allRowWords, ...idxNums, ...noteLabs, tallyIn, tLab], {yPercent: 105}, reset);
+    tl.set([...rules, ...inks], {transformOrigin: '0% 50%'}, reset);
+    tl.set(marginRule, {transformOrigin: '50% 0%'}, reset);
+    tl.set(bandRule, {transformOrigin: '0% 50%'}, reset);
+    tl.set(annotLead, {transformOrigin: '50% 0%'}, reset);
+    tl.set(annotDot, {y: 0}, reset);
+    tl.set(tnote, {y: titleMid}, reset);
+  });
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines.main = tl;
+})();
+</script>
 </body>
 </html>

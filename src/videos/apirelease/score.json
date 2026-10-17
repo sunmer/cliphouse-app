@@ -1,32 +1,31 @@
 {
   "beatFrames": 15,
   "scenes": [
-    {"type": "title-reveal", "bars": 1, "focusBeat": 3, "roles": ["brand", "date", "headline"], "energy": 1},
-    {"type": "typing", "bars": 2, "focusBeat": 10.5, "roles": ["brand", "date", "headline", "list"], "energy": 2},
-    {"type": "end-screen", "bars": 2, "focusBeat": 15, "roles": ["brand", "date", "headline", "cta"], "energy": 3}
+    {"type": "title-reveal", "bars": 1, "focusBeat": 3, "roles": ["brand", "headline", "date"], "energy": 1},
+    {"type": "list", "bars": 2, "focusBeat": 10, "roles": ["brand", "date", "list"], "energy": 2},
+    {"type": "end-screen", "bars": 2, "focusBeat": 16, "roles": ["brand", "headline", "date", "cta"], "energy": 3}
   ],
   "cues": [
-    {"id": "bar", "beat": 0, "sound": "impact", "velocity": 0.7},
-    {"id": "dots", "beat": 0.5, "sound": "tom", "velocity": 0.5},
-    {"id": "brand", "beat": 1, "sound": "blip", "role": "brand", "velocity": 0.6},
-    {"id": "date", "beat": 1.5, "sound": "blip", "role": "date", "velocity": 0.55},
-    {"id": "headline", "beat": 2, "sound": "pluck", "role": "headline", "velocity": 0.75},
-    {"id": "rule", "beat": 3, "sound": "snap", "velocity": 0.6},
-    {"id": "dock", "beat": 4, "sound": "zap", "velocity": 0.6},
-    {"id": "tabLine", "beat": 4.5, "sound": "snap", "velocity": 0.4},
-    {"id": "gutter", "beat": 5, "sound": "tom", "velocity": 0.6},
-    {"id": "lint", "beat": 8, "sound": "snap", "velocity": 0.45},
-    {"id": "build", "beat": 9, "sound": "snap", "velocity": 0.5},
-    {"id": "run", "beat": 10, "sound": "zap", "velocity": 0.7},
-    {"id": "status", "beat": 11, "sound": "clap", "velocity": 0.6},
-    {"id": "undock", "beat": 12, "sound": "crash", "role": "headline", "velocity": 0.8},
-    {"id": "cta", "beat": 13, "sound": "keys", "role": "cta", "velocity": 0.7},
-    {"id": "stamp", "beat": 14, "sound": "stamp", "velocity": 1},
-    {"id": "underline", "beat": 15, "sound": "pluck", "velocity": 0.6},
-    {"id": "ok", "beat": 16, "sound": "blip", "velocity": 0.6},
-    {"id": "blink", "beat": 17, "sound": "snap", "velocity": 0.4},
-    {"id": "clear", "beat": 18, "sound": "zap", "velocity": 0.7},
-    {"id": "close", "beat": 19, "sound": "tom", "velocity": 0.6}
+    {"id": "tick", "beat": 0, "sound": "snap", "role": "brand", "velocity": 0.7},
+    {"id": "headline", "beat": 1, "sound": "pluck", "role": "headline", "velocity": 0.8},
+    {"id": "date", "beat": 2, "sound": "blip", "role": "date", "velocity": 0.6},
+    {"id": "send", "beat": 3, "sound": "zap", "velocity": 0.6},
+    {"id": "lift", "beat": 4, "sound": "tom", "velocity": 0.7},
+    {"id": "clock", "beat": 5, "sound": "snap", "velocity": 0.6},
+    {"id": "stepA", "beat": 6, "sound": "snap", "velocity": 0.4},
+    {"id": "stepB", "beat": 7, "sound": "snap", "velocity": 0.4},
+    {"id": "stepC", "beat": 8, "sound": "snap", "velocity": 0.4},
+    {"id": "probe", "beat": 9, "sound": "blip", "velocity": 0.5},
+    {"id": "response", "beat": 10, "sound": "bell", "velocity": 0.7},
+    {"id": "measure", "beat": 11, "sound": "clap", "velocity": 0.6},
+    {"id": "clear", "beat": 12, "sound": "snap", "velocity": 0.6},
+    {"id": "title", "beat": 13, "sound": "pluck", "role": "headline", "velocity": 0.7},
+    {"id": "stamp", "beat": 14, "sound": "stamp", "role": "cta", "velocity": 1},
+    {"id": "arrow", "beat": 15, "sound": "blip", "velocity": 0.6},
+    {"id": "pads", "beat": 16, "sound": "marimba", "velocity": 0.6},
+    {"id": "ready", "beat": 17, "sound": "bell", "velocity": 0.5},
+    {"id": "exit", "beat": 18, "sound": "snap", "velocity": 0.6},
+    {"id": "loop", "beat": 19, "sound": "zap", "velocity": 0.6}
   ],
   "list": {
     "role": "list",
@@ -37,14 +36,14 @@
     "itemMax": 34,
     "schedules": {
       "1": [6],
-      "2": [6, 8],
-      "3": [6, 7.5, 9],
-      "4": [6, 7, 8, 9]
+      "2": [5, 7],
+      "3": [5, 6.5, 8],
+      "4": [5, 6, 7, 8]
     },
-    "accentOffset": 1,
-    "voice": "keys"
+    "accentOffset": 0.5,
+    "voice": "blip"
   },
   "risers": [
-    {"beat": 9, "beats": 3}
+    {"beat": 12, "beats": 2}
   ]
 }

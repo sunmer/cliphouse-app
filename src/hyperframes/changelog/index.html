@@ -1,276 +1,275 @@
 <!doctype html>
 <html lang="en" data-composition-variables='[]'>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=1080, height=1350" />
-  <script src="__ASSET_BASE__/gsap.min.js"></script>
-  <style>
-    __BASE_CSS__
-    :root { --w: 1080px; --h: 1350px; }
-    body { font-family: "Archivo HF", "Arial Black", Arial, sans-serif; }
-    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:.06em .04em .14em; margin:-.06em 0 -.14em; }
-    .w { display:inline-block; }
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080, height=1350">
+<title>Changelog</title>
+<style>__BASE_CSS__
+:root { --w: 1080px; --h: 1350px; }
+#root { background: var(--theme-background); color: var(--theme-foreground); }
+.margin { position: absolute; left: 0; top: 0; width: 230px; height: 1350px; background: var(--theme-surface); }
+.rl { position: absolute; left: 0; width: 1080px; height: 2px; background: color-mix(in srgb, var(--theme-accent2) 22%, transparent); }
+.wmask { display: inline-block; overflow: hidden; vertical-align: top; flex-shrink: 0; }
+.w { display: inline-block; }
 
-    /* The blank release log: the first and last frame. */
-    .card { position:absolute; left:48px; top:48px; width:984px; height:1254px; background:var(--theme-surface); }
-    .track { position:absolute; left:126px; top:172px; width:4px; height:978px; background:var(--theme-background); }
-    .hair { position:absolute; left:190px; width:770px; height:2px; background:var(--theme-background); }
-    .hair-top { top:244px; }
-    .hair-foot { top:1160px; }
-    .head { position:absolute; left:106px; top:150px; width:44px; height:44px; border-radius:50%; background:var(--theme-accent); }
-    .head::after { content:""; position:absolute; left:15px; top:15px; width:14px; height:14px; border-radius:50%; background:var(--theme-foreground); }
-    .ghost { position:absolute; left:190px; height:36px; background:var(--theme-background); transform-origin:0 50%; }
-    .gdot { position:absolute; left:118px; width:20px; height:20px; border-radius:50%; background:var(--theme-background); }
+#hbrand { position: absolute; left: 270px; top: 76px; width: 330px; height: 64px; line-height: 1.2; white-space: nowrap; font-weight: 700; letter-spacing: -.01em; }
+#date { position: absolute; left: 610px; top: 76px; width: 390px; height: 64px; line-height: 1.2; white-space: nowrap; text-align: right; letter-spacing: 0; transform-origin: 100% 0%; }
 
-    .prog { position:absolute; left:126px; top:172px; width:4px; height:978px; background:var(--theme-accent); transform-origin:50% 0; transform:scaleY(0); }
-    .conn { position:absolute; left:150px; top:170px; width:40px; height:4px; background:var(--theme-accent2); transform-origin:0 50%; transform:scaleX(0); }
-    .chip { position:absolute; left:190px; top:128px; height:88px; width:max-content; max-width:770px; padding:0 30px; background:var(--theme-accent2); color:var(--theme-background); font-size:52px; line-height:88px; font-weight:700; white-space:nowrap; clip-path:inset(0% 100% 0% 0%); z-index:7; }
+#headline { position: absolute; left: 270px; top: 150px; width: 730px; height: 300px; display: flex; flex-wrap: wrap; align-content: safe flex-end; align-items: flex-start; column-gap: .22em; line-height: 1.2; font-weight: 600; letter-spacing: -.02em; }
+#uline { position: absolute; left: 266px; top: 452px; height: 28px; overflow: visible; visibility: hidden; opacity: 0; }
+#uline path { fill: none; stroke: var(--theme-accent); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.hr { position: absolute; left: 80px; width: 920px; background: var(--theme-foreground); transform: scaleX(0); }
+#hr1 { top: 486px; height: 4px; }
+#hr2 { top: 495px; height: 2px; }
 
-    .headline { position:absolute; left:190px; top:264px; width:770px; height:876px; font-size:180px; line-height:.96; font-weight:850; color:var(--theme-foreground); align-content:center; text-wrap:balance; }
-    .hrule { position:absolute; left:190px; top:900px; width:200px; height:14px; background:var(--theme-accent2); transform-origin:0 50%; transform:scaleX(0); }
+#ledger { position: absolute; left: 80px; top: 506px; width: 920px; height: 764px; display: flex; flex-direction: column; }
+.row { position: relative; flex: none; height: calc(38.2px * var(--lines, 4)); }
+.rline { position: absolute; left: 156px; right: 0; bottom: -1px; height: 2px; background: color-mix(in srgb, var(--theme-foreground) 60%, transparent); transform: scaleX(0); }
+.num { position: absolute; left: 10px; top: 50%; height: 46px; margin-top: -23px; line-height: 46px; font-size: 38px; color: color-mix(in srgb, var(--theme-foreground) 72%, transparent); clip-path: inset(0% 100% 0% 0%); }
+.tick { position: absolute; left: 88px; top: 50%; margin-top: -26px; width: 58px; height: 52px; overflow: visible; visibility: hidden; opacity: 0; }
+.tick path, #mcheck path { fill: none; stroke: var(--theme-accent2); stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.tick path { stroke-width: 7; }
+.entry { position: absolute; left: 190px; right: 0; top: 6px; bottom: 6px; display: flex; flex-wrap: wrap; align-content: safe center; align-items: center; column-gap: .24em; line-height: 1.2; font-weight: 500; color: var(--theme-foreground); }
+.entry .stamp { overflow: visible; margin: 0 .06em 0 0; padding: .14em .34em .08em; border: .08em solid currentColor; border-radius: .16em; font-size: .6em; line-height: 1; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; mix-blend-mode: multiply; visibility: hidden; opacity: 0; transform: rotate(-4deg); }
+.k-new { color: var(--theme-accent); }
+.k-improved { color: var(--theme-accent2); }
+.k-fixed { color: var(--theme-foreground); }
+.colon { display: none; }
 
-    .list { position:absolute; left:0; top:264px; width:1080px; height:876px; display:grid; grid-template-rows:repeat(var(--count, 5), minmax(0, 1fr)); visibility:hidden; }
-    .row { position:relative; }
-    .ph { position:absolute; left:190px; top:calc(50% - 18px); height:36px; width:500px; background:var(--theme-background); transform-origin:0 50%; }
-    .node { position:absolute; left:110px; top:calc(50% - 18px); width:36px; height:36px; border-radius:50%; background:var(--theme-accent); }
-    .row.t-new .node { background:var(--theme-accent2); }
-    .row.t-fix .node { background:var(--theme-foreground); }
-    .check { position:absolute; inset:0; }
-    .tick { position:absolute; left:13px; top:7px; width:10px; height:18px; border-right:5px solid var(--theme-background); border-bottom:5px solid var(--theme-background); transform:rotate(45deg); }
-    .rtext { position:absolute; left:190px; top:10px; width:780px; height:calc(100% - 20px); font-size:128px; line-height:1.06; font-weight:650; color:var(--theme-foreground); align-content:center; text-wrap:balance; overflow-wrap:anywhere; }
-    .rtext .wmask.pm { font-size:max(28px, .36em); vertical-align:middle; padding:0; margin:0 .2em 0 0; }
-    .pfx { font-family:"Mono HF", ui-monospace, monospace; font-weight:700; text-transform:uppercase; line-height:1.2; padding:.12em .42em .1em; background:var(--theme-accent); color:var(--theme-background); }
-    .row.t-new .pfx { background:var(--theme-accent2); }
-    .row.t-fix .pfx { background:var(--theme-foreground); }
-    .rrule { position:absolute; left:190px; width:770px; bottom:0; height:2px; background:var(--theme-background); transform-origin:0 50%; }
-    .row:last-child .rrule { display:none; }
+#crease { position: absolute; left: 0; top: 674px; width: 1080px; height: 0; border-top: 2px dashed color-mix(in srgb, var(--theme-foreground) 45%, transparent); transform: scaleX(0); }
+#carrier { position: absolute; left: 233px; top: 80px; width: 6px; height: 1190px; background: var(--theme-accent); transform-origin: 50% 0%; transform: scaleY(0.0588); }
 
-    .brand { position:absolute; left:190px; top:1195px; width:560px; height:72px; font-size:60px; line-height:72px; font-weight:850; text-transform:uppercase; white-space:nowrap; color:var(--theme-foreground); z-index:7; }
-    .pips { position:absolute; right:120px; top:1213px; height:36px; display:flex; gap:10px; }
-    .pip { position:relative; display:block; width:36px; height:36px; background:var(--theme-background); }
-    .pfill { position:absolute; inset:7px; background:var(--theme-accent2); }
-
-    .flood { position:absolute; inset:0; background:var(--theme-accent); clip-path:circle(0px at 128px 1150px); z-index:5; }
-    .slab { position:absolute; left:80px; top:290px; width:920px; height:800px; background:var(--theme-background); clip-path:inset(100% 0% 0% 0%); visibility:hidden; z-index:6; }
-    .cta { position:absolute; left:80px; top:90px; width:760px; height:440px; font-size:170px; line-height:.96; font-weight:850; color:var(--theme-foreground); align-content:start; text-wrap:balance; }
-    .crule { position:absolute; left:80px; top:540px; width:220px; height:14px; background:var(--theme-accent2); transform-origin:0 50%; transform:scaleX(0); }
-    .arrow { position:absolute; right:80px; bottom:80px; width:150px; height:150px; background:var(--theme-accent2); overflow:hidden; clip-path:inset(0% 100% 0% 0%); }
-    .arw { position:absolute; inset:0; }
-    .shaft { position:absolute; left:30px; top:69px; width:70px; height:12px; background:var(--theme-background); }
-    .chev { position:absolute; left:58px; top:51px; width:48px; height:48px; border-top:12px solid var(--theme-background); border-right:12px solid var(--theme-background); transform:rotate(45deg); }
-    .merge { position:absolute; left:128px; top:1124px; width:872px; height:10px; background:var(--theme-background); transform-origin:0 50%; transform:scaleX(0); z-index:6; }
-    .merge::before { content:""; position:absolute; left:-14px; top:-9px; width:28px; height:28px; border-radius:50%; background:var(--theme-background); }
-    .mnode { position:absolute; left:976px; top:1105px; width:48px; height:48px; border-radius:50%; background:var(--theme-accent2); z-index:6; transform:scale(0); }
-    .mnode .tick { left:17px; top:9px; width:12px; height:22px; border-right-width:6px; border-bottom-width:6px; }
-
-    .rest { position:absolute; inset:0; background:var(--theme-background); clip-path:circle(0px at 845px 935px); z-index:10; }
-  </style>
+#bigbrand { position: absolute; left: 270px; top: 280px; width: 730px; height: 386px; display: flex; flex-wrap: wrap; align-content: safe flex-end; align-items: flex-start; column-gap: .2em; line-height: 1.2; font-weight: 700; letter-spacing: -.03em; visibility: hidden; opacity: 0; }
+#total { position: absolute; left: 80px; top: 692px; width: 920px; height: 3px; background: var(--theme-foreground); transform: scaleX(0); }
+#stamp { position: absolute; left: 270px; top: 760px; width: 730px; height: 370px; color: var(--theme-accent); background: var(--theme-background); border: 10px solid currentColor; border-radius: 26px; visibility: hidden; opacity: 0; transform: rotate(-3deg); }
+#stamp::before { content: ""; position: absolute; inset: 10px; border: 3px solid currentColor; border-radius: 16px; }
+#cta { position: absolute; left: 315px; top: 805px; width: 640px; height: 280px; display: flex; flex-wrap: wrap; justify-content: safe center; align-content: safe center; column-gap: .24em; line-height: 1.3; font-weight: 800; letter-spacing: 0; text-transform: uppercase; color: var(--theme-foreground); visibility: hidden; opacity: 0; }
+#mcheck { position: absolute; left: 92px; top: 820px; width: 126px; height: 100px; overflow: visible; visibility: hidden; opacity: 0; }
+#mcheck path { stroke-width: 10; }
+</style>
 </head>
 <body>
-  <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1080" data-height="1350">
-    <section id="changelog-log" class="scene" data-start="0" data-duration="10" data-track-index="0">
-      <div class="card"></div>
-      <div class="track"></div>
-      <div id="prog" class="prog"></div>
-      <div class="hair hair-top"></div>
-      <div class="hair hair-foot"></div>
-      <div id="ghosts"></div>
-      <div id="conn" class="conn"></div>
-      <div id="chip" class="chip mono" data-fit-max="52" data-fit-min="26" data-text-role="date" data-beat-text="date">Date</div>
+<div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1080" data-height="1350">
+  <div class="margin"></div>
+  <div id="ruling"></div>
 
-      <h1 id="headline" class="headline display" data-fit-max="180" data-fit-min="56" data-text-role="headline" data-beat-text="headline">Headline</h1>
-      <div id="hrule" class="hrule"></div>
+  <div id="hbrand" class="serif" data-text-role="brand" data-beat-text="brand" data-fit-max="44" data-fit-min="16"></div>
+  <div id="date" class="mono" data-text-role="date" data-beat-text="date" data-fit-max="42" data-fit-min="20"></div>
 
-      <div id="list" class="list" data-list>
-        <template data-list-row>
-          <div class="row"><i class="ph" data-list-part="placeholder" data-list-group="scaffold"></i><i class="node" data-list-part="node" data-list-align="y"><i class="check" data-list-part="check" data-list-align="y"><i class="tick"></i></i></i><div class="rtext" data-list-text data-words data-fit-max="128" data-fit-min="34"></div><i class="rrule" data-list-part="rule" data-list-group="scaffold"></i></div>
-        </template>
+  <div id="headline" class="serif" data-text-role="headline" data-beat-text="headline" data-fit-max="150" data-fit-min="64"></div>
+  <svg id="uline" width="400" viewBox="0 0 400 28"><path pathLength="1" d="M4 18 C 112 8, 248 24, 396 12"/></svg>
+  <div id="hr1" class="hr"></div>
+  <div id="hr2" class="hr"></div>
+
+  <div id="ledger" data-list>
+    <template data-list-row>
+      <div class="row" data-list-part="row">
+        <div class="rline" data-list-part="line" data-list-group="scaffold"></div>
+        <div class="num mono" data-list-part="num" data-list-group="scaffold" data-list-align="y" data-list-number></div>
+        <svg class="tick" data-list-part="tick" data-list-align="y" viewBox="0 0 58 52"><path pathLength="1" d="M5 30 C 12 34, 17 40, 21 46 C 30 28, 40 15, 54 5"/></svg>
+        <div class="entry serif" data-list-text data-words data-fit-max="56" data-fit-min="30"></div>
       </div>
-
-      <div id="head" class="head"></div>
-      <div id="pips" class="pips"></div>
-      <div id="brand" class="brand display" data-fit-max="60" data-fit-min="30" data-text-role="brand" data-beat-text="brand">Brand</div>
-
-      <div id="flood" class="flood"></div>
-      <div id="slab" class="slab">
-        <div id="cta" class="cta display" data-fit-max="170" data-fit-min="60" data-text-role="cta" data-beat-text="cta">CTA</div>
-        <div id="crule" class="crule"></div>
-        <div id="arrow" class="arrow"><div id="arw" class="arw"><i class="shaft"></i><i class="chev"></i></div></div>
-      </div>
-      <div id="merge" class="merge"></div>
-      <div id="mnode" class="mnode"><i class="tick"></i></div>
-
-      <div id="rest" class="rest">
-        <div class="card"></div>
-        <div class="track"></div>
-        <div class="hair hair-top"></div>
-        <div class="hair hair-foot"></div>
-        <div id="restGhosts"></div>
-        <div class="head"></div>
-      </div>
-    </section>
+    </template>
   </div>
-  <script>__BASE_JS__</script>
-  <script>__BEAT_JS__</script>
-  <script>
-    const tl = gsap.timeline({paused: true});
-    CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
-      const B = (n) => m.at(n);
-      const t = (id) => m.cue(id);
-      const q = (s) => document.querySelector(s);
-      const qa = (s) => [...document.querySelectorAll(s)];
-      const HEAD_Y = 172, RAIL = 978, LOG_TOP = 264, RAIL_END = HEAD_Y + RAIL;
-      const PH = [620, 470, 560, 400, 520];
-      // Words rise through masks; long text shares the last slot so it settles early.
-      const rise = (el, at, stag = 0.125, cap = 2, dur = 0.5) => m.spans(el).forEach((w, i) =>
-        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(dur), ease: 'expo.out'}, at + B(Math.min(i, cap) * stag)));
 
-      // Prefixes such as New: / Improved: / Fixed: become colored mono pills.
-      const rows = qa('#list > [data-list-item]');
-      rows.forEach((row, i) => {
-        row.querySelector('.ph').style.width = `${PH[i % PH.length]}px`;
-        const first = row.querySelector('.w');
-        const word = first ? first.textContent : '';
-        if (word.length > 1 && /:$/.test(word)) {
-          const kind = word.slice(0, -1).toLowerCase();
-          row.classList.add(kind === 'new' ? 't-new' : kind === 'improved' ? 't-imp' : kind === 'fixed' ? 't-fix' : 't-tag');
-          first.classList.add('pfx');
-          first.parentElement.classList.add('pm');
+  <div id="crease"></div>
+  <div id="bigbrand" class="serif" data-text-role="brand" data-beat-text="brand" data-fit-max="280" data-fit-min="36"></div>
+  <div id="total"></div>
+  <div id="stamp"></div>
+  <div id="cta" class="serif" data-text-role="cta" data-beat-text="cta" data-fit-max="112" data-fit-min="36"></div>
+  <svg id="mcheck" viewBox="0 0 126 100"><path pathLength="1" d="M10 58 C 22 66, 32 78, 42 92 C 60 52, 88 22, 116 6"/></svg>
+  <div id="carrier"></div>
+</div>
+<script src="__ASSET_BASE__/gsap.min.js"></script>
+<script>__BASE_JS__</script>
+<script>__BEAT_JS__</script>
+<script>
+(() => {
+  const ruling = document.getElementById('ruling');
+  for (let k = 0; k <= 20; k++) {
+    const d = document.createElement('div');
+    d.className = 'rl';
+    d.style.top = (506 + k * 38.2 - 1) + 'px';
+    ruling.append(d);
+  }
+
+  const tl = gsap.timeline({paused: true});
+  CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+    const A = m.at;
+    const ex = 'expo.out', p3i = 'power3.in', p3io = 'power3.inOut';
+    const HID = 105;
+    const n = Math.max(1, m.items.length);
+
+    // Rows are whole multiples of the ruling. Fewer items get taller rows and larger type.
+    const ledger = $('#ledger');
+    ledger.style.setProperty('--lines', String(Math.floor(20 / n)));
+    const sizes = [56, 92, 80, 68, 62, 56];
+    const KIND = /^(new|improved|fixed)(:?)$/i;
+    const rows = m.items.map((it) => m.row(it.index)).filter(Boolean);
+    rows.forEach((row) => {
+      const entry = row.querySelector('.entry');
+      entry.dataset.fitMax = String(sizes[n] || 56);
+      entry.dataset.fitMin = '30';
+      const first = entry.querySelector('.wmask');
+      const w = first && first.querySelector('.w');
+      const k = w && w.textContent.match(KIND);
+      if (k) {
+        first.classList.add('stamp', 'k-' + k[1].toLowerCase());
+        if (k[2]) {
+          w.textContent = k[1];
+          const c = document.createElement('span');
+          c.className = 'colon';
+          c.textContent = ':';
+          w.append(c);
         }
-      });
-      // Fit every row, then give all rows the smallest fitted size so the log reads as one set.
-      const texts = rows.map((r) => r.querySelector('.rtext'));
-      window.cliphouseFitText?.();
-      if (texts.length) {
-        const size = Math.min(...texts.map((el) => parseFloat(el.style.fontSize) || 128));
-        texts.forEach((el) => { el.dataset.fitMax = String(size); el.dataset.fitMin = String(Math.min(size, 34)); });
-        window.cliphouseFitText?.();
       }
-
-      // The blank log of frame 0 and of the loop: one placeholder bar and one rail stop per item, centered on its row.
-      const host = q('#list');
-      const rowY = rows.map((r) => host.offsetTop + r.offsetTop + r.offsetHeight / 2);
-      const blank = (box, prefix, group) => {
-        const make = (cls, top, width) => (item) => {
-          const el = document.createElement('i');
-          el.className = cls;
-          el.dataset.listGroup = group;
-          el.dataset.listAlign = 'y';
-          el.style.top = `${rowY[item.index] - top}px`;
-          if (width) el.style.width = `${PH[item.index % PH.length]}px`;
-          return el;
-        };
-        return {bars: m.parts(box, `${prefix}placeholder`, make('ghost', 18, true)), stops: m.parts(box, `${prefix}stop`, make('gdot', 10, false))};
-      };
-      const ghosts = blank(q('#ghosts'), 'blank-', 'scaffold');
-      blank(q('#restGhosts'), 'loop-', 'finale');
-
-      // Footer pips: one per shipped item.
-      const pips = q('#pips');
-      const pipEls = m.parts(pips, 'pip', () => {
-        const p = document.createElement('i'); p.className = 'pip';
-        p.dataset.listGroup = 'scaffold';
-        const f = document.createElement('i'); f.className = 'pfill';
-        p.append(f); return p;
-      });
-      pipEls.forEach((p, i) => m.tag(p.firstChild, 'pip-fill', m.items[i].index));
-
-      // Rules sit under the last line of the headline and the CTA.
-      const h = q('#headline');
-      const masks = h.querySelectorAll('.wmask');
-      const lastMask = masks[masks.length - 1];
-      if (lastMask) q('#hrule').style.top = `${h.offsetTop + lastMask.offsetTop + lastMask.offsetHeight + 20}px`;
-      const c = q('#cta');
-      const cMasks = c.querySelectorAll('.wmask');
-      const cLast = cMasks[cMasks.length - 1];
-      if (cLast) q('#crule').style.top = `${Math.min(c.offsetTop + cLast.offsetTop + cLast.offsetHeight + 24, 560)}px`;
-
-      // Beat 0: the chip branches off the head; 0.5: the date rises and the empty slots retract.
-      tl.fromTo('#chip', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.75), ease: 'expo.out'}, t('chip'));
-      tl.fromTo('#conn', {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('chip'));
-      rise(q('#chip'), t('date'), 0.125, 3);
-      ghosts.bars.forEach((g, i) => tl.to(g, {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.25), ease: 'power3.in'}, t('date') + B(i * 0.0625)));
-      ghosts.stops.forEach((d, i) => tl.to(d, {scale: 0, duration: B(0.25), ease: 'power3.in'}, t('date') + B(i * 0.0625)));
-
-      // Beat 1: headline; beat 2: brand; beat 3: rule under the headline.
-      rise(h, t('headline'));
-      rise(q('#brand'), t('brand'));
-      tl.fromTo('#hrule', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('headStep'));
-
-      // Beat 4: the headline lifts out; 4.5: rules, placeholders, and pips draw for the count.
-      m.spans(h).forEach((w, i) => tl.to(w, {yPercent: -125, duration: B(0.375), ease: 'power3.in'}, t('logOpen') + B(Math.min(i, 3) * 0.0625)));
-      tl.to('#hrule', {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.375), ease: 'power3.in'}, t('logOpen'));
-      tl.set('#list', {visibility: 'visible'}, t('logOpen') + B(0.5));
-      tl.set(h, {visibility: 'hidden'}, t('logOpen') + B(0.625));
-      rows.forEach((row, i) => {
-        tl.fromTo(row.querySelector('.rrule'), {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('logOpen') + B(0.5 + i * 0.0625));
-        tl.fromTo(row.querySelector('.ph'), {scaleX: 0}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, t('logOpen') + B(0.5 + i * 0.0625));
-      });
-      pipEls.forEach((p, i) => tl.fromTo(p, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('logOpen') + B(0.5 + i * 0.0625)));
-
-      // Each item prints as the head reaches its row: the placeholder retracts, the node pops, the text rises,
-      // and on the accent its check and its footer pip land together.
-      m.plan.items.forEach((it, i) => {
-        const row = rows[i];
-        tl.to(row.querySelector('.ph'), {scaleX: 0, transformOrigin: '100% 50%', duration: B(0.25), ease: 'power3.in'}, B(it.start));
-        tl.fromTo(row.querySelector('.node'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, B(it.start));
-        rise(row.querySelector('.rtext'), B(it.start));
-        tl.fromTo(row.querySelector('.check'), {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, B(it.accent));
-        tl.fromTo(pipEls[i].firstChild, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, B(it.accent));
-      });
-
-      // The head steps down the rail on every beat and stops on each item's row.
-      const s3 = m.score.cues.find((x) => x.id === 'headStep').beat;
-      const s11 = m.score.cues.find((x) => x.id === 'headDown').beat;
-      const anchors = [[s3, LOG_TOP], ...m.plan.items.map((it, i) => [it.start, rowY[i]]), [s11, RAIL_END]];
-      const yAt = (b) => {
-        for (let k = 1; k < anchors.length; k++) {
-          const [b0, y0] = anchors[k - 1], [b1, y1] = anchors[k];
-          if (b <= b1) return b1 === b0 ? y1 : y0 + (y1 - y0) * (b - b0) / (b1 - b0);
-        }
-        return RAIL_END;
-      };
-      const beats = [];
-      for (let b = s3; b <= s11; b++) beats.push(b);
-      const keys = [...new Set([...beats, ...m.plan.items.map((it) => it.start)])].sort((a, b) => a - b);
-      keys.forEach((b, k) => {
-        const y = yAt(b);
-        const dur = B(Math.min(0.5, (keys[k + 1] ?? s11 + 1) - b));
-        if (k === 0) {
-          tl.fromTo('#head', {y: 0}, {y: y - HEAD_Y, duration: dur, ease: 'expo.out'}, B(b));
-          tl.fromTo('#prog', {scaleY: 0}, {scaleY: (y - HEAD_Y) / RAIL, duration: dur, ease: 'expo.out'}, B(b));
-        } else {
-          tl.to('#head', {y: y - HEAD_Y, duration: dur, ease: 'expo.out'}, B(b));
-          tl.to('#prog', {scaleY: (y - HEAD_Y) / RAIL, duration: dur, ease: 'expo.out'}, B(b));
-        }
-      });
-
-      // Beat 10: a group moment. Every checked node stamps once; each check already landed with its own row.
-      rows.forEach((row, i) => tl.fromTo(row.querySelector('.node'), {scale: 1.3}, {scale: 1, duration: B(0.5), ease: 'expo.out', immediateRender: false}, t('shipped') + B(i * 0.0625)));
-
-      // Beat 12: the head floods the frame in accent; the dark slab rises with it and lands on beat 13.
-      tl.fromTo('#flood', {clipPath: 'circle(0px at 128px 1150px)'}, {clipPath: 'circle(1510px at 128px 1150px)', duration: B(0.75), ease: 'power2.out'}, t('flood'));
-      tl.set('#list', {visibility: 'hidden'}, t('flood') + B(0.75));
-      tl.set('#slab', {visibility: 'visible'}, t('flood') + B(0.5));
-      tl.fromTo('#slab', {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('flood') + B(0.5));
-
-      // Beat 13: the CTA rises. Beat 14: the arrow block stamps in.
-      rise(c, t('cta'));
-      tl.fromTo('#arrow', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.25), ease: 'expo.out'}, t('stamp') - B(0.25));
-      tl.fromTo('#arrow', {scale: 1.3, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('stamp'));
-      tl.fromTo('#arw', {x: -60}, {x: 0, duration: B(0.75), ease: 'expo.out'}, t('stamp'));
-
-      // Beats 15-18: rule under the CTA, the merge bar, its node, and an arrow step.
-      tl.fromTo('#crule', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('ctaRule'));
-      tl.fromTo('#merge', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('merge'));
-      tl.fromTo('#mnode', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('mergeNode'));
-      tl.to('#arw', {x: 22, duration: B(0.75), ease: 'expo.out'}, t('arrowStep'));
-
-      // Beat 19: the blank log opens from the arrow, matching frame 0.
-      tl.fromTo('#rest', {clipPath: 'circle(0px at 845px 935px)'}, {clipPath: 'circle(1290px at 845px 935px)', duration: B(0.75), ease: 'power2.out'}, t('loop'));
     });
-    window.__timelines = window.__timelines || {};
-    window.__timelines.main = tl;
-  </script>
+    if (window.cliphouseFitText) window.cliphouseFitText();
+
+    // The headline underline spans the headline's last line.
+    const head = $('#headline');
+    let lastTop = -1e9, right = 0;
+    for (const mk of $$('.wmask', head)) {
+      if (mk.offsetTop > lastTop + 4) { lastTop = mk.offsetTop; right = 0; }
+      right = Math.max(right, mk.offsetLeft + mk.offsetWidth);
+    }
+    const uw = Math.round(Math.max(160, Math.min(730, right + 8)));
+    const ul = $('#uline');
+    ul.setAttribute('width', String(uw));
+    ul.setAttribute('viewBox', `0 0 ${uw} 28`);
+    $('#uline path').setAttribute('d', `M4 18 C ${uw * 0.28} 8, ${uw * 0.62} 24, ${uw - 4} 12`);
+
+    const carrier = $('#carrier');
+    const hw = m.spans(head);
+    const hb = m.spans($('#hbrand'));
+    const dt = m.spans($('#date'));
+    const bb = m.spans($('#bigbrand'));
+    const cw = m.spans($('#cta'));
+    const lines = rows.map((r) => r.querySelector('.rline'));
+    const nums = rows.map((r) => r.querySelector('.num'));
+    const tickSvgs = rows.map((r) => r.querySelector('.tick'));
+    const ticks = rows.map((r) => r.querySelector('.tick path'));
+    const stamps = rows.map((r) => r.querySelector('.entry .stamp')).filter(Boolean);
+    const entryWords = rows.flatMap((r) => $$('.wmask:not(.stamp) > .w', r));
+
+    // Word staggers have a fixed total length, so long text settles at the same time as short text.
+    const amt = (a) => ({amount: a});
+
+    // The carrier is a full-height rule (1190 px) scaled from its top end. Transforms only.
+    const STUB = 70, HEAD = 426, FULL = 1190;
+    const sy = (h) => h / FULL;
+
+    // Beat 0: the margin rule draws down to the header base, and the header double rule draws across.
+    const R = m.cue('rule');
+    tl.fromTo(carrier, {scaleY: sy(STUB), scaleX: 1, x: 0, y: 0, rotation: 0, transformOrigin: '50% 0%'}, {scaleY: sy(HEAD), duration: 0.5, ease: ex}, R);
+    tl.fromTo('#hr1', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: 0.5, ease: ex}, R);
+    tl.fromTo('#hr2', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: 0.5, ease: ex}, A(0.25));
+    tl.fromTo('#date', {y: 0, scale: 1, transformOrigin: '100% 0%'}, {y: 0, scale: 1, duration: 0.01}, R);
+
+    // Beats 1-2: the headline, then the header brand and the date. All settle before frame 45.
+    if (hw.length) tl.fromTo(hw, {yPercent: HID}, {yPercent: 0, duration: 0.5, ease: ex, stagger: amt(0.2)}, m.cue('headline'));
+    if (hb.length) tl.fromTo(hb, {yPercent: HID}, {yPercent: 0, duration: 0.4, ease: ex, stagger: amt(0.1)}, m.cue('brand'));
+    if (dt.length) tl.fromTo(dt, {yPercent: HID}, {yPercent: 0, duration: 0.35, ease: ex, stagger: amt(0.08)}, m.cue('date'));
+
+    // Beat 3: the scaffold. Row ink rules and margin numbers.
+    const SC = m.cue('scaffold');
+    if (lines.length) tl.fromTo(lines, {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: 0.5, ease: ex, stagger: 0.05}, SC);
+    if (nums.length) tl.fromTo(nums, {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: 0.35, ease: 'power3.out', stagger: 0.05}, SC);
+
+    // Beats 4-9: the margin rule is ruled down one section per beat, at any item count.
+    for (let k = 1; k <= 6; k++) {
+      tl.to(carrier, {scaleY: sy(HEAD + (FULL - HEAD) * k / 6), duration: 0.4, ease: ex}, m.cue('step' + k));
+    }
+
+    // Items: words rise off the ruled line on the start beat. The stamp and tick land on the accent.
+    m.items.forEach((it, i) => {
+      const row = rows[i];
+      if (!row) return;
+      const ws = $$('.wmask:not(.stamp) > .w', row);
+      if (ws.length) tl.fromTo(ws, {yPercent: HID}, {yPercent: 0, duration: 0.45, ease: ex, stagger: amt(0.15)}, it.start);
+      const st = row.querySelector('.entry .stamp');
+      if (st) {
+        tl.set(st, {autoAlpha: 1}, it.accent);
+        tl.fromTo(st, {scale: 1.5, rotation: -12}, {scale: 1, rotation: -4, duration: 0.28, ease: ex, immediateRender: false}, it.accent);
+      }
+      const tk = row.querySelector('.tick');
+      tl.set(tk, {autoAlpha: 1}, it.accent);
+      tl.fromTo(row.querySelector('.tick path'), {strokeDashoffset: 1}, {strokeDashoffset: 0, duration: 0.3, ease: 'power3.out', immediateRender: false}, it.accent);
+    });
+
+    // Beat 10: the hand underline. Beat 11: the fold crease.
+    const U = m.cue('underline');
+    tl.set('#uline', {autoAlpha: 1}, U);
+    tl.fromTo('#uline path', {strokeDashoffset: 1}, {strokeDashoffset: 0, duration: 0.4, ease: 'power3.out', immediateRender: false}, U);
+    tl.fromTo('#crease', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: 0.4, ease: ex}, m.cue('crease'));
+
+    // Beat 12: the margin rule tips onto the crease and becomes the fold line. The ledger clears.
+    // Rotated 90° about its top end, the rule runs left from the pivot: pivot at (1000, 675), length 920 reaches x 80.
+    const F = m.cue('fold');
+    if (hw.length) tl.to(hw, {yPercent: HID, duration: 0.3, ease: p3i, stagger: amt(0.1)}, F);
+    if (hb.length) tl.to(hb, {yPercent: HID, duration: 0.3, ease: p3i, stagger: amt(0.08)}, F);
+    tl.set(['#headline', '#hbrand'], {autoAlpha: 0}, F + 0.42);
+    tl.to('#uline path', {strokeDashoffset: -1, duration: 0.3, ease: p3i}, F);
+    tl.set('#uline', {autoAlpha: 0}, F + 0.3);
+    if (entryWords.length) tl.to(entryWords, {yPercent: HID, duration: 0.3, ease: p3i, stagger: amt(0.12)}, F);
+    if (stamps.length) tl.to(stamps, {autoAlpha: 0, y: -24, duration: 0.2, ease: p3i}, F);
+    if (ticks.length) {
+      tl.to(ticks, {strokeDashoffset: -1, duration: 0.25, ease: p3i}, F);
+      tl.set(tickSvgs, {autoAlpha: 0}, F + 0.25);
+    }
+    if (nums.length) tl.to(nums, {clipPath: 'inset(0% 0% 0% 100%)', duration: 0.25, ease: p3i}, F);
+    if (lines.length) tl.to(lines, {scaleX: 0, transformOrigin: '100% 50%', duration: 0.35, ease: p3io, stagger: 0.02}, F);
+    tl.set('#ledger', {autoAlpha: 0}, A(12.9));
+    tl.to(['#hr1', '#hr2'], {scaleX: 0, transformOrigin: '100% 50%', duration: 0.35, ease: p3io}, F);
+    tl.to(carrier, {rotation: 90, x: 764, y: 595, scaleY: sy(920), scaleX: 8 / 6, duration: 0.5, ease: p3io}, F);
+
+    // Beat 13: the brand stands huge just above the fold line. The date steps down above it.
+    const B = m.cue('brandEnd');
+    tl.set('#bigbrand', {autoAlpha: 1}, B);
+    if (bb.length) tl.fromTo(bb, {yPercent: HID}, {yPercent: 0, duration: 0.4, ease: ex, stagger: amt(0.12), immediateRender: false}, B);
+    tl.to('#date', {y: 110, scale: 1.35, duration: 0.5, ease: ex}, B);
+
+    // Beat 14: the paper stamp patch slams down tilted. The CTA words rise upright inside it and settle fast.
+    const S = m.cue('ctaStamp');
+    tl.set(['#stamp', '#cta'], {autoAlpha: 1}, S);
+    tl.fromTo('#stamp', {scale: 1.2, rotation: -9, y: 0}, {scale: 1, rotation: -3, duration: 0.28, ease: ex, immediateRender: false}, S);
+    if (cw.length) tl.fromTo(cw, {yPercent: HID}, {yPercent: 0, duration: 0.22, ease: ex, stagger: amt(0.06), immediateRender: false}, S);
+
+    // Beat 15: the total rule doubles the fold line. Beat 16: the hand tick in the margin.
+    tl.fromTo('#total', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: 0.45, ease: ex}, m.cue('total'));
+    const C = m.cue('check');
+    tl.set('#mcheck', {autoAlpha: 1}, C);
+    tl.fromTo('#mcheck path', {strokeDashoffset: 1}, {strokeDashoffset: 0, duration: 0.35, ease: 'power3.out', immediateRender: false}, C);
+
+    // Beat 17: the brand drops. Beat 17.5: the stamp lifts with the CTA. Beat 17.75: the date drops.
+    const L = m.cue('lift');
+    if (bb.length) tl.to(bb, {yPercent: HID, duration: 0.3, ease: p3i, stagger: amt(0.1)}, L);
+    tl.set('#bigbrand', {autoAlpha: 0}, L + 0.42);
+    const LS = A(17.5);
+    tl.to('#stamp', {autoAlpha: 0, y: -50, scale: 1.04, duration: 0.3, ease: p3i}, LS);
+    if (cw.length) tl.to(cw, {yPercent: HID, duration: 0.25, ease: p3i, stagger: amt(0.06)}, LS);
+    tl.set('#cta', {autoAlpha: 0}, LS + 0.33);
+    if (dt.length) tl.to(dt, {yPercent: HID, duration: 0.3, ease: p3i, stagger: amt(0.08)}, A(17.75));
+    tl.set('#date', {y: 0, scale: 1}, A(18.75));
+
+    // Beat 18: the fold line keeps turning to 180° and stands in the margin, pivot at its bottom end (y 1270).
+    const W = m.cue('swing');
+    tl.to(carrier, {rotation: 180, x: 0, y: FULL, scaleY: 1, scaleX: 1, duration: 0.5, ease: p3io}, W);
+    tl.to('#total', {scaleX: 0, transformOrigin: '100% 50%', duration: 0.35, ease: p3io}, W);
+    tl.to('#crease', {scaleX: 0, transformOrigin: '100% 50%', duration: 0.4, ease: p3io}, W);
+    tl.to('#mcheck path', {strokeDashoffset: -1, duration: 0.3, ease: p3i}, W);
+    tl.set('#mcheck', {autoAlpha: 0}, W + 0.3);
+
+    // Beat 19: re-base the rule to its top (identical at full height), then retract up to the first-frame stub.
+    const LP = m.cue('loop');
+    tl.set(carrier, {rotation: 0, x: 0, y: 0, scaleY: 1, scaleX: 1}, LP);
+    tl.to(carrier, {scaleY: sy(STUB), duration: 0.45, ease: ex}, LP);
+  });
+  window.__timelines = window.__timelines || {};
+  window.__timelines.main = tl;
+})();
+</script>
 </body>
 </html>

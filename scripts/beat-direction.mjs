@@ -18,6 +18,9 @@ import {parseLines} from '../src/videos/beat/list.ts';
 import {ROLES} from '../src/videos/vocab.ts';
 import {launch, openTemplate, grab, listParts, closeServer} from './directed/frames.mjs';
 import {engineOf} from '../src/videos/engine.ts';
+import {LAUNCH} from './launch/briefs.mjs';
+import {presetProps} from './launch/catalog.mjs';
+import {refreshOf} from './launch/refresh.mjs';
 
 const args = process.argv.slice(2);
 const opt = (name) => args.includes(name) ? args[args.indexOf(name) + 1] : null;
@@ -100,7 +103,10 @@ for (const id of ids) {
   const errors = [];
   const fail = (m) => errors.push(m);
   // Templates still in generation have only a hidden preset; gate it so they can become visible.
-  const variant = manifest.variants.find((v) => v.template === id && !v.hidden) ?? manifest.variants.find((v) => v.template === id);
+  const listed = manifest.variants.find((v) => v.template === id && !v.hidden) ?? manifest.variants.find((v) => v.template === id);
+  // A developer refresh pilot gates its candidate with the pilot preset, before the catalog changes.
+  const brief = refreshOf(id) && LAUNCH.find((x) => x.id === id);
+  const variant = brief ? {...listed, props: presetProps(brief)} : listed;
   const dir = path.join(sheetsAt, id);
   fs.mkdirSync(dir, {recursive: true});
   const max = score.list ? parseLines(variant.props.texts.list).length : 0;

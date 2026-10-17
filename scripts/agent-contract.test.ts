@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {test} from 'node:test';
 import {AGENT_CONTRACT_VERSION, GOAL_IDS} from '../src/agent/goals.ts';
+import {MOMENT_IDS} from '../src/agent/moments.ts';
 import {MCP_TOOLS} from '../server/discovery.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -27,6 +28,11 @@ test('the coding-agent skill matches the deployed agent contract', {skip: !requi
     assert.ok(skill.includes(`\`${goal}\``), `SKILL.md is missing goal ${goal}`);
     assert.ok(helper.includes(`'${goal}'`), `cliphouse.mjs is missing goal ${goal}`);
   }
+  for (const moment of MOMENT_IDS) {
+    assert.ok(skill.includes(`\`${moment}\``), `SKILL.md is missing moment ${moment}`);
+    assert.ok(helper.includes(`'${moment}'`), `cliphouse.mjs is missing moment ${moment}`);
+  }
+  assert.match(helper, /--moment/, 'cliphouse.mjs must pass --moment to search_templates');
   for (const tool of MCP_TOOLS) assert.ok(helper.includes(`'${tool}'`), `cliphouse.mjs does not use ${tool}`);
   const server = fs.readFileSync(path.join(root, 'server/mcp.ts'), 'utf8');
   assert.deepEqual(objectLiteral(helper, 'SYNONYMS'), objectLiteral(server, 'SYNONYMS'), 'search synonym tables differ');

@@ -135,6 +135,14 @@ test('a failed log write still returns results', async () => {
   assert.ok(found.data.results.length > 0);
   assert.ok((await call('get_template_spec', {variantId: variant.id})).data);
 });
+test('search validates release moments and returns moment hints', async () => {
+  const found = await call('search_templates', {query: 'higher limits', moment: 'limit-raised', limit: 3});
+  assert.equal(found.data.moment, 'limit-raised');
+  assert.equal(found.data.detectedMoments[0].id, 'limit-raised');
+  assert.ok(found.data.results.every((r: {moments: string[]}) => r.moments.includes('limit-raised')));
+  const bad = await call('search_templates', {moment: 'new-mascot'});
+  assert.equal(bad.isError, true);
+});
 test('searchId links spec, link, and preview events', async () => {
   const {data: {searchId}} = await call('search_templates', {query: 'showreel'});
   await call('get_template_spec', {variantId: variant.id, searchId});

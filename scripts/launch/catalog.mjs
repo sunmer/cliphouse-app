@@ -4,12 +4,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {LAUNCH} from './briefs.mjs';
+import {refreshOf} from './refresh.mjs';
 
 const root = path.resolve(import.meta.dirname, '../..');
 // Preset tracks rotate through the library so the gallery shows the range. House leads: it suits launches.
 const PRESET_TRACKS = ['house-launch', 'techno-pulse', 'lofi-window', 'house-shipit', 'house-rooftop', 'techno-grid', 'lofi-sunday', 'lofi-nightshift'];
-export const presetProps = (b) => ({texts: Object.fromEntries(b.roles.map((r) => [r, b.texts[r]])), theme: b.theme,
-  audio: {enabled: true, track: PRESET_TRACKS[LAUNCH.indexOf(b) % PRESET_TRACKS.length]}});
+// A refreshed developer template takes its pilot theme once approved (or during a pilot run).
+export const presetProps = (b) => ({texts: Object.fromEntries(b.roles.map((r) => [r, b.texts[r]])), theme: refreshOf(b.id)?.theme ?? b.theme,
+  audio: {enabled: true, track: PRESET_TRACKS[LAUNCH.findIndex((x) => x.id === b.id) % PRESET_TRACKS.length]}});
 
 const seo = (b) => {
   const format = b.size[0] === b.size[1] ? '1:1' : b.size[0] > b.size[1] ? '16:9' : b.size[0] / b.size[1] < 0.7 ? '9:16' : '4:5';
@@ -18,6 +20,8 @@ const seo = (b) => {
 };
 
 export function entries(b) {
+  const refresh = refreshOf(b.id);
+  if (refresh) b = {...b, brief: refresh.summary};
   const createdAt = b.hook ? '2026-10-16' : b.developer ? '2026-10-14' : '2026-10-13';
   return {
     template: {id: b.id, title: b.name, creator: 'cliphouse.studio', prompt: b.brief, createdAt, license: 'MIT-0',

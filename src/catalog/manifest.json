@@ -1421,7 +1421,7 @@
       "id": "changelog",
       "title": "Changelog",
       "creator": "cliphouse.studio",
-      "prompt": "A 4:5 weekly changelog post. A version tag and the week, then up to five shipped items print onto a release log one per beat, each read as its own line (the user may prefix them with New, Improved, or Fixed), then the CTA. Built for X and LinkedIn feeds.",
+      "prompt": "A 4:5 weekly changelog printed as a release ledger: up to five shipped items are entered, stamped, and annotated in the margin one per beat, then the CTA.",
       "createdAt": "2026-10-13",
       "license": "MIT-0",
       "generation": {
@@ -1561,7 +1561,7 @@
       "id": "releasenotes",
       "title": "Release Notes",
       "creator": "cliphouse.studio",
-      "prompt": "A 16:9 release notes video for a changelog page or YouTube. A version and date header, then up to six notes that type or slide in one per beat like a terminal or a document, then the CTA. Developer-friendly and calm.",
+      "prompt": "A 16:9 release notes video laid out as a technical manual: a running section index advances while up to six notes are set as numbered clauses with margin annotations, then the CTA.",
       "createdAt": "2026-10-13",
       "license": "MIT-0",
       "generation": {
@@ -1603,7 +1603,7 @@
       "id": "apirelease",
       "title": "API Release",
       "creator": "cliphouse.studio",
-      "prompt": "A 16:9 API release video. The version and date sit in a header bar, the headline names the release, then up to four lines of example code type into an editor pane one per beat (a request, a flag, a response field), then the CTA as an install or docs command. Monospace, precise, developer-first.",
+      "prompt": "A 16:9 API release shown as a signal diagram: a request travels along a drawn route through up to four stations, each labeled with a short code line, then the CTA.",
       "createdAt": "2026-10-14",
       "license": "MIT-0",
       "generation": {
@@ -1631,7 +1631,7 @@
       "id": "migration",
       "title": "Migration Guide",
       "creator": "cliphouse.studio",
-      "prompt": "A 16:9 \"upgrade to the new version\" walkthrough. The headline names the upgrade, then up to four numbered steps advance along a progress rail one per beat, each step checking off as the next begins, then the CTA. Feels like a guided terminal session that ends green.",
+      "prompt": "A 16:9 upgrade walkthrough drawn as a transit map: the upgrade route runs from the old version to the new one through up to four numbered stops, then the CTA.",
       "createdAt": "2026-10-14",
       "license": "MIT-0",
       "generation": {
@@ -7653,7 +7653,7 @@
       "createdAt": "2026-10-13",
       "id": "changelog-launch",
       "title": "Weekly Changelog",
-      "description": "A weekly changelog post. A version tag and the week, then up to five shipped items print onto a release log one per beat, each read as its own line (the user may prefix them with New, Improved, or Fixed), then the CTA. Built for X and LinkedIn feeds.",
+      "description": "A weekly changelog printed as a release ledger: up to five shipped items are entered, stamped, and annotated in the margin one per beat, then the CTA.",
       "purpose": "Developer",
       "style": [
         "Tech",
@@ -7676,11 +7676,11 @@
           "cta": "Read the changelog"
         },
         "theme": {
-          "background": "#0f1115",
-          "surface": "#1b1f27",
-          "foreground": "#f4f6fb",
-          "accent": "#5b8cff",
-          "accent2": "#3ddc97"
+          "background": "#f4efe4",
+          "surface": "#e6dcc8",
+          "foreground": "#1f1a14",
+          "accent": "#c8361d",
+          "accent2": "#2c5f8a"
         },
         "audio": {
           "enabled": true,
@@ -8201,7 +8201,7 @@
       "createdAt": "2026-10-13",
       "id": "releasenotes-launch",
       "title": "Release Notes",
-      "description": "A release notes video for a changelog page or YouTube. A version and date header, then up to six notes that type or slide in one per beat like a terminal or a document, then the CTA. Developer-friendly and calm.",
+      "description": "A release notes video laid out as a technical manual: a running section index advances while up to six notes are set as numbered clauses with margin annotations, then the CTA.",
       "purpose": "Developer",
       "style": [
         "Tech",
@@ -8224,11 +8224,11 @@
           "cta": "npm i forge@latest"
         },
         "theme": {
-          "background": "#0d1117",
-          "surface": "#161b22",
-          "foreground": "#e6edf3",
-          "accent": "#f78166",
-          "accent2": "#7ee787"
+          "background": "#eef1ef",
+          "surface": "#d9e1dc",
+          "foreground": "#14201b",
+          "accent": "#0d6b57",
+          "accent2": "#c2410c"
         },
         "audio": {
           "enabled": true,
@@ -8365,7 +8365,7 @@
       "createdAt": "2026-10-14",
       "id": "apirelease-launch",
       "title": "API Release",
-      "description": "A API release video. The version and date sit in a header bar, the headline names the release, then up to four lines of example code type into an editor pane one per beat (a request, a flag, a response field), then the CTA as an install or docs command. Monospace, precise, developer-first.",
+      "description": "A API release shown as a signal diagram: a request travels along a drawn route through up to four stations, each labeled with a short code line, then the CTA.",
       "purpose": "Developer",
       "style": [
         "Tech",
@@ -8388,11 +8388,11 @@
           "cta": "Read the API docs"
         },
         "theme": {
-          "background": "#0c0f14",
-          "surface": "#171c25",
-          "foreground": "#e8edf5",
-          "accent": "#ffb224",
-          "accent2": "#4cc38a"
+          "background": "#fff8e7",
+          "surface": "#ffe7a8",
+          "foreground": "#171717",
+          "accent": "#e4572e",
+          "accent2": "#2364aa"
         },
         "audio": {
           "enabled": true,
@@ -8475,7 +8475,7 @@
       "createdAt": "2026-10-14",
       "id": "migration-launch",
       "title": "Migration Guide",
-      "description": "A \"upgrade to the new version\" walkthrough. The headline names the upgrade, then up to four numbered steps advance along a progress rail one per beat, each step checking off as the next begins, then the CTA. Feels like a guided terminal session that ends green.",
+      "description": "A upgrade walkthrough drawn as a transit map: the upgrade route runs from the old version to the new one through up to four numbered stops, then the CTA.",
       "purpose": "Developer",
       "style": [
         "Minimal",
@@ -8497,11 +8497,11 @@
           "cta": "Full migration guide"
         },
         "theme": {
-          "background": "#f4f7f5",
-          "surface": "#ffffff",
-          "foreground": "#10201a",
-          "accent": "#0f9d6b",
-          "accent2": "#3b5bdb"
+          "background": "#f7f4fb",
+          "surface": "#e5def2",
+          "foreground": "#1a1530",
+          "accent": "#d6336c",
+          "accent2": "#0b7285"
         },
         "audio": {
           "enabled": true,

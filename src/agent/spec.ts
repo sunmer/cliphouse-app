@@ -15,6 +15,7 @@ import {MUSIC_LICENSE, TRACKS, FADE_IN, FADE_OUT, trackPath} from '../music/libr
 import {usesLibrary} from '../music/schema.ts';
 import {logoOf, supportsLogo} from '../videos/logo.ts';
 import {fixedSampleData} from './sample-data.ts';
+import {momentsForTemplate} from './moments.ts';
 
 /** The attribution line agents are asked to keep when they publish a video made from this template. Optional. */
 export const CREDIT = 'Made with cliphou.se';
@@ -67,6 +68,7 @@ export function agentSpec({site, kind, id, url, title, variant, props, version, 
     editorUrl: `${site}/#/v/${variant.id}`,
     templateVersion: pinned.version, latestTemplateVersion: latest.version, sourceHash: pinned.hash,
     generation,
+    moments: momentsForTemplate(variant.template),
     ...(siteCommit ? {siteCommit} : {}),
     license: TEMPLATE_LICENSE, licenseUrl: `${site}/license/`, price: 'Free', attributionRequired: false,
     credit: {

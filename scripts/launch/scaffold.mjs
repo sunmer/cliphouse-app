@@ -3,6 +3,8 @@
 // Registration: the generated module src/videos/launch/index.ts (metas, schemas, sources),
 // which meta.ts, schemas.ts, registry.ts, and hyperframesSources.ts spread in.
 // Usage: node scripts/launch/scaffold.mjs
+// SCAFFOLD_ONLY=a,b limits the design-driven meta.ts rewrite to those ids. Pilot checks pass the one id
+// under test, so a parallel candidate never rewrites another template's file.
 import fs from 'node:fs';
 import path from 'node:path';
 import {LAUNCH} from './briefs.mjs';
@@ -10,6 +12,7 @@ import {LAUNCH} from './briefs.mjs';
 const root = path.resolve(import.meta.dirname, '../..');
 const write = (p, text) => { fs.mkdirSync(path.dirname(path.join(root, p)), {recursive: true}); fs.writeFileSync(path.join(root, p), text); };
 const pascal = (id) => id[0].toUpperCase() + id.slice(1);
+const only = process.env.SCAFFOLD_ONLY ? new Set(process.env.SCAFFOLD_ONLY.split(',')) : null;
 
 for (const b of LAUNCH) {
   const {id} = b;
@@ -17,12 +20,20 @@ for (const b of LAUNCH) {
   write(`src/videos/${id}/score.ts`, `import type {BeatScore} from '../beat/score.ts';\nimport json from './score.json' with {type: 'json'};\n\nexport const ${id}Score = json as unknown as BeatScore;\n`);
   write(`src/videos/${id}/schema.ts`, `import type {z} from 'zod';\nimport {librarySchema} from '../../music/schema.ts';\nimport {${id}Score} from './score.ts';\n\n// Sound comes from the music library: audio is {enabled, track}.\nexport const ${id}Schema = librarySchema(${id}Score, ${JSON.stringify(b.roles).replaceAll('"', "'")} as const);\nexport type ${N}Props = z.infer<typeof ${id}Schema>;\n`);
   // Poster frame and motion labels come from the generated design (output/launch/<id>/meta.json) when it exists.
-  const gen = path.join(root, 'output/launch', id, 'meta.json');
-  const design = fs.existsSync(gen) ? JSON.parse(fs.readFileSync(gen, 'utf8')) : {};
+  // Pilot runs (LAUNCH_OUTPUT) read the candidate design first and fall back to the published one.
+  const dirs = only && !only.has(id) ? ['output/launch'] : [process.env.LAUNCH_OUTPUT, 'output/launch'].filter(Boolean);
+  const gen = dirs.map((d) => path.join(root, d, id, 'meta.json')).find((f) => fs.existsSync(f)) ?? '';
+  // Without a design file (a fresh checkout), the committed meta.ts keeps its poster frame and motion.
+  const metaFile = path.join(root, `src/videos/${id}/meta.ts`);
+  const current = fs.existsSync(metaFile) ? fs.readFileSync(metaFile, 'utf8') : '';
+  const committed = {poster: Number(current.match(/posterFrame: (\d+)/)?.[1]), motion: current.match(/motion: (\[[^\]]*\])/)?.[1]?.replaceAll("'", '"')};
+  const design = gen ? JSON.parse(fs.readFileSync(gen, 'utf8'))
+    : {poster: committed.poster, motion: committed.motion ? JSON.parse(committed.motion) : undefined};
   const motion = (design.motion?.length ? design.motion : ['Kinetic type', 'Mask reveal']).slice(0, 4);
   if (!fs.existsSync(path.join(root, `src/videos/${id}/score.json`))) write(`src/videos/${id}/score.json`, `${JSON.stringify(placeholder(b), null, 2)}\n`);
   if (!fs.existsSync(path.join(root, `src/hyperframes/${id}/index.html`))) write(`src/hyperframes/${id}/index.html`, placeholderHtml(b));
-  write(`src/videos/${id}/meta.ts`, `import {beatMeta} from '../beat/schema.ts';\nimport {${id}Score} from './score.ts';\n\nexport const ${id}Meta = beatMeta({\n  id: '${id}', name: '${b.name}', width: ${b.size[0]}, height: ${b.size[1]}, posterFrame: ${Number.isInteger(design.poster) ? design.poster : 0},\n  motion: ${JSON.stringify(motion).replaceAll('"', "'")},\n}, ${id}Score);\n`);
+  if (!only || only.has(id) || !current)
+    write(`src/videos/${id}/meta.ts`, `import {beatMeta} from '../beat/schema.ts';\nimport {${id}Score} from './score.ts';\n\nexport const ${id}Meta = beatMeta({\n  id: '${id}', name: '${b.name}', width: ${b.size[0]}, height: ${b.size[1]}, posterFrame: ${Number.isInteger(design.poster) ? design.poster : 0},\n  motion: ${JSON.stringify(motion).replaceAll('"', "'")},\n}, ${id}Score);\n`);
 }
 
 // A minimal valid score and composition, so the tree type-checks before Opus has written the real ones.

@@ -19,4 +19,4 @@ export const GOAL_IDS = MARKETING_GOALS.map((goal) => goal.id) as [MarketingGoal
 export const goalLabel = (goal: MarketingGoal) => MARKETING_GOALS.find((item) => item.id === goal)!.label;
 
 // Bump when an agent-visible MCP tool, argument, result field, or workflow changes.
-export const AGENT_CONTRACT_VERSION = '2026-10-17.1';
+export const AGENT_CONTRACT_VERSION = '2026-10-18.1';

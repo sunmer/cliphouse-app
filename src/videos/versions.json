@@ -777,10 +777,10 @@
   ],
   "changelog": [
     {
-      "version": 3,
-      "hash": "336b4587c90816a8",
-      "sha256": "bba61228baee0801e58322a87148024018ee24f868b5029d15a1f5dfa68a6f93",
-      "createdAt": "2026-10-14"
+      "version": 4,
+      "hash": "5aa5483bb2f4622c",
+      "sha256": "7ae0a10cf274155540345290fdf3e4414cc51f6d13525764e407d28cca6ba5e7",
+      "createdAt": "2026-10-17"
     }
   ],
   "versionreveal": [
@@ -849,10 +849,10 @@
   ],
   "releasenotes": [
     {
-      "version": 3,
-      "hash": "b72ccac66636cb92",
-      "sha256": "f83f56472cbff6a10918a59d8957416d04931a0a8c63beb2d0111d6a7ced8cee",
-      "createdAt": "2026-10-14"
+      "version": 4,
+      "hash": "82199e63cd8b04d6",
+      "sha256": "a87d219946b36847fb9cf0936012b83323c9daeac743d4ad63416e083ed5c1ee",
+      "createdAt": "2026-10-17"
     }
   ],
   "beforenow": [
@@ -881,10 +881,10 @@
   ],
   "apirelease": [
     {
-      "version": 1,
-      "hash": "1d6fced0111130a9",
-      "sha256": "1213d953f215bde5fa88843e46e0f6d0514a6c8b3ee4724b175d723a21e55557",
-      "createdAt": "2026-10-14"
+      "version": 2,
+      "hash": "9ab625abced24524",
+      "sha256": "0545647b91290b31801674e88735618c28384684f51f541afed6698e76d5cac0",
+      "createdAt": "2026-10-17"
     }
   ],
   "breakingchange": [
@@ -897,10 +897,10 @@
   ],
   "migration": [
     {
-      "version": 1,
-      "hash": "0c8727d6ca329cba",
-      "sha256": "298f87b3a75ce484f5f1bda579a34fea354e973ed891b224413b5966b473e100",
-      "createdAt": "2026-10-14"
+      "version": 2,
+      "hash": "a65565fd79fc119c",
+      "sha256": "78af1012fd9a1b4b7a64a91bf1c056979f19d96bbf15f14833fc1d6d88084605",
+      "createdAt": "2026-10-17"
     }
   ],
   "codediff": [

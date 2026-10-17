@@ -9,16 +9,19 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {message, costOf} from './anthropic.mjs';
 import {LAUNCH} from './briefs.mjs';
+import {REFRESH, refreshOf} from './refresh.mjs';
 
 const root = path.resolve(import.meta.dirname, '../..');
 const MODEL = process.env.MODEL || 'claude-opus-5-5';
 const EFFORT = process.env.EFFORT || 'high';
 const [id, step] = process.argv.slice(2);
 if (!id || !['plan', 'repair', 'review'].includes(step)) throw new Error('Usage: generate.mjs <id> <plan|repair|review>');
-const b = LAUNCH.find((x) => x.id === id);
-if (!b) throw new Error(`Unknown launch template ${id}`);
+const base = LAUNCH.find((x) => x.id === id);
+if (!base) throw new Error(`Unknown launch template ${id}`);
+const refresh = refreshOf(id);
+const b = refresh ? {...base, brief: refresh.summary, theme: refresh.theme} : base;
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
-const dir = path.join(root, 'output/launch', id);
+const dir = path.join(root, process.env.LAUNCH_OUTPUT || 'output/launch', id);
 const cand = path.join(dir, 'candidate');
 fs.mkdirSync(dir, {recursive: true});
 const logPath = path.join(dir, 'log.json');
@@ -34,9 +37,12 @@ const shared = [
   ['src/hyperframes/shared/beat-entry.ts (the runtime, inlined as CliphouseBeat)', read('src/hyperframes/shared/beat-entry.ts')],
   ['src/hyperframes/shared/base.css', read('src/hyperframes/shared/base.css')],
   ['src/hyperframes/shared/base.js', read('src/hyperframes/shared/base.js')],
-  ['src/videos/pricedrop/score.json (an example score)', read('src/videos/pricedrop/score.json')],
-  ['src/hyperframes/pricedrop/index.html (an example composition on the same runtime)', read('src/hyperframes/pricedrop/index.html')],
-  ['src/videos/ticker/score.json (an example score with a list)', read('src/videos/ticker/score.json')],
+  ['src/videos/featurelist/score.json (an example beat score with a list)', read('src/videos/featurelist/score.json')],
+  ...(refresh
+    ? refresh.references.map(([file, why]) => [`${file} (style reference: ${why}; borrow its craft, not its layout)`, read(file)])
+    : [['src/videos/pricedrop/score.json (an example score)', read('src/videos/pricedrop/score.json')],
+      ['src/hyperframes/pricedrop/index.html (an example composition on the same runtime)', read('src/hyperframes/pricedrop/index.html')],
+      ['src/videos/ticker/score.json (an example score with a list)', read('src/videos/ticker/score.json')]]),
 ];
 const fence = (n) => n.includes('.json') ? 'json' : n.includes('.html') ? 'html' : n.includes('.md') ? 'md' : 'ts';
 const block = (files) => files.map(([n, c]) => `### ${n}\n\`\`\`${fence(n)}\n${c}\n\`\`\``).join('\n\n');
@@ -81,7 +87,13 @@ const listSpec = b.list
 const spec = [
   `Create the new template "${id}" (${b.name}).`,
   `Format: ${w}x${h} at 30 fps, about ${b.seconds} seconds (whole bars only).`,
-  `Brief: ${b.brief}`,
+  ...(refresh ? [
+    `Information to show: ${refresh.information}`,
+    `Visual world: ${refresh.visual}`,
+    `Type: ${refresh.type}`,
+    'Use at most one interface metaphor (a terminal, an editor, a card, or a table) in the whole film, and only when the visual world calls for it. Everything else follows the visual world. Do not build the film from rectangular panels, cards, or app chrome.',
+    `The pilot set must look like four different studios made it. Do not reuse the visual worlds of the other pilot templates: ${Object.entries(REFRESH).filter(([k]) => k !== id).map(([k, r]) => `${k} (${r.visual.split(':')[0]})`).join(', ')}.`,
+  ] : [`Brief: ${b.brief}`]),
   `Text roles, exactly these and no others: ${b.roles.join(', ')}. Their limits are in vocab.ts (ROLES.max). The scenes in score.json must use exactly these roles, and every role must appear in a scene.`,
   listSpec,
   `Starter copy (the catalog preset): ${JSON.stringify(b.texts)}`,
@@ -118,6 +130,12 @@ if (step === 'plan') {
       `- Is the type scale right for a ${w}x${h} post seen on a phone in a feed? The hero text should dominate; small text must still read at thumbnail size.`,
       '- Does it deliver the brief literally (every element it names) and read as a software launch asset?',
       '- Is anything cluttered, off the beat, overlapping, cut off, hard to read, empty for too long, or banned by the style guide?',
+      ...(refresh ? [
+        '- Is the film mostly rectangular panels, cards, or a UI frame? That is a fault: the visual world must carry the composition.',
+        `- Does it look like another template in the set, or like the other pilot worlds (${Object.keys(REFRESH).filter((k) => k !== id).join(', ')})? That is a fault.`,
+        '- Does it use more than one interface metaphor (terminal, editor, card, table)? That is a fault.',
+        '- Does the poster frame have one distinctive main shape that you would recognize as a thumbnail? A poster without one is a fault.',
+      ] : []),
       'List the faults, then fix all of them. Reply in the same format, but include only the files you change, each in full. Files you leave out stay as they are.',
     ].join('\n')},
   ]});

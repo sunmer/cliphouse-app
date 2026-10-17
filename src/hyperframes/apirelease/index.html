@@ -7,256 +7,345 @@
   <style>
     __BASE_CSS__
     :root { --w: 1920px; --h: 1080px; }
-    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
+    #grid { position:absolute; left:0; top:0; opacity:.16; }
+    .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:.06em 0 .14em; margin:-.06em 0 -.14em; }
     .w { display:inline-block; }
 
-    /* Header bar: always present, the loop frame is an empty editor */
-    .hbg { position:absolute; left:96px; top:80px; width:1728px; height:112px; background:var(--theme-surface); }
-    .caret0 { position:absolute; left:96px; top:80px; width:24px; height:112px; background:var(--theme-accent); }
-    .brand { position:absolute; left:152px; top:80px; width:860px; height:112px; line-height:112px; font-size:60px; font-weight:700; white-space:nowrap; overflow:hidden; color:var(--theme-foreground); }
-    .date { position:absolute; left:1032px; top:80px; width:760px; height:112px; line-height:112px; font-size:52px; font-weight:700; white-space:nowrap; overflow:hidden; text-align:right; color:var(--theme-accent); }
+    /* header: line boxes leave room for the mask overflow so the fit keeps the full size */
+    #brand { position:absolute; left:96px; top:68px; height:66px; display:flex; align-items:center; gap:20px; }
+    #glyph { width:26px; height:26px; flex:none; background:var(--theme-accent2); }
+    #brand-box { width:640px; height:66px; padding-top:7px; font-size:44px; line-height:52px; white-space:nowrap; text-transform:uppercase; color:var(--theme-foreground); }
 
-    /* Editor pane */
-    .pane { position:absolute; left:96px; top:224px; width:1728px; height:776px; background:var(--theme-surface); }
-    .divider { position:absolute; left:0; top:120px; width:1728px; height:2px; background:color-mix(in srgb, var(--theme-foreground) 16%, transparent); transform-origin:0 50%; }
-    .dots { position:absolute; left:40px; top:49px; display:flex; gap:16px; }
-    .dots i { display:block; width:22px; height:22px; border-radius:50%; background:color-mix(in srgb, var(--theme-foreground) 30%, transparent); }
-    .tabline { position:absolute; left:168px; top:114px; width:540px; height:6px; background:var(--theme-accent); transform-origin:0 50%; }
-    .ci { position:absolute; left:860px; top:42px; width:800px; height:36px; background:color-mix(in srgb, var(--theme-foreground) 12%, transparent); transform-origin:100% 50%; transform:scaleX(0); }
-    .cifill { position:absolute; left:0; top:0; width:800px; height:36px; background:var(--theme-accent2); transform-origin:0 50%; transform:scaleX(0); }
-    .tick { position:absolute; top:0; width:8px; height:36px; margin-left:-4px; background:var(--theme-surface); }
-    .gutter { position:absolute; left:200px; top:122px; width:3px; height:654px; background:color-mix(in srgb, var(--theme-foreground) 14%, transparent); transform-origin:50% 0; }
-    .run { position:absolute; left:0; top:764px; width:1728px; height:12px; background:var(--theme-accent2); transform-origin:0 50%; }
-    .bigcaret { position:absolute; left:72px; top:348px; width:102px; height:154px; background:var(--theme-accent); transform-origin:50% 100%; }
+    /* headline */
+    #hl-box { position:absolute; left:96px; top:150px; width:1728px; height:480px; font-size:200px; line-height:1; color:var(--theme-foreground); }
+    #hl { display:block; text-wrap:balance; overflow-wrap:anywhere; }
 
-    /* Code rows: reflow by count */
-    .list { position:absolute; left:0; top:150px; width:1728px; height:588px; display:flex; flex-direction:column; justify-content:center; }
-    .row { position:relative; flex:none; width:1728px; height:min(196px, calc(588px / var(--count, 4))); }
-    .hl { position:absolute; left:0; top:8px; bottom:8px; width:1728px; background:color-mix(in srgb, var(--theme-accent) 10%, transparent); transform-origin:0 50%; }
-    .hl:before { content:""; position:absolute; left:0; top:0; bottom:0; width:8px; background:var(--theme-accent); }
-    .num { position:absolute; left:0; top:50%; width:164px; font-size:min(112px, calc(240px / var(--count, 4))); line-height:1.2; height:1.2em; margin-top:-.6em; overflow:hidden; text-align:right; color:color-mix(in srgb, var(--theme-foreground) 42%, transparent); visibility:hidden; }
-    .numt { display:inline-block; }
-    .code { position:absolute; left:240px; top:50%; width:1400px; height:128px; margin-top:-64px; line-height:128px; font-size:68px; font-weight:500; white-space:nowrap; overflow:hidden; color:var(--theme-foreground); }
-    .typed { position:relative; display:inline-block; vertical-align:top; }
-    .slot { position:absolute; left:0; top:50%; width:100%; height:.62em; margin-top:-.31em; background:color-mix(in srgb, var(--theme-foreground) 9%, transparent); transform-origin:0 50%; }
-    .txt { position:relative; display:inline-block; vertical-align:top; }
-    /* The caret is one monospace cell wide (.6em), so each xPercent step of 100 moves it one character. */
-    .caret { position:absolute; left:0; top:50%; width:.6em; height:.9em; margin-top:-.45em; background:var(--theme-accent); visibility:hidden; }
-    .pip { position:absolute; left:1660px; top:50%; width:24px; height:24px; margin-top:-12px; background:var(--theme-accent2); }
-    .str { color:var(--theme-accent2); }
-    .kw, .numv { color:var(--theme-accent); }
+    /* ruler and traces */
+    #ruler { position:absolute; left:96px; top:980px; width:1728px; height:0; }
+    #ruler .base { position:absolute; left:0; top:-1px; width:100%; height:2px; background:var(--theme-foreground); opacity:.5; }
+    #ruler .tick { position:absolute; top:-14px; width:2px; height:14px; background:var(--theme-foreground); opacity:.5; }
+    #ruler .tick.major { top:-30px; height:30px; opacity:.8; }
+    .trace { position:absolute; top:740px; width:4px; height:240px; background:var(--theme-accent2); }
+    .trace .via { position:absolute; left:-6px; top:-8px; width:16px; height:16px; border-radius:50%; background:var(--theme-accent2); }
+    .trace .tpad { position:absolute; left:-9px; bottom:-11px; width:22px; height:22px; border:4px solid var(--theme-accent2); background:var(--theme-background); }
+    .trace .tlamp { position:absolute; inset:2px; background:var(--theme-accent); }
 
-    /* Headline: hero, then file tab, then hero */
-    .headline { position:absolute; left:72px; top:184px; width:1584px; height:360px; font-size:170px; line-height:1.02; font-weight:800; color:var(--theme-foreground); align-content:center; }
-    .rule { position:absolute; left:72px; top:528px; width:320px; height:12px; background:var(--theme-accent2); transform-origin:0 50%; }
+    /* trunk, response terminal, dimension cap, latency playhead */
+    #trunk { position:absolute; left:237px; top:220px; width:6px; height:760px; background:var(--theme-foreground); }
+    #resp { position:absolute; left:222px; top:962px; width:36px; height:36px; border:4px solid var(--theme-accent2); background:var(--theme-background); }
+    #resp .lamp { position:absolute; inset:4px; background:var(--theme-accent2); }
+    #capL { position:absolute; left:237px; top:940px; width:6px; height:80px; background:var(--theme-accent2); }
+    #head { position:absolute; left:0; top:940px; width:6px; height:80px; background:var(--theme-accent2); }
 
-    /* Command bar */
-    .cmd { position:absolute; left:72px; top:592px; width:1584px; height:136px; background:var(--theme-foreground); }
-    .cfill { position:absolute; left:0; top:0; width:1584px; height:136px; background:var(--theme-accent); }
-    .chev { position:absolute; left:46px; top:50%; width:36px; height:36px; margin-top:-18px; border-right:10px solid var(--theme-background); border-top:10px solid var(--theme-background); transform:rotate(45deg); }
-    .cta-fit { position:absolute; left:136px; top:0; width:1340px; height:136px; line-height:136px; font-size:88px; font-weight:800; white-space:nowrap; overflow:hidden; color:var(--theme-background); }
-    .ctyped { position:relative; display:inline-block; vertical-align:top; }
-    .cta-t { display:inline-block; vertical-align:top; }
-    .cta-t .wmask { padding:0; margin:0; }
-    .ccaret { position:absolute; left:0; top:50%; width:.6em; height:.9em; margin-top:-.45em; background:var(--theme-background); visibility:hidden; }
-    .okbox { position:absolute; left:1500px; top:48px; width:40px; height:40px; background:var(--theme-background); }
+    /* list rows */
+    #rows { position:absolute; left:0; top:300px; width:1920px; height:600px; display:flex; flex-direction:column; justify-content:space-evenly; }
+    .row { position:relative; flex:none; width:1920px; height:min(160px, calc(480px / var(--count, 4))); }
+    .wire { position:absolute; left:240px; top:calc(50% - 2px); width:1490px; height:4px; background:var(--theme-foreground); opacity:.55; }
+    .node { position:absolute; left:220px; top:calc(50% - 20px); width:40px; height:40px; border-radius:50%; border:5px solid var(--theme-foreground); background:var(--theme-background); }
+    .node .lamp { position:absolute; inset:5px; border-radius:50%; background:var(--theme-accent); }
+    .pad { position:absolute; left:1716px; top:calc(50% - 11px); width:22px; height:22px; background:var(--theme-accent2); }
+    .nummask { position:absolute; left:1748px; top:calc(50% - 26px); width:76px; height:52px; overflow:hidden; text-align:right; }
+    .num { display:block; font-size:36px; line-height:52px; font-weight:700; color:var(--theme-accent2); }
+    .code-box { position:absolute; left:330px; top:10px; width:1370px; height:calc(100% - 20px); display:flex; align-items:center; white-space:nowrap; font-size:60px; }
+    .chip { flex:none; display:block; padding:0 24px; line-height:1.3; font-weight:600; background:var(--theme-surface); color:var(--theme-foreground); }
+
+    /* bus */
+    #bus { position:absolute; left:0; top:740px; width:1920px; height:0; }
+    #railwrap { position:absolute; left:112px; top:-3px; width:1712px; height:30px; }
+    #rail { position:absolute; left:0; top:0; width:100%; height:6px; background:var(--theme-foreground); }
+    #flow { position:absolute; left:0; top:18px; }
+    #origin { position:absolute; left:82px; top:-30px; width:60px; height:60px; border-radius:50%; border:4px solid var(--theme-foreground); background:var(--theme-surface); }
+    #junction { position:absolute; left:222px; top:-18px; width:36px; height:36px; border-radius:50%; border:5px solid var(--theme-foreground); background:var(--theme-background); }
+    #junction .lamp { position:absolute; inset:4px; border-radius:50%; background:var(--theme-accent); }
+    #busend { position:absolute; left:1812px; top:-12px; width:24px; height:24px; border:4px solid var(--theme-foreground); background:var(--theme-background); }
+    #busend .lamp { position:absolute; inset:2px; background:var(--theme-accent); }
+    #charge { position:absolute; top:-4px; height:8px; left:1000px; width:100px; background:var(--theme-accent); }
+    #date-box { position:absolute; left:1284px; top:-100px; width:540px; height:60px; font-size:44px; line-height:48px; text-align:right; white-space:nowrap; color:var(--theme-foreground); }
+
+    /* the carrier: a 100 px unit square placed and sized only by transforms */
+    #pulse { position:absolute; left:0; top:0; width:100px; height:100px; background:var(--theme-accent); transform-origin:0 0; }
+
+    /* CTA */
+    #cta-box { position:absolute; left:160px; top:696px; width:900px; height:110px; font-size:80px; line-height:88px; white-space:nowrap; color:var(--theme-background); }
+    #cta-in { display:inline-block; }
+    #arrow { position:absolute; left:900px; top:712px; width:56px; height:56px; }
+    #arrow .chev { position:absolute; left:6px; top:13px; width:30px; height:30px; border-top:9px solid var(--theme-background); border-right:9px solid var(--theme-background); transform:rotate(45deg); }
   </style>
 </head>
 <body>
   <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
-    <section id="apirelease-main" class="scene" data-start="0" data-duration="10" data-track-index="0">
-      <div class="hbg"></div>
-      <div class="caret0"></div>
-      <div class="brand mono" data-fit-max="60" data-fit-min="34" data-text-role="brand" data-beat-text="brand">Parcel API</div>
-      <div class="date mono" data-fit-max="52" data-fit-min="30" data-text-role="date" data-beat-text="date">v2.0 / Oct 14</div>
+    <svg id="grid" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true">
+      <defs>
+        <pattern id="cross" x="48" y="48" width="96" height="96" patternUnits="userSpaceOnUse">
+          <path d="M42 48H54M48 42V54" style="stroke:var(--theme-foreground)" stroke-width="2" fill="none" />
+        </pattern>
+      </defs>
+      <rect width="1920" height="1080" fill="url(#cross)" />
+    </svg>
 
-      <div class="pane">
-        <div class="divider"></div>
-        <div class="dots"><i></i><i></i><i></i></div>
-        <div class="gutter"></div>
-        <div class="tabline"></div>
-        <div class="ci"><div class="cifill"></div><i class="tick" style="left:25%"></i><i class="tick" style="left:50%"></i><i class="tick" style="left:75%"></i></div>
-        <div class="list" data-list>
-          <template data-list-row>
-            <div class="row">
-              <div class="hl" data-list-part="hl"></div>
-              <div class="num mono" data-list-part="num" data-list-align="y"><span class="numt" data-list-number>01</span></div>
-              <div class="code mono" data-fit-max="68" data-fit-min="40"><span class="typed"><i class="slot" data-list-part="slot" data-list-group="scaffold" data-list-align="y"></i><span class="txt" data-list-text></span><i class="caret" data-list-part="caret"></i></span></div>
-              <i class="pip" data-list-part="pip" data-list-align="y"></i>
-            </div>
-          </template>
+    <div id="ruler"><div class="base"></div></div>
+
+    <div class="trace l" style="left:574px"><span class="via"></span><span class="tpad"><span class="tlamp"></span></span></div>
+    <div class="trace l" style="left:862px"><span class="via"></span><span class="tpad"><span class="tlamp"></span></span></div>
+    <div class="trace r" style="left:1342px"><span class="via"></span><span class="tpad"><span class="tlamp"></span></span></div>
+    <div class="trace r" style="left:1534px"><span class="via"></span><span class="tpad"><span class="tlamp"></span></span></div>
+    <div class="trace r" style="left:1726px"><span class="via"></span><span class="tpad"><span class="tlamp"></span></span></div>
+
+    <div id="trunk"></div>
+    <div id="resp"><span class="lamp"></span></div>
+    <span id="capL"></span>
+    <span id="head"></span>
+
+    <div id="rows" data-list>
+      <template data-list-row>
+        <div class="row">
+          <span class="wire" data-list-part="wire"></span>
+          <span class="node" data-list-part="node" data-list-align="y"><span class="lamp"></span></span>
+          <span class="pad" data-list-part="pad" data-list-align="y"></span>
+          <span class="nummask"><span class="num mono" data-list-number data-list-part="num"></span></span>
+          <div class="code-box mono" data-fit-max="60" data-fit-min="36"><span class="chip" data-list-part="chip"><span class="code" data-list-text data-words></span></span></div>
         </div>
-        <div class="rule"></div>
-        <div class="bigcaret"></div>
-        <h1 class="headline mono fit" data-fit-max="170" data-fit-min="96" data-text-role="headline" data-beat-text="headline">Webhooks v2</h1>
-        <div class="cmd">
-          <div class="cfill"></div>
-          <i class="chev"></i>
-          <div class="cta-fit mono" data-fit-max="88" data-fit-min="48"><span class="ctyped"><span class="cta-t" data-text-role="cta" data-beat-text="cta">Read the API docs</span><i class="ccaret"></i></span></div>
-          <i class="okbox"></i>
-        </div>
-        <div class="run"></div>
+      </template>
+    </div>
+
+    <div id="bus">
+      <div id="railwrap">
+        <div id="rail"></div>
+        <svg id="flow" width="1712" height="6" viewBox="0 0 1712 6" aria-hidden="true">
+          <line x1="0" y1="3" x2="1712" y2="3" style="stroke:var(--theme-accent2)" stroke-width="6" stroke-dasharray="18 30" stroke-dashoffset="0" />
+        </svg>
       </div>
-    </section>
+      <div id="charge"></div>
+      <div id="origin"></div>
+      <div id="junction"><span class="lamp"></span></div>
+      <div id="busend"><span class="lamp"></span></div>
+      <div id="date-box" class="mono" data-fit-max="44" data-fit-min="28"><span data-text-role="date" data-beat-text="date">v2.0 / Oct 14</span></div>
+    </div>
+
+    <div id="pulse"></div>
+
+    <div id="cta-box" class="display" data-fit-max="80" data-fit-min="48"><span id="cta-in" data-text-role="cta" data-beat-text="cta">Read the API docs</span></div>
+    <div id="arrow"><span class="chev"></span></div>
+
+    <div id="hl-box" class="display" data-fit-max="200" data-fit-min="104"><div id="hl" data-text-role="headline" data-beat-text="headline">Webhooks v2</div></div>
+
+    <div id="brand"><span id="glyph"></span><div id="brand-box" class="display" data-fit-max="44" data-fit-min="30"><span data-text-role="brand" data-beat-text="brand">Parcel API</span></div></div>
   </div>
   <script>__BASE_JS__</script>
   <script>__BEAT_JS__</script>
   <script>
     const tl = gsap.timeline({paused: true});
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => [...document.querySelectorAll(s)];
+
+    // Static ruler ticks: fixed decoration, not tied to list items.
+    (() => {
+      const ruler = $('#ruler');
+      for (let k = 0; k <= 18; k++) {
+        const t = document.createElement('span');
+        t.className = 'tick' + (k % 3 === 0 ? ' major' : '');
+        t.style.left = (k * 96 - 1) + 'px';
+        ruler.append(t);
+      }
+    })();
+
     CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {
-      const B = (n) => m.at(n);
-      const t = (id) => m.cue(id);
-      const q = (s) => document.querySelector(s);
-      const X = {immediateRender: false};
-      const rise = (el, at, cap = 3) => m.spans(el).forEach((w, i) =>
-        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, at + Math.min(i, cap) * B(0.25)));
-      const drop = (el, at) => m.spans(el).forEach((w) =>
-        tl.fromTo(w, {yPercent: 0}, {yPercent: 125, duration: B(0.5), ease: 'power3.in', ...X}, at));
-      const esc = (s) => s.replace(/[&<>]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[c]));
-      const paint = (s) => s.split(/("[^"]*"|\b(?:GET|POST|PUT|PATCH|DELETE)\b|\b\d+(?:\.\d+)?\b)/).map((tok, i) => {
-        if (i % 2 === 0) return esc(tok);
-        const k = tok[0] === '"' ? 'str' : /\d/.test(tok[0]) ? 'numv' : 'kw';
-        return '<span class="' + k + '">' + esc(tok) + '</span>';
-      }).join('');
+      const B = m.at(1);
+      const E = 'expo.out', IO = 'expo.inOut', P3 = 'power3.out', IN = 'power3.in', POP = 'back.out(1.2)';
+      const ir = {immediateRender: false};
+      const n = m.items.length;
+      const Y0 = 740, Y1 = 220, LIFT = Y1 - Y0, BAR = 980;
+      // The packet is a 100 px unit square: x/y place its top-left corner, scaleX/scaleY size it.
+      const U = 100;
+      const box = (x, y, w, h) => ({x, y, scaleX: w / U, scaleY: h / U});
+      const BLOCK = 160;
 
-      const head = q('.headline');
-      const rule = q('.rule');
-      const tabline = q('.tabline');
-      const gutter = q('.gutter');
-      const list = q('.list');
-      const cmd = q('.cmd');
-      const ctaT = q('.cta-t');
-      const ccaret = q('.ccaret');
-      const ci = q('.ci');
-      const cifill = q('.cifill');
-      const divider = q('.divider');
-      const bigcaret = q('.bigcaret');
-      const DOCK = 0.34;
+      // Reflow labels per count: fewer rows get larger code.
+      const fitMax = n <= 1 ? 88 : n === 2 ? 76 : n === 3 ? 68 : 60;
+      for (const b of document.querySelectorAll('#rows .code-box')) b.dataset.fitMax = String(fitMax);
+      window.cliphouseFitText && window.cliphouseFitText();
 
-      // Code type scales with the count: fewer lines, bigger code. Long lines still fit down to 40 px.
-      const FMAX = [68, 100, 88, 76, 68][m.items.length] || 68;
-      for (const c of document.querySelectorAll('[data-list] .code')) c.dataset.fitMax = String(FMAX);
+      const pulse = $('#pulse'), ring = $('#origin'), bus = $('#bus'), rail = $('#railwrap');
+      const junction = $('#junction'), jLamp = $('#junction .lamp');
+      const busEnd = $('#busend'), endLamp = $('#busend .lamp'), charge = $('#charge');
+      const glyph = $('#glyph');
+      const brandW = m.spans($('[data-beat-text="brand"]'));
+      const hlEl = $('#hl'), hlW = m.spans(hlEl);
+      const dateW = m.spans($('[data-beat-text="date"]'));
+      const ctaIn = $('#cta-in'), ctaW = m.spans(ctaIn);
+      const ruler = $('#ruler'), traces = $$('.trace'), tR = $$('.trace.r'), tPads = $$('.trace.r .tlamp');
+      const trunk = $('#trunk'), resp = $('#resp'), respLamp = $('#resp .lamp');
+      const capL = $('#capL'), head = $('#head');
+      const arrow = $('#arrow'), rows = $('#rows'), flow = $('#flow line');
+
+      // Layout measured after fitting: headline centred in its box, the button hugs the CTA.
+      const gap = Math.max(0, $('#hl-box').clientHeight - hlEl.offsetHeight);
+      const tw = ctaIn.offsetWidth;
+      const W = 64 + tw + 40 + 56 + 64;
+      arrow.style.left = (96 + 64 + tw + 40) + 'px';
+      charge.style.left = (96 + W) + 'px';
+      charge.style.width = Math.max(0, 1824 - 96 - W) + 'px';
+
+      // Playhead notches: from the trunk to the end of the ruler, one per beat.
+      const H0 = 237, H1 = 1818;
+      const stepIds = ['stepA', 'stepB', 'stepC', 'probe'];
+      const notch = (k) => Math.round(H0 + (H1 - H0) * k / stepIds.length);
+
+      // First-frame state (also the last frame).
+      tl.set(hlEl, {y: gap / 2}, 0);
+      tl.set(pulse, {transformOrigin: '0% 0%', ...box(96, Y0 - 16, 32, 32)}, 0);
+      tl.set([...brandW, ...hlW, ...dateW, ...ctaW], {yPercent: 110}, 0);
+      tl.set(rail, {scaleX: 0, transformOrigin: '0% 50%'}, 0);
+      tl.set(ruler, {scaleX: 0, transformOrigin: '0% 50%'}, 0);
+      tl.set(charge, {scaleX: 0, transformOrigin: '0% 50%'}, 0);
+      tl.set([junction, busEnd, resp, jLamp, endLamp, respLamp, glyph, ...tPads], {scale: 0}, 0);
+      tl.set(traces, {scaleY: 0, transformOrigin: '50% 0%'}, 0);
+      tl.set(trunk, {scaleY: 0, transformOrigin: '50% 0%'}, 0);
+      tl.set(capL, {scaleY: 0}, 0);
+      tl.set(head, {x: H0, scaleY: 0}, 0);
+      tl.set(arrow, {clipPath: 'inset(0% 100% 0% 0%)', x: -20}, 0);
+      tl.set(bus, {y: 0}, 0);
+      tl.set(ring, {scale: 1}, 0);
+
+      // Signal flow: continuous, whole dash periods, so the loop is seamless.
+      tl.fromTo(flow, {attr: {'stroke-dashoffset': 0}}, {attr: {'stroke-dashoffset': -48 * 40}, duration: m.duration, ease: 'none', ...ir}, 0);
+
+      // Beat 0: the bus draws out of the port, brand lands.
+      const tick = m.cue('tick');
+      tl.fromTo(rail, {scaleX: 0}, {scaleX: 1, duration: 1.4 * B, ease: E, ...ir}, tick);
+      tl.fromTo(glyph, {scale: 0}, {scale: 1, duration: .4 * B, ease: POP, ...ir}, tick);
+      tl.fromTo(brandW, {yPercent: 110}, {yPercent: 0, duration: .6 * B, ease: P3, stagger: .08 * B, ...ir}, tick);
+      tl.fromTo(busEnd, {scale: 0}, {scale: 1, duration: .4 * B, ease: POP, ...ir}, tick + .5 * B);
+
+      // Beat 1: headline.
+      tl.fromTo(hlW, {yPercent: 110}, {yPercent: 0, duration: .8 * B, ease: E, stagger: .12 * B, ...ir}, m.cue('headline'));
+
+      // Beat 2: date, junction, ruler, traces.
+      const dateT = m.cue('date');
+      tl.fromTo(dateW, {yPercent: 110}, {yPercent: 0, duration: .6 * B, ease: P3, stagger: .06 * B, ...ir}, dateT);
+      tl.fromTo(junction, {scale: 0}, {scale: 1, duration: .5 * B, ease: POP, ...ir}, dateT);
+      tl.fromTo(ruler, {scaleX: 0}, {scaleX: 1, duration: 1.2 * B, ease: E, ...ir}, dateT);
+      tl.fromTo(traces, {scaleY: 0}, {scaleY: 1, duration: .8 * B, ease: E, stagger: .1 * B, ...ir}, dateT);
+
+      // Beat 3: the packet hops to the junction.
+      const send = m.cue('send');
+      tl.fromTo(pulse, {x: 96}, {x: 224, duration: .6 * B, ease: E, ...ir}, send);
+      tl.fromTo(jLamp, {scale: 0}, {scale: 1, duration: .4 * B, ease: P3, ...ir}, send + .25 * B);
+
+      // Beat 4: headline out, the bus lifts with the packet in one beat, the trunk follows.
+      const lift = m.cue('lift');
+      tl.fromTo(hlW, {yPercent: 0}, {yPercent: -110, duration: .4 * B, ease: IN, stagger: .04 * B, ...ir}, lift);
+      tl.fromTo(traces, {scaleY: 1}, {scaleY: 0, duration: .4 * B, ease: IN, ...ir}, lift);
+      tl.fromTo(bus, {y: 0}, {y: LIFT, duration: B, ease: IO, ...ir}, lift);
+      tl.fromTo(pulse, {y: Y0 - 16}, {y: Y1 - 16, duration: B, ease: IO, ...ir}, lift);
+      tl.fromTo(trunk, {scaleY: 0}, {scaleY: 1, duration: B, ease: E, ...ir}, lift + .75 * B);
+
+      // Beat 5: response terminal and the latency playhead; it steps one notch per beat to beat 9.
+      const clock = m.cue('clock');
+      tl.fromTo(resp, {scale: 0}, {scale: 1, duration: .5 * B, ease: POP, ...ir}, clock);
+      tl.fromTo(head, {scaleY: 0}, {scaleY: .5, duration: .4 * B, ease: POP, ...ir}, clock);
+      stepIds.forEach((id, k) => {
+        tl.fromTo(head, {x: notch(k)}, {x: notch(k + 1), duration: .5 * B, ease: E, ...ir}, m.cue(id));
+      });
+
+      // Stations: the packet arrives on each start, the label lands on the accent.
+      const clr = m.cue('clear');
+      let prevY = Y1 - 16;
       m.items.forEach((it) => {
         const row = m.row(it.index);
-        if (row) row.querySelector('.txt').innerHTML = paint(it.text);
-      });
-      if (window.cliphouseFitText) window.cliphouseFitText();
-
-      // Size the tab underline to the docked headline before any tween touches it.
-      const range = document.createRange();
-      range.selectNodeContents(head);
-      const hw = range.getBoundingClientRect().width || 1584;
-      tabline.style.width = Math.round(Math.min(1584, hw) * DOCK) + 'px';
-
-      // Beat 0: the tab-bar divider draws across the empty editor. Beat 0.5: window dots pop.
-      tl.fromTo(divider, {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('bar'));
-      tl.fromTo('.dots i', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out', stagger: B(0.125)}, t('dots'));
-
-      // Beats 1-1.5: brand and date rise in the header.
-      rise(q('.brand'), t('brand'));
-      rise(q('.date'), t('date'));
-
-      // Beat 2: the waiting caret collapses and the headline rises in its place. Beat 3: the rule draws.
-      tl.fromTo(bigcaret, {scaleY: 1}, {scaleY: 0, duration: B(0.5), ease: 'power3.in'}, t('headline'));
-      rise(head, t('headline'));
-      tl.fromTo(rule, {scaleX: 0, y: 108, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('rule'));
-
-      // Beat 4: the headline docks into the file tab; the rule retracts. Beat 4.5: tab underline.
-      tl.fromTo(head, {x: 0, y: 60, scale: 1, transformOrigin: '0% 50%'}, {x: 96, y: -304, scale: DOCK, duration: B(1), ease: 'expo.out'}, t('dock'));
-      tl.fromTo(rule, {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('dock'));
-      tl.fromTo(tabline, {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('tabLine'));
-
-      // Beat 5: gutter drops, the CI track draws, and one skeleton placeholder per line draws in.
-      tl.fromTo(gutter, {scaleY: 0, transformOrigin: '50% 0%'}, {scaleY: 1, duration: B(0.75), ease: 'expo.out'}, t('gutter'));
-      tl.fromTo(ci, {scaleX: 0, transformOrigin: '100% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('gutter'));
-      m.items.forEach((it, i) => {
-        const row = m.row(it.index);
         if (!row) return;
-        tl.fromTo(row.querySelector('.slot'), {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('gutter') + i * B(0.125));
+        const cy = rows.offsetTop + row.offsetTop + row.offsetHeight / 2;
+        const node = row.querySelector('.node'), lamp = row.querySelector('.node .lamp');
+        const wire = row.querySelector('.wire'), chip = row.querySelector('.chip');
+        const pad = row.querySelector('.pad'), num = row.querySelector('.num');
+        const words = m.spans(row.querySelector('[data-list-text]'));
+        const land = it.accent - it.start;
+
+        tl.set([node, lamp, pad], {scale: 0}, 0);
+        tl.set(wire, {scaleX: 0, transformOrigin: '0% 50%'}, 0);
+        tl.set(chip, {clipPath: 'inset(0% 100% 0% 0%)'}, 0);
+        tl.set([...words, num], {yPercent: 110}, 0);
+
+        tl.fromTo(pulse, {y: prevY}, {y: cy - 16, duration: .5 * B, ease: E, ...ir}, it.start);
+        prevY = cy - 16;
+        tl.fromTo(node, {scale: 0}, {scale: 1, duration: .4 * B, ease: POP, ...ir}, it.start);
+        tl.fromTo(lamp, {scale: 0}, {scale: 1, duration: .4 * B, ease: P3, ...ir}, it.start + .15 * B);
+        tl.fromTo(wire, {scaleX: 0}, {scaleX: 1, duration: .9 * B, ease: E, ...ir}, it.start);
+        tl.fromTo(chip, {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: land, ease: P3, ...ir}, it.start);
+        tl.fromTo(words, {yPercent: 110}, {yPercent: 0, duration: land, ease: P3, stagger: {amount: .1 * B}, ...ir}, it.start);
+        tl.fromTo(pad, {scale: 0}, {scale: 1, duration: .4 * B, ease: POP, ...ir}, it.accent);
+        tl.fromTo(num, {yPercent: 110}, {yPercent: 0, duration: .5 * B, ease: P3, ...ir}, it.accent);
+
+        tl.fromTo(words, {yPercent: 0}, {yPercent: -110, duration: .35 * B, ease: IN, ...ir}, clr);
+        tl.fromTo(num, {yPercent: 0}, {yPercent: -110, duration: .35 * B, ease: IN, ...ir}, clr);
+        tl.fromTo(chip, {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 100%)', duration: .5 * B, ease: IO, ...ir}, clr + .1 * B);
+        tl.fromTo(wire, {scaleX: 1}, {scaleX: 0, duration: .6 * B, ease: IO, ...ir}, clr);
+        tl.fromTo([node, pad], {scale: 1}, {scale: 0, duration: .4 * B, ease: IN, ...ir}, clr + .1 * B);
       });
 
-      // Code lines: each types over its placeholder. The caret is one mono cell wide, so it steps
-      // one cell (xPercent 100) per character as a transform, in lockstep with the clip.
-      m.items.forEach((it, i) => {
-        const row = m.row(it.index);
-        if (!row) return;
-        const txt = row.querySelector('.txt');
-        const slot = row.querySelector('.slot');
-        const caret = row.querySelector('.caret');
-        const hl = row.querySelector('.hl');
-        const pip = row.querySelector('.pip');
-        const numBox = row.querySelector('.num');
-        const num = row.querySelector('.numt');
-        const len = Math.max(1, it.text.length);
-        const steps = 'steps(' + len + ')';
-        const dur = it.accent - it.start;
-        tl.set(numBox, {visibility: 'visible'}, it.start);
-        tl.fromTo(num, {yPercent: 110}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, it.start);
-        tl.fromTo(hl, {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.5), ease: 'expo.out'}, it.start);
-        tl.fromTo(txt, {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: dur, ease: steps}, it.start);
-        tl.fromTo(slot, {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 100%)', duration: dur, ease: steps}, it.start);
-        tl.fromTo(caret, {xPercent: 0}, {xPercent: 100 * len, duration: dur, ease: steps}, it.start);
-        tl.set(caret, {visibility: 'visible'}, it.start);
-        tl.fromTo(pip, {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, it.accent);
-        const next = m.items[i + 1];
-        const leave = next ? next.start : t('status');
-        tl.set(caret, {visibility: 'hidden'}, leave);
-        tl.fromTo(hl, {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.5), ease: 'expo.out', ...X}, leave);
-      });
+      // Beat 9: the response terminal arms as the playhead reaches the end.
+      tl.fromTo(respLamp, {scale: 0}, {scale: 1, duration: .4 * B, ease: POP, ...ir}, m.cue('probe'));
 
-      // Beats 8-11: the CI meter steps through lint, build, run, pass.
-      [['lint', 0.25], ['build', 0.5], ['run', 0.75], ['status', 1]].reduce((prev, [id, v], i) => {
-        tl.fromTo(cifill, {scaleX: prev, transformOrigin: '0% 50%'}, {scaleX: v, duration: B(0.75), ease: 'expo.out', ...(i ? X : {})}, t(id));
-        return v;
-      }, 0);
+      // Beat 10: the packet drops to the terminal and stretches to meet the playhead.
+      const response = m.cue('response');
+      tl.fromTo(pulse, {y: prevY}, {y: BAR - 16, duration: .5 * B, ease: E, ...ir}, response);
+      tl.fromTo(pulse, {y: BAR - 16, scaleX: 32 / U, scaleY: 32 / U}, {y: BAR - 8, scaleX: 1600 / U, scaleY: 16 / U, duration: .8 * B, ease: E, ...ir}, response + .5 * B);
 
-      // Beat 10: the run bar sweeps the pane floor.
-      tl.fromTo('.run', {scaleX: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(1), ease: 'expo.out'}, t('run'));
+      // Beat 11: the left cap drops, the playhead grows into the right cap.
+      const measure = m.cue('measure');
+      tl.fromTo(capL, {scaleY: 0}, {scaleY: 1, duration: .5 * B, ease: POP, ...ir}, measure);
+      tl.fromTo(head, {scaleY: .5}, {scaleY: 1, duration: .5 * B, ease: POP, ...ir}, measure + .15 * B);
 
-      // Beat 12: the code wipes up, the headline grows back to hero, the command bar rises.
-      tl.fromTo(list, {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 100% 0%)', duration: B(0.5), ease: 'expo.out'}, t('undock'));
-      tl.fromTo(gutter, {scaleY: 1, transformOrigin: '50% 0%'}, {scaleY: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('undock'));
-      tl.fromTo(tabline, {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('undock'));
-      tl.fromTo(head, {x: 96, y: -304, scale: DOCK}, {x: 0, y: -48, scale: 1, duration: B(1), ease: 'expo.out', ...X}, t('undock') + B(0.25));
-      tl.fromTo(cmd, {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.75), ease: 'expo.out'}, t('undock') + B(0.5));
+      // Beat 12: rows clear, the trunk retracts, the bus returns and the bar rises onto it.
+      tl.fromTo(trunk, {scaleY: 1}, {scaleY: 0, duration: .7 * B, ease: IO, ...ir}, clr);
+      tl.fromTo([resp, junction], {scale: 1}, {scale: 0, duration: .4 * B, ease: IN, ...ir}, clr);
+      tl.fromTo([capL, head], {scaleY: 1}, {scaleY: 0, duration: .4 * B, ease: IN, ...ir}, clr);
+      tl.fromTo(bus, {y: LIFT}, {y: 0, duration: B, ease: IO, ...ir}, clr);
+      tl.fromTo(pulse, {y: BAR - 8}, {y: Y0 - 8, duration: B, ease: IO, ...ir}, clr);
 
-      // Beat 13: the command types. Word masks join words with single spaces, so count that string.
-      const ctaLen = Math.max(1, m.text('cta').trim().split(/\s+/).join(' ').length);
-      const ctaSteps = 'steps(' + ctaLen + ')';
-      tl.fromTo(ctaT, {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(1), ease: ctaSteps}, t('cta'));
-      tl.fromTo(ccaret, {xPercent: 0}, {xPercent: 100 * ctaLen, duration: B(1), ease: ctaSteps}, t('cta'));
-      tl.set(ccaret, {visibility: 'visible'}, t('cta'));
+      // Beat 13: the headline returns, the bar folds into a block at the port.
+      const title = m.cue('title');
+      tl.fromTo(hlW, {yPercent: 110}, {yPercent: 0, duration: .8 * B, ease: E, stagger: .12 * B, ...ir}, title);
+      tl.fromTo(pulse, box(224, Y0 - 8, 1600, 16), {...box(96, Y0 - BLOCK / 2, BLOCK, BLOCK), duration: .9 * B, ease: IO, ...ir}, title);
+      tl.fromTo(ring, {scale: 1}, {scale: 0, duration: .4 * B, ease: IN, ...ir}, title);
 
-      // Beat 14: stamp. The bar floods accent from the prompt and punches.
-      tl.fromTo('.cfill', {clipPath: 'inset(0% 100% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.6), ease: 'expo.out'}, t('stamp'));
-      tl.fromTo(cmd, {scale: 1.05, transformOrigin: '50% 50%'}, {scale: 1, duration: B(0.75), ease: 'expo.out', ...X}, t('stamp'));
+      // Beat 14: the block stamps open into the CTA button.
+      const stamp = m.cue('stamp');
+      tl.fromTo(pulse, {scaleX: BLOCK / U}, {scaleX: W / U, duration: .7 * B, ease: POP, ...ir}, stamp);
+      tl.fromTo(ctaW, {yPercent: 110}, {yPercent: 0, duration: .6 * B, ease: E, stagger: .06 * B, ...ir}, stamp + .25 * B);
+      tl.fromTo(charge, {scaleX: 0}, {scaleX: 1, duration: B, ease: E, ...ir}, stamp + .2 * B);
+      tl.fromTo(tR, {scaleY: 0}, {scaleY: 1, duration: .8 * B, ease: E, stagger: .12 * B, ...ir}, stamp + .3 * B);
 
-      // Beats 15-17: the rule returns, the done block pops, the caret blinks on half beats.
-      tl.fromTo(rule, {scaleX: 0, y: 0, transformOrigin: '0% 50%'}, {scaleX: 1, duration: B(0.75), ease: 'expo.out', ...X}, t('underline'));
-      tl.fromTo('.okbox', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('ok'));
-      [14.5, 15, 15.5, 16, 16.5, 17, 17.5, 18].forEach((b, i) =>
-        tl.set(ccaret, {visibility: i % 2 ? 'visible' : 'hidden'}, B(b)));
+      // Beats 15-17: arrow, pads, bus-end terminal.
+      tl.fromTo(arrow, {clipPath: 'inset(0% 100% 0% 0%)', x: -20}, {clipPath: 'inset(0% 0% 0% 0%)', x: 0, duration: .6 * B, ease: E, ...ir}, m.cue('arrow'));
+      tl.fromTo(tPads, {scale: 0}, {scale: 1, duration: .4 * B, ease: POP, stagger: .12 * B, ...ir}, m.cue('pads'));
+      tl.fromTo(endLamp, {scale: 0}, {scale: 1, duration: .4 * B, ease: POP, ...ir}, m.cue('ready'));
 
-      // Beat 18: clear. Headline drops, command backspaces, marks retract.
-      drop(head, t('clear'));
-      tl.fromTo(ctaT, {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 100% 0% 0%)', duration: B(0.5), ease: ctaSteps, ...X}, t('clear'));
-      tl.fromTo(ccaret, {xPercent: 100 * ctaLen}, {xPercent: 0, duration: B(0.5), ease: ctaSteps, ...X}, t('clear'));
-      tl.set(ccaret, {visibility: 'hidden'}, t('clear') + B(0.5));
-      tl.fromTo(rule, {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('clear'));
-      tl.fromTo('.okbox', {scale: 1}, {scale: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('clear'));
-      tl.fromTo(ci, {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('clear'));
-      tl.fromTo('.run', {scaleX: 1, transformOrigin: '100% 50%'}, {scaleX: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('clear'));
+      // Beat 18: everything clears, the button collapses into the packet.
+      const exit = m.cue('exit');
+      tl.fromTo(ctaW, {yPercent: 0}, {yPercent: -110, duration: .35 * B, ease: IN, stagger: .03 * B, ...ir}, exit);
+      tl.fromTo(arrow, {clipPath: 'inset(0% 0% 0% 0%)', x: 0}, {clipPath: 'inset(0% 0% 0% 100%)', x: 0, duration: .35 * B, ease: IN, ...ir}, exit);
+      tl.fromTo(hlW, {yPercent: 0}, {yPercent: -110, duration: .4 * B, ease: IN, stagger: .04 * B, ...ir}, exit);
+      tl.fromTo(dateW, {yPercent: 0}, {yPercent: -110, duration: .4 * B, ease: IN, stagger: .03 * B, ...ir}, exit);
+      tl.fromTo(tR, {scaleY: 1}, {scaleY: 0, duration: .5 * B, ease: IN, ...ir}, exit);
+      tl.fromTo(tPads, {scale: 1}, {scale: 0, duration: .3 * B, ease: IN, ...ir}, exit);
+      tl.fromTo(charge, {scaleX: 1}, {scaleX: 0, duration: .6 * B, ease: IO, ...ir}, exit);
+      tl.fromTo(endLamp, {scale: 1}, {scale: 0, duration: .3 * B, ease: IN, ...ir}, exit);
+      tl.fromTo(pulse, box(96, Y0 - BLOCK / 2, W, BLOCK), {...box(96, Y0 - 16, 32, 32), duration: .9 * B, ease: IO, ...ir}, exit + .25 * B);
+      tl.fromTo(ruler, {scaleX: 1}, {scaleX: 0, duration: .8 * B, ease: IO, ...ir}, exit + .5 * B);
 
-      // Beat 18.5: brand and date drop, the empty command bar collapses into its prompt.
-      drop(q('.brand'), t('clear') + B(0.5));
-      drop(q('.date'), t('clear') + B(0.5));
-      tl.fromTo(cmd, {clipPath: 'inset(0% 0% 0% 0%)'}, {clipPath: 'inset(0% 100% 0% 0%)', duration: B(0.5), ease: 'expo.out', ...X}, t('clear') + B(0.5));
-
-      // Beat 19: divider and dots retract, the waiting caret grows back, matching frame 0.
-      tl.fromTo(divider, {scaleX: 1, transformOrigin: '0% 50%'}, {scaleX: 0, duration: B(0.75), ease: 'expo.out', ...X}, t('close'));
-      tl.fromTo('.dots i', {scale: 1}, {scale: 0, duration: B(0.5), ease: 'expo.out', ...X}, t('close'));
-      tl.fromTo(bigcaret, {scaleY: 0}, {scaleY: 1, duration: B(0.5), ease: 'expo.out', ...X}, t('close'));
+      // Beat 19: the bus retracts into the packet, the port reopens: frame 0 again.
+      const loop = m.cue('loop');
+      tl.fromTo(rail, {scaleX: 1}, {scaleX: 0, duration: .75 * B, ease: IO, ...ir}, loop);
+      tl.fromTo(busEnd, {scale: 1}, {scale: 0, duration: .3 * B, ease: IN, ...ir}, loop);
+      tl.fromTo(brandW, {yPercent: 0}, {yPercent: -110, duration: .4 * B, ease: IN, stagger: .04 * B, ...ir}, loop);
+      tl.fromTo(glyph, {scale: 1}, {scale: 0, duration: .4 * B, ease: IN, ...ir}, loop);
+      tl.fromTo(ring, {scale: 0}, {scale: 1, duration: .6 * B, ease: E, ...ir}, loop + .1 * B);
     });
+
+    // Rebuild once the fonts are ready, so measured widths and fits use the real faces.
+    if (document.fonts) document.fonts.ready.then(() => { if (window.cliphouseBeatUpdate) window.cliphouseBeatUpdate({}); });
+
     window.__timelines = window.__timelines || {};
     window.__timelines.main = tl;
   </script>

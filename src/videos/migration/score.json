@@ -1,27 +1,26 @@
 {
-  "beatFrames": 16,
+  "beatFrames": 14,
   "scenes": [
-    {"type": "title-reveal", "bars": 1, "focusBeat": 3, "roles": ["brand", "headline"], "energy": 1},
-    {"type": "steps", "bars": 2, "focusBeat": 10, "roles": ["brand", "headline", "list"], "energy": 2},
-    {"type": "end-screen", "bars": 2, "focusBeat": 17, "roles": ["brand", "cta"], "energy": 3}
+    {"type": "title-reveal", "bars": 1, "focusBeat": 2, "roles": ["brand", "headline"], "energy": 1},
+    {"type": "steps", "bars": 3, "focusBeat": 13, "roles": ["brand", "headline", "list"], "energy": 2},
+    {"type": "end-screen", "bars": 2, "focusBeat": 19, "roles": ["brand", "headline", "list", "cta"], "energy": 3}
   ],
   "cues": [
     {"id": "brand", "beat": 0, "sound": "blip", "role": "brand", "velocity": 0.6},
-    {"id": "headline", "beat": 1, "sound": "pluck", "role": "headline", "velocity": 0.7},
-    {"id": "scroll", "beat": 3, "sound": "tom", "velocity": 0.6},
-    {"id": "rail", "beat": 4, "sound": "snap", "velocity": 0.7},
-    {"id": "divider", "beat": 5, "sound": "blip", "velocity": 0.4},
-    {"id": "finishLine", "beat": 8, "sound": "pluck", "velocity": 0.5},
-    {"id": "allDone", "beat": 9, "sound": "chord", "velocity": 0.6},
-    {"id": "railEnd", "beat": 10, "sound": "tom", "velocity": 0.6},
-    {"id": "headGrow", "beat": 11, "sound": "zap", "velocity": 0.6},
-    {"id": "flood", "beat": 12, "sound": "zap", "velocity": 0.8},
-    {"id": "bigCheck", "beat": 13, "sound": "snap", "velocity": 0.8},
-    {"id": "ctaStamp", "beat": 14, "sound": "stamp", "role": "cta", "velocity": 1},
-    {"id": "finBrand", "beat": 15, "sound": "lead", "role": "brand", "velocity": 0.6},
-    {"id": "rule", "beat": 16, "sound": "pluck", "velocity": 0.6},
-    {"id": "blink", "beat": 17, "sound": "blip", "velocity": 0.4},
-    {"id": "loop", "beat": 19, "sound": "zap", "velocity": 0.6}
+    {"id": "headline", "beat": 1, "sound": "pluck", "role": "headline", "velocity": 0.75},
+    {"id": "scaffold", "beat": 2, "sound": "snap", "velocity": 0.6},
+    {"id": "depart", "beat": 3, "sound": "tom", "velocity": 0.7},
+    {"id": "platform", "beat": 13, "sound": "snap", "velocity": 0.6},
+    {"id": "launch", "beat": 14, "sound": "tom", "velocity": 0.75},
+    {"id": "signal", "beat": 15, "sound": "clap", "velocity": 0.7},
+    {"id": "arrive", "beat": 16, "sound": "impact", "velocity": 1},
+    {"id": "cta", "beat": 17, "sound": "stab", "role": "cta", "velocity": 0.85},
+    {"id": "live", "beat": 18, "sound": "chord", "velocity": 0.7},
+    {"id": "beacon", "beat": 19, "sound": "bell", "velocity": 0.6},
+    {"id": "settle", "beat": 20, "sound": "pluck", "velocity": 0.5},
+    {"id": "clear", "beat": 21, "sound": "snap", "velocity": 0.6},
+    {"id": "rewind", "beat": 22, "sound": "zap", "velocity": 0.7},
+    {"id": "home", "beat": 23, "sound": "tom", "velocity": 0.6}
   ],
   "list": {
     "role": "list",
@@ -31,15 +30,15 @@
     "max": 4,
     "itemMax": 30,
     "schedules": {
-      "1": [6],
-      "2": [5, 7],
-      "3": [5, 6, 7],
-      "4": [5, 6, 7, 8]
+      "1": [8],
+      "2": [6, 10],
+      "3": [5, 8, 11],
+      "4": [5, 7, 9, 11]
     },
     "accentOffset": 1,
-    "voice": "marimba"
+    "voice": "bell"
   },
   "risers": [
-    {"beat": 10, "beats": 2}
+    {"beat": 14, "beats": 2}
   ]
 }

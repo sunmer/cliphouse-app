@@ -10,6 +10,7 @@ import {scoreOf} from '../src/videos/music/schema.ts';
 import {agentSpec} from '../src/agent/spec.ts';
 import {handoffPath, specPath} from '../src/agent/versions.ts';
 import {AGENT_CONTRACT_VERSION, GOAL_IDS, MARKETING_GOALS, goalLabel, type MarketingGoal} from '../src/agent/goals.ts';
+import {MOMENT_IDS, RELEASE_MOMENTS, inferMoments, momentHint, momentRank, momentsForTemplate, type ReleaseMoment} from '../src/agent/moments.ts';
 import {MCP_VERSION} from './discovery.ts';
 import {HttpError, validateShare} from './model.ts';
 import type {EventLog, SearchLog} from './store.ts';
@@ -86,7 +87,7 @@ function score(v: (typeof visible)[number], terms: string[][], phrase: string) {
   return words_ + (exact ? 3 : 0);
 }
 
-type SearchArgs = {query?: string; goal?: MarketingGoal; purpose?: string; engine?: string; aspect?: string; maxSeconds?: number; music?: boolean; limit?: number};
+type SearchArgs = {query?: string; goal?: MarketingGoal; moment?: ReleaseMoment; purpose?: string; engine?: string; aspect?: string; maxSeconds?: number; music?: boolean; limit?: number};
 const goalsOf = (v: (typeof visible)[number]) => ((v as {goals?: MarketingGoal[]}).goals ?? []);
 // Plain requests ("we need a waitlist video") imply a goal. An explicit goal always wins.
 export function inferGoal(query = ''): MarketingGoal | undefined {
@@ -94,30 +95,34 @@ export function inferGoal(query = ''): MarketingGoal | undefined {
   return MARKETING_GOALS.map((goal) => ({goal: goal.id, score: goal.terms.reduce((n, term) => n + (text.includes(` ${term} `) ? term.split(' ').length : 0), 0)}))
     .filter((item) => item.score > 0).sort((a, b) => b.score - a.score)[0]?.goal;
 }
-export function rankTemplates({query, goal, purpose, engine, aspect: wanted, maxSeconds, music, limit = 6}: SearchArgs) {
+export function rankTemplates({query, goal, moment, purpose, engine, aspect: wanted, maxSeconds, music, limit = 6}: SearchArgs) {
   const selectedGoal = goal ?? inferGoal(query);
   const kept = words(query ?? '').filter((w) => !(ASPECTS as readonly string[]).includes(w));
   const terms = kept.map((w) => [stem(w), ...(SYNONYMS[w] ?? SYNONYMS[stem(w)] ?? []).map(stem)]);
   const phrase = kept.join(' ');
   return visible
+    .filter((v) => !moment || momentRank(moment, v.template) >= 0)
     .filter((v) => !goal || goalsOf(v).includes(goal))
     .filter((v) => !purpose || v.purpose.toLowerCase() === purpose.toLowerCase())
     .filter((v) => !engine || engineOf(v.template) === engine)
     .filter((v) => !wanted || aspect(v.template) === wanted)
     .filter((v) => !maxSeconds || templateMeta[v.template].durationInFrames / templateMeta[v.template].fps <= maxSeconds)
     .filter((v) => music === undefined || Boolean(scoreOf(templateMeta[v.template])) === music)
-    .map((v) => ({v, score: (terms.length ? score(v, terms, phrase) : 1) + (selectedGoal && goalsOf(v).includes(selectedGoal) ? 5 : 0)}))
+    .map((v) => ({v, score: (terms.length ? score(v, terms, phrase) : 1) + (selectedGoal && goalsOf(v).includes(selectedGoal) ? 5 : 0),
+      // The moment's template order leads, so an explicit moment returns its strongest fits first.
+      priority: moment ? momentRank(moment, v.template) : 0}))
     // Templates that draw fixed sample numbers rank a little lower, so they stay findable but rarely lead.
     .map((r) => (fixedSampleData(r.v.template).length ? {...r, score: r.score - 2} : r))
-    .filter(({score}) => score > 0)
-    .sort((a, b) => b.score - a.score)
+    .filter(({score}) => moment || score > 0)
+    .sort((a, b) => a.priority - b.priority || b.score - a.score)
     .slice(0, Math.min(Math.max(limit, 1), 20));
 }
+export const detectedMoments = (query?: string, moment?: ReleaseMoment) => [...new Set([...(moment ? [moment] : []), ...inferMoments(query)])].slice(0, 3).map(momentHint);
 const card = (origin: string, includeEngine = false) => ({v}: {v: (typeof visible)[number]}) => {
       const meta = templateMeta[v.template];
       const goals = goalsOf(v);
       const fixed = fixedSampleData(v.template);
-      return {id: v.id, title: v.title, description: v.description, purpose: v.purpose, goals, goalLabels: goals.map(goalLabel), template: v.template,
+      return {id: v.id, title: v.title, description: v.description, purpose: v.purpose, goals, goalLabels: goals.map(goalLabel), moments: momentsForTemplate(v.template), template: v.template,
         ...(includeEngine ? {engine: engineOf(v.template)} : {}),
         aspect: aspect(v.template), seconds: Math.round(meta.durationInFrames / meta.fps), music: Boolean(scoreOf(meta)),
         ...(fixed.length ? {fixedSampleContent: fixed} : {}),
@@ -141,7 +146,7 @@ const INSTRUCTIONS = `cliphou.se turns what the user builds into marketing video
 Workflow:
 1. Learn the product before you search. If you can read the user's project, read it first: README, package.json, landing page, CSS variables, Tailwind config, and logo. Otherwise use the conversation, attached files, or a page the user gives. Collect the product name, tagline, 2-3 real features or numbers, call to action, and brand colors. If the project has a logo file (an SVG such as public/logo.svg or logo.svg, else a PNG with a transparent background), call upload_logo with it once and keep the returned logo. Do not ask for a logo the project lacks; the brand name shows instead. Do not ask for facts the project already contains. Ask only for facts you cannot find. Never invent numbers.
 2. Position it before you write copy. From those facts, decide: the audience (who it is for), the problem they feel, what changed in this release (the git log, CHANGELOG, or the user's words), and the one angle for this video. Turn features into benefits ("Search is 3x faster" beats "New search index"). Pick a hook: a pain, a question, a number, or a before/after. Write the headline as that hook and the points as benefits. Use only facts from the project; never invent numbers, customers, or quotes. Tell the user the angle in one line, so they can redirect it.
-3. Choose the marketing goal: ${GOAL_IDS.join(', ')}. Call search_templates with that goal and a short query (for example goal "launch-product", query "developer tool"). Set aspect only when the destination implies it: 9:16 for Reels, TikTok, and Shorts; 16:9 for YouTube and websites; 1:1 or 4:5 for feeds. Do not ask the user to choose a rendering engine.
+3. Find release moments, then search. Read the release for two or three shareable moments: ${MOMENT_IDS.join(', ')}. Name a moment only when the project has facts for it, such as a raised limit, a measured speedup, a closed feature request, or a new language. Suggest the strongest moment to the user in one line. Choose the marketing goal: ${GOAL_IDS.join(', ')}. Call search_templates with that goal, the supported moment, and a short query (for example goal "announce-feature", moment "limit-raised", query "developer tool"). Without facts for a moment, omit moment and search by goal. Set aspect only when the destination implies it: 9:16 for Reels, TikTok, and Shorts; 16:9 for YouTube and websites; 1:1 or 4:5 for feeds. Do not ask the user to choose a rendering engine.
 4. Pick the best 3-4 results, preferring templates whose structure fits the angle (a problem-and-fix hook, a quickstart, a comparison). Skip results with fixedSampleContent (numbers drawn in the design that cannot be edited) unless the project has matching numbers or the user accepts them. Call render_previews once with their ids, the searchId, and one brand object built from steps 1-2 (name, headline, subhead, up to 3 points, cta, theme colors, and logo when you uploaded one). It returns a poster and an editor link for each template with the user's own product. Hosts that support MCP Apps also show a live player of every option, with open and pick buttons. In your reply, list the options as a numbered list with each title linked to its editor link first, because the editor link plays the full video on every device, phones included. Then show each poster as an inline image (Markdown ![title](poster)) where the host renders images, and let the user pick one. If a poster is null, show that template's stock poster from search_templates instead.
 5. Call get_template_spec with the searchId. Start from the picked template's tailored props from render_previews, or from the spec's props, and change only texts, theme, and media (and hidden/audio for music templates). Rewrite every role in shortened, so no text is cut mid-phrase. Write each field for its role in this template (the hook, the proof, the benefit, the CTA), not by copying the brand fields. Keep each text within maxLength and each color as #RRGGBB, with good contrast.
 6. Call render_preview with the filled props, the searchId, and loop: true. It returns a poster and an animated loop of the template with the user's own product, plus the editor link. Give the editor link first, then the loop (or the poster when video is null), then a short list of the text you used. Say in one line what changed since the user picked, even when it is a small change. If it returns an error, fix the field it names and call it again. The link opens a live, editable preview; the user exports the MP4 there.
@@ -190,10 +195,11 @@ function createServer(origin: string, ctx: McpContext) {
   });
   server.registerTool('search_templates', {
     title: 'Search video templates',
-    description: 'Find marketing video templates for a product, project, or announcement. Prefer a marketing goal, then add a short product or style query. Returns a searchId and results with id, title, goals, aspect, length, preview MP4, poster image, and editor URL. Engine details appear only when the engine filter is used.',
+    description: 'Find marketing video templates for a product, project, or announcement. Prefer a marketing goal and, when project facts support it, a release moment; then add a short product or style query. Returns a searchId, the selected moment, detectedMoments hints, and results with id, title, goals, moments, aspect, length, preview MP4, poster image, and editor URL. Engine details appear only when the engine filter is used.',
     inputSchema: {
       query: z.string().max(200).optional().describe('Short product or style description, for example "developer tool" or "minimal logo".'),
       goal: z.enum(GOAL_IDS).optional().describe(`Marketing goal. One of: ${MARKETING_GOALS.map((goal) => `${goal.id} (${goal.label})`).join(', ')}.`),
+      moment: z.enum(MOMENT_IDS).optional().describe(`Release moment backed by project facts. Filters and ranks templates for it. One of: ${RELEASE_MOMENTS.map((moment) => `${moment.id} (${moment.label})`).join(', ')}.`),
       aspect: z.enum(ASPECTS).optional().describe('Only when the destination implies it: 9:16 vertical (Reels, TikTok, Shorts), 16:9 (YouTube, web), 1:1 or 4:5 (feeds).'),
       maxSeconds: z.number().int().min(1).max(600).optional().describe('Maximum video length in seconds.'),
       music: z.boolean().optional().describe('true for beat-synced templates with a generated soundtrack, false for silent ones.'),
@@ -212,7 +218,8 @@ function createServer(origin: string, ctx: McpContext) {
       resultIds: results.slice(0, 10).map((r) => r.id), resultCount: results.length, empty: results.length === 0,
       topScore: ranked[0]?.score ?? 0, engines: ranked.slice(0, 10).map((r) => engineOf(r.v.template)), ...who,
     })));
-    return text({searchId, contractVersion: AGENT_CONTRACT_VERSION, goal: args.goal ?? inferGoal(query) ?? null, results});
+    return text({searchId, contractVersion: AGENT_CONTRACT_VERSION, goal: args.goal ?? inferGoal(query) ?? null, moment: args.moment ?? null,
+      detectedMoments: detectedMoments(query, args.moment), results});
   });
   server.registerTool('get_template_spec', {
     title: 'Get template spec',
