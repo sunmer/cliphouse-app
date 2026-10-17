@@ -10,85 +10,79 @@
     .wmask { display:inline-block; overflow:hidden; vertical-align:top; padding:0 .04em .08em; margin-bottom:-.08em; }
     .w { display:inline-block; }
 
-    .flood { position:absolute; inset:0; background:var(--theme-accent); }
+    /* Structure: background band on top, surface sheet below. */
+    .sheet { position:absolute; left:0; top:216px; width:1080px; height:864px; background:var(--theme-surface); z-index:0; }
 
-    .chip { position:absolute; left:90px; top:101px; width:26px; height:26px; border-radius:50%; background:var(--theme-accent2); }
-    .brand { position:absolute; left:132px; top:88px; width:520px; height:52px; font-size:40px; line-height:1.3; font-weight:800; text-transform:uppercase; color:var(--theme-foreground); }
+    /* The ink imprint the stamp leaves on the feature name; it sits behind the headline glyphs. */
+    .imprint { position:absolute; left:0; top:0; width:220px; height:220px; visibility:hidden; color:var(--theme-accent); z-index:1; }
+    .imprint svg { display:block; width:220px; height:220px; }
+    .imprint svg *, .carrier svg *, .arrow svg * { fill:none; stroke:currentColor; }
+    .imprint .edge { stroke-width:6; }
+    .imprint .inner { stroke-width:3.5; }
+    .beta { stroke-width:13; stroke-linejoin:round; stroke-linecap:butt; }
 
-    .card { position:absolute; left:90px; top:180px; width:900px; height:470px; border-radius:28px; background:var(--theme-surface); }
-    .toggle { position:absolute; left:50px; top:46px; width:100px; height:54px; border-radius:27px; background:var(--theme-background); overflow:hidden; }
-    .tg-on { position:absolute; inset:0; background:var(--theme-accent2); }
-    .knob { position:absolute; left:7px; top:7px; width:40px; height:40px; border-radius:50%; background:var(--theme-foreground); }
-    .headline { position:absolute; left:140px; top:320px; width:800px; height:300px; font-size:200px; line-height:.9; color:var(--theme-foreground); }
+    /* Brand row. */
+    .marker { position:absolute; left:80px; top:99px; width:22px; height:22px; background:var(--theme-accent2); z-index:2; }
+    .brand { position:absolute; left:80px; top:80px; width:640px; height:60px; padding-left:44px; font-size:48px; line-height:60px; text-transform:uppercase; white-space:nowrap; color:var(--theme-foreground); z-index:2; }
 
-    .marks { position:absolute; left:740px; top:80px; width:260px; height:260px; }
-    .m { position:absolute; width:42px; height:42px; border:0 solid var(--theme-foreground); }
-    .m.tl { left:0; top:0; border-top-width:6px; border-left-width:6px; transform-origin:0% 0%; }
-    .m.tr { right:0; top:0; border-top-width:6px; border-right-width:6px; transform-origin:100% 0%; }
-    .m.bl { left:0; bottom:0; border-bottom-width:6px; border-left-width:6px; transform-origin:0% 100%; }
-    .m.br { right:0; bottom:0; border-bottom-width:6px; border-right-width:6px; transform-origin:100% 100%; }
+    /* Hero headline and subhead. */
+    .headline { position:absolute; left:80px; top:300px; width:920px; height:340px; font-size:200px; line-height:.9; align-content:end; color:var(--theme-foreground); z-index:2; }
+    .subhead { position:absolute; left:80px; top:664px; width:920px; height:132px; font-size:54px; line-height:1.15; font-weight:600; color:var(--theme-foreground); z-index:2; }
 
-    .marker { position:absolute; left:90px; top:700px; width:12px; height:110px; background:var(--theme-accent2); transform-origin:50% 0%; }
-    .subhead { position:absolute; left:126px; top:692px; width:864px; height:128px; font-size:50px; line-height:1.15; font-weight:600; color:var(--theme-foreground); }
+    /* Access track and its goal flag. */
+    .track { position:absolute; left:80px; top:842px; width:920px; height:8px; background:color-mix(in srgb, var(--theme-foreground) 16%, transparent); transform-origin:0 50%; z-index:3; }
+    .flag { position:absolute; left:980px; top:836px; width:20px; height:20px; background:var(--theme-accent2); z-index:4; }
 
-    .track { position:absolute; left:90px; top:922px; width:900px; height:6px; background:var(--theme-foreground); transform-origin:0 50%; }
-    .pill { position:absolute; left:90px; top:860px; width:900px; height:130px; border-radius:65px; background:var(--theme-foreground); overflow:hidden; }
-    .press { position:absolute; inset:0; background:var(--theme-accent2); }
-    .cta { position:absolute; left:60px; top:15px; width:720px; height:100px; font-size:62px; line-height:1; text-align:center; align-content:center; text-transform:uppercase; color:var(--theme-background); }
+    /* The carrier: a fixed full-frame layer shaped only by clip-path (badge, bar, button, field). */
+    .carrier { position:absolute; left:0; top:0; width:1080px; height:1080px; background:var(--theme-accent); color:var(--theme-background); clip-path:inset(0px 0px 0px 0px round 0px); z-index:10; }
+    .mark { position:absolute; left:442px; top:442px; width:196px; height:196px; }
+    .mark svg { display:block; width:196px; height:196px; }
+    .ring { stroke-width:3.5; }
 
-    .seal { position:absolute; left:765px; top:105px; width:210px; height:210px; border-radius:50%; background:var(--theme-accent); overflow:hidden; }
-    .seal-ink { position:absolute; inset:0; background:var(--theme-foreground); }
-    .ring { position:absolute; inset:12px; border:4px solid var(--theme-background); border-radius:50%; }
-    .beta { position:absolute; left:45px; top:38px; width:120px; height:134px; }
-    .beta path { fill:none; stroke:var(--theme-background); stroke-width:9; stroke-linecap:round; stroke-linejoin:round; }
-
-    .cursor { position:absolute; left:900px; top:955px; width:50px; height:82px; }
-    .ptr, .ptr-o { position:absolute; left:0; top:0; width:50px; height:82px; clip-path:polygon(0 0, 0 68px, 17px 53px, 29px 81px, 40px 76px, 29px 49px, 49px 49px); }
-    .ptr-o { background:var(--theme-background); transform:scale(1.22); transform-origin:16px 40px; }
-    .ptr { background:var(--theme-foreground); }
-    .tick { position:absolute; background:var(--theme-background); border-radius:3px; }
-    .tick.t1 { left:-4px; top:-38px; width:7px; height:22px; transform-origin:50% 100%; }
-    .tick.t2 { left:-28px; top:-32px; width:7px; height:22px; transform-origin:50% 100%; }
-    .tick.t3 { left:-40px; top:-4px; width:22px; height:7px; transform-origin:100% 50%; }
-
-    .wipe { position:absolute; inset:0; background:var(--theme-background); z-index:10; }
+    /* CTA text and arrow sit above the carrier while it is the button. */
+    .cta { position:absolute; left:140px; top:856px; width:700px; height:124px; font-size:76px; line-height:1; align-content:center; color:var(--theme-background); z-index:11; }
+    .arrow { position:absolute; left:872px; top:878px; width:80px; height:80px; overflow:hidden; color:var(--theme-background); z-index:11; }
+    .arrow svg { display:block; width:80px; height:80px; }
+    .arrow path { stroke-width:9; stroke-linecap:square; stroke-linejoin:miter; }
   </style>
 </head>
 <body>
   <div id="root" data-composition-id="main" data-start="0" data-duration="8" data-width="1080" data-height="1080">
-    <section id="nowinbeta-title" class="scene s1 clip" data-start="0" data-duration="8" data-track-index="0">
-      <div class="flood"></div>
-      <div class="chip"></div>
-      <div class="brand display fit" data-fit-max="40" data-fit-min="24" data-text-role="brand" data-beat-text="brand">Brand</div>
-      <div class="card">
-        <div class="toggle"><div class="tg-on"></div><div class="knob"></div></div>
+    <section id="nowinbeta-stage" class="scene" data-start="0" data-duration="8" data-track-index="0">
+      <div class="sheet"></div>
+
+      <div class="imprint">
+        <svg viewBox="0 0 220 220">
+          <circle class="edge" cx="110" cy="110" r="107" />
+          <circle class="inner" cx="110" cy="110" r="86" />
+          <svg x="62" y="47.5" width="96" height="125" viewBox="0 0 100 130">
+            <path class="beta" d="M28 128V44C28 22 41 10 59 10C76 10 86 21 86 36C86 52 74 61 56 62C78 63 92 75 92 92C92 111 78 122 60 122C46 122 35 116 28 108" />
+          </svg>
+        </svg>
       </div>
-      <h1 class="headline display fit" data-fit-max="200" data-fit-min="84" data-text-role="headline" data-beat-text="headline">Headline</h1>
-      <div class="marks" data-layout-allow-overflow>
-        <div class="m tl"></div><div class="m tr"></div><div class="m bl"></div><div class="m br"></div>
-      </div>
-    </section>
-    <section id="nowinbeta-who" class="scene s2 clip" data-start="0" data-duration="8" data-track-index="1">
+
       <div class="marker"></div>
-      <p class="subhead fit" data-fit-max="50" data-fit-min="30" data-text-role="subhead" data-beat-text="subhead">Subhead</p>
-    </section>
-    <section id="nowinbeta-join" class="scene s3 clip" data-start="0" data-duration="8" data-track-index="2">
+      <div class="brand display" data-fit-max="48" data-fit-min="30" data-text-role="brand" data-beat-text="brand">Brand</div>
+      <h1 class="headline display fit" data-fit-max="200" data-fit-min="92" data-text-role="headline" data-beat-text="headline">Headline</h1>
+      <p class="subhead fit" data-fit-max="54" data-fit-min="34" data-text-role="subhead" data-beat-text="subhead">Subhead</p>
+
       <div class="track"></div>
-      <div class="pill">
-        <div class="press"></div>
-        <div class="cta display fit" data-fit-max="62" data-fit-min="32" data-text-role="cta" data-beat-text="cta">CTA</div>
+      <div class="flag"></div>
+
+      <div class="carrier" data-layout-allow-overflow>
+        <div class="mark">
+          <svg viewBox="0 0 196 196">
+            <circle class="ring" cx="98" cy="98" r="86" pathLength="1" stroke-dasharray="1 2" stroke-dashoffset="1" transform="rotate(-90 98 98)" />
+            <svg x="50" y="35.5" width="96" height="125" viewBox="0 0 100 130">
+              <path class="beta" d="M28 128V44C28 22 41 10 59 10C76 10 86 21 86 36C86 52 74 61 56 62C78 63 92 75 92 92C92 111 78 122 60 122C46 122 35 116 28 108" />
+            </svg>
+          </svg>
+        </div>
       </div>
-      <div class="seal" data-layout-allow-overflow>
-        <div class="seal-ink"></div>
-        <div class="ring"></div>
-        <svg class="beta" viewBox="6 0 100 100" aria-hidden="true"><path d="M32 97 V30 C32 13 43 5 55 5 C68 5 76 14 76 25 C76 37 67 45 48 45 C70 45 81 55 81 68 C81 82 70 91 56 91 C45 91 37 87 32 80" /></svg>
-      </div>
-      <div class="cursor" data-layout-allow-overflow>
-        <div class="tick t1"></div><div class="tick t2"></div><div class="tick t3"></div>
-        <div class="ptr-o"></div><div class="ptr"></div>
-      </div>
+
+      <div class="cta display fit" data-fit-max="76" data-fit-min="38" data-text-role="cta" data-beat-text="cta">CTA</div>
+      <div class="arrow"><svg viewBox="0 0 80 80"><path d="M12 40H62M42 20L62 40L42 60" /></svg></div>
     </section>
-    <div class="wipe" data-layout-allow-overflow></div>
   </div>
   <script>__BASE_JS__</script>
   <script>__BEAT_JS__</script>
@@ -98,88 +92,90 @@
       const B = (n) => m.at(n);
       const t = (id) => m.cue(id);
       const q = (s) => document.querySelector(s);
-      // Words rise through masks on eighth notes. Words past the cap share the last slot, so long text settles on time.
-      const words = (el, start, cap) => m.spans(el).forEach((w, i) =>
-        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: B(0.75), ease: 'expo.out'}, start + Math.min(i, cap) * B(0.5)));
-      const SEAL = 'at 870px 210px';
-      const CLICK = 'at 900px 955px';
-      const FLOOD = B(2 / 3);
+      const C = '.carrier';
+      const MK = '.mark';
+      // The carrier shape: clip inset edges (top, right, bottom, left) and corner radius, in px of the 1080 frame.
+      const ins = (top, right, bottom, left, r) => `inset(${top}px ${right}px ${bottom}px ${left}px round ${r}px)`;
+      const circ = (x, y, r) => ins(y - r, 1080 - x - r, 1080 - y - r, x - r, r);
+      // Words rise through masks on a fixed step; words past the cap share the last slot so long text settles early.
+      const words = (el, start, step, cap, dur) => m.spans(el).forEach((w, i) =>
+        tl.fromTo(w, {yPercent: 125}, {yPercent: 0, duration: dur, ease: 'expo.out'}, start + Math.min(i, cap) * step));
 
-      // Start state: the flag is off, the marks wait wide, and the button is fully closed on its centerline.
-      tl.set('.tg-on', {clipPath: 'inset(0% 100% 0% 0%)'}, B(0));
-      tl.set('.knob', {x: 0}, B(0));
-      tl.set('.marks', {scale: 1.25, rotation: 0}, B(0));
-      tl.set('.pill', {clipPath: 'inset(65px 0px 65px 0px)', scale: 1, transformOrigin: '50% 50%'}, B(0));
+      // Stamp anchor: measured from the fitted headline's last word, so the badge always lands on the feature name.
+      const hl = q('.headline');
+      const masks = [...hl.querySelectorAll('.wmask')];
+      const last = masks[masks.length - 1];
+      const endX = hl.offsetLeft + (last ? last.offsetLeft + last.offsetWidth : 460);
+      const lineTop = hl.offsetTop + (last ? last.offsetTop : 460);
+      const cx = Math.round(Math.min(Math.max(endX + 10, 330), 900));
+      const cy = Math.round(Math.min(Math.max(lineTop - 10, 370), 560));
+      const R = 110;
+      const hover = {x: cx - 20, y: cy - 70, r: 143};
+      const lift = {x: cx - 14, y: cy - 34, r: 119};
+      tl.set('.imprint', {x: cx - R, y: cy - R, rotation: -12, visibility: 'hidden'}, 0);
 
-      // Beat 0: the brand dot pops, and the brand rises.
-      tl.fromTo('.chip', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'back.out(1.2)'}, t('brand'));
-      words(q('.brand'), t('brand'), 1);
+      // Beat 0: the full-frame accent field contracts into the lifted badge over the headline area.
+      tl.fromTo(C, {clipPath: ins(0, 0, 0, 0, 0)},
+        {clipPath: circ(hover.x, hover.y, hover.r), duration: B(0.75), ease: 'expo.out'}, t('open'));
+      tl.fromTo(MK, {x: 0, y: 0, scale: 3.2, rotation: 0},
+        {x: hover.x - 540, y: hover.y - 540, scale: 1.3, rotation: 8, duration: B(0.75), ease: 'expo.out'}, t('open'));
 
-      // Beat 1: the feature card wipes open from the left, carrying its flag toggle.
-      tl.fromTo('.card', {clipPath: 'inset(0% 100% 0% 0%)'},
-        {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.75), ease: 'expo.out'}, t('card'));
+      // Beat 1: the brand rises and its marker pops.
+      words(q('.brand'), t('brand'), B(0.5), 2, B(0.6));
+      tl.fromTo('.marker', {scale: 0, rotation: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('brand'));
 
-      // Beats 2-2.5: the feature name rises at hero size.
-      words(q('.headline'), t('headline'), 1);
+      // Beat 2: the feature name rises word by word under the hovering badge.
+      words(hl, t('headline'), B(0.5), 1, B(0.6));
 
-      // Beat 3: crop marks snap onto the card's corner, marking the target.
-      tl.fromTo('.m', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('marks'));
+      // Beat 3: the stamp slams onto the last word; the ring inks and the headline takes the press.
+      tl.to(C, {clipPath: circ(cx, cy, R), duration: B(0.25), ease: 'power2.in'}, t('stamp') - B(0.25));
+      tl.to(MK, {x: cx - 540, y: cy - 540, scale: 1, rotation: -12, duration: B(0.25), ease: 'power2.in'}, t('stamp') - B(0.25));
+      tl.fromTo('.ring', {attr: {'stroke-dashoffset': 1}}, {attr: {'stroke-dashoffset': 0}, duration: B(0.6), ease: 'expo.out'}, t('stamp'));
+      tl.fromTo(hl, {y: 10}, {y: 0, duration: B(0.5), ease: 'expo.out', immediateRender: false}, t('stamp'));
 
-      // Beats 4-5: who can join, then the marker draws beside it.
-      words(q('.subhead'), t('subhead'), 2);
-      tl.fromTo('.marker', {scaleY: 0}, {scaleY: 1, duration: B(0.75), ease: 'expo.out'}, t('marker'));
+      // Beat 4: the badge lifts, leaving its ink on the feature name; the access track draws across the lower frame.
+      tl.set('.imprint', {visibility: 'visible'}, t('lift'));
+      tl.to(C, {clipPath: circ(lift.x, lift.y, lift.r), duration: B(0.5), ease: 'expo.out'}, t('lift'));
+      tl.to(MK, {x: lift.x - 540, y: lift.y - 540, scale: lift.r / R, rotation: -5, duration: B(0.5), ease: 'expo.out'}, t('lift'));
+      tl.fromTo('.track', {scaleX: 0}, {scaleX: 1, duration: B(0.6), ease: 'expo.out'}, t('lift'));
 
-      // Beat 6: the button track draws across the empty bottom band.
-      tl.fromTo('.track', {scaleX: 0}, {scaleX: 1, duration: B(0.75), ease: 'expo.out'}, t('track'));
+      // Beat 5: the badge peels into a stub at the start of the track.
+      tl.to(C, {clipPath: ins(836, 880, 224, 80, 10), duration: B(0.5), ease: 'power3.inOut'}, t('drop') - B(0.5));
+      tl.to(MK, {x: -400, y: 306, rotation: 0, duration: B(0.5), ease: 'power3.inOut'}, t('drop') - B(0.5));
+      tl.to(MK, {scale: 0, duration: B(0.25), ease: 'power3.in'}, t('drop') - B(0.5));
+      tl.set('.ring', {attr: {'stroke-dashoffset': 1}}, t('drop'));
 
-      // Beat 7: the seal drops in from above the frame and hovers over the target.
-      tl.fromTo('.seal', {y: -440, rotation: -30, scale: 1.25},
-        {y: -70, rotation: -18, scale: 1.25, duration: B(0.75), ease: 'expo.out'}, t('sealDrop'));
+      // Beats 6-7: the subhead says who can join; the goal flag lands at the end of the track.
+      words(q('.subhead'), t('subhead'), B(0.5), 2, B(0.6));
+      tl.fromTo('.flag', {scale: 0}, {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('flag'));
 
-      // Beat 8: the track opens from its centerline into the button, and the CTA rises inside it.
-      tl.to('.pill', {clipPath: 'inset(0px 0px 0px 0px)', duration: B(0.75), ease: 'expo.out'}, t('cta'));
-      words(q('.cta'), t('cta'), 1);
+      // Beats 8-11: the bar's right edge fills the track in four steps; the flag shrinks into the full bar.
+      [680, 480, 280, 80].forEach((right, i) =>
+        tl.to(C, {clipPath: ins(836, right, 224, 80, 10), duration: B(0.5), ease: 'expo.out'}, t('fill' + (i + 1))));
+      tl.to('.flag', {scale: 0, duration: B(0.4), ease: 'expo.out'}, t('fill4'));
 
-      // Beat 9: the marks tighten and turn to the stamp angle.
-      tl.to('.marks', {scale: 1, rotation: -10, duration: B(0.75), ease: 'expo.out'}, t('marksLock'));
+      // Beat 12: the full bar drops into the CTA pill; the spent track hides under it and the CTA rises.
+      tl.set('.track', {visibility: 'hidden'}, t('ctaStamp'));
+      tl.to(C, {clipPath: ins(836, 80, 80, 80, 82), duration: B(0.6), ease: 'back.out(1.2)'}, t('ctaStamp'));
+      words(q('.cta'), t('ctaStamp'), B(0.25), 1, B(0.5));
 
-      // Beat 10: wind-up.
-      tl.to('.seal', {y: -110, rotation: -22, scale: 1.35, duration: B(0.5), ease: 'power2.out'}, t('windUp'));
+      // Beat 13: the arrow slides in through its mask.
+      tl.fromTo('.arrow path', {x: -80}, {x: 0, duration: B(0.5), ease: 'expo.out'}, t('arrow'));
 
-      // Beat 11: the slam lands exactly on the beat. The card takes the hit and the flag flips on.
-      tl.to('.seal', {y: 0, rotation: -10, scale: 1, duration: B(0.35), ease: 'power3.in'}, t('stamp') - B(0.35));
-      tl.fromTo(['.card', '.headline'], {y: 0}, {y: 12, duration: B(0.15), ease: 'power2.out'}, t('stamp'));
-      tl.to(['.card', '.headline'], {y: 0, duration: B(0.6), ease: 'expo.out'}, t('stamp') + B(0.15));
-      tl.to('.knob', {x: 46, duration: B(0.5), ease: 'expo.out'}, t('stamp'));
-      tl.to('.tg-on', {clipPath: 'inset(0% 0% 0% 0%)', duration: B(0.5), ease: 'expo.out'}, t('stamp'));
-      tl.to('.m', {scale: 0, duration: B(0.5), ease: 'expo.out'}, t('stamp'));
+      // Beat 14: the arrow nudges forward; the brand marker turns into a diamond.
+      tl.to('.arrow path', {x: 22, duration: B(0.2), ease: 'power2.out'}, t('nudge'));
+      tl.to('.arrow path', {x: 0, duration: B(0.6), ease: 'power3.out'}, t('nudge') + B(0.2));
+      tl.to('.marker', {rotation: 45, duration: B(0.5), ease: 'expo.out'}, t('nudge'));
 
-      // Beat 12: the seal's ink floods the page in 10 frames, and the seal fills dark.
-      tl.fromTo('.flood', {clipPath: `circle(0px ${SEAL})`},
-        {clipPath: `circle(1260px ${SEAL})`, duration: FLOOD, ease: 'power3.out'}, t('flood'));
-      tl.fromTo('.seal-ink', {clipPath: 'circle(0% at 50% 50%)'},
-        {clipPath: 'circle(75% at 50% 50%)', duration: B(0.5), ease: 'expo.out'}, t('flood'));
-
-      // Beat 13: a cursor glides onto the button.
-      tl.fromTo('.cursor', {x: 260, y: 220, scale: 1, transformOrigin: '0px 0px'},
-        {x: 0, y: 0, duration: B(0.75), ease: 'expo.out'}, t('cursor'));
-
-      // Beat 14: click. The button presses, ticks pop, and blue ink fills it from the click point.
-      tl.to('.cursor', {scale: 0.86, duration: B(0.15), ease: 'power2.out'}, t('click'));
-      tl.to('.cursor', {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('click') + B(0.15));
-      tl.to('.pill', {scale: 0.97, duration: B(0.15), ease: 'power2.out'}, t('click'));
-      tl.to('.pill', {scale: 1, duration: B(0.5), ease: 'expo.out'}, t('click') + B(0.15));
-      tl.fromTo('.press', {clipPath: 'circle(0px at 810px 95px)'},
-        {clipPath: 'circle(840px at 810px 95px)', duration: B(0.5), ease: 'expo.out'}, t('click'));
-      tl.fromTo('.t1', {scale: 0, rotation: 0}, {scale: 1, rotation: 0, duration: B(0.3), ease: 'expo.out'}, t('click'));
-      tl.fromTo('.t2', {scale: 0, rotation: -45}, {scale: 1, rotation: -45, duration: B(0.3), ease: 'expo.out'}, t('click'));
-      tl.fromTo('.t3', {scale: 0, rotation: 0}, {scale: 1, rotation: 0, duration: B(0.3), ease: 'expo.out'}, t('click'));
-      tl.to('.tick', {scale: 0, duration: B(0.4), ease: 'power2.in'}, t('click') + B(0.5));
-
-      // Beat 15: cream floods out from the click back to the blank first frame.
-      tl.fromTo('.wipe', {clipPath: `circle(0px ${CLICK})`},
-        {clipPath: `circle(1340px ${CLICK})`, duration: FLOOD, ease: 'power3.out'}, t('loopFlood'));
+      // Beat 15: CTA and arrow exit; the pill floods to every corner and the big β returns, matching frame 0.
+      tl.to(m.spans(q('.cta')), {yPercent: -125, duration: B(0.3), ease: 'power3.in'}, t('loopFlood'));
+      tl.to('.arrow path', {x: 96, duration: B(0.3), ease: 'power3.in'}, t('loopFlood'));
+      tl.to(C, {clipPath: ins(0, 0, 0, 0, 0), duration: B(0.75), ease: 'power3.out'}, t('loopFlood'));
+      tl.set(MK, {x: 0, y: 378}, t('loopFlood'));
+      tl.to(MK, {y: 0, scale: 3.2, duration: B(0.75), ease: 'power3.out'}, t('loopFlood'));
     });
+    // Re-measure the stamp anchor once the real fonts have loaded (the timeline rebuilds in place).
+    document.fonts && document.fonts.ready.then(() => window.cliphouseBeatUpdate && window.cliphouseBeatUpdate({}));
     window.__timelines = window.__timelines || {};
     window.__timelines.main = tl;
   </script>

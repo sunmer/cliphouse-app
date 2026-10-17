@@ -59,11 +59,12 @@ const system = [
   '',
   'Reply in this format and nothing else:',
   'CONCEPT: <one line>',
+  'CARRIER: <the one object that carries the film, then its chain of states, for example "deploy bar: fills -> SHIPPED stamp -> CTA button -> empty bar">',
   'PACE: <one line: why this tempo and these landings fit>',
   'POSTER: <one frame number where every key text is fully readable: the gallery poster>',
   'MOTION: <2-4 labels from MOTION in vocab.ts, comma separated>',
-  'BEATS:',
-  '<one line per beat range: what lands>',
+  'STORYBOARD:',
+  '<one line per beat range, written before the code: beats, exact text (role and preset copy), layout as % of the frame, what the carrier does, what lands>',
   'FILE: score.json',
   '```json',
   '...',
@@ -87,6 +88,7 @@ const spec = [
   `Theme roles and preset values: ${JSON.stringify(b.theme)}`,
   '',
   'What to do:',
+  '0. Plan first, in your reply, before any file: the CONCEPT, the CARRIER and its chain of states (see "One object carries the film" in docs/direction.md), then the STORYBOARD (see "Storyboard before code"). Then write score.json and index.html to match the storyboard exactly.',
   '1. score.json: choose beatFrames (13-16) to fit the energy (calm editorial 16 or 15, punchy launches 14 or 13). Scenes are whole bars with energy levels, building to energy 3 in the last third. Cues mark the fixed landings; one impact, stamp, crash, or stab cue sits in the last third. Risers are optional.',
   `2. index.html: keep data-composition-variables='[]' (the build fills it), __ASSET_BASE__ for assets, <style>__BASE_CSS__ ...</style>, <script>__BASE_JS__</script>, then <script>__BEAT_JS__</script>, then build on CliphouseBeat.mount(tl, __SCORE__, (tl, m) => {...}) and register window.__timelines.main = tl. The root is <div id="root" data-composition-id="main" data-start="0" data-duration="<seconds>" data-width="${w}" data-height="${h}">. Set :root { --w: ${w}px; --h: ${h}px; } and <meta name="viewport" content="width=${w}, height=${h}">. Fixed text uses data-text-role="<role>" with data-beat-text="<role>" for word masks, or data-var-text="text_<role>". Fonts: "Archivo HF" (.display), "Fraunces HF" (.serif), "Inter HF" (body), "Mono HF" (.mono). Only local assets: no images, no network.`,
   `3. ${b.angle ?? (b.hook
@@ -110,6 +112,8 @@ if (step === 'plan') {
     ...sheets.flatMap((f) => [{type: 'text', text: f}, {type: 'image', source: {type: 'base64', media_type: 'image/png', data: fs.readFileSync(path.join(dir, 'sheets', f)).toString('base64')}}]),
     {type: 'text', text: [
       'Review it as a motion director. Check especially:',
+      '- Does one carrier stay on screen from the first beat to the last and turn into each next scene, as your CARRIER line says? A scene that removes it, swaps it for a new object, or cuts to an unrelated layout is a fault.',
+      '- Does the render match your STORYBOARD beat for beat? Fix the code, or fix the storyboard and the code together.',
       '- Does the composition use the whole frame at every beat? Large dead areas, a flat empty band, or everything crammed into one third are faults.',
       `- Is the type scale right for a ${w}x${h} post seen on a phone in a feed? The hero text should dominate; small text must still read at thumbnail size.`,
       '- Does it deliver the brief literally (every element it names) and read as a software launch asset?',
@@ -144,7 +148,7 @@ const metaPath = path.join(dir, 'meta.json');
 const prev = fs.existsSync(metaPath) && step !== 'plan' ? JSON.parse(fs.readFileSync(metaPath, 'utf8')) : {};
 const line = (k) => out.text.match(new RegExp(`^${k}:\\s*(.*)$`, 'm'))?.[1]?.trim();
 fs.writeFileSync(metaPath, JSON.stringify({
-  concept: line('CONCEPT') ?? prev.concept, pace: line('PACE') ?? prev.pace,
+  concept: line('CONCEPT') ?? prev.concept, carrier: line('CARRIER') ?? prev.carrier, pace: line('PACE') ?? prev.pace,
   poster: line('POSTER') ? Number(line('POSTER').match(/\d+/)?.[0]) : prev.poster,
   motion: line('MOTION') ? line('MOTION').split(',').map((s) => s.trim()).filter(Boolean) : prev.motion,
 }, null, 2));
