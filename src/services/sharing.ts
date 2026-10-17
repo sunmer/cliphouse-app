@@ -67,7 +67,10 @@ export async function uploadLogo(file: File): Promise<UploadedLogo> {
   return request('/api/logos', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({data})}, true);
 }
 // Logos load from the site in production (cached at the edge) and from the API origin in development.
-export const logoUrl = (id: string) => `${readOrigin || location.origin}/l/${id}.png`;
+// Pages embedded on another origin (the MCP App preview) set an absolute site origin first.
+let siteOrigin = '';
+export const setSiteOrigin = (origin: string) => { siteOrigin = origin.replace(/\/$/, ''); };
+export const logoUrl = (id: string) => `${readOrigin || siteOrigin || location.origin}/l/${id}.png`;
 
 export type ApiKey = {id: string; createdAt: number; last4: string};
 export const listApiKeys = async (): Promise<ApiKey[]> => (await request('/api/keys', {}, true)).keys;

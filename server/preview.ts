@@ -69,9 +69,62 @@ export function loopWindow(meta: {fps: number; durationInFrames: number; posterF
   return {start, length};
 }
 
-async function encodeLoop(args: string[], output: string, signal: AbortSignal) {
+// Frame times in seconds for a loop sampled at `fps`, in time order, and `rotate`: the index of the frame
+// nearest the poster frame. encodeLoop starts the loop there, so hosts that show only the first frame of an
+// animated image (or show it before the animation starts) show the representative frame, not a transition.
+export function loopTimes(meta: {fps: number; durationInFrames: number; posterFrame: number}, fps: number) {
+  const {start, length} = loopWindow(meta);
+  const count = Math.max(1, Math.round((length / meta.fps) * fps));
+  const times = Array.from({length: count}, (_, i) => start / meta.fps + i / fps);
+  const poster = meta.posterFrame / meta.fps;
+  const rotate = times.reduce((best, t, i) => (Math.abs(t - poster) < Math.abs(times[best] - poster) ? i : best), 0);
+  return {times, rotate};
+}
+
+// Candidate poster frames: the template's poster frame, then each scene's focus frame (content fully on screen).
+export function posterCandidates(meta: {posterFrame: number; durationInFrames: number; scenes?: {from: number; focus: number}[]}) {
+  const frames = [meta.posterFrame, ...(meta.scenes ?? []).map((s) => s.from + s.focus)];
+  return [...new Set(frames.map((f) => Math.max(0, Math.min(meta.durationInFrames - 1, Math.round(f)))))];
+}
+
+// Mean edge strength (0-255) of an image, from a small grayscale edge map. A frame below FLAT_EDGE reads as
+// one flat color: a poster mid-transition, or brand colors with too little contrast at that moment.
+export const FLAT_EDGE = 1.5;
+export async function edgeScore(image: string, signal?: AbortSignal) {
+  const {stderr} = await run(process.env.LOOP_FFMPEG || 'ffmpeg', ['-v', 'error', '-i', image, '-frames:v', '1', '-vf',
+    'scale=160:-2,format=gray,edgedetect=low=0.08:high=0.2,signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=/dev/stderr',
+    '-f', 'null', '-'], {signal});
+  const value = Number(/YAVG=([\d.]+)/.exec(stderr)?.[1]);
+  return Number.isFinite(value) ? value : null;
+}
+
+// Tries each candidate frame until one is not flat. `still` renders one frame into `image`. A failed or
+// unavailable score keeps the current frame, so the check never blocks a poster.
+export async function pickPosterFrame(candidates: number[], image: string, still: (frame: number) => Promise<void>,
+  score: (image: string) => Promise<number | null> = edgeScore) {
+  for (const [i, frame] of candidates.entries()) {
+    await still(frame);
+    if (i === candidates.length - 1) return frame;
+    const value = await score(image).catch(() => null);
+    if (value === null || value >= FLAT_EDGE) return frame;
+  }
+  throw new Error('No poster candidates.');
+}
+
+// Index of the clip frame nearest the poster frame, for a clip of `length` source frames from `start`,
+// keeping every `step`th frame.
+export function rotationIndex(meta: {posterFrame: number}, start: number, length: number, step: number) {
+  const count = Math.ceil(length / step);
+  return Math.max(0, Math.min(count - 1, Math.round((meta.posterFrame - start) / step)));
+}
+
+// `rotate` moves the first `rotate` frames to the end, so the loop starts on the poster frame.
+export async function encodeLoop(args: string[], output: string, signal: AbortSignal, rotate = 0) {
+  const filter = rotate > 0
+    ? ['-filter_complex', `[0:v]split[a][b];[a]trim=start_frame=${rotate},setpts=PTS-STARTPTS[x];[b]trim=end_frame=${rotate},setpts=PTS-STARTPTS[y];[x][y]concat=n=2:v=1,${LOOP_SCALE}[out]`, '-map', '[out]']
+    : ['-vf', LOOP_SCALE];
   // The image's Debian ffmpeg has libwebp; LOOP_FFMPEG points local runs at another build.
-  await run(process.env.LOOP_FFMPEG || 'ffmpeg', ['-v', 'error', '-y', ...args, '-vf', LOOP_SCALE, '-an', '-c:v', 'libwebp_anim',
+  await run(process.env.LOOP_FFMPEG || 'ffmpeg', ['-v', 'error', '-y', ...args, ...filter, '-an', '-c:v', 'libwebp_anim',
     '-quality', '70', '-compression_level', '4', '-loop', '0', output], {signal});
 }
 
@@ -97,37 +150,43 @@ export function createPreviewRenderer() {
 
   // Runs one Remotion job on the shared browser. Any failure relaunches the browser: it may have crashed
   // or been frozen by CPU throttling between requests.
-  async function withBrowser(signal: AbortSignal, job: (puppeteerInstance: Browser, cancelSignal: ReturnType<typeof makeCancelSignal>['cancelSignal']) => Promise<void>) {
+  async function withBrowser<T>(signal: AbortSignal, job: (puppeteerInstance: Browser, cancelSignal: ReturnType<typeof makeCancelSignal>['cancelSignal']) => Promise<T>): Promise<T> {
     const {cancelSignal, cancel} = makeCancelSignal();
     const onAbort = () => cancel();
     signal.addEventListener('abort', onAbort, {once: true});
     try {
       const puppeteerInstance = await getBrowser();
       aborted(signal);
-      await job(puppeteerInstance, cancelSignal);
+      return await job(puppeteerInstance, cancelSignal);
     } catch (e) {
       await reset();
       throw e;
     } finally { signal.removeEventListener('abort', onAbort); }
   }
 
+  // Renders the poster frame, or the next scene focus frame when the poster frame comes out flat.
   const remotion = (value: Snapshot, image: string, signal: AbortSignal) => withBrowser(signal, async (puppeteerInstance, cancelSignal) => {
     const composition = await selectComposition({serveUrl, id: value.composition, inputProps: value.props, puppeteerInstance, timeoutInMilliseconds: 20_000});
     aborted(signal);
-    await renderStill({serveUrl, composition, inputProps: value.props, puppeteerInstance, cancelSignal, timeoutInMilliseconds: 20_000,
-      frame: Math.min(value.meta.posterFrame, composition.durationInFrames - 1), scale: PREVIEW_WIDTH / composition.width,
-      imageFormat: 'jpeg', jpegQuality: 82, output: image});
+    await pickPosterFrame(posterCandidates({...value.meta, durationInFrames: composition.durationInFrames}), image, async (frame) => {
+      aborted(signal);
+      await renderStill({serveUrl, composition, inputProps: value.props, puppeteerInstance, cancelSignal, timeoutInMilliseconds: 20_000,
+        frame, scale: PREVIEW_WIDTH / composition.width, imageFormat: 'jpeg', jpegQuality: 82, output: image});
+    });
   });
 
-  // A small silent H.264 clip of the loop window at LOOP_FPS, for encodeLoop.
+  // A small silent H.264 clip of the loop window at LOOP_FPS, for encodeLoop. Returns how many clip frames
+  // to rotate, so the loop starts on the poster frame.
   const remotionClip = (value: Snapshot, output: string, signal: AbortSignal) => withBrowser(signal, async (puppeteerInstance, cancelSignal) => {
     const composition = await selectComposition({serveUrl, id: value.composition, inputProps: value.props, puppeteerInstance, timeoutInMilliseconds: 20_000});
     aborted(signal);
     const {start, length} = loopWindow({...value.meta, durationInFrames: composition.durationInFrames});
+    const step = Math.max(1, Math.round(composition.fps / LOOP_FPS));
     await renderMedia({serveUrl, composition, inputProps: value.props, puppeteerInstance, cancelSignal, timeoutInMilliseconds: 30_000,
       codec: 'h264', crf: 20, pixelFormat: 'yuv420p', muted: true, outputLocation: output, concurrency: 2,
-      frameRange: [start, start + length - 1], everyNthFrame: Math.max(1, Math.round(composition.fps / LOOP_FPS)),
+      frameRange: [start, start + length - 1], everyNthFrame: step,
       scale: composition.width >= composition.height ? 480 / composition.width : 640 / composition.height});
+    return rotationIndex(value.meta, start, length, step);
   });
 
   const render: RenderPreview = async (value, signal) => {
@@ -137,7 +196,7 @@ export function createPreviewRenderer() {
     try {
       if (engineOf(value.template) === 'hyperframes') {
         await writeHyperframesProject(value, directory);
-        await snapshotFrame(directory, image, value.meta.posterFrame / value.meta.fps, PREVIEW_WIDTH, signal);
+        await pickPosterFrame(posterCandidates(value.meta), image, (frame) => snapshotFrame(directory, image, frame / value.meta.fps, PREVIEW_WIDTH, signal));
       } else await remotion(value, image, signal);
       if ((await stat(image)).size > 1_000_000) throw new Error('Rendered preview exceeds size limit.');
       return {image, cleanup};
@@ -175,16 +234,14 @@ export function createPreviewRenderer() {
     const cleanup = () => rm(directory, {recursive: true, force: true});
     try {
       if (engineOf(value.template) === 'hyperframes') {
-        const {start, length} = loopWindow(value.meta);
-        const count = Math.max(1, Math.round((length / value.meta.fps) * HF_LOOP_FPS));
-        const times = Array.from({length: count}, (_, i) => start / value.meta.fps + i / HF_LOOP_FPS);
+        const {times, rotate} = loopTimes(value.meta, HF_LOOP_FPS);
         await writeHyperframesProject(value, directory);
         const ext = await hyperframesFrames(value, directory, times, signal);
-        await encodeLoop(['-framerate', String(HF_LOOP_FPS), '-i', path.join(directory, `seq-%03d.${ext}`)], image, signal);
+        await encodeLoop(['-framerate', String(HF_LOOP_FPS), '-i', path.join(directory, `seq-%03d.${ext}`)], image, signal, rotate);
       } else {
         const clip = path.join(directory, 'clip.mp4');
-        await remotionClip(value, clip, signal);
-        await encodeLoop(['-i', clip], image, signal);
+        const rotate = await remotionClip(value, clip, signal);
+        await encodeLoop(['-i', clip], image, signal, rotate);
       }
       if ((await stat(image)).size > MAX_LOOP_BYTES) throw new Error('Rendered loop exceeds size limit.');
       return {image, cleanup};

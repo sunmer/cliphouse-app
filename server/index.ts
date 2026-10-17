@@ -7,6 +7,7 @@ import {createStore} from './store.ts';
 import {renderThumbnail, renderVideo} from './render.ts';
 import {createLoopService, createPreviewRenderer, createPreviewService, createRemoteLoopRenderer, createRenderGate} from './preview.ts';
 import {setLogoReader} from './hyperframes.ts';
+import {previewAppHtml} from './mcp-app.ts';
 
 const projectId = process.env.GOOGLE_CLOUD_PROJECT;
 const bucket = process.env.SHARE_BUCKET;
@@ -42,6 +43,7 @@ const handler = createHandler({
     : createLoopService({store, render: previewRenderer.renderLoop, origin, version: process.env.RENDER_VERSION || '1', gate,
       concurrency: Number(process.env.LOOP_CONCURRENCY || 1)}),
   verify: (token) => getAuth().verifyIdToken(token, true),
+  previewApp: previewAppHtml(manifest, origin),
   edgeSecret: process.env.EDGE_SECRET || undefined,
 });
 const server = createServer(handler);
