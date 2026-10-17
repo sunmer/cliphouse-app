@@ -92,6 +92,11 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
     setF({template: null, purpose: null, formats: [], styles: [], tones: [], energy: null, scenes: []});
     if (location.hash.includes('?')) location.hash = '#/';
   };
+  const activeTemplate = f.template ? templates.find((t) => t.id === f.template) : undefined;
+  const clearTemplate = () => {
+    set('template', null);
+    if (location.hash.includes('template=')) location.hash = '#/';
+  };
 
   const chip = (on: boolean, label: string, n: number, onClick: () => void) => (
     <button key={label} className={`chip ${on ? 'on' : ''}`} disabled={!on && n === 0} onClick={onClick}>
@@ -160,22 +165,6 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
               )}
             </div>
           </section>
-          <section>
-            <h3>Template</h3>
-            <div className="list">
-              {templates.map((t) => {
-                const n = count('template', (v) => v.template === t.id);
-                return (
-                  <button key={t.id} className={`row-btn ${f.template === t.id ? 'on' : ''}`} onClick={() => set('template', f.template === t.id ? null : t.id)}>
-                    <span>
-                      {t.title}
-                    </span>
-                    <span className="count">{n}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
         </aside>
 
         <main>
@@ -191,6 +180,12 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
                 {activeCount > 0 && <span className="badge-count">{activeCount}</span>}
               </button>
               {results.length} {results.length === 1 ? 'video' : 'videos'}
+              {activeTemplate && (
+                <button className="chip on template-chip" onClick={clearTemplate} title="Remove template filter">
+                  Template: {activeTemplate.title}
+                  <X size={13} aria-hidden="true" />
+                </button>
+              )}
               {active && (
                 <button className="link-btn" onClick={clear}>
                   Clear filters
