@@ -390,7 +390,7 @@ test('MCP Apps hosts get a live preview view linked from both render tools', asy
   const {resources} = await rpc('resources/list', {});
   const listed = resources.find((r: {uri: string}) => r.uri === PREVIEW_APP_URI);
   assert.equal(listed.mimeType, 'text/html;profile=mcp-app');
-  assert.deepEqual(listed._meta.ui.csp.resourceDomains, ['https://cliphou.se']);
+  assert.deepEqual(listed._meta.ui.csp.resourceDomains, ['https://cliphou.se', 'https://cdn.jsdelivr.net']);
   const {contents: [view]} = await rpc('resources/read', {uri: PREVIEW_APP_URI});
   assert.equal(view.mimeType, 'text/html;profile=mcp-app');
   assert.match(view.text, /<script type="module" crossorigin src="https:\/\/cliphou\.se\/assets\/mcpApp-abc\.js">/);
