@@ -2,12 +2,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {parseArgs} from 'node:util';
-import {atomicJson, digest, ensureBudget, hash, priceCeiling, protocol, reserveCost, root} from './protocol.mjs';
-import {jobId, recoveryHash, recoveryProtocol, repairContract, repairFeedback, repairSource} from './recovery.mjs';
+import {additionDigestOf, additionResultsFile, atomicJson, digest as baseDigest, ensureBudget, hash, loadAddition, priceCeiling, protocol, reserveCost, root} from './protocol.mjs';
+import {jobId, recoveryHashOf, recoveryProtocol, repairContract, repairFeedback, repairSource} from './recovery.mjs';
 import {renderRecovery} from './render-recovery.mjs';
 
-const {values} = parseArgs({options: {execute: {type: 'boolean'}, store: {type: 'string'}}});
-const baseline = JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark/results.json'), 'utf8'));
+const {values} = parseArgs({options: {execute: {type: 'boolean'}, store: {type: 'string'}, 'addition-id': {type: 'string'}, 'allow-unlimited-key': {type: 'string'}}});
+// --addition-id applies the same R1 protocol to a late addition's failures, in that addition's own store.
+const addition = values['addition-id'] ? loadAddition(values['addition-id']) : null;
+const digest = addition ? additionDigestOf(addition) : baseDigest;
+const recoveryHash = recoveryHashOf(digest);
+const models = addition ? addition.models : protocol.models;
+const baseline = JSON.parse(fs.readFileSync(addition ? additionResultsFile(addition) : path.join(root, 'src/benchmark/results.json'), 'utf8'));
 const jobs = baseline.entries.filter(entry => entry.status === 'failed');
 if (!values.execute) {
   console.log(JSON.stringify({protocol: recoveryProtocol, jobs: jobs.map(jobId), paidRequestsSent: 0}, null, 2));
@@ -15,7 +20,8 @@ if (!values.execute) {
 }
 const key = process.env.OPENROUTER_API_KEY;
 if (!key) throw new Error('Set OPENROUTER_API_KEY in the process environment.');
-const store = path.resolve(values.store ?? path.join(root, '.benchmark', protocol.edition));
+const edition = path.resolve(values.store ?? path.join(root, '.benchmark', protocol.edition));
+const store = addition ? path.join(edition, `addition-${addition.id.toLowerCase()}`) : edition;
 const baseLedger = JSON.parse(fs.readFileSync(path.join(store, 'ledger.json'), 'utf8'));
 ensureBudget(baseLedger, 'repair', 0);
 if (baseLedger.protocolHash !== digest) throw new Error('Baseline protocol changed.');
@@ -29,7 +35,8 @@ const baselineHash = hash(JSON.stringify(baseline));
 const ledger = fs.existsSync(ledgerFile) ? JSON.parse(fs.readFileSync(ledgerFile, 'utf8')) :
   {recoveryHash, baselineHash, imageId, charges: [], pending: []};
 if (ledger.recoveryHash !== recoveryHash || ledger.baselineHash !== baselineHash || ledger.imageId !== imageId) throw new Error('Recovery protocol, baseline, or renderer changed.');
-const budget = () => ({charges: [...baseLedger.charges, ...ledger.charges], pending: ledger.pending});
+// An addition's cap covers its generation and repair charges together.
+const budget = () => ({charges: [...baseLedger.charges, ...ledger.charges], pending: ledger.pending, ...(typeof ledger.capUsd === 'number' ? {capUsd: ledger.capUsd} : {})});
 ensureBudget(budget(), 'repair', 0);
 const lock = path.join(store, 'runner.lock');
 try { fs.mkdirSync(lock); } catch { throw new Error('Another benchmark process owns runner.lock.'); }
@@ -51,11 +58,17 @@ function render(dir, attempt) {
 }
 try {
   const identity = (await get('https://openrouter.ai/api/v1/key', {headers})).data;
-  if (!(identity.limit > 0 && identity.limit <= 40) || identity.limit_reset || !(identity.limit_remaining > 0)) throw new Error('Expected dedicated lifetime $40 key with remaining budget.');
+  const cap = values['allow-unlimited-key'] === undefined ? null : Number(values['allow-unlimited-key']);
+  if (cap !== null) {
+    // Operator-approved key without an OpenRouter limit, bounded by a hard cap recorded in the recovery ledger.
+    if (!addition || !Number.isFinite(cap) || cap <= 0 || cap > 5) throw new Error('--allow-unlimited-key needs --addition-id and a cap between $0 and $5.');
+    if (ledger.capUsd === undefined) Object.assign(ledger, {capUsd: cap, keyPolicy: {limit: identity.limit ?? null, approvedAt: new Date().toISOString(), note: 'Key without an OpenRouter spending limit, approved by the operator. Generation and repair spend together is capped by capUsd.'}});
+    ensureBudget(budget(), 'repair', 0);
+  } else if (!(identity.limit > 0 && identity.limit <= 40) || identity.limit_reset || !(identity.limit_remaining > 0)) throw new Error('Expected dedicated lifetime $40 key with remaining budget.');
   atomicJson(ledgerFile, ledger);
   atomicJson(path.join(target, 'protocol.json'), {...recoveryProtocol, recoveryHash, baselineHash, imageId});
   const providers = new Map();
-  for (const model of protocol.models.filter(model => jobs.some(entry => entry.model === model.key))) {
+  for (const model of models.filter(model => jobs.some(entry => entry.model === model.key))) {
     const pinned = JSON.parse(fs.readFileSync(path.join(store, `provider-${model.key}.json`), 'utf8'));
     const data = await get(`https://openrouter.ai/api/v1/models/${model.id}/endpoints`);
     const endpoint = data.data.endpoints.find(endpoint => endpoint.tag === pinned.tag);
@@ -64,14 +77,14 @@ try {
     providers.set(model.key, provider);
     atomicJson(path.join(target, `provider-${model.key}.json`), provider);
   }
-  console.log(`Verified ${jobs.length} failures, original providers, renderer, and $${identity.limit_remaining.toFixed(2)} key balance.`);
+  console.log(`Verified ${jobs.length} failures, original providers, and renderer${cap === null ? `, and $${identity.limit_remaining.toFixed(2)} key balance` : `, with a $${ledger.capUsd} ledger cap`}.`);
   async function execute(original) {
     const id = jobId(original);
     const dir = path.join(target, id);
     const recordFile = path.join(dir, 'record.json');
     if (fs.existsSync(recordFile)) { console.log(`${id}: recovery already recorded.`); return; }
     fs.mkdirSync(dir, {recursive: true, mode: 0o700});
-    const model = protocol.models.find(model => model.key === original.model);
+    const model = models.find(model => model.key === original.model);
     const provider = providers.get(original.model);
     const priorRecord = JSON.parse(fs.readFileSync(path.join(store, id, 'record.json'), 'utf8'));
     if (priorRecord.status !== 'failed' || priorRecord.protocolHash !== digest) throw new Error('Original failure record mismatch.');

@@ -22,6 +22,7 @@ export type BenchmarkResult = {
   source?: string;
   request?: string;
   error?: string;
+  note?: string;
   reviews: {reviewer: string; scores: {design: number; motion: number; readability: number; adherence: number}}[];
   recovery?: BenchmarkRecovery & {originalError?: string; originalAttempts: number; originalCostUsd: number};
 };

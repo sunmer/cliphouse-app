@@ -28,12 +28,15 @@ async function check(browser, viewport, prefix) {
   const additions = await (await context.request.get(`${base}benchmark/addition-results.json`)).json();
   const additionsA2 = await (await context.request.get(`${base}benchmark/addition-a2-results.json`)).json();
   const additionsA3 = await (await context.request.get(`${base}benchmark/addition-a3-results.json`)).json();
+  const repairsA3 = await (await context.request.get(`${base}benchmark/addition-a3-recovery.json`)).json();
   protocol.models = [...additionsA3.addition.models, ...additionsA2.addition.models, ...additions.addition.models, ...protocol.models];
   const cards = protocol.models.length;
-  const results = {...original, entries: original.entries.map((entry) => {
-    const repair = recoveries.entries.find((item) => item.model === entry.model && item.brief === entry.brief && item.run === entry.run);
+  const repaired = (list) => (entry) => {
+    const repair = list.entries.find((item) => item.model === entry.model && item.brief === entry.brief && item.run === entry.run);
     return repair ? {...entry, ...repair, generationMs: entry.generationMs + repair.generationMs, renderMs: entry.renderMs + repair.renderMs} : entry;
-  }).concat(additions.entries, additionsA2.entries, additionsA3.entries)};
+  };
+  const results = {...original, entries: original.entries.map(repaired(recoveries))
+    .concat(additions.entries, additionsA2.entries, additionsA3.entries.map(repaired(repairsA3)))};
   await page.locator('.benchmark-card').first().waitFor();
   assert.equal(await page.locator('.benchmark-card').count(), cards);
   assert.equal(await page.locator('.benchmark-card h3').first().innerText(), 'DeepSeek V4.1 Flash 1017', 'the newest late addition is listed first');
