@@ -31,10 +31,14 @@ ${preload.map((file) => `<link rel="modulepreload" crossorigin href="${url(file)
 </head><body><div id="root"></div><script type="module" crossorigin src="${url(entry.file)}"></script></body></html>`;
 }
 
+// The HyperFrames player loads its runtime from this CDN when the page is on another origin than the
+// runtime-src (as in an MCP host iframe). The URL is pinned to the player's exact version.
+export const HYPERFRAMES_CDN = 'https://cdn.jsdelivr.net';
+
 // UI metadata shared by the resource listing and the resource contents.
 export const previewAppMeta = (origin: string) => {
   const site = origin.replace(/\/$/, '');
-  return {ui: {prefersBorder: false, csp: {resourceDomains: [site], connectDomains: [site]}}};
+  return {ui: {prefersBorder: false, csp: {resourceDomains: [site, HYPERFRAMES_CDN], connectDomains: [site]}}};
 };
 
 // Tool metadata that links render_previews and render_preview to the view. The flat keys are the older
