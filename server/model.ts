@@ -119,7 +119,7 @@ ${(assets.css || []).map((file) => `<link rel="stylesheet" href="/${escape(file)
 <script type="module" crossorigin src="/${escape(assets.file)}"></script>
 </head><body><div id="root"></div><noscript>
 <h1>${escape(data.title)}</h1><img alt="${escape(data.title)}" src="${data.image}" style="max-width:100%;max-height:80vh">
-<p><a href="${data.agent}">Agent spec</a> · <a href="/">Browse cliphou.se</a></p><p>Made with <a href="/agents/">cliphou.se</a></p></noscript></body></html>`;
+<p><a href="${data.agent}">Agent spec</a> · <a href="/">Browse cliphou.se</a></p></noscript></body></html>`;
 }
 
 export function byteRange(header: string | undefined, size: number) {

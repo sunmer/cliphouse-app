@@ -213,7 +213,6 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
               <button className="link-btn" onClick={savedOnly && !active ? () => setSavedOnly(false) : clear}>
                 {savedOnly && !active ? 'Browse videos' : 'Clear filters'}
               </button>
-              <a className="link-btn" href={`${import.meta.env.BASE_URL}agents/`}>Ask your coding agent for a video instead</a>
             </div>
           ) : (
             <div className="grid">

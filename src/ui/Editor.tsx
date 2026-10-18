@@ -502,7 +502,7 @@ For text and color edits, return a link in the spec's handoff format. For code e
           <p>{variant.tmpl.prompt}</p>
         </div>
         <p className="small muted">Free to copy, modify, share, and use commercially. No attribution required. Template v{version}. Updated {variant.updatedAt}. Created by {variant.creator}. {sharingConfigured ? 'Free full-resolution MP4 export.' : 'Hosted MP4 export is not available yet.'}</p>
-        {shareId && <p className="small muted">Made with <a href={`${import.meta.env.BASE_URL}agents/`}>cliphou.se</a>. Make your own from your coding agent.</p>}
+        {shareId && <p className="small muted">Made with <a href={import.meta.env.BASE_URL}>cliphou.se</a>.</p>}
         <div className="tags">
           {[...new Set([variant.purpose, ...variant.placement, ...variant.style, variant.tone,
             variant.energy <= 2 ? 'Calm' : variant.energy === 3 ? 'Medium' : 'High',
@@ -510,7 +510,6 @@ For text and color edits, return a link in the spec's handoff format. For code e
         </div>
       </section>
       {incoming?.ok && !agentBannerClosed && !(compact && panel) && <div className="agent-banner" role="note"><Bot size={16} /><span>Made with your coding agent.</span>
-        <a href={`${import.meta.env.BASE_URL}agents/`} onClick={() => track('agent_banner_click', {variant_id: variant.id})}>Get the skill</a>
         <button className="overlay-btn" title="Dismiss" aria-label="Dismiss" onClick={() => setAgentBannerClosed(true)}><X size={14} /></button></div>}
       {notice && <div className="editor-notice" role="status">{notice}<button className="link-btn" onClick={() => setNotice('')}>Dismiss</button></div>}
     </main>

@@ -10,14 +10,12 @@ See [agents.md](docs/agents.md) for agent specs, handoff links, source packages,
 
 ## Use cliphou.se from your agent
 
-[![Demo: a coding agent suggests release video templates, the user picks one, and the agent fills it from the repo](public/agents/poster-16x9-a1.jpg)](https://cliphou.se/agents/)
-
 **You ship it. Cliphouse shows it off.** Your coding agent turns every release into a video for your socials. It finds the selling points, picks the angle, writes the copy, and uses your brand colors and logo.
 
 - Coding agents (Codex, Claude Code): `npx skills add sunmer/cliphouse`
 - Chat apps (Claude, ChatGPT, Cursor): connect the MCP server at `https://cliphou.se/mcp`
 
-The skill, the MCP install links, and the demo are in [sunmer/cliphouse](https://github.com/sunmer/cliphouse). The install page is https://cliphou.se/agents/.
+The skill and the MCP install links are in [sunmer/cliphouse](https://github.com/sunmer/cliphouse).
 
 ## Run
 
