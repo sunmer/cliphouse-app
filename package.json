@@ -14,7 +14,7 @@
     "build:sharing": "node scripts/build-share.mjs",
     "start:sharing": "node --import tsx server/index.ts",
     "dev": "vite",
-    "build": "node scripts/build-music-runtime.mjs --check && node --import tsx scripts/check-direction.mjs --records && node scripts/build-sources.mjs --check && tsc && vite build && node --import tsx scripts/build-seo.mjs && node --import tsx scripts/build-benchmark.tsx",
+    "build": "node scripts/build-music-runtime.mjs --check && node --import tsx scripts/check-direction.mjs --records && node scripts/build-sources.mjs --check && tsc && vite build && node --import tsx scripts/build-seo.mjs && node --import tsx scripts/build-benchmark.tsx && node --import tsx scripts/build-gta6.tsx",
     "benchmark:plan": "node scripts/benchmark/run.mjs",
     "benchmark:run": "node scripts/benchmark/run.mjs --execute",
     "benchmark:repair": "node scripts/benchmark/run-recovery.mjs",

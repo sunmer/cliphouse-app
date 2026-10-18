@@ -187,3 +187,21 @@ details[open] > summary > svg { transform: rotate(180deg); }
   .benchmark-tabs button { font-size: 13px; padding: 0 5px; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* GTA 6 trailer challenge */
+.gta6-reveal { display: grid; grid-template-columns: minmax(260px, 380px) minmax(0, 1fr); gap: 56px; align-items: start; }
+.gta6-reveal-video { border: 1px solid var(--article-line); border-radius: 6px; overflow: hidden; background: #090a0b; }
+.gta6-reveal-video video { display: block; width: 100%; aspect-ratio: 9 / 16; object-fit: contain; }
+.gta6-reveal-text h2 { margin-bottom: 14px; }
+.gta6-reveal-text > p { font-size: 14px; line-height: 1.8; color: #b6bac2; max-width: 560px; }
+.gta6-table { width: 100%; max-width: 560px; border-collapse: collapse; margin: 26px 0 18px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.gta6-table th { text-align: left; font-size: 11px; font-weight: 500; color: var(--article-muted); padding: 0 0 10px; border-bottom: 1px solid var(--article-line); }
+.gta6-table td { padding: 13px 0; border-bottom: 1px solid var(--article-line); }
+.gta6-table th + th, .gta6-table td + td { text-align: right; }
+.gta6-effort { font-size: 11px; font-weight: 500; color: var(--article-muted); margin-left: 4px; }
+.gta6-toggle { display: inline-flex; margin-top: 14px; }
+.gta6-prose { max-width: 760px; }
+@media (max-width: 760px) {
+  .gta6-reveal { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .gta6-reveal-video { max-width: 360px; width: 100%; margin: 0 auto; }
+}

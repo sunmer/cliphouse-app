@@ -1,13 +1,14 @@
 import {ArrowUpRight, Scissors} from 'lucide-react';
 import React, {type ReactNode} from 'react';
 
-export function ArticleLayout({base, children}: {base: string; children: ReactNode}) {
+export function ArticleLayout({base, children, current = 'benchmark'}: {base: string; children: ReactNode; current?: 'benchmark' | 'gta6'}) {
   return <div className="article-site">
     <a className="article-skip" href="#article">Skip to content</a>
     <header className="article-header">
       <a className="article-brand" href={base}><Scissors size={22} aria-hidden="true" />cliphou.se</a>
       <nav aria-label="Main navigation">
-        <a href={`${base}benchmark/`} aria-current="page">Benchmark</a>
+        <a href={`${base}benchmark/`} aria-current={current === 'benchmark' ? 'page' : undefined}>Benchmark</a>
+        <a href={`${base}benchmark/gta6/`} aria-current={current === 'gta6' ? 'page' : undefined}>GTA 6 challenge</a>
         <a href={base}>Templates <ArrowUpRight size={14} aria-hidden="true" /></a>
       </nav>
     </header>

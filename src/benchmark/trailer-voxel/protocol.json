@@ -1,0 +1,19 @@
+{
+  "id": "trailer-voxel-2026-10",
+  "title": "GTA 6 Trailer Challenge",
+  "date": "2026-10-18",
+  "runs": 3,
+  "socialRun": 1,
+  "format": {"width": 1920, "height": 1080, "fps": 30, "durationInFrames": 390},
+  "render": {"image": "cliphouse-benchmark-3d:1", "gl": "swangle", "three": "0.186.1", "reactThreeFiber": "9.8.1", "remotionThree": "4.0.534"},
+  "music": {"track": "techno-pulse", "file": "public/music/techno-pulse.m4a", "bpm": 128, "license": "Royalty-free. Generated for cliphou.se with the ElevenLabs Music API."},
+  "limits": {"maxTokens": 128000, "maxRepairs": 3, "reviewRounds": 2, "capUsdPerVideo": 40, "requestTimeoutMs": 2400000},
+  "feedback": "After the first render that works, the model gets a contact sheet of 12 frames from its own video (one every 32 frames, plus frame 375) and may revise. This happens twice. The model judges its own frames; no human comments are added. If a revision fails to render, the last working version is kept.",
+  "repairPolicy": "Up to three automated repairs in total after an unusable reply, a truncated reply, or a failed compile or render. The model receives only the error. No human edits. Every attempt is charged to the video.",
+  "outputPolicy": "The reply is the TSX module. If a model wraps it in one Markdown code fence, the fence is removed. The same rule applies to every model.",
+  "models": [
+    {"key": "opus-5-5-high", "name": "Claude Opus 5.5", "effort": "high", "api": "anthropic", "id": "claude-opus-5-5", "provider": "Anthropic"},
+    {"key": "sonnet-5-5-high", "name": "Claude Sonnet 5.5", "effort": "high", "api": "anthropic", "id": "claude-sonnet-5-5", "provider": "Anthropic"},
+    {"key": "deepseek-v4-1-flash-1017-high", "name": "DeepSeek V4.1 Flash 1017", "effort": "high", "api": "openrouter", "id": "deepseek/deepseek-v4.1-flash-1017", "provider": "deepseek"}
+  ]
+}

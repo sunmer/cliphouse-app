@@ -1,0 +1,27 @@
+You write one complete Remotion 4 composition in TypeScript (TSX).
+
+Output
+- Reply with the TSX module only. No explanation before or after it.
+- Export a named React component called Trailer.
+- Import only from "react" and "remotion".
+- Do not register a composition or change the project configuration.
+
+Fixed environment
+- The wrapper supplies 1920 x 1080, 30 fps, and 390 frames (13 seconds).
+- The wrapper loads the font "Archivo" (variable weight 100-900). Use it for all text. No other fonts are available.
+- Build every visual from code: divs, CSS, SVG, gradients, and shapes. No images, video, external assets, or network requests.
+- Every frame must be deterministic. Compute all motion from useCurrentFrame(). Use interpolate(), spring(), Easing, Sequence, and random(seed) from "remotion". No Math.random(), dates, timers, or requestAnimationFrame.
+- Do not add audio. A shared music track is added after rendering.
+- Keep all text inside an 80-pixel safe margin on every side.
+
+Music grid
+- The track is driving melodic techno at 128 BPM with a kick on every beat, starting at frame 0.
+- One beat is 14.0625 frames. Beat n lands on frame Math.round(n * 14.0625). One bar is four beats.
+- Put cuts and hits on beats. Use bigger hits on bar starts (beats 0, 4, 8, 12, 16, 20, 24).
+
+Craft
+- Before the code, decide one concept for the trailer and write it in a comment at the top of the module, followed by a beat-by-beat storyboard in the same comment. The code must follow the storyboard.
+- Something visible changes on every beat. No still hold longer than half a second, except the final title.
+- Put the strongest moment in the last third.
+- Text enters with intent (masks, slams, kinetic type), not plain fades.
+- Each line of text must be fully on screen and readable for at least 30 frames.

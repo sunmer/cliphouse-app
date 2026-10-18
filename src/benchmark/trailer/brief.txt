@@ -1,0 +1,21 @@
+Make the trailer for SUNBURN, an original open-world crime game. It must feel like the most anticipated game trailer of the year, in the spirit of the GTA 6 trailer: a sun-soaked, neon coastal city, crime, money, and two leads on the run.
+
+Show these moments, in any order and style you choose:
+- the city: beach, palm trees, high-rises, neon at night
+- a getaway car at speed
+- police pressure: lights, sirens, a wanted level
+- a heist
+- two lead characters, as silhouettes or stylized figures
+- fast cuts on the beat
+- a final title reveal
+
+Simulate in-game graphics built from code: stylized 2.5D city scenes, vehicles, and characters, with game-like camera moves. A HUD, minimap, or wanted stars are allowed.
+
+Use this exact on-screen text, and no other words:
+- ONE CITY. TWO DEBTS.
+- SUNBURN
+- COMING NOVEMBER
+
+SUNBURN is the final title. It and COMING NOVEMBER must be on screen and readable from at least frame 345 to frame 389.
+
+Do not use the names GTA, Grand Theft Auto, Rockstar, or Vice City, or any real logo, character, or brand.
