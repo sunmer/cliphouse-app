@@ -25,8 +25,9 @@ type Filters = {
 export const energyOf = (n: number): Energy => (n <= 2 ? 'Calm' : n === 3 ? 'Medium' : 'High');
 const FORMATS: Format[] = ['16:9', '9:16', '1:1', '4:5'];
 const SCENE_FILTERS = Object.entries(SCENE_TYPES).filter(([k]) => k !== 'transition');
-// One random order per page load, so "Featured" changes on each visit but stays stable while filtering.
-const featuredRank = new Map(variants.map((v) => [v.id, Math.random()]));
+// "Featured" shows the newest developer and product launch videos. An explicit purpose filter overrides it.
+const FEATURED_PURPOSES = new Set(['Developer', 'Product launch']);
+const newestFirst = (a: Variant, b: Variant) => Date.parse(b.createdAt) - Date.parse(a.createdAt);
 
 // The gallery remounts on every visit, so its view state lives in this tab's session storage:
 // opening a video and coming back keeps the sort, search, and filters.
@@ -75,14 +76,15 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
     return (savedOnly ? variants : galleryVariants).filter((v) => (!savedOnly || account.saved.has(v.id)) && terms.every((t) => searchText(v).includes(t)));
   }, [q, savedOnly, account.saved]);
 
-  const count = (skip: keyof Filters, pred: (v: Variant) => boolean) => searched.filter((v) => matches(v, f, skip) && pred(v)).length;
+  const featuredOnly = sort === 'featured' && !f.purpose;
+  const inView = (v: Variant, skip?: keyof Filters) =>
+    matches(v, f, skip) && (!featuredOnly || skip === 'purpose' || FEATURED_PURPOSES.has(v.purpose));
+  const count = (skip: keyof Filters, pred: (v: Variant) => boolean) => searched.filter((v) => inView(v, skip) && pred(v)).length;
 
-  const results = useMemo(() => {
-    const matching = searched.filter((v) => matches(v, f));
-    return sort === 'new'
-      ? matching.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
-      : matching.sort((a, b) => featuredRank.get(a.id)! - featuredRank.get(b.id)!);
-  }, [searched, f, sort]);
+  const results = useMemo(
+    () => searched.filter((v) => matches(v, f) && (!featuredOnly || FEATURED_PURPOSES.has(v.purpose))).sort(newestFirst),
+    [searched, f, featuredOnly],
+  );
 
   const active = Boolean(q || f.template || f.purpose || f.formats.length || f.styles.length || f.tones.length || f.energy || f.scenes.length);
   const activeCount =
