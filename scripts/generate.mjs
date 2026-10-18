@@ -33,7 +33,7 @@ const system = `You write Remotion (v4) compositions for a template marketplace.
 - Export a meta object (TemplateMeta) whose scenes list drives the <Sequence> timeline in the component, so metadata and render always agree.
 - Text must fit for any value up to each role's max length. Use the shared fit() helper or your own wrapping.
 - Rendering must be deterministic: use remotion's random(seed), never Math.random. No external assets, fonts, or network.
-- Only import from react, remotion, zod, '../contract', '../shared/motion', '../shared/fonts', '../shared/scenes', and your own files.${brief.kind === '3d' ? `
+- Only import from react, remotion, zod, '../contract', '../shared/motion', '../shared/fonts', '../shared/scenes', '../shared/data', '../effects/effects', and your own files. Use WhipPan and GlassCaption from '../effects/effects' for those effects; never write blur() yourself.${brief.kind === '3d' ? `
 - This is a 3D template. Render all 3D through <Scene3D> from '../three/Scene3D'; children are @react-three/fiber JSX (mesh, boxGeometry, meshStandardMaterial, lights). Drive every transform from useCurrentFrame(); never use useFrame, clocks, or Math.random. Keep editable text in normal HTML layers above the canvas, with data-text-role spans.` : ''}${imageRule}
 
 Reply with exactly three files, each as a line "FILE: <name>" followed by one fenced code block: meta.ts, schema.ts, ${Name}.tsx. No other prose.`;
@@ -47,6 +47,9 @@ const context = [
   ['src/videos/stack/Stack.tsx (example)', read('src/videos/stack/Stack.tsx')],
   ['src/videos/shared/fonts.ts', read('src/videos/shared/fonts.ts')],
   ['src/videos/shared/scenes.tsx', read('src/videos/shared/scenes.tsx')],
+  ['src/videos/shared/data.ts', read('src/videos/shared/data.ts')],
+  ['src/videos/effects/effects.tsx', read('src/videos/effects/effects.tsx')],
+  ['docs/direction.md', read('docs/direction.md')],
   ...(brief.kind === '3d' ? [
     ['src/videos/three/Scene3D.tsx', read('src/videos/three/Scene3D.tsx')],
     ['src/videos/orbit3d/Orbit3d.tsx (3D example)', read('src/videos/orbit3d/Orbit3d.tsx')],

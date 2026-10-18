@@ -306,5 +306,22 @@
       "subhead"
     ],
     "prompt": "A 7 second 16:9 soft clay 3D intro. Chunky rounded clay-like shapes (spheres, capsules made from cylinders with sphere caps, rounded boxes) in pastel versions of the theme colors bounce in with squash-and-stretch (scale on landing) onto a soft floor, then settle into a playful arrangement around the center. Use meshStandardMaterial with high roughness (0.8) and no metalness for a matte clay look, with soft lighting. The headline pops in with a bouncy scale, the brand above, the subhead below. Playful and friendly."
+  },
+  "beforeafterfx": {
+    "name": "Beforeafterfx",
+    "kind": "2d",
+    "width": 1080,
+    "height": 1350,
+    "fps": 30,
+    "durationInFrames": 300,
+    "roles": [
+      "headline",
+      "point1",
+      "point2",
+      "brand",
+      "cta"
+    ],
+    "prompt": "A 10 second 4:5 before and after video: a headline with a slider handle, a split screen where a drag handle wipes from the old way to the new way with a strike-through and check stamp, and a brand end card.",
+    "effects": []
   }
 }

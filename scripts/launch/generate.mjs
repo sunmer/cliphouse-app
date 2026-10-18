@@ -10,6 +10,7 @@ import path from 'node:path';
 import {message, costOf} from './anthropic.mjs';
 import {LAUNCH} from './briefs.mjs';
 import {REFRESH, refreshOf} from './refresh.mjs';
+import {effectChoiceSchema, effectPrompt} from '../../src/direction/effects.ts';
 
 const root = path.resolve(import.meta.dirname, '../..');
 const MODEL = process.env.MODEL || 'claude-opus-5-5';
@@ -26,6 +27,9 @@ const cand = path.join(dir, 'candidate');
 fs.mkdirSync(dir, {recursive: true});
 const logPath = path.join(dir, 'log.json');
 const [w, h] = b.size;
+// EFFECTS=1 lets the model choose signature effects. EFFECTS='[{"id":"crash-zoom","at":"the stat","why":"..."}]' names them.
+const effectsArg = process.env.EFFECTS;
+const effects = !effectsArg ? null : effectsArg === '1' ? [] : JSON.parse(effectsArg).map((e) => effectChoiceSchema.parse(e));
 
 const shared = [
   ['docs/direction.md', read('docs/direction.md')],
@@ -109,6 +113,7 @@ const spec = [
     ? 'Make it unmistakably a developer asset: the clip a devrel team or maintainer posts on X, LinkedIn, or GitHub. It must read as made by engineers for engineers. One strong concept, continuity between scenes, studio polish.'
     : 'Make it unmistakably a launch asset for a software product: the clip a founder posts on X or LinkedIn on launch day. One strong concept, continuity between scenes, studio polish.')}`,
   `4. Fill the frame. This is seen on a phone in a feed: the hero text (headline, stat, or price) should be large, roughly 9-16% of the frame height per line, and the layout should use the whole ${w}x${h} canvas at every beat, with no large flat empty bands and nothing crammed into one corner. Secondary text must still read at thumbnail size (at least about 3% of the frame height).`,
+  ...(effects ? [`5. ${effectPrompt(effects)} Follow "Signature effects" in docs/direction.md, including the exact HyperFrames blur rules.`] : []),
 ].join('\n');
 
 const log = step === 'plan' || !fs.existsSync(logPath) ? {model: MODEL, effort: EFFORT, attempts: [], messages: []} : JSON.parse(fs.readFileSync(logPath, 'utf8'));

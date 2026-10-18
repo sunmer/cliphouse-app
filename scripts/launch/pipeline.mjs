@@ -97,7 +97,7 @@ async function build(id) {
   const s = status[id] = {state: 'generating', rounds: prior[id]?.rounds ?? [], startedAt: new Date().toISOString()};
   save();
   const opus = async (step) => {
-    const {stdout} = await node(['scripts/launch/generate.mjs', id, step], {timeout: 3_600_000});
+    const {stdout} = await node(['--import', 'tsx', 'scripts/launch/generate.mjs', id, step], {timeout: 3_600_000});
     const r = JSON.parse(stdout.trim().split('\n').at(-1));
     s.rounds.push(r);
     save();
