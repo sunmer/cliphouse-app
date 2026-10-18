@@ -4,13 +4,14 @@ import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 
-// Usage: node build.mjs [trailer|trailer-voxel]
+// Usage: node build.mjs [trailer|trailer-voxel] [--models key,key]
 const root = path.resolve(import.meta.dirname, '../../../..');
 const set = process.argv[2] || 'trailer';
+const only = process.argv.includes("--models") ? process.argv[process.argv.indexOf("--models") + 1].split(",") : null;
 const protocol = JSON.parse(fs.readFileSync(path.join(root, `src/benchmark/${set}/protocol.json`), 'utf8'));
 const store = path.join(root, '.benchmark', protocol.id);
 const seed = `${protocol.id}-reveal`;
-const order = [...protocol.models].sort((a, b) => createHash('sha256').update(seed + a.key).digest('hex').localeCompare(createHash('sha256').update(seed + b.key).digest('hex')));
+const order = protocol.models.filter((m) => !only || only.includes(m.key)).sort((a, b) => createHash('sha256').update(seed + a.key).digest('hex').localeCompare(createHash('sha256').update(seed + b.key).digest('hex')));
 const tmp = fs.mkdtempSync('/tmp/cliphouse-reveal-');
 const input = path.join(tmp, 'input');
 const out = path.join(tmp, 'out');

@@ -1,11 +1,11 @@
 {
   "id": "trailer-voxel-2026-10",
-  "title": "GTA 6 Trailer Challenge",
+  "title": "GTA6 Trailer Benchmark",
   "date": "2026-10-18",
-  "protocolHash": "9192d001dde15883b981940a31ec0ea143cec5855365a3ac5d3d8e21090549f8",
+  "protocolHash": "eb7ab3f6e17edc9c66754668ece6ceb4a3b947ee5216bbf6d38526ac2bd011c8",
   "protocol": {
     "id": "trailer-voxel-2026-10",
-    "title": "GTA 6 Trailer Challenge",
+    "title": "GTA6 Trailer Benchmark",
     "date": "2026-10-18",
     "runs": 3,
     "socialRun": 1,
@@ -78,10 +78,6 @@
       {
         "letter": "B",
         "model": "opus-5-5-high"
-      },
-      {
-        "letter": "C",
-        "model": "sonnet-5-5-high"
       }
     ]
   },

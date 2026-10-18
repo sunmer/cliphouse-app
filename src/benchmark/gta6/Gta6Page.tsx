@@ -5,6 +5,9 @@ import {ViewportVideo} from '../../ui/ViewportVideo';
 import results from '../trailer-voxel/results.json';
 
 type Entry = typeof results.entries[number];
+// Bump when media changes encoding or bytes: the edge caches by full URL, query included.
+const MEDIA_VERSION = '2';
+const media = (base: string, file: string) => `${base}${file}?v=${MEDIA_VERSION}`;
 const models = results.protocol.models;
 const money = (v: number) => `$${v < 1 ? v.toFixed(3) : v.toFixed(2)}`;
 const minutes = (ms: number) => `${Math.round(ms / 60000)} min`;
@@ -19,7 +22,7 @@ function Card({entry, base}: {entry: Entry; base: string}) {
   const [view, setView] = useState<'final' | 'first'>('final');
   const src = view === 'final' ? entry.video : entry.firstVideo;
   return <article className="benchmark-card">
-    <div className="benchmark-card-media"><ViewportVideo key={src} src={`${base}${src}`} poster={`${base}${entry.poster}`} label={`${model.name}, run ${entry.run}, ${view === 'final' ? 'final trailer' : 'first render'}`} /></div>
+    <div className="benchmark-card-media"><ViewportVideo key={src} src={media(base, src)} poster={media(base, entry.poster)} label={`${model.name}, run ${entry.run}, ${view === 'final' ? 'final trailer' : 'first render'}`} /></div>
     <div className="benchmark-card-body">
       <div className="benchmark-card-labels"><span>{model.provider === 'deepseek' ? 'DeepSeek' : 'Anthropic'}</span><span>Run {entry.run}</span></div>
       <h3>{model.name} <span className="gta6-effort">{model.effort}</span></h3>
@@ -54,36 +57,30 @@ export function Gta6Page({base}: {base: string}) {
     <article className="benchmark-article">
       <header className="benchmark-intro">
         <div className="benchmark-kicker"><Gamepad2 size={15} aria-hidden="true" /><span>Cliphouse Research</span><span className="benchmark-edition">October 2026</span></div>
-        <h1>GTA 6 Trailer<br />Challenge<span className="benchmark-period">.</span></h1>
-        <p className="benchmark-deck">Three AI models. One brief. A 13-second GTA 6-style trailer, built entirely in code.</p>
+        <h1>GTA6 Trailer<br />Benchmark<span className="benchmark-period">.</span></h1>
+        <p className="benchmark-deck">Three AI models. One brief. A 13-second GTA6-style trailer, built entirely in code.</p>
         <p className="benchmark-description">Claude Opus 5.5, Claude Sonnet 5.5, and DeepSeek V4.1 Flash each wrote a Remotion and Three.js trailer for an open-world crime game made of voxels. No images, no video models, no human edits. Each model reviewed frames of its own render twice and revised. Opus cost about {Math.round(opus / deepseek)}x more per trailer than DeepSeek.</p>
         <div className="benchmark-byline"><span>By cliphou.se</span><span>October 18, 2026</span><span>9 trailers, all published</span></div>
         <nav className="benchmark-contents" aria-label="In this article">
-          <a href="#reveal">Watch the reveal <ArrowDown size={14} /></a>
-          <a href="#trailers">All trailers</a>
+          <a href="#trailers">All trailers <ArrowDown size={14} /></a>
+          <a href="#costs">Cost and time</a>
           <a href="#method">How it worked</a>
           <a href="#prompt">Full prompt</a>
         </nav>
       </header>
 
-      <section id="reveal" className="benchmark-comparison gta6-reveal">
-        <div className="gta6-reveal-video"><ViewportVideo src={`${base}benchmark/gta6/media/reveal.mp4`} poster={`${base}benchmark/gta6/media/reveal.jpg`} label="Reveal video: three trailers side by side, models revealed at the end" style={{aspectRatio: '9 / 16'}} /></div>
-        <div className="gta6-reveal-text">
-          <span className="section-number">01 / The reveal</span>
-          <h2>Guess the model from the price.</h2>
-          <p>Run 1 of each model, stacked, with the same music. Only the cost shows until the last three seconds. The order was shuffled with a recorded seed, and run 1 was chosen before any video was made.</p>
-          <table className="gta6-table"><thead><tr><th>Model, high effort</th><th>Avg cost</th><th>Avg time</th></tr></thead>
-            <tbody>{models.map((m) => { const e = byModel(m.key); return <tr key={m.key}><td>{m.name}</td><td>{money(avg(m.key))}</td><td>~{minutes(e.reduce((s, x) => s + x.generationMs + x.renderMs, 0) / e.length)}</td></tr>; })}</tbody></table>
-          <p className="benchmark-footnote">Sound is the royalty-free track "Pulse" from the Cliphouse music library. The trailers themselves are silent.</p>
-        </div>
-      </section>
-
       <section id="trailers" className="benchmark-comparison">
-        <div className="benchmark-section-heading"><div><span className="section-number">02 / All trailers</span><h2>Every run. No cherry-picking.</h2></div>
+        <div className="benchmark-section-heading"><div><span className="section-number">01 / All trailers</span><h2>Every run. No cherry-picking.</h2></div>
           <div className="benchmark-run-control" role="group" aria-label="Run">{[1, 2, 3].map((v) => <button key={v} aria-pressed={run === v} onClick={() => setRun(v)}>Run {v}</button>)}</div></div>
         <div className="benchmark-brief-line"><span>13 seconds &middot; 1080p &middot; 30 fps &middot; Voxel 3D &middot; Silent</span></div>
         <div className="benchmark-grid">{results.entries.filter((e) => e.run === run).map((e) => <Card key={`${e.model}-${e.run}`} entry={e} base={base} />)}</div>
         <p className="benchmark-footnote">"Before review" is the first version that rendered, before the model saw its own frames. Cost includes every call: first reply, repairs, and both reviews.</p>
+      </section>
+
+      <section id="costs" className="benchmark-section">
+        <div className="benchmark-section-heading"><div><span className="section-number">02 / Cost and time</span><h2>Average per trailer.</h2></div><span className="benchmark-small">3 runs per model</span></div>
+        <table className="gta6-table"><thead><tr><th>Model, high effort</th><th>Avg cost</th><th>Avg time</th></tr></thead>
+          <tbody>{models.map((m) => { const e = byModel(m.key); return <tr key={m.key}><td>{m.name}</td><td>{money(avg(m.key))}</td><td>~{minutes(e.reduce((s, x) => s + x.generationMs + x.renderMs, 0) / e.length)}</td></tr>; })}</tbody></table>
       </section>
 
       <section id="method" className="benchmark-section">
@@ -99,7 +96,7 @@ export function Gta6Page({base}: {base: string}) {
           <h3>Cost</h3>
           <p>DeepSeek costs come from OpenRouter's reported usage cost. Claude costs are Anthropic list prices multiplied by the token usage the API returned. Total for the 9 trailers: {money(results.totalCostUsd)}.</p>
           <p className="benchmark-footnote"><strong>Harness incident:</strong> {results.harnessIncidents.map((i) => i.cause).join(' ')}</p>
-          <p className="benchmark-footnote">SUNBURN is our placeholder title. This is a fan challenge, not affiliated with or endorsed by Rockstar Games or Take-Two. The models were told not to use real logos, names, or characters. Three runs per model is a showcase, not a statistically definitive ranking.</p>
+          <p className="benchmark-footnote">SUNBURN is our placeholder title. This is a fan benchmark, not affiliated with or endorsed by Rockstar Games or Take-Two. The models were told not to use real logos, names, or characters. Three runs per model is a showcase, not a statistically definitive ranking.</p>
         </div>
       </section>
 

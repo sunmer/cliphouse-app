@@ -1,4 +1,5 @@
-// 16 s vertical reveal: three trailers stacked, cost only, then the model and effort in the last 3 s.
+// 16 s vertical reveal: trailers stacked top to bottom with a price tag bottom-left.
+// At the fade-out (last 3 s) each trailer freezes and dims, and the model name rises above its price tag.
 import React from 'react';
 import {AbsoluteFill, Audio, Easing, Freeze, OffthreadVideo, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import tiles from './tiles.json';
@@ -6,12 +7,18 @@ import tiles from './tiles.json';
 const TRAILER = 390;
 const TOTAL = 480;
 const TILE_H = 608;
+const GAP = 24;
 const ink = '#F5F5F2';
 const hot = '#FF3D7F';
 const sun = '#FFC94A';
+const night = '#0B0912';
 const ease = Easing.out(Easing.exp);
+const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
 type Tile = {letter: string; video: string; cost: string; model: string; effort: string};
+const list = tiles as Tile[];
+const stackH = list.length * TILE_H + (list.length - 1) * GAP;
+const top = Math.round((1920 - stackH) / 2);
 
 const Clip: React.FC<{tile: Tile}> = ({tile}) => {
   const frame = useCurrentFrame();
@@ -19,64 +26,56 @@ const Clip: React.FC<{tile: Tile}> = ({tile}) => {
   return frame < TRAILER ? video : <Freeze frame={TRAILER - 1}>{video}</Freeze>;
 };
 
-const Card: React.FC<{tile: Tile; index: number}> = ({tile, index}) => {
+const Overlay: React.FC<{tile: Tile; index: number}> = ({tile, index}) => {
   const frame = useCurrentFrame();
-  const start = TRAILER + 6 + index * 8;
-  const dim = interpolate(frame, [TRAILER, TRAILER + 10], [0, 0.78], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const wipe = interpolate(frame, [start, start + 14], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: ease});
-  const rise = interpolate(frame, [start + 4, start + 18], [100, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: ease});
-  const sub = interpolate(frame, [start + 10, start + 24], [100, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: ease});
+  const start = TRAILER + 4 + index * 8;
+  const pop = interpolate(frame, [6, 18], [0, 1], {...clamp, easing: ease});
+  const dim = interpolate(frame, [TRAILER, TRAILER + 18], [0, 0.72], clamp);
+  const rise = interpolate(frame, [start, start + 16], [110, 0], {...clamp, easing: ease});
+  const sub = interpolate(frame, [start + 6, start + 20], [110, 0], {...clamp, easing: ease});
   return (
-    <AbsoluteFill style={{pointerEvents: 'none'}}>
+    <AbsoluteFill>
       <AbsoluteFill style={{background: `rgba(6,4,14,${dim})`}} />
-      <div style={{position: 'absolute', left: 0, top: 0, bottom: 0, width: 14, background: hot, transform: `scaleY(${wipe})`, transformOrigin: 'top'}} />
-      <div style={{position: 'absolute', left: 64, right: 64, top: 200, overflow: 'hidden'}}>
-        <div style={{transform: `translateY(${rise}%)`, fontSize: 60, fontWeight: 900, color: ink, lineHeight: 1.1, whiteSpace: "nowrap"}}>{tile.model}</div>
+      <div style={{position: 'absolute', left: 40, right: 40, bottom: 176, height: 80, overflow: 'hidden'}}>
+        <div style={{transform: `translateY(${rise}%)`, fontSize: 68, fontWeight: 900, color: ink, lineHeight: 1.15, whiteSpace: 'nowrap'}}>{tile.model}</div>
       </div>
-      <div style={{position: 'absolute', left: 64, right: 64, top: 290, overflow: 'hidden'}}>
-        <div style={{transform: `translateY(${sub}%)`, fontSize: 44, fontWeight: 700, color: sun, textTransform: 'uppercase', letterSpacing: 0}}>
-          {tile.effort} effort · {tile.cost}
-        </div>
+      <div style={{position: 'absolute', left: 40, bottom: 128, height: 42, overflow: 'hidden'}}>
+        <div style={{transform: `translateY(${sub}%)`, fontSize: 32, fontWeight: 700, color: sun, lineHeight: 1.3, textTransform: 'uppercase'}}>{tile.effort} effort</div>
+      </div>
+      <div style={{position: 'absolute', left: 32, bottom: 32, transform: `scale(${pop})`, transformOrigin: 'bottom left',
+        background: night, color: sun, fontSize: 52, fontWeight: 900, padding: '6px 20px', fontVariantNumeric: 'tabular-nums', borderLeft: `8px solid ${hot}`}}>
+        {tile.cost}
       </div>
     </AbsoluteFill>
   );
 };
 
-const Badge: React.FC<{tile: Tile}> = ({tile}) => {
-  const frame = useCurrentFrame();
-  const pop = interpolate(frame, [0, 12], [0, 1], {extrapolateRight: 'clamp', easing: ease});
-  const out = interpolate(frame, [TRAILER, TRAILER + 8], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  return (
-    <div style={{position: 'absolute', left: 28, top: 28, display: 'flex', alignItems: 'stretch', transform: `scale(${pop * out})`, transformOrigin: 'top left'}}>
-      <div style={{background: ink, color: '#0B0912', fontSize: 40, fontWeight: 900, padding: '8px 18px'}}>{tile.letter}</div>
-      <div style={{background: '#0B0912', color: ink, fontSize: 40, fontWeight: 800, padding: '8px 20px', fontVariantNumeric: 'tabular-nums'}}>{tile.cost}</div>
-    </div>
-  );
-};
-
 export const Reveal: React.FC = () => {
   const frame = useCurrentFrame();
-  const hookOut = interpolate(frame, [TRAILER - 6, TRAILER], [0, -100], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: ease});
-  const urlIn = interpolate(frame, [TRAILER, TRAILER + 12], [100, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: ease});
-  const band = {position: 'absolute' as const, left: 0, right: 0, height: 96, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'};
+  const head = interpolate(frame, [0, 14], [110, 0], {...clamp, easing: ease});
+  const askOut = interpolate(frame, [TRAILER - 8, TRAILER], [0, -110], {...clamp, easing: ease});
+  const answerIn = interpolate(frame, [TRAILER, TRAILER + 12], [110, 0], {...clamp, easing: ease});
+  const band = {position: 'absolute' as const, left: 40, right: 40, overflow: 'hidden', display: 'flex', justifyContent: 'center'};
+  const line = {position: 'absolute' as const, fontSize: 44, fontWeight: 700, whiteSpace: 'nowrap' as const, lineHeight: 1.3};
   return (
-    <AbsoluteFill style={{background: '#0B0912', fontFamily: 'Archivo'}}>
+    <AbsoluteFill style={{background: night, fontFamily: 'Archivo'}}>
       <Audio src={staticFile('music.m4a')} volume={(f) => Math.max(0, Math.min(1, f / 9, (TOTAL - f) / 36))} />
-      <div style={{...band, top: 0}}>
-        <div style={{position: "absolute", opacity: frame < TRAILER ? 1 : 0, transform: `translateY(${hookOut}%)`, fontSize: 40, fontWeight: 800, color: ink}}>
-          GTA 6 trailer challenge. <span style={{color: hot}}>Guess the AI.</span>
-        </div>
-        <div style={{position: 'absolute', transform: `translateY(${urlIn}%)`, fontSize: 38, fontWeight: 800, color: ink, whiteSpace: "nowrap", opacity: frame >= TRAILER ? 1 : 0}}>
-          Full prompt and results: <span style={{color: sun}}>cliphou.se/benchmark/gta6</span>
-        </div>
+      <div style={{...band, top: top - 236, height: 100}}>
+        <div style={{transform: `translateY(${head}%)`, fontSize: 72, fontWeight: 900, color: ink, lineHeight: 1.2, whiteSpace: 'nowrap'}}>GTA6 Trailer Benchmark</div>
       </div>
-      {(tiles as Tile[]).map((tile, i) => (
-        <div key={tile.letter} style={{position: 'absolute', left: 0, top: 96 + i * TILE_H, width: 1080, height: TILE_H, overflow: 'hidden', borderTop: i ? '0px' : undefined}}>
+      <div style={{...band, top: top - 124, height: 60}}>
+        <div style={{...line, color: ink, transform: `translateY(${head + askOut}%)`}}>Same brief. Two AIs. <span style={{color: hot}}>Which is which?</span></div>
+        <div style={{...line, color: hot, transform: `translateY(${answerIn}%)`}}>The reveal</div>
+      </div>
+      {list.map((tile, i) => (
+        <div key={tile.letter} style={{position: 'absolute', left: 0, top: top + i * (TILE_H + GAP), width: 1080, height: TILE_H, overflow: 'hidden'}}>
           <Clip tile={tile} />
-          <Badge tile={tile} />
-          <Card tile={tile} index={i} />
+          <Overlay tile={tile} index={i} />
         </div>
       ))}
+      <div style={{...band, top: top + stackH + 70, height: 60}}>
+        <div style={{...line, fontSize: 40, color: ink}}>Every run: <span style={{color: sun}}>cliphou.se/benchmark/gta6</span></div>
+      </div>
     </AbsoluteFill>
   );
 };

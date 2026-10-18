@@ -8,7 +8,7 @@ export function ArticleLayout({base, children, current = 'benchmark'}: {base: st
       <a className="article-brand" href={base}><Scissors size={22} aria-hidden="true" />cliphou.se</a>
       <nav aria-label="Main navigation">
         <a href={`${base}benchmark/`} aria-current={current === 'benchmark' ? 'page' : undefined}>Benchmark</a>
-        <a href={`${base}benchmark/gta6/`} aria-current={current === 'gta6' ? 'page' : undefined}>GTA 6 challenge</a>
+        <a href={`${base}benchmark/gta6/`} aria-current={current === 'gta6' ? 'page' : undefined}>GTA6 benchmark</a>
         <a href={base}>Templates <ArrowUpRight size={14} aria-hidden="true" /></a>
       </nav>
     </header>
