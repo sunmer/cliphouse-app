@@ -16,6 +16,7 @@ import {scoreErrors} from '../src/videos/music/check.ts';
 import {beatFrame, totalBeats} from '../src/videos/music/score.ts';
 
 import {hiddenSets, textSet} from './music-gates.ts';
+import {EFFECT_FILE, bannedIn, usesEffects} from './direction-patterns.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const args = process.argv.slice(2);
@@ -28,16 +29,6 @@ const errors = [];
 const fail = (id, message) => errors.push(`${id}: ${message}`);
 
 // ---------- banned implementation patterns ----------
-const BANNED = [
-  [/@keyframes|animation\s*:|animation-name|transition\s*:/, 'CSS animations or transitions'],
-  [/\bsetTimeout\b|\bsetInterval\b|\brequestAnimationFrame\b/, 'timers'],
-  [/Math\.random\s*\(/, 'unseeded randomness'],
-  [/Date\.now\s*\(|performance\.now\s*\(|new Date\s*\(/, 'clocks'],
-  [/\bblur\s*\(/, 'blur filters'],
-  [/glow|shake|rgb-?split|chromatic|scanline|lens-?flare|confetti/i, 'a named glow, shake, RGB-split, or other banned effect'],
-  [/repeat\s*:\s*-?\d|yoyo\s*:\s*true/, 'repeating or yoyo GSAP tweens'],
-  [/opacity\s*:\s*0\s*}\s*,\s*{\s*opacity\s*:\s*1|crossfade/i, 'opacity crossfades'],
-];
 function sources(id) {
   if (engineOf(id) === 'hyperframes') return [`src/hyperframes/${id}/index.html`];
   return fs.readdirSync(path.join(root, 'src/videos', id)).filter((f) => /\.tsx?$/.test(f)).map((f) => `src/videos/${id}/${f}`);
@@ -45,9 +36,13 @@ function sources(id) {
 // Shared music helpers run in templates too; include them in every scan.
 const SHARED = ['src/videos/music/remotion.tsx', 'src/hyperframes/shared/music-entry.ts'];
 function scan(id) {
-  for (const file of [...sources(id), ...SHARED]) {
-    const text = fs.readFileSync(path.join(root, file), 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
-    for (const [pattern, label] of BANNED) if (pattern.test(text)) fail(id, `${file} uses ${label}`);
+  const files = [...sources(id), ...SHARED];
+  for (const file of sources(id)) {
+    const text = fs.readFileSync(path.join(root, file), 'utf8');
+    if (usesEffects(text) && !files.includes(EFFECT_FILE)) files.push(EFFECT_FILE);
+  }
+  for (const file of files) {
+    for (const label of bannedIn(file, fs.readFileSync(path.join(root, file), 'utf8'))) fail(id, `${file} uses ${label}`);
   }
 }
 

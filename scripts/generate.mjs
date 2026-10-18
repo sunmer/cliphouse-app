@@ -7,6 +7,7 @@ import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {effectChoiceSchema, effectPrompt} from '../src/direction/effects.ts';
 
 const root = path.resolve(import.meta.dirname, '..');
 const MODEL = process.env.MODEL || 'eu.anthropic.claude-opus-5-5';
@@ -20,6 +21,8 @@ if (!brief) throw new Error(`No brief for ${id}`);
 
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const Name = brief.name;
+// Optional brief.effects: [{id, at, why}] from src/direction/effects.ts. Omit it to let the model choose.
+const effects = (brief.effects ?? []).map((e) => effectChoiceSchema.parse(e));
 
 const slots = brief.slots ?? ['background'];
 const imageRule = brief.kind !== 'image' ? '' : `
@@ -65,6 +68,8 @@ Use scene types and motion values from vocab.ts only.
 
 Creative brief:
 ${brief.prompt}
+
+${effectPrompt(effects)}
 
 Make it look distinctly different from the example template.`;
 

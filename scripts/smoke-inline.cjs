@@ -76,7 +76,11 @@ async function clickText(page, label, optional = false) {
       await page.getByRole('button', {name: 'Save text', exact: true}).click();
       assert.equal(await page.evaluate(({id, main}) => JSON.parse(localStorage.getItem(`voodoo:v2:${id}`)).texts[main], {id: v.id, main}), 'Made for motion');
       await page.getByRole('button', {name: 'Undo', exact: true}).click();
-      assert.equal(await page.evaluate(({id, main}) => JSON.parse(localStorage.getItem(`voodoo:v2:${id}`)).texts[main], {id: v.id, main}), v.props.texts[main]);
+      // Undo back to the preset is not a local edit, so the editor removes the stored copy.
+      assert.equal(await page.evaluate(({id, main}) => {
+        const saved = localStorage.getItem(`voodoo:v2:${id}`);
+        return saved ? JSON.parse(saved).texts[main] : null;
+      }, {id: v.id, main}) ?? v.props.texts[main], v.props.texts[main]);
       await page.getByRole('button', {name: 'Redo', exact: true}).click();
       await page.reload();
       await page.getByRole('button', {name: 'Pause', exact: true}).click();

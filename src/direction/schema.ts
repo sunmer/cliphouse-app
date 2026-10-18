@@ -1,6 +1,7 @@
 // The direction record every music template must ship with. The production build fails without an
 // approved one (scripts/check-direction.mjs). Plain data and zod so build scripts can read it.
 import {z} from 'zod';
+import {effectChoiceSchema} from './effects.ts';
 
 const finding = z.object({
   /** Which gate or review produced it. */
@@ -18,6 +19,8 @@ export const directionSchema = z.object({
   beatMap: z.array(z.object({beats: z.tuple([z.number(), z.number()]), lands: z.string().min(1)}).strict()).min(4),
   /** The shared element that carries each scene handoff. One entry per scene boundary. */
   handoffs: z.array(z.object({from: z.number().int(), to: z.number().int(), element: z.string().min(1)}).strict()),
+  /** Signature effects from src/direction/effects.ts, with the reason for each. */
+  effects: z.array(effectChoiceSchema).max(3).optional(),
   sound: z.object({
     concept: z.string().min(12),
     /** What each cue means in the picture. Keys are instruments or slot roles. */

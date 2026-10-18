@@ -95,6 +95,7 @@ import {pullquoteMeta} from './pullquote/meta.ts';
 import {pricedropMeta} from './pricedrop/meta.ts';
 import {beatreelMeta} from './beatreel/meta.ts';
 import {productpulseMeta} from './productpulse/meta.ts';
+import {launchcutMeta} from './launchcut/meta.ts';
 import {featuredropMeta} from './featuredrop/meta.ts';
 import {eventcountdownMeta} from './eventcountdown/meta.ts';
 
@@ -194,6 +195,7 @@ export const templateMeta: Record<string, TemplateMeta> = {
   [pricedropMeta.id]: pricedropMeta,
   [beatreelMeta.id]: beatreelMeta,
   [productpulseMeta.id]: productpulseMeta,
+  [launchcutMeta.id]: launchcutMeta,
   [featuredropMeta.id]: featuredropMeta,
   [eventcountdownMeta.id]: eventcountdownMeta,
   ...launchMeta,

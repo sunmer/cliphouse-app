@@ -54,7 +54,8 @@ test('templates with fixed sample numbers are flagged in the spec and search, an
   assert.equal('fixedSampleContent' in templateSpec('https://cliphou.se', 'prism-launch')!, false);
   assert.ok(rankTemplates({query: 'bento', limit: 20}).some((r) => r.v.id === 'bento-launch'), 'still findable by name');
   // With no query every launch template starts equal, so a flagged one sits below the unflagged ones.
-  const launch = rankTemplates({goal: 'launch-product', limit: 20});
+  // Search returns at most 20, so narrow by aspect to keep the flagged template in the list as the catalog grows.
+  const launch = rankTemplates({goal: 'launch-product', aspect: '16:9', limit: 20});
   const flagged = launch.filter((r) => FIXED_SAMPLE_DATA[r.v.template]);
   assert.ok(flagged.length && flagged.every((r) => r.score < launch[0].score));
 });

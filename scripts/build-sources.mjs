@@ -21,6 +21,7 @@ const tree = (dir) => fs.readdirSync(path.join(root, dir), {withFileTypes: true}
 const optional = [
   {dir: 'src/videos/media', pattern: /from '\.\.\/media\//, template: 'scripts/source-template/media'},
   {dir: 'src/videos/three', pattern: /from '\.\.\/three\//, template: 'scripts/source-template/three'},
+  {dir: 'src/videos/effects', pattern: /from '\.\.\/effects\//, template: 'scripts/source-template/effects'},
 ];
 const template = JSON.parse(read('scripts/source-template/package.json'));
 const lock = read('scripts/source-template/package-lock.json');

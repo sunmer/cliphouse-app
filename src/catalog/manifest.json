@@ -1976,6 +1976,20 @@
         "provider": "Anthropic",
         "effort": "high"
       }
+    },
+    {
+      "id": "launchcut",
+      "title": "Launch Cut",
+      "creator": "cliphouse.studio",
+      "prompt": "A 10 second square product launch built from signature effects: kinetic type on the headline, a whip pan into a crash-zoomed stat, bars that grow and count, a zoom-through the peak bar into a glitch cut, a before and now split screen with a glass caption, and a pull-back reveal on the brand and CTA.",
+      "createdAt": "2026-10-18",
+      "license": "MIT-0",
+      "generation": {
+        "model": "GPT-5",
+        "modelId": "gpt-5",
+        "provider": "OpenAI",
+        "effort": "high"
+      }
     }
   ],
   "variants": [
@@ -9845,6 +9859,65 @@
         "announce-integration"
       ],
       "launch": true
+    },
+    {
+      "template": "launchcut",
+      "creator": "cliphouse.studio",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-10-18",
+      "id": "launchcut-launch",
+      "title": "Launch Cut",
+      "description": "A fast product launch with a crash-zoomed stat, a growing bar chart, a glitch cut into a before and now split screen, and a pull-back reveal on the CTA.",
+      "purpose": "Product launch",
+      "style": [
+        "Bold",
+        "Tech"
+      ],
+      "energy": 5,
+      "keywords": [
+        "product launch video",
+        "release video",
+        "feature launch animation",
+        "stat reveal",
+        "before and after launch",
+        "saas launch video"
+      ],
+      "props": {
+        "texts": {
+          "brand": "Pulse",
+          "headline": "Reports, rebuilt.",
+          "subhead": "Live dashboards that load before you finish asking.",
+          "stat": "3.2x",
+          "point3": "faster reports",
+          "attribution": "Weekly active teams",
+          "chart": "Q1 18k, Q2 27k, Q3 41k, Q4 64k",
+          "point1": "Nightly exports",
+          "point2": "Live in seconds",
+          "date": "Now in every workspace",
+          "cta": "Try it free"
+        },
+        "theme": {
+          "background": "#f4f1ea",
+          "surface": "#dedbd3",
+          "foreground": "#16181d",
+          "accent": "#ff5a36",
+          "accent2": "#2f6bff"
+        }
+      },
+      "seoDescription": "A free square product launch template with a crash zoom, whip pan, growing chart, glitch cut, split screen, and pull-back reveal. Edit the text and colors online.",
+      "useCases": [
+        "product-launch",
+        "feature-launch",
+        "saas",
+        "social-ad"
+      ],
+      "goals": [
+        "launch-product",
+        "announce-feature"
+      ]
     }
   ]
 }

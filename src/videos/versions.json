@@ -1094,5 +1094,13 @@
       "sha256": "3aff70772d0e5a5d7191121db9548dbef68b6af9eec060750007bb368ac1995b",
       "createdAt": "2026-10-16"
     }
+  ],
+  "launchcut": [
+    {
+      "version": 1,
+      "hash": "a89196d45658764c",
+      "sha256": "d6c75137ba4b224e8de5be5e0c16308e86fdcd8459fbe77c4bee4bc3b0834059",
+      "createdAt": "2026-10-18"
+    }
   ]
 }

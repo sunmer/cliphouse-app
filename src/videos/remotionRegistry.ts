@@ -186,6 +186,8 @@ import {Beatreel} from './beatreel/Beatreel';
 import {beatreelSchema} from './beatreel/schema';
 import {Productpulse} from './productpulse/Productpulse';
 import {productpulseSchema} from './productpulse/schema';
+import {Launchcut} from './launchcut/Launchcut';
+import {launchcutSchema} from './launchcut/schema';
 
 export type RemotionCompositionDef = TemplateMeta & {engine: 'remotion'; component: React.FC<any>; schema: VideoSchema};
 
@@ -281,4 +283,5 @@ export const remotionCompositions: Record<string, RemotionCompositionDef> = {
   logo3d: {...templateMeta.logo3d, component: Logo3d, engine: 'remotion', schema: logo3dSchema as unknown as VideoSchema},
   beatreel: {...templateMeta.beatreel, component: Beatreel, engine: 'remotion', schema: beatreelSchema as unknown as VideoSchema},
   productpulse: {...templateMeta.productpulse, component: Productpulse, engine: 'remotion', schema: productpulseSchema as unknown as VideoSchema},
+  launchcut: {...templateMeta.launchcut, component: Launchcut, engine: 'remotion', schema: launchcutSchema as unknown as VideoSchema},
 };

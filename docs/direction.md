@@ -44,6 +44,16 @@ Before any code, name one concept in a single line, for example "the strap is a 
 ## Banned
 Opacity crossfades between scenes, blur-ins, glows, lens flares, light sweeps, particle bursts, confetti, camera shake, RGB split, chromatic aberration, scanlines, generic gradients, gradient underlines, bouncy easing, expanding outline rings, drop shadows used as decoration, anything that looks like a stock template.
 
+## Signature effects
+- Pick two or three effects from `src/direction/effects.ts`: crash zoom, whip pan, zoom-through, kinetic type, glass captions, chart grow, split screen, glitch cut, and pull-back reveal.
+- Record each effect in `direction.json` under `effects`, with where it is used and why it serves the concept.
+- A signature effect may use a banned look only inside its own rule: directional blur only while a whip pan moves, background blur only behind a glass caption, and slice or channel offsets only during the glitch cut.
+- Do not use text behind the subject, vertigo zoom, or rack focus. They need real depth or footage.
+- Blur is still banned in template code. The only exceptions are the shared whip pan and glass caption effects, which the banned-pattern scan allows.
+- Remotion: use `WhipPan` and `GlassCaption` from `src/videos/effects/effects.tsx`. Do not write `blur()` in the template.
+- HyperFrames: put whip-pan layers in `.cliphouse-whip { filter: blur(var(--whip-blur, 0px)); }` and tween `--whip-blur` from `0px` up and back to `0px` during the move. Use `.cliphouse-glass { backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3); }` for glass captions. Write these declarations exactly.
+- Build the glitch cut with seeded slices and brief theme-color offsets. It does not need blur.
+
 Banned implementation patterns, checked by `npm run test:direction`: CSS animations and transitions, timers (`setTimeout`, `setInterval`, `requestAnimationFrame`), unseeded randomness (`Math.random`), clocks (`Date.now`, `performance.now`), blur filters, and named glow, shake, or RGB-split effects.
 
 ## Editable text

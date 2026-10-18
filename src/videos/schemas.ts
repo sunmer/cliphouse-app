@@ -95,6 +95,7 @@ import {pullquoteSchema} from './pullquote/schema.ts';
 import {pricedropSchema} from './pricedrop/schema.ts';
 import {beatreelSchema} from './beatreel/schema.ts';
 import {productpulseSchema} from './productpulse/schema.ts';
+import {launchcutSchema} from './launchcut/schema.ts';
 import {featuredropSchema} from './featuredrop/schema.ts';
 import {eventcountdownSchema} from './eventcountdown/schema.ts';
 
@@ -156,6 +157,7 @@ export const schemas = {
   pricedrop: pricedropSchema,
   beatreel: beatreelSchema,
   productpulse: productpulseSchema,
+  launchcut: launchcutSchema,
   featuredrop: featuredropSchema,
   eventcountdown: eventcountdownSchema,
   ...launchSchemas,
