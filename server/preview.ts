@@ -50,17 +50,28 @@ export function createRemoteLoopRenderer(workerUrl: string, getToken?: () => Pro
 
 const run = promisify(execFile);
 // Preview loop: a few seconds around the poster frame, silent, small enough for a chat grid.
+// Remotion loops keep every source frame of a 30 fps video, so motion looks like the editor.
 export const LOOP_SECONDS = 4;
-export const LOOP_FPS = 15;
+export const LOOP_FPS = 30;
 // HyperFrames captures each frame as a separate seek and screenshot, so its cost scales with the frame
-// count. 12 fps looks the same as 15 in a small chat tile and saves about a quarter of the capture time;
-// 10 fps reads as choppy on typing animations.
-export const HF_LOOP_FPS = 12;
+// count. 24 fps reads as smooth motion at about 80% of the capture time of 30 fps.
+export const HF_LOOP_FPS = 24;
+// Must stay under the skill's 2 MB download cap.
 export const MAX_LOOP_BYTES = 1_500_000;
-// Landscape and square loops are 480 px wide; portrait loops are 640 px tall.
-const LOOP_SCALE = `scale=w='if(gte(iw,ih),480,-2)':h='if(gte(iw,ih),-2,640)':flags=lanczos`;
-// Capture width that LOOP_SCALE keeps as is: 480 wide, or 640 tall for portrait.
-const loopWidth = ({width, height}: {width: number; height: number}) => (width >= height ? 480 : Math.round(640 * width / height / 2) * 2);
+// WebP quality steps. A loop above LOOP_TARGET_BYTES is encoded again at the next step. Photo-heavy
+// templates need it; most loops stay far below at the first step.
+const LOOP_TARGET_BYTES = 1_200_000;
+const LOOP_QUALITIES = [70, 40, 20];
+// Landscape and square loops are 640 px wide; portrait loops are 960 px tall (an exact 0.5 scale of 1080x1920, which Remotion needs).
+const LOOP_LANDSCAPE_WIDTH = 640;
+const LOOP_PORTRAIT_HEIGHT = 960;
+const LOOP_SCALE = `scale=w='if(gte(iw,ih),${LOOP_LANDSCAPE_WIDTH},-2)':h='if(gte(iw,ih),-2,${LOOP_PORTRAIT_HEIGHT})':flags=lanczos`;
+// Capture width that LOOP_SCALE keeps as is.
+export const loopWidth = ({width, height}: {width: number; height: number}) =>
+  (width >= height ? LOOP_LANDSCAPE_WIDTH : Math.round(LOOP_PORTRAIT_HEIGHT * width / height / 2) * 2);
+// Remotion render scale that gives the same size.
+const loopScale = ({width, height}: {width: number; height: number}) =>
+  (width >= height ? LOOP_LANDSCAPE_WIDTH / width : LOOP_PORTRAIT_HEIGHT / height);
 
 // The loop window in source frames: LOOP_SECONDS that end shortly after the poster frame, inside the video.
 export function loopWindow(meta: {fps: number; durationInFrames: number; posterFrame: number}) {
@@ -119,13 +130,21 @@ export function rotationIndex(meta: {posterFrame: number}, start: number, length
 }
 
 // `rotate` moves the first `rotate` frames to the end, so the loop starts on the poster frame.
+// A loop above LOOP_TARGET_BYTES is encoded again at lower quality, so busy loops stay under the size cap.
 export async function encodeLoop(args: string[], output: string, signal: AbortSignal, rotate = 0) {
+  for (const quality of LOOP_QUALITIES) {
+    await encodeLoopAt(args, output, signal, rotate, quality);
+    if ((await stat(output)).size <= LOOP_TARGET_BYTES) return;
+  }
+}
+
+async function encodeLoopAt(args: string[], output: string, signal: AbortSignal, rotate: number, quality: number) {
   const filter = rotate > 0
     ? ['-filter_complex', `[0:v]split[a][b];[a]trim=start_frame=${rotate},setpts=PTS-STARTPTS[x];[b]trim=end_frame=${rotate},setpts=PTS-STARTPTS[y];[x][y]concat=n=2:v=1,${LOOP_SCALE}[out]`, '-map', '[out]']
     : ['-vf', LOOP_SCALE];
   // The image's Debian ffmpeg has libwebp; LOOP_FFMPEG points local runs at another build.
   await run(process.env.LOOP_FFMPEG || 'ffmpeg', ['-v', 'error', '-y', ...args, ...filter, '-an', '-c:v', 'libwebp_anim',
-    '-quality', '70', '-compression_level', '4', '-loop', '0', output], {signal});
+    '-quality', String(quality), '-compression_level', '4', '-loop', '0', output], {signal});
 }
 
 const aborted = (signal: AbortSignal) => {
@@ -185,7 +204,7 @@ export function createPreviewRenderer() {
     await renderMedia({serveUrl, composition, inputProps: value.props, puppeteerInstance, cancelSignal, timeoutInMilliseconds: 30_000,
       codec: 'h264', crf: 20, pixelFormat: 'yuv420p', muted: true, outputLocation: output, concurrency: 2,
       frameRange: [start, start + length - 1], everyNthFrame: step,
-      scale: composition.width >= composition.height ? 480 / composition.width : 640 / composition.height});
+      scale: loopScale(composition)});
     return rotationIndex(value.meta, start, length, step);
   });
 
