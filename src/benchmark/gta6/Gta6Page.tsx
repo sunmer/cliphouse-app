@@ -5,9 +5,14 @@ import {ViewportVideo} from '../../ui/ViewportVideo';
 import results from '../trailer-voxel/results.json';
 
 type Entry = typeof results.entries[number];
-// Bump when media changes encoding or bytes: the edge caches by full URL, query included.
-const MEDIA_VERSION = '2';
+// Bump when media changes: caches key on the full URL, query included.
+const MEDIA_VERSION = '3';
 const media = (base: string, file: string) => `${base}${file}?v=${MEDIA_VERSION}`;
+// Cloudflare caches Firebase's gzip copy of an MP4 and answers byte-range requests from it, so playback
+// stops a few seconds in. In production, videos load straight from Firebase Hosting, which answers
+// ranges correctly for the identity encoding browsers request for media.
+const VIDEO_ORIGIN = 'https://cliphouse-app.web.app/';
+const video = (base: string, file: string) => base === '/' ? media(VIDEO_ORIGIN, file) : media(base, file);
 const models = results.protocol.models;
 const money = (v: number) => `$${v < 1 ? v.toFixed(3) : v.toFixed(2)}`;
 const minutes = (ms: number) => `${Math.round(ms / 60000)} min`;
@@ -22,7 +27,7 @@ function Card({entry, base}: {entry: Entry; base: string}) {
   const [view, setView] = useState<'final' | 'first'>('final');
   const src = view === 'final' ? entry.video : entry.firstVideo;
   return <article className="benchmark-card">
-    <div className="benchmark-card-media"><ViewportVideo key={src} src={media(base, src)} poster={media(base, entry.poster)} label={`${model.name}, run ${entry.run}, ${view === 'final' ? 'final trailer' : 'first render'}`} /></div>
+    <div className="benchmark-card-media"><ViewportVideo key={src} src={video(base, src)} poster={media(base, entry.poster)} label={`${model.name}, run ${entry.run}, ${view === 'final' ? 'final trailer' : 'first render'}`} /></div>
     <div className="benchmark-card-body">
       <div className="benchmark-card-labels"><span>{model.provider === 'deepseek' ? 'DeepSeek' : 'Anthropic'}</span><span>Run {entry.run}</span></div>
       <h3>{model.name} <span className="gta6-effort">{model.effort}</span></h3>
