@@ -841,10 +841,10 @@
   ],
   "launchday": [
     {
-      "version": 3,
-      "hash": "2c72c760bc5f3614",
-      "sha256": "c06a984c297a29bfad7f9d752eb6bd1636c88e29ad050f3a084a07ef262f66c0",
-      "createdAt": "2026-10-14"
+      "version": 4,
+      "hash": "2021e3a50036ac5a",
+      "sha256": "9b9ff7a7060fffe126346ccbe0f0a02a9746c799506b38af7a9eaff15be91ea7",
+      "createdAt": "2026-10-18"
     }
   ],
   "releasenotes": [
