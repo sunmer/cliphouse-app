@@ -73,3 +73,5 @@ tbody th { color: #eceef2; width: 120px; }
 @media (max-width: 800px) { .mcp-install { grid-template-columns: 1fr; } }
 .mcp-tools div { grid-template-columns: 190px 1fr; }
 @media (max-width: 600px) { .mcp-tools div { grid-template-columns: 1fr; } }
+.mcp-video { position: relative; }
+.mcp-video [data-video-play] { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); padding: 12px 18px; border: 1px solid #74787e; border-radius: 5px; color: #f5f5f2; background: #141518; cursor: pointer; }
