@@ -3,12 +3,12 @@
   "name": "se.cliphou/templates",
   "title": "cliphou.se release videos",
   "description": "Turns every release into a social video. Finds the selling points, picks the angle, writes the copy.",
-  "websiteUrl": "https://cliphou.se/agents/",
+  "websiteUrl": "https://cliphou.se/",
   "repository": {
     "url": "https://github.com/sunmer/cliphouse",
     "source": "github"
   },
-  "version": "1.6.0",
+  "version": "1.6.1",
   "remotes": [
     {
       "type": "streamable-http",
