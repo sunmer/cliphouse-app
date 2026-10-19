@@ -2,8 +2,9 @@ import protocol from './protocol.json';
 import addition from './addition.json';
 import additionA2 from './addition-a2.json';
 import additionA3 from './addition-a3.json';
+import additionA4 from './addition-a4.json';
 
-export type BenchmarkModel = typeof protocol.models[number] | typeof addition.models[number] | typeof additionA2.models[number] | typeof additionA3.models[number];
+export type BenchmarkModel = typeof protocol.models[number] | typeof addition.models[number] | typeof additionA2.models[number] | typeof additionA3.models[number] | typeof additionA4.models[number];
 export type BenchmarkBrief = typeof protocol.briefs[number];
 export type BenchmarkResult = {
   model: string;

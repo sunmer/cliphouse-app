@@ -155,7 +155,8 @@ Judge it as the director of a major game trailer. Check the brief, the framing a
 
 Return the complete revised TSX module only.`;
 
-let deepseek;
+// One pinned-endpoint lookup per OpenRouter model.
+const openrouterRates = new Map();
 async function runJob(job) {
   const jobDir = path.join(store, job.id);
   const recordFile = path.join(jobDir, 'record.json');
@@ -163,10 +164,10 @@ async function runJob(job) {
   fs.mkdirSync(jobDir, {recursive: true, mode: 0o700});
   let rates = RATES[job.model.id];
   if (job.model.api === 'openrouter') {
-    deepseek ??= deepseekRates(job.model);
-    const info = await deepseek;
+    if (!openrouterRates.has(job.model.key)) openrouterRates.set(job.model.key, deepseekRates(job.model));
+    const info = await openrouterRates.get(job.model.key);
     rates = info.rates;
-    atomic(path.join(store, 'provider-deepseek.json'), {checkedAt: new Date().toISOString(), ...info.snapshot});
+    atomic(path.join(store, `provider-${job.model.provider}.json`), {checkedAt: new Date().toISOString(), ...info.snapshot});
   }
   const record = {protocolHash: digest, imageId, model: job.model.key, modelId: job.model.id, effort: job.model.effort, provider: job.model.provider, run: job.run,
     startedAt: new Date().toISOString(), calls: [], status: 'failed', costUsd: 0, repairsUsed: 0, reviewsDone: 0};

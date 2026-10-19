@@ -17,7 +17,14 @@ const entrySchema = z.object({
 }).strict();
 
 // OpenRouter may resolve a dated alias: a "-MMDD" snapshot to its "-YYYYMMDD" form, or any model to "<model>-<date>".
-const sameModel = (resolved, requested) => resolved === requested || resolved.startsWith(`${requested}-`) ||
+// A variant tag such as ":free" stays at the end: "<model>:free" resolves to "<model>-<date>:free".
+const sameModel = (resolved, requested) => {
+  const variant = (id) => id.match(/:[a-z]+$/)?.[0] ?? '';
+  const tag = variant(requested);
+  if (tag && variant(resolved) === tag) return sameBase(resolved.slice(0, -tag.length), requested.slice(0, -tag.length));
+  return sameBase(resolved, requested);
+};
+const sameBase = (resolved, requested) => resolved === requested || resolved.startsWith(`${requested}-`) ||
   (/-\d{4}$/.test(requested) && new RegExp(`^${requested.slice(0, -5).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}-\\d{4}${requested.slice(-4)}$`).test(resolved));
 
 export function reportedTiming(metadata, expected) {

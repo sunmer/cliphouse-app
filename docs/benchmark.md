@@ -142,6 +142,42 @@ npm run benchmark:publish-repairs -- --addition-id A3
 node scripts/benchmark/collect-timings.mjs --execute
 ```
 
+## Late Addition A4
+
+MiniMax M3.1 Flash (`minimax/minimax-m3.1-flash:free`) was added on October 19,
+2026, the day after it appeared on OpenRouter. It is listed first. A4 uses the
+unchanged protocol 1.1 contract, briefs, limits, renderer image, and repair rule.
+It runs on OpenRouter's free endpoint, at the operator's request. The only
+provider of that endpoint is MiniMax (`minimax`), so the provider is pinned to it.
+OpenRouter reported `usage.cost` 0 for every call. Free endpoints have a daily
+request limit (1,000 requests on this key), which A4 does not approach.
+
+All six runs rendered, for a total cost of $0: five on the first attempt and one
+(product-launch 1) after the single repair. A4 did not need recovery R1.
+OpenRouter resolves the endpoint to `minimax/minimax-m3.1-flash-20261019:free`;
+the timing check accepts a dated alias before a `:free` variant tag.
+
+Harness incident: the first launch ran in a shell that closed after about ten
+minutes, which stopped the runner before either first request returned. No
+response or generation id was saved, and the endpoint is free, so both pending
+reservations were reconciled at $0. The requests are kept under
+`addition-a4/infrastructure/`, and the jobs were rerun from scratch.
+
+Definition: `src/benchmark/addition-a4.json`. Results:
+`src/benchmark/addition-a4-results.json`. Raw records and the separate ledger:
+`.benchmark/2026-10/addition-a4/`.
+
+```sh
+BENCHMARK_WORKERS=2 npm run benchmark:run -- --execute --addition-id A4 --allow-unlimited-key 1
+node scripts/benchmark/publish-addition.mjs --id A4
+node scripts/benchmark/collect-timings.mjs --execute
+```
+
+The GTA6 Trailer Benchmark (`src/benchmark/trailer-voxel/`) also added MiniMax
+M3.1 Flash on October 19 with the same brief, limits, repairs, and review rounds.
+All three runs rendered at $0. Adding a model changes that set's protocol hash; the
+earlier nine records are unchanged and keep their original hash.
+
 ## Pilot Limitation
 
 The runner selected stderr instead of combining stdout and stderr for failed

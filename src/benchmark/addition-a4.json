@@ -1,0 +1,10 @@
+{
+  "id": "A4",
+  "baselineVersion": "1.1",
+  "edition": "2026-10",
+  "date": "2026-10-19",
+  "policy": "Late addition to the October 2026 edition. It uses the protocol 1.1 contract, briefs, palette, fonts, token limit, renderer image, and single repair rule. It runs on OpenRouter's free endpoint (minimax/minimax-m3.1-flash:free), pinned to MiniMax, the only provider of that endpoint, so every request is billed at $0. The original 60 runs and additions A1, A2, and A3 are unchanged. Automated recovery R1 does not apply to this addition.",
+  "models": [
+    {"key": "minimax-m3-1-flash", "name": "MiniMax M3.1 Flash", "author": "MiniMax", "id": "minimax/minimax-m3.1-flash:free", "tier": "Free", "weights": "Unverified", "reasoning": "high", "provider": "minimax"}
+  ]
+}
