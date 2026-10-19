@@ -1,0 +1,11 @@
+{
+  "title": "GTA6 Trailer Benchmark",
+  "posterSeconds": 5,
+  "endSeconds": 2.5,
+  "music": "public/music/techno-pulse.m4a",
+  "end": {"kicker": "All 12 trailers and the full prompt", "url": "cliphou.se/benchmark/gta6"},
+  "clips": [
+    {"benchmark": "trailer-voxel-social", "entry": "opus-5-5-high-1"},
+    {"benchmark": "trailer-voxel-social", "entry": "minimax-m3-1-flash-high-1", "cost": "$0 (free)"}
+  ]
+}
