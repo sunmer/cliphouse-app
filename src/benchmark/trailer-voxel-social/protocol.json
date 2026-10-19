@@ -1,0 +1,18 @@
+{
+  "id": "trailer-voxel-social-2026-10",
+  "title": "GTA6 Trailer Benchmark: 26-second social cut",
+  "date": "2026-10-18",
+  "purpose": "Social media only. Not part of the published benchmark. Each model extends its own run 1 trailer from trailer-voxel-2026-10.",
+  "extends": {"set": "trailer-voxel", "run": 1},
+  "runs": 1,
+  "format": {"width": 1920, "height": 1080, "fps": 30, "durationInFrames": 780},
+  "render": {"image": "cliphouse-benchmark-3d:1", "gl": "swangle", "three": "0.186.1", "reactThreeFiber": "9.8.1", "remotionThree": "4.0.534"},
+  "music": {"track": "techno-pulse", "file": "public/music/techno-pulse.m4a", "bpm": 128},
+  "limits": {"maxTokens": 128000, "maxRepairs": 3, "reviewRounds": 2, "capUsdPerVideo": 40, "requestTimeoutMs": 2400000},
+  "feedback": "Same as the benchmark: after the first working render, two rounds where the model sees 12 frames of its own video and revises.",
+  "repairPolicy": "Up to three automated repairs after an unusable reply, a truncated reply, or a failed compile or render. No human edits.",
+  "models": [
+    {"key": "opus-5-5-high", "name": "Claude Opus 5.5", "effort": "high", "api": "anthropic", "id": "claude-opus-5-5", "provider": "Anthropic"},
+    {"key": "deepseek-v4-1-flash-1017-high", "name": "DeepSeek V4.1 Flash 1017", "effort": "high", "api": "openrouter", "id": "deepseek/deepseek-v4.1-flash-1017", "provider": "deepseek"}
+  ]
+}

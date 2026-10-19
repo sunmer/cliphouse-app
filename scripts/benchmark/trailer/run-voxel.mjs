@@ -1,6 +1,8 @@
 // Voxel trailer runner: generate, repair on failure, then two rounds where the model sees a contact sheet of its own frames.
 // Opus and Sonnet use the Anthropic API; DeepSeek uses OpenRouter pinned to DeepSeek. Hard cost cap per video.
-// Usage: node scripts/benchmark/trailer/run-voxel.mjs [--model key] [--run n] [--workers n]
+// Usage: node scripts/benchmark/trailer/run-voxel.mjs [--set trailer-voxel] [--model key] [--run n] [--workers n]
+// --set names a folder under src/benchmark/ with protocol.json, system.txt, and brief.txt. When the protocol has
+// `extends` ({set, run}), each model's first message also carries its own final source from that earlier run.
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFile, execFileSync} from 'node:child_process';
@@ -9,14 +11,15 @@ import {createHash} from 'node:crypto';
 import {message, costOf, loadEnv} from '../../launch/anthropic.mjs';
 
 const root = path.resolve(import.meta.dirname, '../../..');
-const dir = path.join(root, 'src/benchmark/trailer-voxel');
+const {values} = parseArgs({options: {set: {type: 'string'}, model: {type: 'string'}, run: {type: 'string'}, workers: {type: 'string'}, renders: {type: 'string'}}});
+const dir = path.join(root, 'src/benchmark', values.set ?? 'trailer-voxel');
 const protocol = JSON.parse(fs.readFileSync(path.join(dir, 'protocol.json'), 'utf8'));
 const system = fs.readFileSync(path.join(dir, 'system.txt'), 'utf8').trim();
 const brief = fs.readFileSync(path.join(dir, 'brief.txt'), 'utf8').trim();
 const hash = (v) => createHash('sha256').update(v).digest('hex');
 const digest = hash(JSON.stringify(protocol) + system + brief);
 const store = path.join(root, '.benchmark', protocol.id);
-const {values} = parseArgs({options: {model: {type: 'string'}, run: {type: 'string'}, workers: {type: 'string'}, renders: {type: 'string'}}});
+const FRAMES = protocol.format.durationInFrames;
 loadEnv();
 const OR_ENV = '/Users/nimaboustanian/projects/lovd-by-ai-28/supabase/.env';
 if (!process.env.OPENROUTER_API_KEY && fs.existsSync(OR_ENV)) {
@@ -27,7 +30,18 @@ const imageId = execFileSync('docker', ['image', 'inspect', protocol.render.imag
 const execAsync = promisify(execFile);
 const atomic = (file, data) => { fs.writeFileSync(`${file}.tmp`, `${JSON.stringify(data, null, 2)}\n`); fs.renameSync(`${file}.tmp`, file); };
 const RATES = {'claude-opus-5-5': [5e-6, 25e-6], 'claude-sonnet-5-5': [3e-6, 15e-6]};
-const SHEET_FRAMES = [0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 375];
+// 12 evenly spaced frames, the last one inside the final title hold.
+const SHEET_FRAMES = FRAMES === 390 ? [0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 375]
+  : Array.from({length: 12}, (_, i) => i === 11 ? FRAMES - 15 : Math.round(i * (FRAMES - 15) / 11));
+
+// The earlier run's final source for this model, or null.
+function baseSource(model) {
+  if (!protocol.extends) return null;
+  const base = JSON.parse(fs.readFileSync(path.join(root, 'src/benchmark', protocol.extends.set, 'protocol.json'), 'utf8'));
+  const jobDir = path.join(root, '.benchmark', base.id, `${model.key}-${protocol.extends.run}`);
+  const record = JSON.parse(fs.readFileSync(path.join(jobDir, 'record.json'), 'utf8'));
+  return fs.readFileSync(path.join(jobDir, `submission-${record.finalVersion}.tsx`), 'utf8');
+}
 
 const models = protocol.models.filter((m) => !values.model || m.key === values.model);
 const runs = Array.from({length: protocol.runs}, (_, i) => i + 1).filter((r) => !values.run || r === Number(values.run));
@@ -99,7 +113,11 @@ async function render(jobDir, version) {
   const input = path.join(tmp, 'input');
   const out = path.join(tmp, 'out');
   fs.mkdirSync(input); fs.mkdirSync(out); fs.chmodSync(out, 0o777);
-  for (const name of ['entry.tsx', 'render.mjs']) fs.copyFileSync(path.join(import.meta.dirname, 'sandbox3d', name), path.join(input, name));
+  for (const name of ['entry.tsx', 'render.mjs']) {
+    const text = fs.readFileSync(path.join(import.meta.dirname, 'sandbox3d', name), 'utf8');
+    fs.writeFileSync(path.join(input, name), text.replaceAll('durationInFrames={390}', `durationInFrames={${FRAMES}}`).replaceAll('durationInFrames !== 390', `durationInFrames !== ${FRAMES}`)
+      .replace("frame: 360, imageFormat", `frame: ${FRAMES - 30}, imageFormat`));
+  }
   fs.copyFileSync(path.join(jobDir, `submission-${version}.tsx`), path.join(input, 'submission.tsx'));
   const name = `cliphouse-voxel-${process.pid}-${Date.now()}`;
   const started = Date.now();
@@ -153,7 +171,8 @@ async function runJob(job) {
   const record = {protocolHash: digest, imageId, model: job.model.key, modelId: job.model.id, effort: job.model.effort, provider: job.model.provider, run: job.run,
     startedAt: new Date().toISOString(), calls: [], status: 'failed', costUsd: 0, repairsUsed: 0, reviewsDone: 0};
   const save = () => atomic(path.join(jobDir, 'progress.json'), record);
-  const history = [{role: 'user', text: brief}];
+  const base = baseSource(job.model);
+  const history = [{role: 'user', text: base ? `${brief}\n\n<your-13-second-trailer>\n${base}\n</your-13-second-trailer>` : brief}];
   let good = null; // last version that rendered
   let call = 0;
   let phase = 'generation';

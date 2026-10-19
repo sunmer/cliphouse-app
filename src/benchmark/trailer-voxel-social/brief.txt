@@ -1,0 +1,17 @@
+Make the trailer for SUNBURN, an original open-world crime game. It must feel like the most anticipated game trailer of the year, in the spirit of the GTA 6 trailer: a sun-soaked coastal city, crime, money, and two leads on the run. The whole game world is built from voxels.
+
+You already made a 13-second version of this trailer. It is below. Now make the 26-second cut of the same trailer.
+
+- Keep your world, your two leads, your vehicles, your colors, and your style. Reuse your builders and voxel models.
+- Keep your best shots, and add new shots and scenes so the trailer has a real story arc over 26 seconds: set up the city and the leads, the job, the chase, and the peak.
+- Use eight to twelve shots in total. No shot should simply be an old shot slowed down or held longer.
+- Put the strongest moment in the last third, then the title.
+
+Use this exact on-screen text, and no other words:
+- ONE CITY. TWO DEBTS.
+- SUNBURN
+- COMING NOVEMBER
+
+SUNBURN is the final title. It and COMING NOVEMBER must be on screen and readable from at least frame 720 to frame 779.
+
+Do not use the names GTA, Grand Theft Auto, Rockstar, or Vice City, or any real logo, character, or brand.
