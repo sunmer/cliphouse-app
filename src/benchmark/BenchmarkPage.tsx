@@ -6,9 +6,11 @@ import protocol from './protocol.json';
 import addition from './addition.json';
 import additionA2 from './addition-a2.json';
 import additionA3 from './addition-a3.json';
+import additionA4 from './addition-a4.json';
 import additionData from './addition-results.json';
 import additionA2Data from './addition-a2-results.json';
 import additionA3Data from './addition-a3-results.json';
+import additionA4Data from './addition-a4-results.json';
 import resultsData from './results.json';
 import recoveryData from './recovery.json';
 import additionA3RecoveryData from './addition-a3-recovery.json';
@@ -19,15 +21,15 @@ import {withRecovery, type BenchmarkAdditionResults, type BenchmarkModel, type B
 
 // The publication build validates this JSON against the result schema.
 const defaultResults = resultsData as BenchmarkResults;
-const additionList = [addition, additionA2, additionA3];
-const defaultAdditions = {entries: [additionData, additionA2Data, additionA3Data].flatMap((item) => (item as BenchmarkAdditionResults).entries)} as Pick<BenchmarkAdditionResults, 'entries'>;
+const additionList = [addition, additionA2, additionA3, additionA4];
+const defaultAdditions = {entries: [additionData, additionA2Data, additionA3Data, additionA4Data].flatMap((item) => (item as BenchmarkAdditionResults).entries)} as Pick<BenchmarkAdditionResults, 'entries'>;
 // Late additions are listed first, newest first.
 const allModels: BenchmarkModel[] = [...[...additionList].reverse().flatMap((item) => item.models), ...protocol.models];
 const shortDate = (date: string) => new Date(`${date}T12:00:00Z`).toLocaleDateString('en-US', {month: 'long', day: 'numeric', timeZone: 'UTC'});
 const additionOf = new Map(additionList.flatMap((item) => item.models.map((model) => [model.key, item] as const)));
 const month = 'October 2026';
 const dateLabel = 'October 8, 2026';
-const money = (value: number) => `$${value.toFixed(value < 0.01 ? 4 : 3)}`;
+const money = (value: number) => value === 0 ? '$0 (free)' : `$${value.toFixed(value < 0.01 ? 4 : 3)}`;
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
 const fullPrompt = (prompt: string) => `System instructions\n${contractData.system}\n\nBrief\n${prompt}`;
 
@@ -198,7 +200,7 @@ export function BenchmarkPage({base = '/', edition = false, data = defaultResult
         <p className="benchmark-footnote">A curated selection across price tiers, not a popularity ranking. Empty entries are untested, not failed.</p>
         <p className="benchmark-footnote">Time to video is an estimate from prompt submission until the MP4 was ready. It adds every model response and render attempt, including repairs. It excludes waiting in the render queue and small file-handling overhead. <a href={`${base}benchmark/timings.json`}>OpenRouter timing records</a></p>
         {recoveries.entries.length > 0 && <p className="benchmark-footnote">Recovered entries show total API cost, including original attempts. The additional repair cost is itemized in run details. Recovery means the code compiled and rendered. It is not first-attempt success.</p>}
-        <p className="benchmark-footnote"><strong>Late additions:</strong> {additionList.map((item) => `${item.models.map((model) => model.name).join(', ')} (${shortDate(item.date)})`).join(', ')} were added after the original ten models. They used the same protocol, briefs, token limit, renderer, and repair rule. Argon and Muse rendered every run and needed no R1 recovery. DeepSeek V4.1 Flash 1017's five failed runs received the same R1 recovery pass as the original models, and are marked as recovered.</p>
+        <p className="benchmark-footnote"><strong>Late additions:</strong> {additionList.map((item) => `${item.models.map((model) => model.name).join(', ')} (${shortDate(item.date)})`).join(', ')} were added after the original ten models. They used the same protocol, briefs, token limit, renderer, and repair rule. Argon, Muse, and MiniMax M3.1 Flash rendered every run and needed no R1 recovery. MiniMax ran on OpenRouter's free endpoint, so its API cost is $0. DeepSeek V4.1 Flash 1017's five failed runs received the same R1 recovery pass as the original models, and are marked as recovered.</p>
       </section>
 
       <section id="methodology" className="benchmark-section">

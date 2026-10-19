@@ -6,7 +6,7 @@ import results from '../trailer-voxel/results.json';
 
 type Entry = typeof results.entries[number];
 // Bump when media changes: caches key on the full URL, query included.
-const MEDIA_VERSION = '3';
+const MEDIA_VERSION = '4';
 const media = (base: string, file: string) => `${base}${file}?v=${MEDIA_VERSION}`;
 // Cloudflare caches Firebase's gzip copy of an MP4 and answers byte-range requests from it, so playback
 // stops a few seconds in. In production, videos load straight from Firebase Hosting, which answers
@@ -14,12 +14,17 @@ const media = (base: string, file: string) => `${base}${file}?v=${MEDIA_VERSION}
 const VIDEO_ORIGIN = 'https://cliphouse-app.web.app/';
 const video = (base: string, file: string) => base === '/' ? media(VIDEO_ORIGIN, file) : media(base, file);
 const models = results.protocol.models;
-const money = (v: number) => `$${v < 1 ? v.toFixed(3) : v.toFixed(2)}`;
+const money = (v: number) => v === 0 ? '$0 (free)' : `$${v < 1 ? v.toFixed(3) : v.toFixed(2)}`;
 const minutes = (ms: number) => `${Math.round(ms / 60000)} min`;
 const byModel = (key: string) => results.entries.filter((e) => e.model === key);
 const avg = (key: string) => byModel(key).reduce((s, e) => s + e.costUsd, 0) / byModel(key).length;
 const opus = avg('opus-5-5-high');
 const deepseek = avg('deepseek-v4-1-flash-1017-high');
+// Late addition: added after the first three models were published.
+const ADDED = {'minimax-m3-1-flash-high': 'October 19'} as Record<string, string>;
+const author = (provider: string) => ({deepseek: 'DeepSeek', minimax: 'MiniMax'} as Record<string, string>)[provider] ?? 'Anthropic';
+const via = (m: {api: string; provider: string; id: string}) => m.api === 'anthropic' ? 'Anthropic API'
+  : m.id.endsWith(':free') ? `OpenRouter free endpoint, pinned to ${author(m.provider)}` : `OpenRouter, pinned to ${author(m.provider)}`;
 const phaseLabel = (p: string) => p === 'generation' ? 'First reply' : p === 'repair' ? 'Repair' : p.endsWith('-repair') ? 'Review repair' : `Review ${p.split('-')[1]}`;
 
 function Card({entry, base}: {entry: Entry; base: string}) {
@@ -29,7 +34,7 @@ function Card({entry, base}: {entry: Entry; base: string}) {
   return <article className="benchmark-card">
     <div className="benchmark-card-media"><ViewportVideo key={src} src={video(base, src)} poster={media(base, entry.poster)} label={`${model.name}, run ${entry.run}, ${view === 'final' ? 'final trailer' : 'first render'}`} /></div>
     <div className="benchmark-card-body">
-      <div className="benchmark-card-labels"><span>{model.provider === 'deepseek' ? 'DeepSeek' : 'Anthropic'}</span><span>Run {entry.run}</span></div>
+      <div className="benchmark-card-labels"><span>{author(model.provider)}</span><span>{ADDED[model.key] ? `Added ${ADDED[model.key]} · ` : ''}Run {entry.run}</span></div>
       <h3>{model.name} <span className="gta6-effort">{model.effort}</span></h3>
       <div className="benchmark-run-control gta6-toggle" role="group" aria-label="Version">
         <button aria-pressed={view === 'final'} onClick={() => setView('final')}>Final</button>
@@ -42,7 +47,7 @@ function Card({entry, base}: {entry: Entry; base: string}) {
       <details className="benchmark-entry-details">
         <summary>Run details <ChevronDown size={14} aria-hidden="true" /></summary>
         <dl>
-          <div><dt>Model ID</dt><dd><code>{model.id}</code> via {model.api === 'anthropic' ? 'Anthropic API' : 'OpenRouter, pinned to DeepSeek'}</dd></div>
+          <div><dt>Model ID</dt><dd><code>{model.id}</code> via {via(model)}</dd></div>
           <div><dt>Calls</dt><dd>{entry.calls.map((c) => `${phaseLabel(c.phase)}: ${money(c.costUsd)}, ${c.output.toLocaleString('en-US')} output tokens${c.stop === 'max_tokens' ? ', hit token limit' : c.passed ? ', rendered' : ', failed'}`).join(' / ')}</dd></div>
           <div><dt>Cost source</dt><dd>{entry.costSource}</dd></div>
           <div><dt>Model time / render time</dt><dd>{minutes(entry.generationMs)} / {minutes(entry.renderMs)}</dd></div>
@@ -63,9 +68,9 @@ export function Gta6Page({base}: {base: string}) {
       <header className="benchmark-intro">
         <div className="benchmark-kicker"><Gamepad2 size={15} aria-hidden="true" /><span>Cliphouse Research</span><span className="benchmark-edition">October 2026</span></div>
         <h1>GTA6 Trailer<br />Benchmark<span className="benchmark-period">.</span></h1>
-        <p className="benchmark-deck">Three AI models. One brief. A 13-second GTA6-style trailer, built entirely in code.</p>
-        <p className="benchmark-description">Claude Opus 5.5, Claude Sonnet 5.5, and DeepSeek V4.1 Flash each wrote a Remotion and Three.js trailer for an open-world crime game made of voxels. No images, no video models, no human edits. Each model reviewed frames of its own render twice and revised. Opus cost about {Math.round(opus / deepseek)}x more per trailer than DeepSeek.</p>
-        <div className="benchmark-byline"><span>By cliphou.se</span><span>October 18, 2026</span><span>9 trailers, all published</span></div>
+        <p className="benchmark-deck">Four AI models. One brief. A 13-second GTA6-style trailer, built entirely in code.</p>
+        <p className="benchmark-description">Claude Opus 5.5, Claude Sonnet 5.5, DeepSeek V4.1 Flash, and MiniMax M3.1 Flash each wrote a Remotion and Three.js trailer for an open-world crime game made of voxels. No images, no video models, no human edits. Each model reviewed frames of its own render twice and revised. Opus cost about {Math.round(opus / deepseek)}x more per trailer than DeepSeek. MiniMax ran on OpenRouter's free endpoint and cost nothing.</p>
+        <div className="benchmark-byline"><span>By cliphou.se</span><span>October 18, 2026</span><span>Updated October 19</span><span>{results.entries.length} trailers, all published</span></div>
         <nav className="benchmark-contents" aria-label="In this article">
           <a href="#trailers">All trailers <ArrowDown size={14} /></a>
           <a href="#costs">Cost and time</a>
@@ -97,9 +102,10 @@ export function Gta6Page({base}: {base: string}) {
           <h3>Self-review</h3>
           <p>{results.protocol.feedback}</p>
           <h3>What happened</h3>
-          <p>All 9 runs produced a trailer. Every Claude run first used its full {results.protocol.limits.maxTokens.toLocaleString('en-US')}-token output budget, mostly on thinking, before finishing the code, so each needed one repair to return a complete module. That cost is included. DeepSeek never hit the limit. One Opus run also needed a second repair for type errors. Five review revisions failed to compile and were repaired.</p>
+          <p>All 9 runs of the first three models produced a trailer. Every Claude run first used its full {results.protocol.limits.maxTokens.toLocaleString('en-US')}-token output budget, mostly on thinking, before finishing the code, so each needed one repair to return a complete module. That cost is included. DeepSeek never hit the limit. One Opus run also needed a second repair for type errors. Five review revisions failed to compile and were repaired.</p>
+          <p>MiniMax M3.1 Flash was added on October 19 with the same brief and rules. All 3 runs produced a trailer. Two first replies failed to compile and rendered after one repair each, and one review revision failed and was repaired. MiniMax never hit the token limit.</p>
           <h3>Cost</h3>
-          <p>DeepSeek costs come from OpenRouter's reported usage cost. Claude costs are Anthropic list prices multiplied by the token usage the API returned. Total for the 9 trailers: {money(results.totalCostUsd)}.</p>
+          <p>DeepSeek and MiniMax costs come from OpenRouter's reported usage cost. MiniMax used OpenRouter's free endpoint (<code>minimax/minimax-m3.1-flash:free</code>), which reported $0 for every call. Claude costs are Anthropic list prices multiplied by the token usage the API returned. Total for the {results.entries.length} trailers: {money(results.totalCostUsd)}.</p>
           <p className="benchmark-footnote"><strong>Harness incident:</strong> {results.harnessIncidents.map((i) => i.cause).join(' ')}</p>
           <p className="benchmark-footnote">SUNBURN is our placeholder title. This is a fan benchmark, not affiliated with or endorsed by Rockstar Games or Take-Two. The models were told not to use real logos, names, or characters. Three runs per model is a showcase, not a statistically definitive ranking.</p>
         </div>

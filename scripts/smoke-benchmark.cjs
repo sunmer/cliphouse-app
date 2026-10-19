@@ -28,18 +28,19 @@ async function check(browser, viewport, prefix) {
   const additions = await (await context.request.get(`${base}benchmark/addition-results.json`)).json();
   const additionsA2 = await (await context.request.get(`${base}benchmark/addition-a2-results.json`)).json();
   const additionsA3 = await (await context.request.get(`${base}benchmark/addition-a3-results.json`)).json();
+  const additionsA4 = await (await context.request.get(`${base}benchmark/addition-a4-results.json`)).json();
   const repairsA3 = await (await context.request.get(`${base}benchmark/addition-a3-recovery.json`)).json();
-  protocol.models = [...additionsA3.addition.models, ...additionsA2.addition.models, ...additions.addition.models, ...protocol.models];
+  protocol.models = [...additionsA4.addition.models, ...additionsA3.addition.models, ...additionsA2.addition.models, ...additions.addition.models, ...protocol.models];
   const cards = protocol.models.length;
   const repaired = (list) => (entry) => {
     const repair = list.entries.find((item) => item.model === entry.model && item.brief === entry.brief && item.run === entry.run);
     return repair ? {...entry, ...repair, generationMs: entry.generationMs + repair.generationMs, renderMs: entry.renderMs + repair.renderMs} : entry;
   };
   const results = {...original, entries: original.entries.map(repaired(recoveries))
-    .concat(additions.entries, additionsA2.entries, additionsA3.entries.map(repaired(repairsA3)))};
+    .concat(additions.entries, additionsA2.entries, additionsA3.entries.map(repaired(repairsA3)), additionsA4.entries)};
   await page.locator('.benchmark-card').first().waitFor();
   assert.equal(await page.locator('.benchmark-card').count(), cards);
-  assert.equal(await page.locator('.benchmark-card h3').first().innerText(), 'DeepSeek V4.1 Flash 1017', 'the newest late addition is listed first');
+  assert.equal(await page.locator('.benchmark-card h3').first().innerText(), 'MiniMax M3.1 Flash', 'the newest late addition is listed first');
   assert.equal(await page.locator('.filters').count(), 0);
   assert.equal(await page.getByRole('heading', {level: 1}).count(), 1);
   assert.equal(await page.locator('.benchmark-progress, .benchmark-recovery-summary').count(), 0);
@@ -145,7 +146,7 @@ async function check(browser, viewport, prefix) {
   assert.equal(await page.locator('.benchmark-card').count(), cards);
   await page.getByRole('link', {name: 'Templates', exact: true}).click();
   await page.locator('.card').first().waitFor();
-  await page.getByRole('link', {name: /New: DeepSeek V4\.1 Flash 1017 benchmarked\..*Compare now/}).click();
+  await page.getByRole('link', {name: /New: MiniMax M3\.1 Flash benchmarked.*Compare now/}).click();
   await page.locator('.benchmark-card').first().waitFor();
   assert.deepEqual(errors, [], 'no runtime or hydration errors');
   await context.close();
@@ -158,7 +159,7 @@ async function check(browser, viewport, prefix) {
     const context = await browser.newContext({javaScriptEnabled: false, viewport: {width: 1280, height: 900}});
     const page = await context.newPage();
     await page.goto(`${base}benchmark/`);
-    assert.equal(await page.locator('.benchmark-card').count(), 13, 'all models are server rendered');
+    assert.equal(await page.locator('.benchmark-card').count(), 14, 'all models are server rendered');
     assert.equal(await page.locator('script[type="application/ld+json"]').count(), 1);
     await page.locator('.benchmark-prompt summary').click();
     assert.equal(await page.locator('.benchmark-prompt').getAttribute('open'), '');

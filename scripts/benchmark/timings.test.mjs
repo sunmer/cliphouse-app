@@ -27,6 +27,9 @@ test('metadata must match the successful generation, model, and provider', () =>
   const snapshot = {...response, model: 'deepseek/deepseek-v4.1-flash-1017'};
   assert.equal(reportedTiming({data: {...metadata.data, model: 'deepseek/deepseek-v4.1-flash-20261017'}}, snapshot).resolvedModel, 'deepseek/deepseek-v4.1-flash-20261017');
   for (const model of ['deepseek/deepseek-v4.1-flash-20261018', 'deepseek/deepseek-v4.1-pro-20261017']) assert.throws(() => reportedTiming({data: {...metadata.data, model}}, snapshot));
+  const free = {...response, model: 'minimax/minimax-m3.1-flash:free'};
+  assert.equal(reportedTiming({data: {...metadata.data, model: 'minimax/minimax-m3.1-flash-20261019:free'}}, free).resolvedModel, 'minimax/minimax-m3.1-flash-20261019:free');
+  for (const model of ['minimax/minimax-m3.1-flash-20261019', 'minimax/minimax-m3.1-pro-20261019:free']) assert.throws(() => reportedTiming({data: {...metadata.data, model}}, free));
 });
 test('publication needs one verified timing per video and never substitutes an estimate', () => {
   assert.deepEqual(validateTimings(data([entry]), baseline, recovery), data([entry]));

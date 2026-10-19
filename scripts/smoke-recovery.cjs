@@ -15,8 +15,9 @@ async function check(engine, viewport, name) {
     const additionsA1 = await (await page.request.get(`${base}benchmark/addition-results.json`)).json();
     const additionsA2 = await (await page.request.get(`${base}benchmark/addition-a2-results.json`)).json();
     const additionsA3 = await (await page.request.get(`${base}benchmark/addition-a3-results.json`)).json();
+    const additionsA4 = await (await page.request.get(`${base}benchmark/addition-a4-results.json`)).json();
     const repairsA3 = await (await page.request.get(`${base}benchmark/addition-a3-recovery.json`)).json();
-    const additions = {entries: [...additionsA1.entries, ...additionsA2.entries, ...additionsA3.entries]};
+    const additions = {entries: [...additionsA1.entries, ...additionsA2.entries, ...additionsA3.entries, ...additionsA4.entries]};
     const additionRepairs = repairsA3.entries;
     assert.equal(repairs.entries.length, baseline.entries.filter(entry => entry.status === 'failed').length);
     assert.equal(await page.locator('.benchmark-recovery-summary, .benchmark-progress').count(), 0);

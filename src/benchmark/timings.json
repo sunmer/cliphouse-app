@@ -734,6 +734,66 @@
       "fetchedAt": "2026-10-17T17:22:56.443Z"
     },
     {
+      "video": "benchmark/media/addition-a4-minimax-m3-1-flash-product-launch-1/video.mp4",
+      "sourceSha256": "2b69ab7f898d93054f5d810f4d1187e0361fb58e49af99a5a9b3f684c49b392d",
+      "generationId": "gen-1792416332-aBumlEsYl8Pvrgw35Z0s",
+      "model": "minimax/minimax-m3.1-flash:free",
+      "resolvedModel": "minimax/minimax-m3.1-flash-20261019:free",
+      "provider": "Minimax",
+      "generationTimeMs": 66633,
+      "fetchedAt": "2026-10-19T13:34:02.639Z"
+    },
+    {
+      "video": "benchmark/media/addition-a4-minimax-m3-1-flash-product-launch-2/video.mp4",
+      "sourceSha256": "8af3aec0add2f77f64599e7e964c5d6d67f3ae73adb12ab3e06abb6c30f5eb47",
+      "generationId": "gen-1792416142-W7NirGdaOmHLobqSybuS",
+      "model": "minimax/minimax-m3.1-flash:free",
+      "resolvedModel": "minimax/minimax-m3.1-flash-20261019:free",
+      "provider": "Minimax",
+      "generationTimeMs": 142072,
+      "fetchedAt": "2026-10-19T13:34:34.060Z"
+    },
+    {
+      "video": "benchmark/media/addition-a4-minimax-m3-1-flash-kinetic-type-1/video.mp4",
+      "sourceSha256": "4e281f59453f3822a1d315e2ca7d247ab5b55b6472c408d8118a7a4379ec55ee",
+      "generationId": "gen-1792416331-Ub2QQugXdlHC7JQgWfBZ",
+      "model": "minimax/minimax-m3.1-flash:free",
+      "resolvedModel": "minimax/minimax-m3.1-flash-20261019:free",
+      "provider": "Minimax",
+      "generationTimeMs": 115821,
+      "fetchedAt": "2026-10-19T13:34:34.498Z"
+    },
+    {
+      "video": "benchmark/media/addition-a4-minimax-m3-1-flash-kinetic-type-2/video.mp4",
+      "sourceSha256": "dee5957f303ee520e8d6e697fc6bb50415c8e5575cba5147ac4d2f36b2ed1112",
+      "generationId": "gen-1792416472-QOXduNR7h8edgXYzm3j0",
+      "model": "minimax/minimax-m3.1-flash:free",
+      "resolvedModel": "minimax/minimax-m3.1-flash-20261019:free",
+      "provider": "Minimax",
+      "generationTimeMs": 120148,
+      "fetchedAt": "2026-10-19T13:34:34.804Z"
+    },
+    {
+      "video": "benchmark/media/addition-a4-minimax-m3-1-flash-data-story-1/video.mp4",
+      "sourceSha256": "16f00c833671247404c66e15fab600cc242796f34f799717f0f6a73be2fc1fe4",
+      "generationId": "gen-1792416522-rEN9Op1Ug8oPWfEgmHNE",
+      "model": "minimax/minimax-m3.1-flash:free",
+      "resolvedModel": "minimax/minimax-m3.1-flash-20261019:free",
+      "provider": "Minimax",
+      "generationTimeMs": 113643,
+      "fetchedAt": "2026-10-19T13:34:34.862Z"
+    },
+    {
+      "video": "benchmark/media/addition-a4-minimax-m3-1-flash-data-story-2/video.mp4",
+      "sourceSha256": "5efaa8c62bcd486e990b446b4baa4cb15bda43fa05b045539addd9a85b280eed",
+      "generationId": "gen-1792416654-kQjviiUj4H8kk1eqfsk5",
+      "model": "minimax/minimax-m3.1-flash:free",
+      "resolvedModel": "minimax/minimax-m3.1-flash-20261019:free",
+      "provider": "Minimax",
+      "generationTimeMs": 73724,
+      "fetchedAt": "2026-10-19T13:34:35.161Z"
+    },
+    {
       "video": "benchmark/media/recovery-r1-deepseek-v4-1-flash-1017-product-launch-1/video.mp4",
       "sourceSha256": "9ab381af9a5657f2bcbdb3a0f49919cc7380337df02a02a9201cf6ac664f3c38",
       "generationId": "gen-1792260839-E2w5GrF2GYh7TCcsdbE9",
