@@ -123,7 +123,7 @@ function layout({page, body, schema, landing = true}) {
   <body>
     <header class="seo-top"><a class="seo-logo" href="${local('/')}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"></circle><path d="M8.12 8.12 12 12"></path><path d="M20 4 8.12 15.88"></path><circle cx="6" cy="18" r="3"></circle><path d="M14.8 14.8 20 20"></path></svg>cliphou.se</a><nav class="seo-nav"><a class="seo-browse" href="${local('/')}">Browse videos</a></nav></header>
     <main class="seo-main">${body}</main>
-    <footer class="seo-footer"><a href="${local('/motion-graphics-templates/')}">Templates</a><a href="${local('/remotion-templates/')}">Remotion</a><a href="${local('/hyperframes-templates/')}">HyperFrames</a><a href="${local('/license/')}">License</a><a href="${local('/about/')}">About</a><a href="${local('/#/privacy')}">Privacy</a></footer>
+    <footer class="seo-footer"><a href="${local('/motion-graphics-templates/')}">Templates</a><a href="${local('/remotion-templates/')}">Remotion</a><a href="${local('/hyperframes-templates/')}">HyperFrames</a><a href="${local('/license/')}">License</a><a href="${local('/mcp-docs/')}">MCP docs</a><a href="${local('/about/')}">About</a><a href="${local('/#/privacy')}">Privacy</a></footer>
   </body>
 </html>
 `;
@@ -188,6 +188,43 @@ function licensePage() {
   return {page, html: layout({page, body, schema: [pageSchema(page), breadcrumb([['Home', '/'], ['License', '/license/']])]})};
 }
 
+// The MCP Registry and skill repo link here as the product page for agent installs.
+const mcpUrl = `${site}/mcp`;
+const skillRepo = 'https://github.com/sunmer/cliphouse';
+const mcpTools = [
+  ['search_templates', 'Finds templates by marketing goal, release moment, product, format, and length.'],
+  ['get_template_spec', 'Returns editable text roles, limits, theme colors, scenes, and the JSON Schema.'],
+  ['upload_logo', 'Stores the project logo for templates that show a brand mark.'],
+  ['render_previews', 'Renders up to 4 options with the project brand, so the user can compare them.'],
+  ['render_preview', 'Renders the picked template with filled props and returns its editor link.'],
+  ['build_edit_link', 'Validates props and returns an editable cliphou.se link without rendering.'],
+];
+
+function mcpDocsPage() {
+  const page = {path: '/mcp-docs/', title: 'cliphou.se MCP Server and Agent Skill',
+    description: 'Connect cliphou.se to your coding agent. It reads your project, writes the positioning, and returns branded release video previews.',
+    image: absolute('/mcp-docs/poster.jpg'), video: absolute('/mcp-docs/workflow.mp4'), updatedAt: '2026-10-19'};
+  const body = `<section class="mcp-hero"><h1>cliphou.se for coding agents</h1><p class="lead">Your agent reads the project, finds what is worth showing, writes the positioning, and returns three branded video previews.</p>
+    <div class="mcp-video"><video autoplay muted loop playsinline preload="auto" poster="${local('/mcp-docs/poster.jpg')}" aria-label="A coding agent reads project files, chooses the release highlights and audience, then returns three animated video previews"><source src="${local('/mcp-docs/workflow.mp4')}" type="video/mp4" /></video></div></section>
+    <section class="seo-section"><h2>Install</h2><div class="mcp-install">
+      <article><h3>Agent skill</h3><p>For Codex, Claude Code, and agents that support skills.</p><pre><code>npx skills add sunmer/cliphouse</code></pre><p class="mcp-links"><a href="${skillRepo}">GitHub</a><a href="https://skills.sh/sunmer/cliphouse">skills.sh</a></p></article>
+      <article><h3>MCP server</h3><p>Streamable HTTP. No API key is needed for normal use.</p><pre><code>${mcpUrl}</code></pre><p>Claude Code:</p><pre><code>claude mcp add --transport http cliphouse ${mcpUrl}</code></pre><p>Codex, in <code>~/.codex/config.toml</code>:</p><pre><code>[mcp_servers.cliphouse]
+url = "${mcpUrl}"</code></pre></article>
+    </div></section>
+    <section class="seo-section"><h2>What the agent does</h2><ol class="mcp-steps"><li>Reads the README, changelog, theme files, and logo.</li><li>Chooses the marketing work for the request, such as the release highlights and the audience.</li><li>Shows three previews with the project brand, then fills the picked template.</li></ol><p>You review and export the MP4 in the cliphou.se editor.</p></section>
+    <section class="seo-section"><h2>Tools</h2><dl class="facts mcp-tools">${mcpTools.map(([name, text]) => `<div><dt><code>${name}</code></dt><dd>${esc(text)}</dd></div>`).join('')}</dl></section>
+    <section class="seo-section"><h2>Limits</h2><p>Anonymous use allows 60 requests per minute and 1,000 per day for each IP address. A free API key from your cliphou.se account raises this to 600 requests per minute and 20,000 per day. The server does not read your files directly. Your agent sends only the facts and assets needed for the video.</p></section>
+    <section class="seo-section"><h2>Links</h2><p class="mcp-links"><a href="${skillRepo}">Skill and README</a><a href="https://registry.modelcontextprotocol.io/v0.1/servers?search=se.cliphou%2Ftemplates">MCP Registry</a><a href="${local('/.well-known/mcp.json')}">Discovery document</a><a href="${local('/llms.txt')}">llms.txt</a></p></section>`;
+  const schema = [pageSchema(page), breadcrumb([['Home', '/'], ['MCP docs', '/mcp-docs/']]), {
+    '@type': 'SoftwareApplication', name: 'cliphou.se MCP server and agent skill', applicationCategory: 'DeveloperApplication', operatingSystem: 'Any',
+    url: absolute('/mcp-docs/'), sameAs: [skillRepo], offers: {'@type': 'Offer', price: 0, priceCurrency: 'USD'}, description: page.description,
+  }, {
+    '@type': 'VideoObject', name: 'cliphou.se agent workflow', description: 'A coding agent reads project files, chooses marketing work, and returns animated video previews.',
+    thumbnailUrl: [page.image], contentUrl: page.video, uploadDate: '2026-10-19', duration: 'PT22S', width: 1600, height: 760,
+  }];
+  return {page, html: layout({page, body, schema})};
+}
+
 function write(page, html) {
   const file = path.join(dist, page.path, 'index.html');
   fs.mkdirSync(path.dirname(file), {recursive: true});
@@ -211,6 +248,7 @@ for (const item of comparisons) {
   outputs.push(collectionPage(item, visible.filter(item.match).slice(0, 6), comparisonExtra({...item, rows})));
 }
 outputs.push(licensePage());
+outputs.push(mcpDocsPage());
 
 const seen = {title: new Set(), description: new Set(), path: new Set()};
 for (const v of visible) {
@@ -237,7 +275,7 @@ const catalogUpdated = date(...visible.map((v) => v.updatedAt));
 const fixed = [{path: '/', updatedAt: catalogUpdated}, {path: '/about/', updatedAt: reviewedAt}, {path: '/benchmark/', updatedAt: '2026-10-08'}, {path: '/benchmark/2026-10/', updatedAt: '2026-10-08'}, {path: '/benchmark/gta6/', updatedAt: '2026-10-18'}];
 const urls = [...fixed, ...outputs.map((o) => o.page)];
 fs.writeFileSync(path.join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${absolute(u.path)}</loc><lastmod>${u.updatedAt}</lastmod></url>`).join('\n')}\n</urlset>\n`);
-fs.writeFileSync(path.join(dist, 'llms.txt'), `# cliphou.se\n\n> You ship it. Cliphouse shows it off. Your coding agent turns every release into a video for your socials. It finds the selling points, picks the angle, writes the copy, and uses your brand colors and logo. ${promise}\n\n## Key pages\n\n- [Gallery](${site}/): Browse and filter templates.\n- [Motion graphics templates](${site}/motion-graphics-templates/): Crawlable catalog.\n- [Remotion templates](${site}/remotion-templates/): Remotion showcase and render handoff.\n- [HyperFrames templates](${site}/hyperframes-templates/): HyperFrames showcase and native HTML project downloads.\n- [Template license](${site}/license/): ${notice}\n\n## Agent specs\n\nEach template has a no-JavaScript JSON spec with current props, text limits, color roles, scenes, JSON Schema, a handoff URL, and a pinned source package. Each published share has the same spec at /s/<share-id>/agent.json.\n\nText and color edits: return ${site}/#/v/<variant-id>?props=<url-encoded props JSON>. cliphou.se validates the props before it opens them.\n\nCode edits: download source.package from the spec and follow source.renderCommand. Remotion packages use props.json. HyperFrames packages use variables.json.\n\n${mcpSection}${visible.map((v) => `- [${v.title} agent spec](${absolute(`${v.path}agent.json`)})`).join('\n')}\n\n## Templates\n\n${visible.map((v) => `- [${v.title}](${absolute(v.path)}): ${v.seoDescription}`).join('\n')}\n\n## Product facts\n\n- Browsing and editing are free.\n- ${accountFact}\n- Each template is locked to Remotion or HyperFrames. The editor and agent handoff use the same text and color contract for both.\n- Templates use shared text roles and five theme colors.\n- ${exportFact}\n- Every template version has a downloadable source package with exact dependencies, so old versions stay renderable.\n- Remotion and HyperFrames dependencies keep their own license terms.\n`);
+fs.writeFileSync(path.join(dist, 'llms.txt'), `# cliphou.se\n\n> You ship it. Cliphouse shows it off. Your coding agent turns every release into a video for your socials. It finds the selling points, picks the angle, writes the copy, and uses your brand colors and logo. ${promise}\n\n## Key pages\n\n- [Gallery](${site}/): Browse and filter templates.\n- [Motion graphics templates](${site}/motion-graphics-templates/): Crawlable catalog.\n- [Remotion templates](${site}/remotion-templates/): Remotion showcase and render handoff.\n- [HyperFrames templates](${site}/hyperframes-templates/): HyperFrames showcase and native HTML project downloads.\n- [Template license](${site}/license/): ${notice}\n- [MCP docs](${site}/mcp-docs/): Install the skill or MCP server and see the agent workflow.\n\n## Agent specs\n\nEach template has a no-JavaScript JSON spec with current props, text limits, color roles, scenes, JSON Schema, a handoff URL, and a pinned source package. Each published share has the same spec at /s/<share-id>/agent.json.\n\nText and color edits: return ${site}/#/v/<variant-id>?props=<url-encoded props JSON>. cliphou.se validates the props before it opens them.\n\nCode edits: download source.package from the spec and follow source.renderCommand. Remotion packages use props.json. HyperFrames packages use variables.json.\n\n${mcpSection}${visible.map((v) => `- [${v.title} agent spec](${absolute(`${v.path}agent.json`)})`).join('\n')}\n\n## Templates\n\n${visible.map((v) => `- [${v.title}](${absolute(v.path)}): ${v.seoDescription}`).join('\n')}\n\n## Product facts\n\n- Browsing and editing are free.\n- ${accountFact}\n- Each template is locked to Remotion or HyperFrames. The editor and agent handoff use the same text and color contract for both.\n- Templates use shared text roles and five theme colors.\n- ${exportFact}\n- Every template version has a downloadable source package with exact dependencies, so old versions stay renderable.\n- Remotion and HyperFrames dependencies keep their own license terms.\n`);
 // Generation credits must name the model, never the coding agent that ran it. Marketing copy may name
 // the agents users install the skill in, so only the published generation metadata is checked here.
 const bannedAgentName = new RegExp(String.fromCharCode(67, 111, 100, 101, 120), 'i');
