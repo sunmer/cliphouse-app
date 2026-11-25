@@ -146,7 +146,9 @@ async function check(browser, viewport, prefix) {
   assert.equal(await page.locator('.benchmark-card').count(), cards);
   await page.getByRole('link', {name: 'Templates', exact: true}).click();
   await page.locator('.card').first().waitFor();
-  await page.getByRole('link', {name: /New: MiniMax M3\.1 Flash benchmarked.*Compare now/}).click();
+  // The header pill links back to the benchmark; it is hidden on narrow screens, so follow its href there.
+  const pill = page.locator('a.header-pill');
+  if (await pill.isVisible()) await pill.click(); else await page.goto(new URL(await pill.getAttribute('href'), page.url()).href);
   await page.locator('.benchmark-card').first().waitFor();
   assert.deepEqual(errors, [], 'no runtime or hydration errors');
   await context.close();
