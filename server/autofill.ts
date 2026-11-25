@@ -1,5 +1,6 @@
 import {lookup} from 'node:dns/promises';
 import net from 'node:net';
+import manifest from '../src/catalog/manifest.json' with {type: 'json'};
 import {ROLES, THEME_ROLES, roleError, type Role, type Theme} from '../src/videos/vocab.ts';
 import {HttpError} from './model.ts';
 
@@ -8,11 +9,31 @@ export type AutofillRole = (typeof AUTOFILL_ROLES)[number];
 export type AutofillResult = {
   texts: Record<AutofillRole, string>;
   theme: Theme;
+  // Gallery variant ids ranked by fit for this brand, best first. Empty when the model picked none.
+  picks: string[];
   sourceUrl?: string;
 };
 
 const HEX = /^#[0-9a-f]{6}$/i;
 const MODEL = process.env.AUTOFILL_MODEL || 'claude-haiku-5-5';
+export const PICK_COUNT = 12;
+
+// One compact line per browsable variant, so the model can rank the catalog in the same call.
+const visible = manifest.variants.filter((v) => !('hidden' in v && v.hidden));
+const visibleIds = new Set(visible.map((v) => v.id));
+const CATALOG = visible
+  .map((v) => `${v.id} | ${v.purpose} | ${v.title} | ${v.description.slice(0, 90)}`)
+  .join('\n');
+
+export function cleanPicks(raw: unknown, valid: Set<string> = visibleIds): string[] {
+  if (!Array.isArray(raw)) return [];
+  const out: string[] = [];
+  for (const id of raw) {
+    if (typeof id === 'string' && valid.has(id) && !out.includes(id)) out.push(id);
+    if (out.length === PICK_COUNT) break;
+  }
+  return out;
+}
 
 function isPrivateIp(ip: string): boolean {
   if (net.isIPv4(ip)) {
@@ -160,7 +181,7 @@ const DEFAULT_THEME: Theme = {
 };
 
 export function normalizeAutofill(raw: unknown): AutofillResult {
-  const obj = (raw && typeof raw === 'object' ? raw : {}) as {texts?: Record<string, unknown>; theme?: Record<string, unknown>};
+  const obj = (raw && typeof raw === 'object' ? raw : {}) as {texts?: Record<string, unknown>; theme?: Record<string, unknown>; picks?: unknown};
   const fallbacks: Record<AutofillRole, string> = {
     brand: 'Your Brand',
     headline: 'Built to stand out',
@@ -179,7 +200,7 @@ export function normalizeAutofill(raw: unknown): AutofillResult {
     const candidate = String(obj.theme?.[role] ?? '').trim();
     if (HEX.test(candidate)) theme[role] = candidate.toLowerCase();
   }
-  return {texts, theme};
+  return {texts, theme, picks: cleanPicks(obj.picks)};
 }
 
 const SYSTEM_PROMPT = `You personalize motion graphics video templates for cliphou.se.
@@ -200,13 +221,18 @@ Given a website summary or a short product/project brief, return ONLY a valid JS
     "foreground": "#rrggbb",
     "accent": "#rrggbb",
     "accent2": "#rrggbb"
-  }
+  },
+  "picks": [string] (exactly ${PICK_COUNT} template ids from the catalog below, best fit first)
 }
 Rules:
 - Strictly obey every max character limit (never exceed it).
 - Match the language of the input brief or website (if Vietnamese, write Vietnamese; if French, write French; etc.).
 - Choose a cohesive, high-contrast 5-color palette inspired by the brand (foreground must be clearly legible on both background and surface; accent must pop cleanly).
-- Avoid buzzwords and exclamation spam. Write crisp, concrete marketing copy.`;
+- Avoid buzzwords and exclamation spam. Write crisp, concrete marketing copy.
+- For "picks", choose the templates this brand would actually post: match its kind of business (software, game, shop, creator, event, agency) and its likely moments (launches, sales, updates, hiring). Skip templates for unrelated industries or occasions. Mix formats (16:9, 9:16, 1:1, 4:5). Copy ids exactly.
+
+Catalog (id | purpose | title | description):
+${CATALOG}`;
 
 export async function autofillBrandKit(
   prompt: string,
@@ -235,9 +261,10 @@ export async function autofillBrandKit(
     },
     body: JSON.stringify({
       model: deps.model ?? MODEL,
-      max_tokens: 1500,
+      max_tokens: 2000,
       output_config: {effort: 'low'},
-      system: SYSTEM_PROMPT,
+      // The prompt (with the catalog) is identical on every call, so it is cached.
+      system: [{type: 'text', text: SYSTEM_PROMPT, cache_control: {type: 'ephemeral'}}],
       messages: [{role: 'user', content: context}],
     }),
     signal: AbortSignal.timeout(20_000),

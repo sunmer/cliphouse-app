@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {ROLES, roleError} from '../src/videos/vocab.ts';
-import {AUTOFILL_ROLES, autofillBrandKit, extractUrl, normalizeAutofill, summarizeHtml} from './autofill.ts';
+import manifest from '../src/catalog/manifest.json' with {type: 'json'};
+import {AUTOFILL_ROLES, PICK_COUNT, autofillBrandKit, cleanPicks, extractUrl, normalizeAutofill, summarizeHtml} from './autofill.ts';
 
 test('extractUrl detects bare domains and URLs, ignores sentences', () => {
   assert.equal(extractUrl('cliphou.se'), 'https://cliphou.se/');
@@ -82,4 +83,27 @@ test('autofillBrandKit parses Anthropic JSON response cleanly', async () => {
   for (const role of AUTOFILL_ROLES) {
     assert.equal(roleError(role, result.texts[role]), null);
   }
+});
+
+test('cleanPicks keeps known gallery ids in order, drops unknown, duplicate, and hidden ids, and caps the list', () => {
+  const visible = manifest.variants.filter((v) => !('hidden' in v && v.hidden)).map((v) => v.id);
+  const hidden = manifest.variants.find((v) => 'hidden' in v && v.hidden)?.id;
+  const out = cleanPicks([visible[3], 'not-a-template', visible[3], hidden, 42, visible[0]]);
+  assert.deepEqual(out, [visible[3], visible[0]]);
+  assert.equal(cleanPicks(visible).length, PICK_COUNT);
+  assert.deepEqual(cleanPicks('nope'), []);
+});
+
+test('normalizeAutofill returns the model picks and the prompt lists the catalog', async () => {
+  const ids = manifest.variants.filter((v) => !('hidden' in v && v.hidden)).slice(0, 3).map((v) => v.id);
+  assert.deepEqual(normalizeAutofill({picks: ids}).picks, ids);
+  assert.deepEqual(normalizeAutofill({}).picks, []);
+  let sent = '';
+  const mockFetch = (async (_url: string, init: RequestInit) => {
+    sent = String(init.body);
+    return new Response(JSON.stringify({content: [{type: 'text', text: JSON.stringify({texts: {}, theme: {}, picks: ids})}]}), {status: 200});
+  }) as unknown as typeof fetch;
+  const result = await autofillBrandKit('Indie game devlog for a cozy farming game', {apiKey: 'k', fetchImpl: mockFetch});
+  assert.deepEqual(result.picks, ids);
+  assert.ok(sent.includes(ids[0]), 'the system prompt includes the catalog ids');
 });

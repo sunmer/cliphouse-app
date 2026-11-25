@@ -1,5 +1,5 @@
-import {Pencil, Search, SlidersHorizontal, Star, X} from 'lucide-react';
-import {useEffect, useMemo, useState} from 'react';
+import {Check, ChevronDown, Pencil, Search, SlidersHorizontal, Sparkles, Star, X} from 'lucide-react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {galleryVariants, searchText, templates, variants, vocab, type Format, type Tone, type Variant} from '../catalog/catalog';
 import {SCENE_TYPES} from '../videos/vocab';
 import {applyKit, kitApplies, useBrandKit} from './brandKit';
@@ -25,6 +25,11 @@ type Filters = {
 export const energyOf = (n: number): Energy => (n <= 2 ? 'Calm' : n === 3 ? 'Medium' : 'High');
 const FORMATS: Format[] = ['16:9', '9:16', '1:1', '4:5'];
 const SCENE_FILTERS = Object.entries(SCENE_TYPES).filter(([k]) => k !== 'transition');
+// Purpose pills keep a fixed order (largest purposes first) so they do not jump while the user filters.
+const PURPOSE_PILLS = 4;
+const PURPOSES_BY_SIZE = [...vocab.purpose].sort(
+  (a, b) => galleryVariants.filter((v) => v.purpose === b).length - galleryVariants.filter((v) => v.purpose === a).length,
+);
 // "Featured" ranks launch, developer, and top creator/promo videos first without hiding the rest of the catalog.
 const FEATURED_PRIORITY = new Set(['Product launch', 'Developer', 'Creator video', 'Holiday sale']);
 const newestFirst = (a: Variant, b: Variant) => Date.parse(b.createdAt) - Date.parse(a.createdAt);
@@ -59,17 +64,37 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
   const [savedOnly, setSavedOnly] = useState(false);
   const kit = useBrandKit();
   const applied = kitApplies(kit);
+  const picks = applied && kit.picks?.length ? kit.picks : null;
+  const [showAll, setShowAll] = useState(false);
+  // A new set of picks (a new brand) opens on the picked set again.
+  const picksKey = picks?.join(',') ?? '';
+  useEffect(() => setShowAll(false), [picksKey]);
+  const pickRank = useMemo(() => new Map((picks ?? []).map((id, i) => [id, i])), [picksKey]);
+  const picked = !!picks && !showAll && !savedOnly;
   const saved = useMemo(readView, []);
   const [q, setQ] = useState(saved.q ?? '');
   const [sort, setSort] = useState<Sort>(saved.sort === 'new' ? 'new' : 'featured');
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [showAllPurposes, setShowAllPurposes] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
   const [f, setF] = useState<Filters>({purpose: null, formats: [], styles: [], tones: [], energy: null, scenes: [], ...saved.f, template: initialTemplate});
   useEffect(() => {
     const {template: _template, ...rest} = f;
     void _template;
     try { sessionStorage.setItem(VIEW_KEY, JSON.stringify({sort, q, f: rest} satisfies View)); } catch { /* Storage is unavailable. */ }
   }, [sort, q, f]);
+  useEffect(() => {
+    if (!moreOpen) return;
+    const close = (e: Event) => {
+      if (e instanceof KeyboardEvent ? e.key === 'Escape' : !moreRef.current?.contains(e.target as Node)) setMoreOpen(false);
+    };
+    document.addEventListener('pointerdown', close);
+    document.addEventListener('keydown', close);
+    return () => {
+      document.removeEventListener('pointerdown', close);
+      document.removeEventListener('keydown', close);
+    };
+  }, [moreOpen]);
 
   const set = <K extends keyof Filters>(k: K, v: Filters[K]) => setF((s) => ({...s, [k]: v}));
   const toggle = <K extends 'formats' | 'styles' | 'tones' | 'scenes'>(k: K, v: Filters[K][number]) =>
@@ -80,20 +105,24 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
 
   const searched = useMemo(() => {
     const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
-    return (savedOnly ? variants : galleryVariants).filter((v) => (!savedOnly || account.saved.has(v.id)) && terms.every((t) => searchText(v).includes(t)));
-  }, [q, savedOnly, account.saved]);
+    return (savedOnly ? variants : galleryVariants).filter((v) => (!savedOnly || account.saved.has(v.id))
+      && (!picked || pickRank.has(v.id))
+      && terms.every((t) => searchText(v).includes(t)));
+  }, [q, savedOnly, account.saved, picked, pickRank]);
 
   const inView = (v: Variant, skip?: keyof Filters) => matches(v, f, skip);
   const count = (skip: keyof Filters, pred: (v: Variant) => boolean) => searched.filter((v) => inView(v, skip) && pred(v)).length;
 
   const results = useMemo(
-    () => searched.filter((v) => matches(v, f)).sort(sort === 'featured' ? featuredOrder : newestFirst),
-    [searched, f, sort],
+    () => searched.filter((v) => matches(v, f)).sort(
+      picked && sort === 'featured' ? (a, b) => pickRank.get(a.id)! - pickRank.get(b.id)! : sort === 'featured' ? featuredOrder : newestFirst,
+    ),
+    [searched, f, sort, picked, pickRank],
   );
 
   const active = Boolean(q || f.template || f.purpose || f.formats.length || f.styles.length || f.tones.length || f.energy || f.scenes.length);
-  const activeCount =
-    (f.template ? 1 : 0) + (f.purpose ? 1 : 0) + (f.energy ? 1 : 0) + f.formats.length + f.styles.length + f.tones.length + f.scenes.length;
+  // The badge counts only the filters hidden in the panel; purpose and format stay visible in the toolbar.
+  const panelCount = (f.energy ? 1 : 0) + f.styles.length + f.tones.length + f.scenes.length;
   const clear = () => {
     setQ('');
     setF({template: null, purpose: null, formats: [], styles: [], tones: [], energy: null, scenes: []});
@@ -112,16 +141,16 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
     </button>
   );
 
-  const sortedPurposes = useMemo(() => {
-    return [...vocab.purpose].sort((a, b) => count('purpose', (v) => v.purpose === b) - count('purpose', (v) => v.purpose === a));
-  }, [searched, f]);
-  const visiblePurposes = showAllPurposes || (f.purpose && sortedPurposes.indexOf(f.purpose) >= 6)
-    ? sortedPurposes
-    : sortedPurposes.slice(0, 6);
-  const hiddenPurposeCount = Math.max(0, sortedPurposes.length - visiblePurposes.length);
+  const pillPurposes = PURPOSES_BY_SIZE.slice(0, PURPOSE_PILLS);
+  const menuPurposes = PURPOSES_BY_SIZE.slice(PURPOSE_PILLS);
+  const menuPick = f.purpose && menuPurposes.includes(f.purpose) ? f.purpose : null;
+  const pickPurpose = (p: string | null) => {
+    set('purpose', p && f.purpose === p ? null : p);
+    setMoreOpen(false);
+  };
 
-  const searchField = (id: string, className: string) => (
-    <label className={`search ${className}`} htmlFor={id}>
+  const searchField = (id: string) => (
+    <label className="search gallery-search" htmlFor={id}>
       <Search size={15} aria-hidden="true" />
       <input id={id} type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search templates" />
       {q && (
@@ -139,31 +168,91 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
       <BrandStrip templateCount={galleryVariants.length} />
 
       <div className="gallery-layout">
-        <aside className={`filters ${filtersOpen ? 'open' : ''}`}>
-          <section>
-            <h3>Purpose</h3>
-            {searchField('sidebar-search', 'sidebar-search')}
-            <div className="list">
-              {visiblePurposes.map((p) => {
-                const n = count('purpose', (v) => v.purpose === p);
-                return (
-                  <button key={p} className={`row-btn ${f.purpose === p ? 'on' : ''}`} disabled={!n && f.purpose !== p} onClick={() => set('purpose', f.purpose === p ? null : p)}>
-                    <span>{p}</span>
-                    <span className="count">{n}</span>
-                  </button>
-                );
-              })}
-              {hiddenPurposeCount > 0 && (
-                <button type="button" className="row-btn more-btn" onClick={() => setShowAllPurposes(true)}>
-                  <span>+ {hiddenPurposeCount} more</span>
+        <div className="gallery-toolbar">
+          {searchField('gallery-search')}
+          <div className="purpose-pills" role="group" aria-label="Purpose">
+            <button type="button" className={`pill ${!f.purpose ? 'on' : ''}`} aria-pressed={!f.purpose} onClick={() => pickPurpose(null)}>All</button>
+            {pillPurposes.map((p) => {
+              const n = count('purpose', (v) => v.purpose === p);
+              return (
+                <button key={p} type="button" className={`pill ${f.purpose === p ? 'on' : ''}`} aria-pressed={f.purpose === p}
+                  disabled={!n && f.purpose !== p} onClick={() => pickPurpose(p)}>{p}</button>
+              );
+            })}
+            {menuPurposes.length > 0 && (
+              <div className="more-menu" ref={moreRef}>
+                <button type="button" className={`pill ${menuPick ? 'on' : ''}`} aria-haspopup="menu" aria-expanded={moreOpen} onClick={() => setMoreOpen((o) => !o)}>
+                  {menuPick ?? 'More'}
+                  <ChevronDown size={14} aria-hidden="true" />
                 </button>
-              )}
+                {moreOpen && (
+                  <div className="more-menu-list" role="menu">
+                    {menuPurposes.map((p) => {
+                      const n = count('purpose', (v) => v.purpose === p);
+                      return (
+                        <button key={p} type="button" role="menuitemradio" aria-checked={f.purpose === p} className="menu-item"
+                          disabled={!n && f.purpose !== p} onClick={() => pickPurpose(p)}>
+                          <span className="menu-check">{f.purpose === p && <Check size={14} />}</span>
+                          {p}
+                          <span className="menu-note">{n}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="segmented sort-tabs" role="group" aria-label="Sort videos">
+            {(['featured', 'new'] as Sort[]).map((s) => (
+              <button key={s} className={sort === s ? 'on' : ''} aria-pressed={sort === s} onClick={() => setSort(s)}>
+                {s === 'featured' ? 'Featured' : 'Newest'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="results-bar">
+          {picks && !savedOnly && (
+            <div className="segmented picks-tabs" role="group" aria-label="Templates shown">
+              <button className={!showAll ? 'on' : ''} aria-pressed={!showAll} onClick={() => setShowAll(false)}>
+                <Sparkles size={14} aria-hidden="true" />Picked for {kit.texts?.brand || 'you'}
+                <span className="tab-count">{picks.length}</span>
+              </button>
+              <button className={showAll ? 'on' : ''} aria-pressed={showAll} onClick={() => setShowAll(true)}>
+                All <span className="tab-count">{galleryVariants.length}</span>
+              </button>
             </div>
-          </section>
-          <section>
-            <h3>Format</h3>
-            <div className="chips">{FORMATS.map((x) => chip(f.formats.includes(x), x, count('formats', (v) => v.format === x), () => toggle('formats', x)))}</div>
-          </section>
+          )}
+          <div className="segmented collection-tabs" role="group" aria-label="Collection">
+            <button className={!savedOnly ? 'on' : ''} aria-pressed={!savedOnly} onClick={() => setSavedOnly(false)}>All videos</button>
+            <button className={savedOnly ? 'on' : ''} aria-pressed={savedOnly} onClick={() => setSavedOnly(true)}><Star size={14} /> Starred {account.user && <span>{account.saved.size}</span>}</button>
+          </div>
+          <div className="chips format-chips" role="group" aria-label="Format">
+            {FORMATS.map((x) => chip(f.formats.includes(x), x, count('formats', (v) => v.format === x), () => toggle('formats', x)))}
+          </div>
+          <button className={`filters-toggle ${filtersOpen || panelCount ? 'on' : ''}`} aria-expanded={filtersOpen} aria-controls="gallery-filters" onClick={() => setFiltersOpen((o) => !o)}>
+            <SlidersHorizontal size={15} aria-hidden="true" />
+            Filters
+            {panelCount > 0 && <span className="badge-count">{panelCount}</span>}
+          </button>
+          <div className="results-count">
+            {results.length} {results.length === 1 ? 'video' : 'videos'}
+            {activeTemplate && (
+              <button className="chip on template-chip" onClick={clearTemplate} title="Remove template filter">
+                Template: {activeTemplate.title}
+                <X size={13} aria-hidden="true" />
+              </button>
+            )}
+            {active && (
+              <button className="link-btn" onClick={clear}>
+                Clear filters
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div id="gallery-filters" className={`filters ${filtersOpen ? 'open' : ''}`} hidden={!filtersOpen}>
           <section>
             <h3>Style</h3>
             <div className="chips">{vocab.style.map((s) => chip(f.styles.includes(s), s, count('styles', (v) => v.style.includes(s)), () => toggle('styles', s)))}</div>
@@ -188,42 +277,9 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
               )}
             </div>
           </section>
-        </aside>
+        </div>
 
         <main>
-          {searchField('mobile-search', 'mobile-search')}
-          <div className="results-bar">
-            <div className="segmented collection-tabs" role="group" aria-label="Collection">
-              <button className={!savedOnly ? 'on' : ''} aria-pressed={!savedOnly} onClick={() => setSavedOnly(false)}>All videos</button>
-              <button className={savedOnly ? 'on' : ''} aria-pressed={savedOnly} onClick={() => setSavedOnly(true)}><Star size={14} /> Starred {account.user && <span>{account.saved.size}</span>}</button>
-            </div>
-            <div className="results-count">
-              <button className={`filters-toggle ${filtersOpen ? 'on' : ''}`} onClick={() => setFiltersOpen((o) => !o)} title="Filters">
-                <SlidersHorizontal size={15} />
-                {activeCount > 0 && <span className="badge-count">{activeCount}</span>}
-              </button>
-              {results.length} {results.length === 1 ? 'video' : 'videos'}
-              {activeTemplate && (
-                <button className="chip on template-chip" onClick={clearTemplate} title="Remove template filter">
-                  Template: {activeTemplate.title}
-                  <X size={13} aria-hidden="true" />
-                </button>
-              )}
-              {active && (
-                <button className="link-btn" onClick={clear}>
-                  Clear filters
-                </button>
-              )}
-            </div>
-            <div className="segmented" role="group" aria-label="Sort videos">
-              {(['featured', 'new'] as Sort[]).map((s) => (
-                <button key={s} className={sort === s ? 'on' : ''} aria-pressed={sort === s} onClick={() => setSort(s)}>
-                  {s === 'featured' ? 'Featured' : 'Newest'}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {savedOnly && !account.user ? (
             <div className="empty"><Star size={24} /><span>Your starred videos live here.</span><button className="account-action" onClick={account.openAccount}>Sign in</button></div>
           ) : savedOnly && !account.savedReady ? (

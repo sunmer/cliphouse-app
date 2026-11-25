@@ -1,6 +1,6 @@
 import {
-  ArrowRight, ChevronDown, Gamepad2, Globe, ImagePlus, Palette as PaletteIcon,
-  Pencil, Pipette, RefreshCw, RotateCcw, Tag, Type, X,
+  ArrowRight, ChevronDown, ImagePlus, Palette as PaletteIcon,
+  Pencil, Pipette, RefreshCw, RotateCcw, X,
 } from 'lucide-react';
 import {useEffect, useRef, useState, type FormEvent} from 'react';
 import {THEME_ROLES, type Theme} from '../videos/vocab';
@@ -11,14 +11,11 @@ import {PRESETS, generatePalettes} from './palettes';
 import {ThemeControls, type Palette, type ThemeChange} from './ThemeControls';
 import {LogoControls} from './LogoControls';
 
-const EXAMPLES = [
-  {label: 'linear.app', value: 'linear.app', Icon: Globe},
-  {label: 'Indie game devlog', value: 'Indie game devlog: weekly progress on a cozy pixel-art farming game', Icon: Gamepad2},
-  {label: 'Weekend flash sale', value: 'Weekend flash sale: 40% off every sneaker in the store, ends Sunday', Icon: Tag},
-];
-
 const looksLikeUrl = (s: string) => /^(https?:\/\/)?[\w-]+(\.[\w-]+)+(:\d+)?(\/\S*)?$/i.test(s.trim());
 const hostOf = (s: string) => s.trim().replace(/^https?:\/\//i, '').replace(/^www\./i, '').split(/[/?#]/)[0];
+// Shown while the brand is read, so the 5-second wait says what is happening.
+const STEPS = ['Reading your site...', 'Writing your copy...', 'Matching your colors...', 'Picking the best templates...'];
+const BRIEF_STEPS = ['Reading your brief...', ...STEPS.slice(1)];
 const generate = (): Palette[] => generatePalettes(PRESETS[0].colors).slice(1);
 
 function readTexts(kit: BrandKit) {
@@ -35,6 +32,14 @@ export function BrandStrip({templateCount = 146}: {templateCount?: number}) {
   const [query, setQuery] = useState('');
   const [lastInput, setLastInput] = useState('');
   const [busy, setBusy] = useState(false);
+  const [step, setStep] = useState(0);
+  const [narrow, setNarrow] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 560px)').matches);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 560px)');
+    const onChange = () => setNarrow(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [drawer, setDrawer] = useState(false);
@@ -55,6 +60,13 @@ export function BrandStrip({templateCount = 146}: {templateCount?: number}) {
   useEffect(() => {
     if (editing) inputRef.current?.focus();
   }, [editing]);
+
+  useEffect(() => {
+    if (!busy) return;
+    setStep(0);
+    const timer = window.setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 1400);
+    return () => window.clearInterval(timer);
+  }, [busy]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -87,10 +99,13 @@ export function BrandStrip({templateCount = 146}: {templateCount?: number}) {
         theme,
         texts: result.texts ?? null,
         textsEnabled: true,
+        picks: result.picks?.length ? result.picks : null,
       });
       track('brandkit_autofill', {input_kind: result.sourceUrl ? 'url' : 'brief'});
       setEditing(false);
       setDrawer(false);
+      // The hero collapses into the compact bar, so the picked templates sit right below it at the top.
+      requestAnimationFrame(() => window.scrollTo({top: 0, behavior: 'smooth'}));
     } catch (err) {
       if (id !== runId.current) return;
       const msg = (err as Error).message;
@@ -126,7 +141,7 @@ export function BrandStrip({templateCount = 146}: {templateCount?: number}) {
   const reset = () => {
     runId.current++;
     setBusy(false);
-    setBrandKit({enabled: false, colorMode: 'exact', theme: null, logo: null, texts: null, textsEnabled: false});
+    setBrandKit({enabled: false, colorMode: 'exact', theme: null, logo: null, texts: null, textsEnabled: false, picks: null});
     setExtracted(null);
     setGenerated(null);
     setQuery('');
@@ -165,8 +180,6 @@ export function BrandStrip({templateCount = 146}: {templateCount?: number}) {
 
   if (!sharingConfigured && !personalized) return null;
 
-  const InputIcon = looksLikeUrl(query) ? Globe : Type;
-
   // Before personalization (or while editing): centered brand-first band, sized so the first row of templates stays in view.
   if (!personalized || editing) {
     return (
@@ -174,12 +187,11 @@ export function BrandStrip({templateCount = 146}: {templateCount?: number}) {
         <div className="brand-hero-inner">
           {!editing && <>
             <h1 className="brand-hero-title">Motion videos, ready to remix</h1>
-            <p className="brand-hero-sub">Pick a template below, or paste your site to preview all {templateCount} in your brand.</p>
+            <p className="brand-hero-sub">Pick a template below, or paste your site to see the best picks in your brand.</p>
           </>}
           <form className="brand-cmd" onSubmit={onSubmit} role="search" aria-label="Preview templates with your brand">
             {editing && <label htmlFor="brand-input" className="brand-cmd-label">Change brand</label>}
             <div className={`brand-cmd-field ${busy ? 'is-busy' : ''}`}>
-              <InputIcon className="brand-cmd-icon" size={16} aria-hidden="true" />
               <input
                 ref={inputRef}
                 id="brand-input"
@@ -188,7 +200,9 @@ export function BrandStrip({templateCount = 146}: {templateCount?: number}) {
                 autoComplete="off"
                 spellCheck={false}
                 maxLength={500}
-                placeholder="Paste your site URL, or describe what you're launching"
+                placeholder={narrow ? 'Your site URL or a short brief' : "Paste your site URL, or describe what you're launching"}
+                disabled={busy}
+                aria-label={editing ? undefined : 'Your site, or what you are launching'}
                 value={query}
                 onChange={(e) => { setQuery(e.target.value); if (error) setError(null); }}
                 aria-invalid={!!error}
@@ -199,24 +213,16 @@ export function BrandStrip({templateCount = 146}: {templateCount?: number}) {
                   <X size={16} />
                 </button>
               )}
-              <button type="submit" className="brand-cmd-go" disabled={!query.trim() || busy}>
-                {busy && <RefreshCw size={15} className="brand-spin" aria-hidden="true" />}
-                <span>{busy ? 'Personalizing...' : `Preview all ${templateCount}`}</span>
-                {!busy && <ArrowRight size={15} aria-hidden="true" />}
+              <button type="submit" className="brand-cmd-go" disabled={!query.trim() || busy}
+                aria-label={busy ? 'Personalizing' : `Preview templates in your brand (${templateCount} available)`}
+                title={busy ? 'Personalizing...' : 'Preview in your brand'}>
+                {busy ? <RefreshCw size={20} className="brand-spin" aria-hidden="true" /> : <ArrowRight size={20} aria-hidden="true" />}
               </button>
             </div>
           </form>
-
-          <div className="brand-examples" role="group" aria-label="Examples">
-            <span className="brand-examples-label">No site handy? Try</span>
-            {EXAMPLES.map(({label, value, Icon}) => (
-              <button key={label} type="button" className="brand-pill" disabled={busy} onClick={() => void run(value)}>
-                <Icon size={13} aria-hidden="true" />
-                {label}
-              </button>
-            ))}
-          </div>
-          {error && <p id="brand-error" className="brand-error" role="alert">{error}</p>}
+          {busy
+            ? <p className="brand-status" role="status">{(looksLikeUrl(query) ? STEPS : BRIEF_STEPS)[step]}</p>
+            : error && <p id="brand-error" className="brand-error" role="alert">{error}</p>}
         </div>
       </section>
     );

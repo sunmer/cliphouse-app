@@ -58,6 +58,7 @@ export type UploadedLogo = {id: string; ratio: number; mono: boolean; transparen
 export type AutofilledBrand = {
   texts: Partial<Record<import('../videos/vocab').Role, string>>;
   theme: import('../videos/vocab').Theme;
+  picks?: string[];
   sourceUrl?: string;
 };
 export async function autofillBrand(prompt: string): Promise<AutofilledBrand> {

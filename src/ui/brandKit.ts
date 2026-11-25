@@ -12,6 +12,8 @@ export type BrandKit = {
   texts?: Partial<Record<Role, string>> | null;
   textsEnabled?: boolean;
   colorMode?: ColorMode;
+  // Variant ids the autofill ranked as the best fit, best first. null shows the whole gallery.
+  picks?: string[] | null;
 };
 
 // A new key: kits saved under the old `voodoo:brandkit` key (text and colors) are ignored.
@@ -20,6 +22,9 @@ const empty: BrandKit = {enabled: false, theme: null};
 export const isHex = (value: string) => /^#[0-9a-f]{6}$/i.test(value);
 const LOGO_KEY = 'cliphouse:brandkit:logo';
 const TEXTS_KEY = 'cliphouse:brandkit:texts';
+const PICKS_KEY = 'cliphouse:brandkit:picks';
+const cleanPicks = (value: unknown): string[] | null =>
+  Array.isArray(value) && value.length && value.every((x) => typeof x === 'string') ? value.slice(0, 20) as string[] : null;
 const isLogo = (value: unknown): value is Logo => !!value && typeof value === 'object' && LOGO_ID.test(String((value as Logo).id))
   && typeof (value as Logo).ratio === 'number' && typeof (value as Logo).mono === 'boolean';
 
@@ -44,11 +49,12 @@ function load(): BrandKit {
     const savedLogo = JSON.parse(localStorage.getItem(LOGO_KEY) ?? 'null') as unknown;
     const logo = isLogo(savedLogo) ? savedLogo : null;
     const texts = cleanTexts(JSON.parse(localStorage.getItem(TEXTS_KEY) ?? 'null'));
-    if (!raw) return {...empty, logo, texts, textsEnabled: !!texts};
+    const picks = cleanPicks(JSON.parse(localStorage.getItem(PICKS_KEY) ?? 'null'));
+    if (!raw) return {...empty, logo, texts, textsEnabled: !!texts, picks};
     const theme = isTheme(raw.theme) ? raw.theme : null;
     const textsEnabled = raw.textsEnabled !== false && !!texts;
     const colorMode: ColorMode = raw.colorMode === 'adaptive' ? 'adaptive' : 'exact';
-    return {enabled: raw.enabled === true && !!theme, theme, logo, texts, textsEnabled, colorMode};
+    return {enabled: raw.enabled === true && !!theme, theme, logo, texts, textsEnabled, colorMode, picks};
   } catch {
     return empty;
   }
@@ -62,17 +68,20 @@ export function setBrandKit(next: BrandKit | ((k: BrandKit) => BrandKit)) {
   const texts = value.texts === undefined ? current.texts : cleanTexts(value.texts);
   const textsEnabled = value.textsEnabled === undefined ? (texts ? current.textsEnabled !== false : false) : (value.textsEnabled && !!texts);
   const colorMode: ColorMode = value.colorMode ?? current.colorMode ?? 'exact';
+  const picks = value.picks === undefined ? current.picks ?? null : cleanPicks(value.picks);
   current = {
     ...value,
     logo: value.logo === undefined ? current.logo : value.logo,
     texts,
     textsEnabled,
     colorMode,
+    picks,
   };
   try {
     localStorage.setItem(KEY, JSON.stringify({enabled: current.enabled, theme: current.theme, textsEnabled: current.textsEnabled, colorMode: current.colorMode}));
     if (current.logo) localStorage.setItem(LOGO_KEY, JSON.stringify(current.logo)); else localStorage.removeItem(LOGO_KEY);
     if (current.texts) localStorage.setItem(TEXTS_KEY, JSON.stringify(current.texts)); else localStorage.removeItem(TEXTS_KEY);
+    if (current.picks) localStorage.setItem(PICKS_KEY, JSON.stringify(current.picks)); else localStorage.removeItem(PICKS_KEY);
   } catch { /* Storage is unavailable. */ }
   listeners.forEach((l) => l());
 }
