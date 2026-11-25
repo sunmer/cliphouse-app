@@ -32,10 +32,20 @@ const launchIds = new Set(JSON.parse(read('src/videos/launch/ids.ts').toString()
 const hfAssets = [
   ['assets/gsap.min.js', 'node_modules/gsap/dist/gsap.min.js'],
   ['assets/fonts/archivo.woff2', 'node_modules/@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2'],
+  ['assets/fonts/archivo-ext.woff2', 'node_modules/@fontsource-variable/archivo/files/archivo-latin-ext-wght-normal.woff2'],
+  ['assets/fonts/archivo-vi.woff2', 'node_modules/@fontsource-variable/archivo/files/archivo-vietnamese-wght-normal.woff2'],
   ['assets/fonts/fraunces.woff2', 'node_modules/@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2'],
+  ['assets/fonts/fraunces-ext.woff2', 'node_modules/@fontsource-variable/fraunces/files/fraunces-latin-ext-wght-normal.woff2'],
+  ['assets/fonts/fraunces-vi.woff2', 'node_modules/@fontsource-variable/fraunces/files/fraunces-vietnamese-wght-normal.woff2'],
   ['assets/fonts/fraunces-italic.woff2', 'node_modules/@fontsource-variable/fraunces/files/fraunces-latin-wght-italic.woff2'],
   ['assets/fonts/inter.woff2', 'node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2'],
+  ['assets/fonts/inter-ext.woff2', 'node_modules/@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2'],
+  ['assets/fonts/inter-vi.woff2', 'node_modules/@fontsource-variable/inter/files/inter-vietnamese-wght-normal.woff2'],
+  ['assets/fonts/inter-cyr.woff2', 'node_modules/@fontsource-variable/inter/files/inter-cyrillic-wght-normal.woff2'],
   ['assets/fonts/jetbrains-mono.woff2', 'node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2'],
+  ['assets/fonts/jetbrains-mono-ext.woff2', 'node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-ext-wght-normal.woff2'],
+  ['assets/fonts/jetbrains-mono-vi.woff2', 'node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-vietnamese-wght-normal.woff2'],
+  ['assets/fonts/jetbrains-mono-cyr.woff2', 'node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-cyrillic-wght-normal.woff2'],
 ];
 
 const pascal = (id) => id[0].toUpperCase() + id.slice(1);

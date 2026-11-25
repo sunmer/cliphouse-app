@@ -217,7 +217,7 @@ export function AccountProvider({children}: {children: ReactNode}) {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({prompt: 'select_account'});
       const result = await signInWithPopup(auth, provider);
-      track('login', {method: 'Google', ...(mode ? {source: mode === 'gate' ? 'signup_gate' : 'signup_prompt'} : {})});
+      track('login', {method: 'Google', ...(mode ? {login_trigger: mode === 'gate' ? 'signup_gate' : 'signup_prompt'} : {})});
       setOpen(false);
       setIntent(null);
       setMode(null);

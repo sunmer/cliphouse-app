@@ -1,6 +1,6 @@
 import {HYPERFRAMES_TEMPLATES} from '../videos/engine.ts';
 
-export const reviewedAt = '2026-10-08';
+export const reviewedAt = '2026-11-25';
 
 export const useCases = [
   {
@@ -412,9 +412,84 @@ export const editorialPages = [
       ['Limits', 'AI-generated motion is not automatically production-ready. Review the timing, legibility, accessibility, rights to any added assets, and Remotion license requirements before publishing.'],
     ],
   },
+  {
+    path: '/guides/best-ai-model-for-remotion-motion-graphics/',
+    title: 'Best AI Models for Remotion Motion Graphics (84-Run Benchmark Summary) | cliphou.se',
+    h1: 'Best AI models for Remotion motion graphics',
+    description: 'Data-backed model guide from 84 real Remotion motion graphics runs across 14 models: first-attempt render rates, generation speed, and API cost per video.',
+    intro: 'We tested 14 AI models across 84 real Remotion renders (product launch, kinetic typography, and animated data story) under one fixed contract. Here is what the measured reliability and cost numbers show.',
+    match: (v) => ['bento-launch', 'pixel-arcade', 'threesteps-explainer', 'flashdrop-sale', 'creatorlower-pack', 'ytoutrocard-creator'].includes(v.id),
+    sections: [
+      ['100% first-attempt reliability tier', 'Four models rendered 6 out of 6 runs on the first try with zero repairs: Claude Sonnet 5.5 (57.1s avg, $0.093/video), GPT-6.1 Sol (135.5s avg, $0.077/video), Gemini 4 Argon (116.9s avg, $0.158/video), and Claude Opus 5.5 (194.0s avg, $0.236/video).'],
+      ['Best speed-to-reliability balance', 'Claude Sonnet 5.5 was the fastest 100%-reliable model in the benchmark at 57.1 seconds average generation time per 12-second Remotion video, while GPT-6.1 Sol was the lowest-cost model in the 6/6 first-pass tier at $0.077 per run.'],
+      ['Best budget and free models', 'For high-volume iteration or prototyping, GPT-6 Luna rendered 6/6 runs (5/6 first pass) at $0.0057/video, Claude Haiku 5.5 passed 5/6 at $0.0079/video in 62.4s, and MiniMax M3.1 Flash rendered 6/6 (5/6 first pass) on its free endpoint.'],
+      ['When to skip generation and start from a template', 'Even reliable models take 1 to 3 minutes per draft and still need visual QA. Starting from a verified MIT-0 template on cliphou.se lets you personalize copy and colors in seconds, then export MP4 or hand the exact source code to your coding agent for deeper edits.'],
+      ['Inspect every video and source file', 'Every run, generated TSX file, error log, and measured cost from this summary is published with side-by-side video playback on the cliphou.se Motion Graphics Benchmark page at /benchmark/.'],
+    ],
+  },
+  {
+    path: '/remotion-youtube-intros/',
+    title: 'Free Remotion YouTube Intro, Lower Third & Outro Templates | cliphou.se',
+    h1: 'Remotion YouTube intro and creator templates',
+    description: 'Free MIT-0 Remotion templates for YouTube intros, retro openers, lower thirds, and end screens. Edit text and colors online or render with the Remotion CLI.',
+    intro: 'Open-source Remotion compositions built for YouTube channels, podcasts, and creator videos. Customize copy and brand colors in the browser or render from code.',
+    match: (v) => !HYPERFRAMES_TEMPLATES.includes(v.template) && (v.purpose === 'Creator video' || v.useCases.some((u) => ['youtube-intro', 'youtube-end-screen', 'lower-thirds', 'gaming-intro', 'subscribe'].includes(u))),
+    sections: [
+      ['Built for creator workflows', 'Includes widescreen 16:9 channel openers, retro arcade and VHS intros, interview lower thirds, and steady end-screen outros timed for YouTube Studio cards.'],
+      ['Edit online or in code', 'Preview every template with your channel name and brand palette right in cliphou.se, export a watermark-free MP4, or download the MIT-0 Remotion project to render locally.'],
+      ['Multilingual typography', 'Bundled variable fonts include Latin, Latin-Extended, Vietnamese, and Cyrillic character sets so international channel titles render crisply without system fallbacks.'],
+    ],
+  },
+  {
+    path: '/remotion-saas-launch/',
+    title: 'Free Remotion SaaS Launch & Product Demo Templates | cliphou.se',
+    h1: 'Remotion SaaS launch and demo templates',
+    description: 'Free MIT-0 Remotion templates for SaaS product launches, 3-step explainers, feature drops, and release notes. Personalize with one prompt or edit in React.',
+    intro: 'Ship launch videos, 3-step explainers, and feature updates in Remotion without starting from a blank composition.',
+    match: (v) => !HYPERFRAMES_TEMPLATES.includes(v.template) && (v.useCases.includes('saas') || v.useCases.includes('product-launch') || v.useCases.includes('feature-launch')),
+    sections: [
+      ['Structured for product storytelling', 'Every SaaS template follows a shared props schema (brand, headline, subhead, three proof points, and CTA) so you can compare dozens of layouts with the same copy.'],
+      ['CI and coding-agent ready', 'Each template ships with an agent.json schema and pinned Remotion source package. Wire it into a release script or let Claude Code and Codex fill props from your changelog.'],
+      ['Commercial-friendly MIT-0 code', 'All template source files are MIT-0 licensed with zero attribution required. Remotion keeps its own license terms when you render locally.'],
+    ],
+  },
+  {
+    path: '/remotion-ecommerce-ads/',
+    title: 'Free Remotion E-Commerce, Flash Sale & Social Ad Templates | cliphou.se',
+    h1: 'Remotion e-commerce and promo ad templates',
+    description: 'Free MIT-0 Remotion video templates for flash sales, Black Friday promos, product drops, and 9:16 social ads. Edit prices and offers online or automate from a feed.',
+    intro: 'High-contrast vertical 9:16, square 1:1, and widescreen promo templates for seasonal sales, price drops, and paid social campaigns.',
+    match: (v) => !HYPERFRAMES_TEMPLATES.includes(v.template) && (v.purpose === 'Holiday sale' || v.purpose === 'Social ad' || v.useCases.some((u) => ['sale', 'flash-sale', 'black-friday', 'cyber-monday', 'social-ad'].includes(u))),
+    sections: [
+      ['Made for price and offer swaps', 'Templates use dedicated price, priceNote, headline, and CTA props so you can swap SKUs, discount percentages, and deadlines without touching animation keyframes.'],
+      ['Batch render catalog promos', 'Download the standalone Remotion project and pass a JSON props file per product or campaign to automate localized ads across currencies and languages.'],
+      ['Zero watermarks', 'Export full-resolution MP4s for Instagram Reels, TikTok, and YouTube Shorts directly from cliphou.se or render in your own pipeline.'],
+    ],
+  },
 ];
 
 export const comparisons = [
+  {
+    path: '/remotion-vs-hyperframes/',
+    title: 'Remotion vs HyperFrames for Code-Driven Motion Graphics | cliphou.se',
+    h1: 'Remotion vs HyperFrames for motion graphics',
+    description: 'Compare Remotion and HyperFrames for programmatic video templates, AI generation, React vs HTML/GSAP authoring, rendering, and licensing. Updated November 2026.',
+    intro: 'cliphou.se ships MIT-0 templates for both Remotion and HyperFrames behind the same editing contract. Here is how the two code-driven video engines compare.',
+    competitor: 'HyperFrames',
+    sources: [
+      ['Remotion documentation', 'https://www.remotion.dev/docs/'],
+      ['HyperFrames CLI', 'https://www.npmjs.com/package/hyperframes'],
+    ],
+    rows: [
+      ['Authoring model', 'React and TypeScript components driven by useCurrentFrame(), spring(), and interpolate() (Remotion).', 'Single self-contained HTML, CSS, and paused GSAP timeline driven by data-var-text and variables.json (HyperFrames).'],
+      ['Best fit', 'Data-heavy charts, React component reuse, 3D scenes with Three.js, and programmatic CI pipelines.', 'Fast typography-led launch videos, single-file HTML portability, and direct CSS/GSAP motion authoring.'],
+      ['Editable props', 'Typed Zod schemas and props.json passed via --props=props.json.', 'Declared data attributes and variables.json checked by npx hyperframes check.'],
+      ['Local render CLI', 'npx remotion render src/index.ts <Template> out/video.mp4 --props=props.json', 'npx hyperframes render --variables=variables.json'],
+      ['cliphou.se templates', '100+ Remotion templates covering SaaS launches, YouTube intros, lower thirds, charts, and 3D.', 'Native HyperFrames launch, changelog, pricing, and announcement templates with bundled music options.'],
+      ['Template license', 'All cliphou.se template code is MIT-0 (Remotion runtime keeps its own license).', 'All cliphou.se template code is MIT-0 (GSAP and bundled fonts keep their own licenses).'],
+    ],
+    match: (v) => ['bento-launch', 'pixel-arcade', 'threesteps-explainer', 'signal-orbit', 'featuredrop-launch', 'apirelease-launch'].includes(v.id) || HYPERFRAMES_TEMPLATES.includes(v.template),
+  },
   {
     path: '/canva-video-alternative/',
     title: 'Canva Video Alternative for Motion Graphics | cliphou.se',

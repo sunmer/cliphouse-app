@@ -64,8 +64,9 @@ function applyLive(doc: Document, props: VideoProps, meta: CompositionDef) {
 }
 
 export const VideoPlayer = forwardRef<VideoPlayerRef, {
-  composition: CompositionDef; props: VideoProps; autoPlay: boolean; style?: CSSProperties;
-}>(function VideoPlayer({composition: c, props, autoPlay, style}, ref) {
+  composition: CompositionDef; props: VideoProps; autoPlay: boolean; startFrame?: number; style?: CSSProperties;
+}>(function VideoPlayer({composition: c, props, autoPlay, startFrame, style}, ref) {
+  const initialFrame = startFrame ?? c.posterFrame;
   const remotion = useRef<PlayerRef>(null);
   const hyper = useRef<HFPlayer>(null);
   const listeners = useRef(new Map<string, Set<Listener>>());
@@ -169,7 +170,7 @@ export const VideoPlayer = forwardRef<VideoPlayerRef, {
   }, [props, readyDocument, c]);
 
   if (c.engine === 'remotion') return <Player ref={remotion} component={c.component} inputProps={props} durationInFrames={c.durationInFrames}
-    compositionWidth={c.width} compositionHeight={c.height} fps={c.fps} initialFrame={c.posterFrame} loop autoPlay={autoPlay}
+    compositionWidth={c.width} compositionHeight={c.height} fps={c.fps} initialFrame={initialFrame} loop autoPlay={autoPlay}
     controls={false} clickToPlay={false} doubleClickToFullscreen={false} spaceKeyToPlayOrPause={false} acknowledgeRemotionLicense style={style} />;
   return <hyperframes-player ref={hyper} srcdoc={srcdoc} runtime-src={runtimeSrc()} width={c.width} height={c.height} loop={true}
     disable-click-to-play="" assets-loading-ui="none" style={{display: 'block', ...style}} />;

@@ -24,15 +24,59 @@ const hsl = (h: number, s: number, l: number) => {
   const channel = (n: number) => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))));
   return `#${[0, 8, 4].map((n) => channel(n).toString(16).padStart(2, '0')).join('')}`;
 };
-const luminance = (hex: string) => {
+export const luminance = (hex: string) => {
   const values = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
     .map((v) => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
   return 0.2126 * values[0] + 0.7152 * values[1] + 0.0722 * values[2];
 };
-const contrast = (a: string, b: string) => {
+export const contrast = (a: string, b: string) => {
   const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
   return (hi + 0.05) / (lo + 0.05);
 };
+
+function hexToHsl(hex: string): [number, number, number] {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  if (max === min) return [0, 0, l * 100];
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  const h = max === r ? ((g - b) / d + (g < b ? 6 : 0)) : max === g ? ((b - r) / d + 2) : ((r - g) / d + 4);
+  return [h * 60, s * 100, l * 100];
+}
+
+function tuneAccent(accent: string, bg: string): string {
+  if (contrast(accent, bg) >= 3.2) return accent;
+  const [h, s, l] = hexToHsl(accent);
+  const bgLight = luminance(bg) > 0.35;
+  const sat = Math.max(s, 55);
+  for (let step = 1; step <= 14; step++) {
+    const nextL = bgLight ? Math.max(18, l - step * 5) : Math.min(84, l + step * 5);
+    const candidate = hsl(h, sat, nextL);
+    if (contrast(candidate, bg) >= 3.5) return candidate;
+  }
+  return hsl(h, sat, bgLight ? 32 : 70);
+}
+
+/**
+ * Apply a brand palette while respecting each template's dark/light polarity.
+ * Matching-tone templates take the full 5-color brand palette; opposite-tone templates
+ * keep their curated background/surface/foreground and adopt contrast-checked brand accents.
+ */
+export function adaptBrandTheme(original: Theme, brand: Theme): Theme {
+  const sameTone = (luminance(original.background) > 0.35) === (luminance(brand.background) > 0.35);
+  if (sameTone) return {...brand};
+  return {
+    background: original.background,
+    surface: original.surface,
+    foreground: original.foreground,
+    accent: tuneAccent(brand.accent, original.background),
+    accent2: tuneAccent(brand.accent2, original.background),
+  };
+}
 const between = (random: () => number, min: number, max: number) => min + random() * (max - min);
 const hue = (value: number) => ((value % 360) + 360) % 360;
 const NAMES = ['Signal', 'Studio', 'Bloom', 'Current', 'Atlas', 'Pop', 'Field', 'Vapor', 'Mono', 'Tide', 'Flare', 'Grove'];

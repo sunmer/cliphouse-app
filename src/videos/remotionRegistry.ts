@@ -188,6 +188,18 @@ import {Productpulse} from './productpulse/Productpulse';
 import {productpulseSchema} from './productpulse/schema';
 import {Launchcut} from './launchcut/Launchcut';
 import {launchcutSchema} from './launchcut/schema';
+import {Retroconsole} from './retroconsole/Retroconsole';
+import {retroconsoleSchema} from './retroconsole/schema';
+import {Creatorlower} from './creatorlower/Creatorlower';
+import {creatorlowerSchema} from './creatorlower/schema';
+import {Ytoutrocard} from './ytoutrocard/Ytoutrocard';
+import {ytoutrocardSchema} from './ytoutrocard/schema';
+import {Flashdrop} from './flashdrop/Flashdrop';
+import {flashdropSchema} from './flashdrop/schema';
+import {Threesteps} from './threesteps/Threesteps';
+import {threestepsSchema} from './threesteps/schema';
+import {Explainerreel} from './explainerreel/Explainerreel';
+import {explainerreelSchema} from './explainerreel/schema';
 
 export type RemotionCompositionDef = TemplateMeta & {engine: 'remotion'; component: React.FC<any>; schema: VideoSchema};
 
@@ -284,4 +296,10 @@ export const remotionCompositions: Record<string, RemotionCompositionDef> = {
   beatreel: {...templateMeta.beatreel, component: Beatreel, engine: 'remotion', schema: beatreelSchema as unknown as VideoSchema},
   productpulse: {...templateMeta.productpulse, component: Productpulse, engine: 'remotion', schema: productpulseSchema as unknown as VideoSchema},
   launchcut: {...templateMeta.launchcut, component: Launchcut, engine: 'remotion', schema: launchcutSchema as unknown as VideoSchema},
+  retroconsole: {...templateMeta.retroconsole, component: Retroconsole, engine: 'remotion', schema: retroconsoleSchema as unknown as VideoSchema},
+  creatorlower: {...templateMeta.creatorlower, component: Creatorlower, engine: 'remotion', schema: creatorlowerSchema as unknown as VideoSchema},
+  ytoutrocard: {...templateMeta.ytoutrocard, component: Ytoutrocard, engine: 'remotion', schema: ytoutrocardSchema as unknown as VideoSchema},
+  flashdrop: {...templateMeta.flashdrop, component: Flashdrop, engine: 'remotion', schema: flashdropSchema as unknown as VideoSchema},
+  threesteps: {...templateMeta.threesteps, component: Threesteps, engine: 'remotion', schema: threestepsSchema as unknown as VideoSchema},
+  explainerreel: {...templateMeta.explainerreel, component: Explainerreel, engine: 'remotion', schema: explainerreelSchema as unknown as VideoSchema},
 };

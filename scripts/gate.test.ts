@@ -4,19 +4,15 @@ import {FREE_VIDEOS, checkOpen, looksAutomated} from '../src/services/gate.ts';
 
 const memory = () => { const m = new Map<string, string>(); return {getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => { m.set(k, v); }}; };
 
-test('counts distinct videos, prompts at 2, and gates the 4th new video', () => {
+test('allows unlimited browsing without prompting or gating', () => {
   const store = memory();
-  assert.equal(FREE_VIDEOS, 3);
-  assert.equal(checkOpen('a', store), 'open');
-  assert.equal(checkOpen('a', store), 'open');
-  assert.equal(checkOpen('b', store), 'prompt');
-  assert.equal(checkOpen('b', store), 'open');
-  assert.equal(checkOpen('c', store), 'open');
-  assert.equal(checkOpen('d', store), 'gate');
-  assert.equal(checkOpen('d', store), 'gate', 'a blocked video is not recorded');
-  for (const id of ['a', 'b', 'c']) assert.equal(checkOpen(id, store), 'open', 'opened videos stay free');
+  assert.equal(FREE_VIDEOS, Infinity);
+  for (const id of ['a', 'a', 'b', 'c', 'd', 'e', 'f']) {
+    assert.equal(checkOpen(id, store), 'open');
+  }
+  assert.deepEqual(JSON.parse(store.getItem('cliphouse:opened-videos') ?? '[]'), ['a', 'b', 'c', 'd', 'e', 'f']);
 });
-test('the soft prompt shows only once and broken storage never blocks', () => {
+test('broken storage never blocks opening a video', () => {
   const store = memory();
   checkOpen('a', store); checkOpen('b', store);
   store.setItem('cliphouse:opened-videos', '["a"]');

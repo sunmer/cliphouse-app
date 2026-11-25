@@ -96,6 +96,12 @@ import {pricedropSchema} from './pricedrop/schema.ts';
 import {beatreelSchema} from './beatreel/schema.ts';
 import {productpulseSchema} from './productpulse/schema.ts';
 import {launchcutSchema} from './launchcut/schema.ts';
+import {retroconsoleSchema} from './retroconsole/schema.ts';
+import {creatorlowerSchema} from './creatorlower/schema.ts';
+import {ytoutrocardSchema} from './ytoutrocard/schema.ts';
+import {flashdropSchema} from './flashdrop/schema.ts';
+import {threestepsSchema} from './threesteps/schema.ts';
+import {explainerreelSchema} from './explainerreel/schema.ts';
 import {featuredropSchema} from './featuredrop/schema.ts';
 import {eventcountdownSchema} from './eventcountdown/schema.ts';
 
@@ -158,6 +164,12 @@ export const schemas = {
   beatreel: beatreelSchema,
   productpulse: productpulseSchema,
   launchcut: launchcutSchema,
+  retroconsole: retroconsoleSchema,
+  creatorlower: creatorlowerSchema,
+  ytoutrocard: ytoutrocardSchema,
+  flashdrop: flashdropSchema,
+  threesteps: threestepsSchema,
+  explainerreel: explainerreelSchema,
   featuredrop: featuredropSchema,
   eventcountdown: eventcountdownSchema,
   ...launchSchemas,

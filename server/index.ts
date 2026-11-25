@@ -8,6 +8,7 @@ import {renderThumbnail, renderVideo} from './render.ts';
 import {createLoopService, createPreviewRenderer, createPreviewService, createRemoteLoopRenderer, createRenderGate} from './preview.ts';
 import {setLogoReader} from './hyperframes.ts';
 import {previewAppHtml} from './mcp-app.ts';
+import {autofillBrandKit} from './autofill.ts';
 
 const projectId = process.env.GOOGLE_CLOUD_PROJECT;
 const bucket = process.env.SHARE_BUCKET;
@@ -45,6 +46,7 @@ const handler = createHandler({
   verify: (token) => getAuth().verifyIdToken(token, true),
   previewApp: previewAppHtml(manifest, origin),
   edgeSecret: process.env.EDGE_SECRET || undefined,
+  autofill: process.env.ANTHROPIC_API_KEY ? (prompt) => autofillBrandKit(prompt) : undefined,
 });
 const server = createServer(handler);
 server.requestTimeout = 290_000;

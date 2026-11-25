@@ -96,6 +96,12 @@ import {pricedropMeta} from './pricedrop/meta.ts';
 import {beatreelMeta} from './beatreel/meta.ts';
 import {productpulseMeta} from './productpulse/meta.ts';
 import {launchcutMeta} from './launchcut/meta.ts';
+import {retroconsoleMeta} from './retroconsole/meta.ts';
+import {creatorlowerMeta} from './creatorlower/meta.ts';
+import {ytoutrocardMeta} from './ytoutrocard/meta.ts';
+import {flashdropMeta} from './flashdrop/meta.ts';
+import {threestepsMeta} from './threesteps/meta.ts';
+import {explainerreelMeta} from './explainerreel/meta.ts';
 import {featuredropMeta} from './featuredrop/meta.ts';
 import {eventcountdownMeta} from './eventcountdown/meta.ts';
 
@@ -196,6 +202,12 @@ export const templateMeta: Record<string, TemplateMeta> = {
   [beatreelMeta.id]: beatreelMeta,
   [productpulseMeta.id]: productpulseMeta,
   [launchcutMeta.id]: launchcutMeta,
+  [retroconsoleMeta.id]: retroconsoleMeta,
+  [creatorlowerMeta.id]: creatorlowerMeta,
+  [ytoutrocardMeta.id]: ytoutrocardMeta,
+  [flashdropMeta.id]: flashdropMeta,
+  [threestepsMeta.id]: threestepsMeta,
+  [explainerreelMeta.id]: explainerreelMeta,
   [featuredropMeta.id]: featuredropMeta,
   [eventcountdownMeta.id]: eventcountdownMeta,
   ...launchMeta,

@@ -55,6 +55,19 @@ export async function exportVideo(variantId: string, props: VideoProps, template
 }
 
 export type UploadedLogo = {id: string; ratio: number; mono: boolean; transparent: boolean; url: string};
+export type AutofilledBrand = {
+  texts: Partial<Record<import('../videos/vocab').Role, string>>;
+  theme: import('../videos/vocab').Theme;
+  sourceUrl?: string;
+};
+export async function autofillBrand(prompt: string): Promise<AutofilledBrand> {
+  if (!sharingConfigured) throw new Error('AI auto-fill is not available yet.');
+  return request('/api/autofill', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({prompt}),
+  }, false);
+}
 // Rasterized and stored by the share service; the browser sends the file as base64 JSON.
 export async function uploadLogo(file: File): Promise<UploadedLogo> {
   if (!sharingConfigured) throw new Error('Logo uploads are not available yet.');

@@ -1,7 +1,7 @@
-// Account gate for catalog videos opened in the editor.
-// A conversion prompt, not a security control: clearing site data resets it.
-export const FREE_VIDEOS = 3;
-export const SOFT_PROMPT_AT = 2;
+// Browsing and editing catalog videos is unlimited without an account.
+// Sign-in is requested only for cloud actions (MP4 export, save, publish, stars, logo upload).
+export const FREE_VIDEOS = Infinity;
+export const SOFT_PROMPT_AT = Infinity;
 export const OPENED_KEY = 'cliphouse:opened-videos';
 const PROMPTED_KEY = 'cliphouse:signup-prompted';
 
@@ -15,18 +15,13 @@ function read(store: Storage): string[] {
   } catch { return []; }
 }
 
-// Decide whether a signed-out visitor may open `variantId`. Videos already opened stay free.
-// A blocked video is not recorded, so going back and reopening it still shows the gate.
+// Track opened catalog videos without blocking exploration.
 export function checkOpen(variantId: string, store: Storage): GateResult {
   const opened = read(store);
   if (opened.includes(variantId)) return 'open';
-  if (opened.length >= FREE_VIDEOS) return 'gate';
   opened.push(variantId);
   try { store.setItem(OPENED_KEY, JSON.stringify(opened)); } catch { return 'open'; }
-  if (opened.length === SOFT_PROMPT_AT && store.getItem(PROMPTED_KEY) !== '1') {
-    try { store.setItem(PROMPTED_KEY, '1'); } catch { /* still prompt once this session */ }
-    return 'prompt';
-  }
+  void PROMPTED_KEY;
   return 'open';
 }
 

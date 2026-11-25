@@ -4,6 +4,7 @@ import type {Variant} from '../catalog/catalog';
 import type {VideoProps} from '../videos/contract';
 import {publishVideo, sharingConfigured, type SharedVideo} from '../services/sharing';
 import {track} from '../services/analytics';
+import {MAX_HANDOFF_CHARS, handoffPath} from '../agent/versions';
 import {useAccount} from './Account';
 import {compositionFor} from '../videos/registry';
 import {VideoThumbnail} from './VideoPlayer';
@@ -29,6 +30,10 @@ export function ShareButton({variant, props, templateVersion, disabled, beforeOp
   const composition = compositionFor(variant.template, templateVersion);
   const key = JSON.stringify(props);
   const published = result?.key === key ? result.value : null;
+  const encodedProps = encodeURIComponent(key);
+  const staticUrl = !sharingConfigured && encodedProps.length <= MAX_HANDOFF_CHARS
+    ? `${location.origin}${location.pathname.replace(/\/$/, '')}${handoffPath(variant.id, props, templateVersion)}` : '';
+  const link = published ? {url: published.url, title: published.title} : staticUrl ? {url: staticUrl, title: variant.title} : null;
   const mounted = useRef(true);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   useEffect(() => {
@@ -51,21 +56,21 @@ export function ShareButton({variant, props, templateVersion, disabled, beforeOp
     } finally { if (mounted.current) setBusy(false); }
   };
   const copy = async () => {
-    if (!published) return;
-    try { await navigator.clipboard.writeText(published.url); setCopied(true); }
+    if (!link) return;
+    try { await navigator.clipboard.writeText(link.url); setCopied(true); if (!published) track('share_link', {variant_id: variant.id}); }
     catch { setError('Select the link below to copy it.'); }
   };
   const share = async () => {
-    if (!published) return;
-    try { await navigator.share({url: published.url, title: published.title}); }
+    if (!link) return;
+    try { await navigator.share({url: link.url, title: link.title}); }
     catch (e) { if ((e as Error).name !== 'AbortError') setError('The share sheet could not open. Copy the link instead.'); }
   };
   const openDialog = () => { beforeOpen(); setCopied(false); setError(''); setOpen(true); };
   const social = (network: 'x' | 'linkedin') => {
-    if (!published) return;
-    const url = encodeURIComponent(published.url);
+    if (!link) return;
+    const url = encodeURIComponent(link.url);
     const href = network === 'x'
-      ? `https://x.com/intent/post?url=${url}&text=${encodeURIComponent(published.title)}`
+      ? `https://x.com/intent/post?url=${url}&text=${encodeURIComponent(link.title)}`
       : `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
     window.open(href, '_blank', 'noopener,noreferrer');
     track('share_social', {variant_id: variant.id, network});
@@ -80,10 +85,13 @@ export function ShareButton({variant, props, templateVersion, disabled, beforeOp
         <h2 id="share-title">Share video</h2>
         <button className="icon-btn ghost" aria-label="Close share" disabled={busy} onClick={close}><X size={18} /></button>
       </div>
-      {published ? <>
-        <img className="share-preview" src={published.image} alt={published.title} />
-        <label className="share-link-label" htmlFor="share-link">Public link</label>
-        <input id="share-link" className="share-link" value={published.url} readOnly onFocus={(e) => e.target.select()} />
+      {link ? <>
+        {published ? <img className="share-preview" src={published.image} alt={published.title} />
+          : <VideoThumbnail composition={composition} props={props}
+            style={{width: '100%', aspectRatio: `${composition.width} / ${composition.height}`, maxHeight: 220, objectFit: 'contain'}} />}
+        <label className="share-link-label" htmlFor="share-link">{published ? 'Public link' : 'Edit link'}</label>
+        <input id="share-link" className="share-link" value={link.url} readOnly onFocus={(e) => e.target.select()} />
+        {!published && <p className="muted">Anyone with this link can open this edit.</p>}
         <div className="share-actions">
           <button className="account-action" onClick={copy}>{copied ? <Check size={17} /> : <Copy size={17} />}{copied ? 'Copied' : 'Copy link'}</button>
           <button className="account-action" onClick={() => social('x')}><XMark />Post on X</button>
@@ -94,7 +102,7 @@ export function ShareButton({variant, props, templateVersion, disabled, beforeOp
         <VideoThumbnail composition={composition} props={props}
           style={{width: '100%', aspectRatio: `${composition.width} / ${composition.height}`, maxHeight: 220, objectFit: 'contain'}} />
         <p className="muted">Publishing makes a copy of this edit visible to anyone with the link.</p>
-        {!sharingConfigured ? <p role="status">Publishing is not available yet. Your edits remain on this device.</p>
+        {!sharingConfigured ? <p role="status">This edit is too large for a link. Your edits remain on this device.</p>
           : !account.ready ? <p role="status">Checking your account...</p>
           : <button className="account-action" disabled={busy} onClick={publish}>
             {busy ? <LoaderCircle className="spin" size={17} /> : <Share2 size={17} />}{busy ? 'Preparing link...' : account.user ? 'Publish link' : 'Sign in to publish'}

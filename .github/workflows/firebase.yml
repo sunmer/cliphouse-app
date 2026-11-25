@@ -63,11 +63,8 @@ jobs:
           --allow-unauthenticated --cpu 2 --memory 2Gi --concurrency 8
           --min-instances 1 --max-instances 2 --timeout 300 --cpu-boost
           --set-env-vars GOOGLE_CLOUD_PROJECT=cliphouse-app,SHARE_BUCKET=cliphouse-app-shares,PUBLIC_ORIGIN=https://cliphou.se,RENDER_VERSION=${{ github.sha }}${{ vars.LOOP_WORKER_URL != '' && format(',LOOP_WORKER_URL={0}', vars.LOOP_WORKER_URL) || '' }}
-          ${{ vars.EDGE_SECRET_ENABLED == 'true' && '--set-secrets EDGE_SECRET=cliphouse-edge-secret:latest' || '' }}
+          --set-secrets ANTHROPIC_API_KEY=cliphouse-anthropic-key:latest${{ vars.EDGE_SECRET_ENABLED == 'true' && ',EDGE_SECRET=cliphouse-edge-secret:latest' || '' }}
           --quiet
-      # Private loop worker: the share service image with its own CPUs, so preview loops never slow posters.
-      # One warm instance renders one gallery (3 loops) at once with its persistent browsers; busier times
-      # add instances up to the cap. Only the share service account may call it. It reuses the image just built.
       - name: Deploy loop worker
         if: ${{ vars.VITE_SHARE_API_ORIGIN != '' && vars.LOOP_WORKER_URL != '' }}
         run: >-

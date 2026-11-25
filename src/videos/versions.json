@@ -2,1105 +2,1153 @@
   "showreel": [
     {
       "version": 1,
-      "hash": "07f7a1d018b43ba3",
-      "sha256": "94a145cde108c2ccd3754e75799f7cc999255aaedde203d70ea8ed36c38e660e",
-      "createdAt": "2026-10-12"
+      "hash": "01065ff67a5a3929",
+      "sha256": "6ad3118de018f0271c834bc5bbd720c350fc0a76834004ce887b30abe91c379b",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "stack": [
+    {
+      "version": 1,
+      "hash": "3501fff208ac0801",
+      "sha256": "784675b14b0da5d9c390379f77116c8ead75e673f62873bc635c2c84fc87e3aa",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "ticker": [
+    {
+      "version": 1,
+      "hash": "807e68a22a206def",
+      "sha256": "9ac05544845578aa1ac12beae0789f803922af95f27e6b7d6ae48f5ba5647d01",
+      "createdAt": "2026-11-25"
     }
   ],
   "terminal": [
     {
       "version": 1,
-      "hash": "700f74b09cce9383",
-      "sha256": "c67b9a07ebe54b2d49a1d19fdf1569d1e05e09b826c42afaa54bbb3438ad7492",
-      "createdAt": "2026-10-12"
+      "hash": "11f978df8e77ee69",
+      "sha256": "1725a0873370437608b3497bb1133f20da585555b775b2935c3cec7e255051e3",
+      "createdAt": "2026-11-25"
     }
   ],
   "pulse": [
     {
       "version": 1,
-      "hash": "318bccbbbed32d7d",
-      "sha256": "176ce4cd97c5d38677412d141003096cf498ef5ebcec1e96241bbf94208dbf87",
-      "createdAt": "2026-10-12"
+      "hash": "e24a4fa0ae5fb491",
+      "sha256": "f5c1364d7f8f11e4f54067d9115bbad7d8e18448a8975d1d04ed4025ae0e2f90",
+      "createdAt": "2026-11-25"
     }
   ],
   "folio": [
     {
       "version": 1,
-      "hash": "ce5f1c95a96768e0",
-      "sha256": "b00a855af625c2f55785ee6b8e53e12b0481e9bb11c8818ced030f397fbd3b2b",
-      "createdAt": "2026-10-12"
+      "hash": "5670a79ed2a4669b",
+      "sha256": "82ff10f03932a3c35e553765983a7eba250f222926a688dedf8aa60fd90fda87",
+      "createdAt": "2026-11-25"
     }
   ],
   "bento": [
     {
       "version": 1,
-      "hash": "dc13042d65cd6c04",
-      "sha256": "0bfc84f34a0a5440b2ce75cb4a6f89401ea4f0ab3999877c1237e1622843813a",
-      "createdAt": "2026-10-12"
+      "hash": "948cf882fba0ddb4",
+      "sha256": "de76b77ac4b7eef38f7948a778d164093da3cfb465df63cd3a56d86a9c61982d",
+      "createdAt": "2026-11-25"
     }
   ],
   "glass": [
     {
       "version": 1,
-      "hash": "a6b0dd304a8fd9ff",
-      "sha256": "2ca2fd6263cf34ca563e406733a09ac187a64408fa3be32824490880ad462319",
-      "createdAt": "2026-10-12"
+      "hash": "2cf87e3deb3addce",
+      "sha256": "e91ff085d98cb144880192de9d93c272fed7ec708004e2c324ba0fc212c67772",
+      "createdAt": "2026-11-25"
     }
   ],
   "flex": [
     {
       "version": 1,
-      "hash": "0619e9821145e41a",
-      "sha256": "e1108ba36cabf30f4db5af559985a09f6bb2c02b174d51fa45a37d4c5cbb8f79",
-      "createdAt": "2026-10-12"
+      "hash": "c66155ba39dc2f74",
+      "sha256": "cf6e21cc32725f236dd6add847503280360d5092e4bd556aac66b03e3f6447e3",
+      "createdAt": "2026-11-25"
     }
   ],
   "riso": [
     {
       "version": 1,
-      "hash": "3af9c928176b39a1",
-      "sha256": "836e890c57308b3ed55ea117cac65637c648a967d9569d1bb0ae7f4af4163574",
-      "createdAt": "2026-10-12"
+      "hash": "9ff6b80792729967",
+      "sha256": "7957272e3b00daca1c09643652056cd0848077fb9dc623acd9f044c8b4b39d3d",
+      "createdAt": "2026-11-25"
     }
   ],
   "collage": [
     {
       "version": 1,
-      "hash": "304bd3f629d4d5c8",
-      "sha256": "2a06c2b01da323c3e55fdff8727b8d517a27a09cbd0ffcc1a7573358eb5da4e4",
-      "createdAt": "2026-10-12"
+      "hash": "4d35628e2e31147c",
+      "sha256": "53ee812f3a464b75a35b7a5a95a148d854a0404f6176ffbb9b54b258ec8b4e0b",
+      "createdAt": "2026-11-25"
     }
   ],
   "cursor": [
     {
       "version": 1,
-      "hash": "526e5645a51d6fbf",
-      "sha256": "77de14b830e3fcace3ff62f687746110e6033d91c88d5c9541dcfdec5f7e7da1",
-      "createdAt": "2026-10-12"
+      "hash": "e8e0a15764f52c27",
+      "sha256": "1f6a95aa362d2c2301ff6d5b8d4f33b747f8a8fa784b1b684f2c6f179920406d",
+      "createdAt": "2026-11-25"
     }
   ],
   "spotlight": [
     {
       "version": 1,
-      "hash": "05b2bbd05845c686",
-      "sha256": "84983040723aebc62a4d4240514e63850023907fc8640da9b6bf144e22078a1a",
-      "createdAt": "2026-10-12"
+      "hash": "ed67a21582573ebd",
+      "sha256": "b66c7bb950298b5bc816affc5a1b4dc32b62bdd3d207ef0b36773f48357e63d1",
+      "createdAt": "2026-11-25"
     }
   ],
   "slice": [
     {
       "version": 1,
-      "hash": "26a28ef15d68b3f3",
-      "sha256": "fafaa0d49997dd6c8faa5d8652b2c058be02d49b8f16df5eb4003fdb842a7f29",
-      "createdAt": "2026-10-12"
+      "hash": "84b12ec57a206822",
+      "sha256": "c85062b5d74b03d5cdcc8485d0f3b5861497f0e9099530cd11402af8465fe37a",
+      "createdAt": "2026-11-25"
     }
   ],
   "swiss": [
     {
       "version": 1,
-      "hash": "ca0c036796d66c2e",
-      "sha256": "e8b3d9b8c5a580c907f9cd0ff2cb9bdef9121c10bec3b301bf5a441d987589d3",
-      "createdAt": "2026-10-12"
+      "hash": "508edaa18990b11c",
+      "sha256": "5374de177f37c56cd62d2996a580325b4528e794ff2857211c860013dec55d4e",
+      "createdAt": "2026-11-25"
     }
   ],
   "prism": [
     {
       "version": 1,
-      "hash": "2a76211792e58993",
-      "sha256": "543d899d5c5697ef9681b9c6dcc250c178c9e944178ee1b110613632f105460c",
-      "createdAt": "2026-10-12"
+      "hash": "30d62ff4970c5159",
+      "sha256": "61291c6815620e6ea3ef0f831eb143a2ba28d0377d219d2d50c939edb3edce04",
+      "createdAt": "2026-11-25"
     }
   ],
   "lowerthird": [
     {
       "version": 1,
-      "hash": "649ca05c72282281",
-      "sha256": "38a22ef604e9ba70beee82cf4171b5fb46b776c03997be862bfa3dba913aa66b",
-      "createdAt": "2026-10-12"
+      "hash": "b9ad4da2bbea739d",
+      "sha256": "98bd2cc76610a935a6a5f9efcaacd25c854f6dfddfdec584d8496ce609babc68",
+      "createdAt": "2026-11-25"
     }
   ],
   "kinetic": [
     {
       "version": 1,
-      "hash": "87840b65456c4549",
-      "sha256": "563c4c0e539067c2211c6198b4bd2131ae93ef2362161d3ac5a63d256a9e48d9",
-      "createdAt": "2026-10-12"
+      "hash": "4728cd1763881dc0",
+      "sha256": "5ca817ee45f6cb7f808f36e0c2ff73e8ab07f0661cf6b3bdad0f2219acc1aa39",
+      "createdAt": "2026-11-25"
     }
   ],
   "endscreen": [
     {
       "version": 1,
-      "hash": "811f798bb774b8e9",
-      "sha256": "58d0abf9110f0d2420706514a707abba93b035baec1f96c9a5c0702319c09d0e",
-      "createdAt": "2026-10-12"
+      "hash": "19d7f84d62822a16",
+      "sha256": "868f9829676c38cbb70400c9839a01a33e1a6518d63fd392ef9c7f28b45237c9",
+      "createdAt": "2026-11-25"
     }
   ],
   "blackfriday": [
     {
       "version": 1,
-      "hash": "6c37fb181b00c335",
-      "sha256": "f5dee8524e87c6d5b336bb8902ab60f6fd7028d96c7ad6df8e48b90d454cb2c6",
-      "createdAt": "2026-10-12"
+      "hash": "2af567a55587ae44",
+      "sha256": "499d6d5f399d79508e4d0a951f9d32b85ad60852574018ce62ec68bebca15e16",
+      "createdAt": "2026-11-25"
     }
   ],
   "wordmark": [
     {
       "version": 1,
-      "hash": "2a3316fe5dbf9034",
-      "sha256": "c46ffeb16c64a553c1f393e1ad53401827bf5811e155a25fd11a1e3c050683f5",
-      "createdAt": "2026-10-12"
+      "hash": "1cb799f9a47c17b5",
+      "sha256": "4edb235812d26defe0274fd5d214e2c360cae7d20c6a0c2889caba713cf29f30",
+      "createdAt": "2026-11-25"
     }
   ],
   "testimonial": [
     {
       "version": 1,
-      "hash": "ed714df3e9fa3143",
-      "sha256": "c26d7b71890f58b5cc5e2e388af85cb9254d19ee441be1901d01e644a0ade5cd",
-      "createdAt": "2026-10-12"
+      "hash": "a0282311a4cd51e4",
+      "sha256": "d65b2682b60d53003983fcf2e1ffaca985af7ddf65e4584c95a5865bb61d9043",
+      "createdAt": "2026-11-25"
     }
   ],
   "ytintro": [
     {
       "version": 1,
-      "hash": "78f7b964e59998c1",
-      "sha256": "178c741358a44b72c32cdcdd3dbd54551d641c9151b5b44b761f6522c6c61fa4",
-      "createdAt": "2026-10-12"
+      "hash": "c57f8857b7a2b3df",
+      "sha256": "60d8b2b986e086422b0cd32dc4deeb5e1460ffe4ee4bca121c2443b271a3808e",
+      "createdAt": "2026-11-25"
     }
   ],
   "wrapped": [
     {
       "version": 1,
-      "hash": "25d1100b7a2f2cc6",
-      "sha256": "856f1af9478de4b1d10ebd9b3e2fd1c4ba2616a355c2592d50acb9d08671bde5",
-      "createdAt": "2026-10-12"
+      "hash": "25377424672b40ee",
+      "sha256": "6cea01b2721fe9ff78111e21735324fbb8697ce468883ef58b3ed7f05032f16c",
+      "createdAt": "2026-11-25"
     }
   ],
   "countdown": [
     {
       "version": 1,
-      "hash": "fbb7c10351d1edc2",
-      "sha256": "60cd20b2688e6a2b0041605f59b1ab0f8a7a71bb702947ed8f1b1214883d18b2",
-      "createdAt": "2026-10-12"
+      "hash": "883fb1d66e5e7d1f",
+      "sha256": "767208f5c05102329ecf60abcb0cd2fad40417a9ba62fe749e077f7885f858b7",
+      "createdAt": "2026-11-25"
     }
   ],
   "podcast": [
     {
       "version": 1,
-      "hash": "6181ddf444ef9992",
-      "sha256": "1279bca82db3b82678ca2e84eb6371c2eee65dbb0a5819acb4fea32bdf7ab0c2",
-      "createdAt": "2026-10-12"
+      "hash": "ad8b8bd7d10ef2dd",
+      "sha256": "ab8ecd781a744907267651a085c5b6d58ce89130279922b25b6ae2c2d893cec2",
+      "createdAt": "2026-11-25"
     }
   ],
   "hiring": [
     {
       "version": 1,
-      "hash": "fbd7ce189a0fc985",
-      "sha256": "fb6130f461bd1abb1da4cefb82e18e6fc7ab125259906ccdbff6c7e228e2865d",
-      "createdAt": "2026-10-12"
+      "hash": "24dd8ceb5f186f0d",
+      "sha256": "446d810cd9dcbd531b6b997be01902946d2922f3a49cae29c47dad4b4e329949",
+      "createdAt": "2026-11-25"
     }
   ],
   "livestream": [
     {
       "version": 1,
-      "hash": "f89b56cfcd52c8ea",
-      "sha256": "e9cee3e98cd442e832d2b5b998ead1cefb2ad4a9cc61d06db5c4ff3ba6099490",
-      "createdAt": "2026-10-12"
+      "hash": "a1dd46a0325e0f61",
+      "sha256": "a3ce7e0b1bed65d097ea405caaa86ea72397d920c2821b2da6c35e5e170313f0",
+      "createdAt": "2026-11-25"
     }
   ],
   "barchart": [
     {
-      "version": 3,
-      "hash": "ca657447fe6e5735",
-      "sha256": "8e3cc882e65d968946e612d655911188515a71d91bf621d1aebbe4cd0d5f2603",
-      "createdAt": "2026-10-13"
+      "version": 1,
+      "hash": "ca58980c6a57b1b6",
+      "sha256": "b57872b030dc9674bdb1b00e952ca63b3028afe10609a3e51dcc24a9e1454686",
+      "createdAt": "2026-11-25"
     }
   ],
   "counter": [
     {
       "version": 1,
-      "hash": "07464334493f4a1e",
-      "sha256": "9dfb1c2226bf46781a54d6233814cd0ef7c9f243d9e535cfa4724f8d81dafbe0",
-      "createdAt": "2026-10-12"
+      "hash": "ef11458af7527ac8",
+      "sha256": "be4f5d0fdf5f50585751f268ee4ea10a40424d388afe5b6de8a2ffa775505462",
+      "createdAt": "2026-11-25"
     }
   ],
   "cybermonday": [
     {
       "version": 1,
-      "hash": "af51b5df95e774e5",
-      "sha256": "9875c79a94d4e75b8b554d287bffef09f0bf182ac7df1ac0ac3b747ec110fa1c",
-      "createdAt": "2026-10-12"
+      "hash": "292ab3be12871f61",
+      "sha256": "7e5050b5ea29ed71ace20b498598364f169a29cece44319385cb1b2b2c84faf0",
+      "createdAt": "2026-11-25"
     }
   ],
   "apppromo": [
     {
       "version": 1,
-      "hash": "1e3cf4a220e1f955",
-      "sha256": "5c11de4fccae9ebc05221848ecf8114dd28a162d0e95e4b4e46dae70807e18fa",
-      "createdAt": "2026-10-12"
+      "hash": "ab764ed5d964b719",
+      "sha256": "bfeffcd291ee08b6457c577f226b742bf438528bbd7628555d1ae38cec3d1be7",
+      "createdAt": "2026-11-25"
     }
   ],
   "pricing": [
     {
       "version": 1,
-      "hash": "9d550f59ef904ef4",
-      "sha256": "dee610d5b53ae7c3759344c24b014e40c893af70da272da368e40d7decf7a77e",
-      "createdAt": "2026-10-12"
+      "hash": "802ed95749e3331e",
+      "sha256": "76c90484a9db23ae20fc4c38aad47598673350a9c6c430634909aa8be2c4b569",
+      "createdAt": "2026-11-25"
     }
   ],
   "casestudy": [
     {
       "version": 1,
-      "hash": "6f4b9a37a50601d6",
-      "sha256": "cbe26e50a583b4e52b2a2e1798c1667c34d058a728597b01ee0fe7173837c92a",
-      "createdAt": "2026-10-12"
+      "hash": "8f7e73754aadc791",
+      "sha256": "a9b8de724dd1018ea1b6c93f275849c18a0b93fe031e7e3ec2033471051c3891",
+      "createdAt": "2026-11-25"
     }
   ],
   "feature": [
     {
       "version": 1,
-      "hash": "2baf4aa804c6b919",
-      "sha256": "6447c64726e65d039a8477d903cc28285a7fb5893a7fe2a31e27293efecd2edb",
-      "createdAt": "2026-10-12"
+      "hash": "5e3c2b606c0cb304",
+      "sha256": "d29165318bffa46a91041972f69ff433a82f661ad812fde11ef8e68b6df0c0e2",
+      "createdAt": "2026-11-25"
     }
   ],
   "quotecard": [
     {
       "version": 1,
-      "hash": "a866008bec761147",
-      "sha256": "41419656889c607106f4cfa0516067fa348cadf158b65d0b152543ce58f53aa7",
-      "createdAt": "2026-10-12"
+      "hash": "7c8ae98c0c85589b",
+      "sha256": "efed5bcd3d045a4057280589f35634988adc7a8c41ada9c5a999841e64f72a5e",
+      "createdAt": "2026-11-25"
     }
   ],
   "linechart": [
     {
       "version": 1,
-      "hash": "23ccee6d176bfd5e",
-      "sha256": "1f39df8104072363b0550afec0260c8068392bc4da2e51deaeda845d95d4af26",
-      "createdAt": "2026-10-12"
+      "hash": "7f35d02172ad863b",
+      "sha256": "b2b7b6ac5e92a7006b3d6e7256696748e828eeeb0b7404ff58b806304be9c674",
+      "createdAt": "2026-11-25"
     }
   ],
   "flashsale": [
     {
       "version": 1,
-      "hash": "8a83e8a56105b091",
-      "sha256": "7313b3c97240d8b598464c9c4905e414b6d287b295fe4a0e28429b1391eb699a",
-      "createdAt": "2026-10-12"
+      "hash": "6897eb071dd7a03e",
+      "sha256": "973c57c1553eb0abc63c0fc7433c9c9231461e34cbdbcbc6f71dd35eee5831ec",
+      "createdAt": "2026-11-25"
     }
   ],
   "comingsoon": [
     {
       "version": 1,
-      "hash": "540c35c0d5833be2",
-      "sha256": "190aba347908f054119f9debde3c43c32f50c13aa0a133d01cd34c00afc28c7f",
-      "createdAt": "2026-10-12"
+      "hash": "683b9d35bc0e4b18",
+      "sha256": "9ebb6011d9e5269ca17206e49b17caa9a47636132d4b3b33bbad17841adcd1b0",
+      "createdAt": "2026-11-25"
     }
   ],
   "announcement": [
     {
       "version": 1,
-      "hash": "d7f42afdda8d7feb",
-      "sha256": "48d7d9262094ceff0ba9e0efccd768bf1d2ec5518b1ea975dbe362885b5ac70b",
-      "createdAt": "2026-10-12"
+      "hash": "9dcd78b712719c9c",
+      "sha256": "210a919d06a36ad214ed01a833bbe0cb8c116036cde53b23f96505dee29c1295",
+      "createdAt": "2026-11-25"
     }
   ],
   "teamintro": [
     {
       "version": 1,
-      "hash": "c2d5aae7b1f23443",
-      "sha256": "c2bfd5e1e83d84ca0f652e52f5602d0f4733b15f537c71058ee06cb4f59a2b9f",
-      "createdAt": "2026-10-12"
+      "hash": "3b58f8b9fbe9d22c",
+      "sha256": "ac4ac8b1a4050047556080b785c121a30c87c146c66420c7bc4a1441621d9309",
+      "createdAt": "2026-11-25"
     }
   ],
   "partnership": [
     {
       "version": 1,
-      "hash": "3ed2481e08daf5af",
-      "sha256": "08f2bf9491a61295f4d1f3d3d15c85bce08f9f14865e25014b2add8570a04332",
-      "createdAt": "2026-10-12"
+      "hash": "30b85ee4df6a73f1",
+      "sha256": "a2a99ee8dde2de375e58ac568e09e9a9f38d11d027be1c62f178bb556277700d",
+      "createdAt": "2026-11-25"
     }
   ],
   "newsletter": [
     {
       "version": 1,
-      "hash": "7a8f90733ca78529",
-      "sha256": "a8ead8c652114af1e8f5f1677816cebbaacae4d6c67d6e9e7aec138b07cc2831",
-      "createdAt": "2026-10-12"
+      "hash": "d6e4bcf77ddddffb",
+      "sha256": "9009b8fdf4680e8257cb87120524f412f7978ff250d121e07c3cb6325b5e91d6",
+      "createdAt": "2026-11-25"
     }
   ],
   "anniversary": [
     {
       "version": 1,
-      "hash": "dc5a76739bbbdfd3",
-      "sha256": "d33edf61b1542bfc8a93089550e6acbc81f1c57246a3bdf291f56b327f35b662",
-      "createdAt": "2026-10-12"
+      "hash": "c3f7fc32a6123080",
+      "sha256": "381b64f28328b63b1a18b8ecac4b6da3c75d4a79726420690c10c67c66d7ba2b",
+      "createdAt": "2026-11-25"
     }
   ],
   "grandopening": [
     {
       "version": 1,
-      "hash": "174bec231bbfef38",
-      "sha256": "58d62034e84b188a68704859270ec4b8d3da75dacdff36ce382b86a328456b49",
-      "createdAt": "2026-10-12"
+      "hash": "b2dfbb8afdf43e84",
+      "sha256": "3c2d2fd9a93a3d6ef1d3b980329bb1708931a2a6789d95729ec64e50206b11c7",
+      "createdAt": "2026-11-25"
     }
   ],
   "beforeafter": [
     {
       "version": 1,
-      "hash": "0557b976c6e20588",
-      "sha256": "8219f479c5fdb155571f3c59bea6447dc695b6bc2692e9e0f25027896d789de0",
-      "createdAt": "2026-10-12"
+      "hash": "888861954c5d4d57",
+      "sha256": "9980bed3083a7fcc551dd7f98c32eaab96a3c9c7200b02a894493138eebcbb95",
+      "createdAt": "2026-11-25"
     }
   ],
   "timeline": [
     {
       "version": 1,
-      "hash": "a7c7b9f09d292602",
-      "sha256": "ca820ec074104bcfa1cd9e0729ea0d2f776cf0ec4472e4acd00d8b9b22e44610",
-      "createdAt": "2026-10-12"
+      "hash": "2da5e720877791c8",
+      "sha256": "7256d3bdd3b44e652c3a9f4532ec24f95e125765a5655db06f5b604413cb7aff",
+      "createdAt": "2026-11-25"
     }
   ],
   "quiz": [
     {
       "version": 1,
-      "hash": "4b3373ed97d4ffc9",
-      "sha256": "6309bfde0ad229d1fe07d661007d8ba53be86be9f1b0a981f35daa52c241cff4",
-      "createdAt": "2026-10-12"
+      "hash": "88ae3d1ee0d3c26b",
+      "sha256": "37ff2f626494ccb681068f7ed598d845fc19a4cb2eb9f28f13c346b24bfa92bc",
+      "createdAt": "2026-11-25"
     }
   ],
   "toplist": [
     {
       "version": 1,
-      "hash": "908ac54ac27d7dc5",
-      "sha256": "6a6640570d72b174c04e71f0e15a9912b910328bb7d83508c446cdd7b8c7a2e1",
-      "createdAt": "2026-10-12"
+      "hash": "71bcd2b2735f9b09",
+      "sha256": "a7c636640c7b679ab191f2999874c2c3b7333e229312d155751793985341aa02",
+      "createdAt": "2026-11-25"
     }
   ],
   "poll": [
     {
       "version": 1,
-      "hash": "3dbc99bb93a24324",
-      "sha256": "f5ac08098f1e5bef98d3e70516266ddac7bc88b667506b06a757018f5a31ffb7",
-      "createdAt": "2026-10-12"
+      "hash": "e3ad39e935b57ecf",
+      "sha256": "ede49c0da6e14dd2ebc9aa94c1daaf6633a8a9ca323624cc8b642851b4ebf8a4",
+      "createdAt": "2026-11-25"
     }
   ],
   "progress": [
     {
       "version": 1,
-      "hash": "c56b73fb1dfff56a",
-      "sha256": "791917b8b34e2584e97d728775d43dd59f8a8a1560751491f79225f563c54d70",
-      "createdAt": "2026-10-12"
+      "hash": "4b7a045bf49596f5",
+      "sha256": "ad01ebbb2993c399805ec47e96d9740774e1d440525e94440c2fbc8d33d8ae6c",
+      "createdAt": "2026-11-25"
     }
   ],
   "comparison": [
     {
       "version": 1,
-      "hash": "2ca36323b35770bf",
-      "sha256": "3829d71e819d85aff5dbaee37eb832c3374b340ba894e9aa05b1ba32c91ac532",
-      "createdAt": "2026-10-12"
+      "hash": "b546211375081fb1",
+      "sha256": "312503cd22ccbbca9917fd0a7d745a9770055a664aa26bf3f9433eabc8683880",
+      "createdAt": "2026-11-25"
     }
   ],
   "newyear": [
     {
       "version": 1,
-      "hash": "4b7bd131153ab42c",
-      "sha256": "d963fd9b15e2c9098831688f72c936853d1e1d64e9ccae952562e4db0024540e",
-      "createdAt": "2026-10-12"
+      "hash": "e3d633d8a64abd6d",
+      "sha256": "67f6cfc12780e690419872a7d29f64fb4fb7baf3d4bb79d0904975f4fc751217",
+      "createdAt": "2026-11-25"
     }
   ],
   "credits": [
     {
       "version": 1,
-      "hash": "8772bf4a9d088972",
-      "sha256": "6bdf49da5cad4558fbee09cc84e4ae51276a7251dd29a48abbbd5cd707ad6e2c",
-      "createdAt": "2026-10-12"
+      "hash": "b64c1b8fda41e87d",
+      "sha256": "6cde6a087d3030b5f1806b71fd213cc9e56383703a128b31226aec7fd1e4cc43",
+      "createdAt": "2026-11-25"
     }
   ],
   "titlecard": [
     {
       "version": 1,
-      "hash": "78726dce0d1fca34",
-      "sha256": "6bbaaaed5136a85ab786a96a936c11adc15894d04620e0f78183b207e563c6dd",
-      "createdAt": "2026-10-12"
+      "hash": "817e0cebca1e0557",
+      "sha256": "03315a826d69c4b6e8917315bfd1ea63251175df866a704ff7cfeb56e1857c86",
+      "createdAt": "2026-11-25"
     }
   ],
   "subscribe": [
     {
       "version": 1,
-      "hash": "4b6f3a57a6de4074",
-      "sha256": "bcc228baf813b43a84112af25d0ff258bb536f88165f83f05b8d74065bda037a",
-      "createdAt": "2026-10-12"
+      "hash": "5e87c3d7291324de",
+      "sha256": "3c10921639a3c0190436cc0c320676b38fd234b57ae0592f58e374daf5730659",
+      "createdAt": "2026-11-25"
     }
   ],
   "thankyou": [
     {
       "version": 1,
-      "hash": "8ba4587c358295ab",
-      "sha256": "1a98ddcd0cb1890db3607b0624447cc7aa59606329003a7a25912516d732ffbd",
-      "createdAt": "2026-10-12"
+      "hash": "15543f337ab6025f",
+      "sha256": "f3acce4a8e4cf045955e8d131ed215383afa6009ff15311c1e94fc93c16cbe16",
+      "createdAt": "2026-11-25"
     }
   ],
   "birthday": [
     {
       "version": 1,
-      "hash": "89718434859b04ef",
-      "sha256": "d56f0c35dff6087252ada72bfd34e557b5f50c706eace2175ef64872b1149afc",
-      "createdAt": "2026-10-12"
+      "hash": "557bebc4e98569fe",
+      "sha256": "8e0c7ca5b61197633aea3936c9b38e2cd979d59019b4f62962799e0655bcd765",
+      "createdAt": "2026-11-25"
     }
   ],
   "valentines": [
     {
       "version": 1,
-      "hash": "7da8bb801d41b644",
-      "sha256": "867edb2ca0a839180c1e174082d6694deacc6d952aa11f74cfe60bbe2900cd96",
-      "createdAt": "2026-10-12"
+      "hash": "e252461c88a5d3b2",
+      "sha256": "2f268982eeba4ab9b9dc8eb6fba69e634fe4921db36be8943b5c2e48b536c0a8",
+      "createdAt": "2026-11-25"
     }
   ],
   "giveaway": [
     {
       "version": 1,
-      "hash": "97f462bf4b173f5d",
-      "sha256": "ef85e7d42997ec16f594bf3ab0a0a1e495a69eb65e20e1fd0642d148997e5d93",
-      "createdAt": "2026-10-12"
+      "hash": "2c6adebff105cf4e",
+      "sha256": "e72cd9667dde644c4d66bb1108617c5b34c597c39dc88a1c6c29e17ce512a9e1",
+      "createdAt": "2026-11-25"
     }
   ],
   "channeltrailer": [
     {
       "version": 1,
-      "hash": "d03918796a0fd7a0",
-      "sha256": "f2f14e4b64c1dda00aadb20621d92ec8c003965715943b63cc10c14b1b89624f",
-      "createdAt": "2026-10-12"
+      "hash": "3c85495dc6eff359",
+      "sha256": "552224c9f2a51ca44e735566beecab9472cd229f3ea33a2cbba00f8386cde233",
+      "createdAt": "2026-11-25"
     }
   ],
   "gamingintro": [
     {
       "version": 1,
-      "hash": "59c2fd50bc1aeb4a",
-      "sha256": "cad6efba9ceef97075c6935159e2cdf2425d494b453560e3d899887522971b0f",
-      "createdAt": "2026-10-12"
+      "hash": "55ea7be93eca3b9d",
+      "sha256": "1e15aa755e0bd829ee9811a99f3e4133ad1d97f1fd3a85073ccd9c055211aebe",
+      "createdAt": "2026-11-25"
     }
   ],
   "speaker": [
     {
       "version": 1,
-      "hash": "f4df2cb4d9b86971",
-      "sha256": "2dc731659701448b032e53edd3d4d860b8b510b8586dec1908cfc2da61194fd3",
-      "createdAt": "2026-10-12"
+      "hash": "c5b352ae750a8d48",
+      "sha256": "80c163b52bb2adf6f55fc5388701591e471716c820442887988ab91ea206bd54",
+      "createdAt": "2026-11-25"
     }
   ],
   "agenda": [
     {
       "version": 1,
-      "hash": "eb6e8e1348d14fa3",
-      "sha256": "58755368c7b82c005196d9038a826c29403b24fe8032a848b499f75e307992ea",
-      "createdAt": "2026-10-12"
+      "hash": "838a17873c6c8ecb",
+      "sha256": "5c0f7a85de88c4e7014c71148c75cad517afc53cffbb5b7acc4ca7d77eff0fdb",
+      "createdAt": "2026-11-25"
     }
   ],
   "tickets": [
     {
       "version": 1,
-      "hash": "3d8254c3e274dbac",
-      "sha256": "193a7ed4b544ffea00d8942df91de883dd0f19e8d949b32ec59e4b7638fc2d52",
-      "createdAt": "2026-10-12"
+      "hash": "4a955cf6b242b7ff",
+      "sha256": "84d5094b66382f42e5f916ff10123e2d820ac603b99363b89f54db680992cccb",
+      "createdAt": "2026-11-25"
     }
   ],
   "webinar": [
     {
       "version": 1,
-      "hash": "262b9b36c2ace4e7",
-      "sha256": "08ff7d50940cf9d47a108c0516e7a2ee6058acbca58e1caed91a64b2a673fd32",
-      "createdAt": "2026-10-12"
+      "hash": "67f889942a843ecb",
+      "sha256": "c2397be080d217365aae00353e3bedcfe464b0cf224201c30d5756da44ba0762",
+      "createdAt": "2026-11-25"
     }
   ],
   "orbit3d": [
     {
       "version": 1,
-      "hash": "6e13c6d7bf8ed5c2",
-      "sha256": "e6571a461f216d40b2f2c2104f23973be9b13cd3879b1964629acbd68812fc39",
-      "createdAt": "2026-10-12"
+      "hash": "f29c8e7fab8e014d",
+      "sha256": "ef5ef610dab6c3d8acb7f8a93dc253146f5bb8d628c933d8fed8ae65494baa5f",
+      "createdAt": "2026-11-25"
     }
   ],
   "phototitle": [
     {
       "version": 1,
-      "hash": "c9aff0d000d8d327",
-      "sha256": "f2c8721ab1f4ee45834922794d759ab5248a3d9e7ed6c618ae39dfc59f7e4476",
-      "createdAt": "2026-10-12"
+      "hash": "16f9e41e132e1863",
+      "sha256": "ce52743faf4e9a55793f2e219ebe67cda02a3d15787bb5a754cffaa1735975e4",
+      "createdAt": "2026-11-25"
     }
   ],
   "logo3d": [
     {
       "version": 1,
-      "hash": "9c2f5d9a5affc1e5",
-      "sha256": "5946ac9541cde27ed8354495fe5a68f62e8d837201f7c4638742131782e9420a",
-      "createdAt": "2026-10-12"
+      "hash": "8d6c3be5c5ede770",
+      "sha256": "c70fae89eab8cd6079fe27ff6cb5f96ec1f83e466e656433bf8f1939e313922b",
+      "createdAt": "2026-11-25"
     }
   ],
   "vhsintro": [
     {
       "version": 1,
-      "hash": "432dc247ac51e6f8",
-      "sha256": "777eb0dc1d82aaa571c57f2639c79036b1136a06d3df345470c9d553c8371247",
-      "createdAt": "2026-10-12"
+      "hash": "dadf00fe35809115",
+      "sha256": "e97a93d5bc105f5a9aa2bafa9ccef3b66357c13aea81bd0883a2b6cf99c7869f",
+      "createdAt": "2026-11-25"
     }
   ],
   "photoquote": [
     {
       "version": 1,
-      "hash": "3280344f55c42d03",
-      "sha256": "c1594b3cc1b5864ddbc6a5bea69edef7de9673eb2d26a43ce9812ba6025e483f",
-      "createdAt": "2026-10-12"
+      "hash": "275e1c40228a1d3c",
+      "sha256": "71b7c96309ef88dac3df85c3c65389080b85eca9405c31ae9509eabe8963a686",
+      "createdAt": "2026-11-25"
     }
   ],
   "title3d": [
     {
       "version": 1,
-      "hash": "2bd2de31610d68bd",
-      "sha256": "6dd47d52ee33ec5eec88df7998b4a7427505224ba891e2366c93ce7f91001662",
-      "createdAt": "2026-10-12"
+      "hash": "f2348f5433231c7f",
+      "sha256": "b0272ea519744d6b44de4b0f8c22345a299d1de42bcf3cbd367c5d6bf8e99b6a",
+      "createdAt": "2026-11-25"
     }
   ],
   "turntable": [
     {
       "version": 1,
-      "hash": "baa8309f8e804dd3",
-      "sha256": "2ef28f9379c2566f7ea3612cc7f6af21fe82be0e73d004ac3d1dc45ca1507521",
-      "createdAt": "2026-10-12"
+      "hash": "69000b57b862ebce",
+      "sha256": "99e98bb4c2f7ec556d81b3300d32a4d276652b5410f250c9b590a82888d7675e",
+      "createdAt": "2026-11-25"
     }
   ],
   "countdown3d": [
     {
       "version": 1,
-      "hash": "fed5e290d839e6fd",
-      "sha256": "cea97ecd63b5e774eb6f5448e4df99b90e901a6d88a7e05113e785bc3b38e41a",
-      "createdAt": "2026-10-12"
+      "hash": "e99b22015bc3b850",
+      "sha256": "1d3edf0753d971a1afa208321b2f7ad59e4d8844e4986ad7e1a8f54000e98dab",
+      "createdAt": "2026-11-25"
     }
   ],
   "chrome3d": [
     {
       "version": 1,
-      "hash": "8938e9120f06333e",
-      "sha256": "e82bb1dc41bf90d2bda3e9fb739adb0b7380c6c93a11173adbde16dbe659d0b3",
-      "createdAt": "2026-10-12"
+      "hash": "84c81b0daffe0096",
+      "sha256": "88d45e6ecc517825bb608b91ca5f2968557b16ee27e5fc88e40c57b8aa6400be",
+      "createdAt": "2026-11-25"
     }
   ],
   "iso3d": [
     {
       "version": 1,
-      "hash": "20c87ac708e58f0d",
-      "sha256": "e8f0d58d6dd78e5ded7b5d6453d600cb5c236112538271fc74d228f41dd8b0af",
-      "createdAt": "2026-10-12"
+      "hash": "a6938322820cc101",
+      "sha256": "4d0a6569bb66c795097ec0a4cdad32844f97fea4c9f7fefea54a46c185620087",
+      "createdAt": "2026-11-25"
     }
   ],
   "clay": [
     {
       "version": 1,
-      "hash": "81710bf924110e33",
-      "sha256": "7e330edadd3efeedd35f325d91a199ff722939a6c92958c641b9ddb857eebc63",
-      "createdAt": "2026-10-12"
+      "hash": "3538d8d813167f1f",
+      "sha256": "e08907f52543944885b02ab02b64242a394767822ef541c74393bbe41b39ae43",
+      "createdAt": "2026-11-25"
     }
   ],
   "papercut": [
     {
       "version": 1,
-      "hash": "ccc7d01978380f56",
-      "sha256": "ed9c8a2200e43aabc579b91124a83e9cff0ccb68c8f87879b99b4d2ed3151d58",
-      "createdAt": "2026-10-12"
+      "hash": "74888df2ab05a6c3",
+      "sha256": "211d7a249bd6e58234f63b31778d4de0ce93fb01d9a288780ed9a8f782594c40",
+      "createdAt": "2026-11-25"
     }
   ],
   "pixel": [
     {
       "version": 1,
-      "hash": "8397ae187cbd16d3",
-      "sha256": "3b7c3caa273b5412f2ddaeace2f258c964725fa536b334628cf410381a550ffe",
-      "createdAt": "2026-10-12"
+      "hash": "ca94cc2ceed1edfb",
+      "sha256": "82240530290a634225d326999c07173904a7a6305d6ca5f4327fa55779e60f31",
+      "createdAt": "2026-11-25"
     }
   ],
   "doodle": [
     {
       "version": 1,
-      "hash": "5df37e9700b38133",
-      "sha256": "a0aba33766385815736df17ba6c8b0fb7fec7b01b96dba8534eacd5d1e9d74b2",
-      "createdAt": "2026-10-12"
+      "hash": "5c592a85666eb88a",
+      "sha256": "79817d213096451c6ad7572e6b32c527eb80ceb1be17c2a7da6618cdcb300c71",
+      "createdAt": "2026-11-25"
     }
   ],
   "magazine": [
     {
       "version": 1,
-      "hash": "2a07674a80907a39",
-      "sha256": "9613ee7ec1a06dc7acb572ce3dad7072cd905e8cb916b52e335fb7a864f134a2",
-      "createdAt": "2026-10-12"
+      "hash": "453358cea6c39e15",
+      "sha256": "ca08db34bb6b596163d4947e4e9c26660d248849ce9852f6df9746af53f0a76b",
+      "createdAt": "2026-11-25"
     }
   ],
   "liquid": [
     {
       "version": 1,
-      "hash": "49cca93bf2f64138",
-      "sha256": "10ba09b7154c69b1ea901ea312858df1e78f07fdc6f0b80bde56fce79684c407",
-      "createdAt": "2026-10-12"
+      "hash": "4d4900a9f190ee0f",
+      "sha256": "77a880166bacc7d9e276f91c2c9701ee0fd3f3364cec339a5fd4553036002e47",
+      "createdAt": "2026-11-25"
     }
   ],
   "glitch": [
     {
       "version": 1,
-      "hash": "0fe8965b84071916",
-      "sha256": "1cb3d8e5f74e785b5340502ddd27489381fc6096959a298095ea339d6f2a4648",
-      "createdAt": "2026-10-12"
+      "hash": "4db36955e29a3d09",
+      "sha256": "c1f7ef8334c5365569c43701a9936d381a9d14d2120fa606669f83a04e3da0d5",
+      "createdAt": "2026-11-25"
     }
   ],
   "photolower": [
     {
       "version": 1,
-      "hash": "39778b898512e588",
-      "sha256": "4114d342d4744a09023f1c486bf3985f79e33d02d7043bbcb464039d01b88505",
-      "createdAt": "2026-10-12"
+      "hash": "0ebf53ff0a2dfb17",
+      "sha256": "2404dbc051b66690c898e6eca33a6042651f8b08bb8dd0fd345049eade66feeb",
+      "createdAt": "2026-11-25"
     }
   ],
   "slideshow": [
     {
       "version": 1,
-      "hash": "83bfd321e37e751d",
-      "sha256": "7457841326f9dfd875a4bdbcbf17975af181fed1d730fa1fae62a5526c2292e7",
-      "createdAt": "2026-10-12"
+      "hash": "c58b9ce881eac6f0",
+      "sha256": "9c85e49dca325f6bc078d7947410ca01c8a2b9705894ff6b8cdb0b5979f76557",
+      "createdAt": "2026-11-25"
     }
   ],
   "beforeafterphoto": [
     {
       "version": 1,
-      "hash": "b2462318d294b937",
-      "sha256": "ea14c503232dbca9f554303fff3d5b45b5af2ffde9777044990cd74287532c29",
-      "createdAt": "2026-10-12"
+      "hash": "5c29ec65c2234247",
+      "sha256": "f30acba149c58d7e95480801f50cd37b5d4c1b7eccd6a3293b29672e482abcc8",
+      "createdAt": "2026-11-25"
     }
   ],
   "travelintro": [
     {
       "version": 1,
-      "hash": "0006819f2a6d8852",
-      "sha256": "79bbec8bba76068bd8b6b7d93a90afcdcabfbd9456d6e3f441ea008f5e49ed62",
-      "createdAt": "2026-10-12"
+      "hash": "b23e089232bd4059",
+      "sha256": "69a07919bf10feae1449cf0f90c001d2fa805cc593ef0e346f951196a41d2f0a",
+      "createdAt": "2026-11-25"
     }
   ],
   "portraitcard": [
     {
       "version": 1,
-      "hash": "88c0b44ae1f8029a",
-      "sha256": "5e7c4d222f74b7264266167fa293ce94d0cfb7bc829b02a60094f78bbe2c5c29",
-      "createdAt": "2026-10-12"
+      "hash": "830ad0054f3f5ac9",
+      "sha256": "c9d86ad8339c2ce25785c3cb8659e86b6c70661125b4556030444dddcd429e08",
+      "createdAt": "2026-11-25"
     }
   ],
   "signal": [
     {
       "version": 1,
-      "hash": "8b4288779f14deea",
-      "sha256": "a8d2ebf9a7a87c78c268850e3ad3aefdca358fe31d6cde691f287c4ca8723b9d",
-      "createdAt": "2026-10-12"
+      "hash": "ee198cf5a1c49bee",
+      "sha256": "845bf2b2880f0c23c81f98f33c801a8ec35edb664f51a2f6969e4a4383e9040c",
+      "createdAt": "2026-11-25"
     }
   ],
   "ringstat": [
     {
       "version": 1,
-      "hash": "7f234587b18bde72",
-      "sha256": "40937705f3f916a650dc52f743c1c4aaef761eade85100adca1c1f0eff95ccd0",
-      "createdAt": "2026-10-12"
+      "hash": "98d778404c6d8e52",
+      "sha256": "b4a089b67d2022c16147bf6698389dff92f74120230c47d67987b3e240195c0f",
+      "createdAt": "2026-11-25"
     }
   ],
   "eventpass": [
     {
       "version": 1,
-      "hash": "139e3e798243161b",
-      "sha256": "479017711a7bb2489b8ac07df74675fecc730be12314dd1b5163976195038d5a",
-      "createdAt": "2026-10-12"
+      "hash": "35c3cabd2f2475b8",
+      "sha256": "58e0923b0906cbc8eb2c1f2348d6980c34c1abddfa14eee00af5f4fde96c0f47",
+      "createdAt": "2026-11-25"
     }
   ],
   "pullquote": [
     {
       "version": 1,
-      "hash": "e8de547ad21a8e69",
-      "sha256": "47494f2b275fbf5d6381332b8f6d6ae66e65fb214ac38e356e1e6f0af837d7ac",
-      "createdAt": "2026-10-12"
+      "hash": "77cc91d81c08e8b8",
+      "sha256": "eab7ac66f21d45472e18a6fab27963d71dc5b612156f8a0a03d410c03a3ea479",
+      "createdAt": "2026-11-25"
     }
   ],
   "pricedrop": [
     {
-      "version": 4,
-      "hash": "e272badb8e86c9c1",
-      "sha256": "33d747a29fcd6ba502717616e9d2b846a70720af6eaa7773719962df26589b3d",
-      "createdAt": "2026-10-14"
+      "version": 1,
+      "hash": "78c41855c4d42afe",
+      "sha256": "cc69f6e13d3970880d54b9512c9ea16579ac40368bad1977f625647fbb65b83f",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "beatreel": [
+    {
+      "version": 1,
+      "hash": "86642631841e26f9",
+      "sha256": "15ce9e6b44b7232e315d750cca823b7d48c55f2ac02561eb378c83ab55b67fd0",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "productpulse": [
+    {
+      "version": 1,
+      "hash": "d0707f8c729fd09d",
+      "sha256": "4df6f73d864a7320f6967c2286f20bfcc18871ca75a696f52c1a53b1fb2c13eb",
+      "createdAt": "2026-11-25"
     }
   ],
   "featuredrop": [
     {
       "version": 1,
-      "hash": "2135711773f594ec",
-      "sha256": "4bc381602781ac26d3c4fb88b76f61d5c6d7b88c13099f2968abed5bf7f53916",
-      "createdAt": "2026-10-12"
+      "hash": "b4250fd29bc7d74e",
+      "sha256": "c654bc5bf856d49bdf5c03b4042a3cfec92471cd43dda5f43d31c168fddba620",
+      "createdAt": "2026-11-25"
     }
   ],
   "eventcountdown": [
     {
-      "version": 2,
-      "hash": "333c99f90f09d5c9",
-      "sha256": "110f8a29a538940fb74942592ff64d4a0bfc7d27b0cbf5d2f80d45b80de412b2",
-      "createdAt": "2026-10-13"
-    }
-  ],
-  "ticker": [
-    {
-      "version": 3,
-      "hash": "4f9eae302c94891b",
-      "sha256": "b2a50ef67f200d1f99dd06ab7dbc0e34f0a2d56ce0248973a8ceb9c3d2aad6b5",
-      "createdAt": "2026-10-13"
-    }
-  ],
-  "beatreel": [
-    {
-      "version": 2,
-      "hash": "e4ec426b9290d5fd",
-      "sha256": "e7bf81c228f8e2434765a86e3f811c19c00925e7e5052eefa72f468dcac2f216",
-      "createdAt": "2026-10-13"
-    }
-  ],
-  "productpulse": [
-    {
-      "version": 2,
-      "hash": "b632acb0f83f37b7",
-      "sha256": "3dd305244eee0fc579e4ab40f8e339f44a8c4cb3d87c17223a24d3c0ac3b6661",
-      "createdAt": "2026-10-13"
-    }
-  ],
-  "stack": [
-    {
-      "version": 3,
-      "hash": "7fd6ca36a764ece0",
-      "sha256": "7df83474fe7cd0adc89e2a0d8f682b5b182f8748353bda1fce08841230398bd1",
-      "createdAt": "2026-10-13"
+      "version": 1,
+      "hash": "01d0e2b6e9ac21d2",
+      "sha256": "93fc2b79ef76718399edf54b68898b52033c9a69cdb0726cc3c78ddf63f398e1",
+      "createdAt": "2026-11-25"
     }
   ],
   "changelog": [
     {
-      "version": 4,
-      "hash": "5aa5483bb2f4622c",
-      "sha256": "7ae0a10cf274155540345290fdf3e4414cc51f6d13525764e407d28cca6ba5e7",
-      "createdAt": "2026-10-17"
-    }
-  ],
-  "versionreveal": [
-    {
-      "version": 3,
-      "hash": "b46a870e4fe0c397",
-      "sha256": "a85826ce4efd6e66e87c8564e653026024bf44ed2d806e357aad2f602f4c757a",
-      "createdAt": "2026-10-14"
-    }
-  ],
-  "shipped": [
-    {
-      "version": 3,
-      "hash": "74a440c7d96c5e9d",
-      "sha256": "f3416968b93afc9d4e371bb19f9061d8ab945aa6b5e23971a4d43386f536f2bd",
-      "createdAt": "2026-10-14"
-    }
-  ],
-  "featurelist": [
-    {
-      "version": 4,
-      "hash": "36b3c89e110859c5",
-      "sha256": "f436f884d49a5726ef59576c9bf5d5a5d6cfdcd885e4f02d315b4fb14de370bf",
-      "createdAt": "2026-10-17"
-    }
-  ],
-  "metricbump": [
-    {
-      "version": 3,
-      "hash": "4fc60186eeb608ba",
-      "sha256": "0f2bc488552b8edd04db7d19998d94b4f9a6d09a08edcd20c379380258f0062d",
-      "createdAt": "2026-10-14"
-    }
-  ],
-  "integration": [
-    {
-      "version": 3,
-      "hash": "8f90159bdad70849",
-      "sha256": "586f3e3c2978c40b09e6952f93be1635b9fb69656bfcfcbd6797eca73c813576",
-      "createdAt": "2026-10-14"
-    }
-  ],
-  "pricingchange": [
-    {
-      "version": 3,
-      "hash": "aa2201ec3bfa1c9f",
-      "sha256": "11f3ba8f3f4a82561cde2f62651ff3ac1d8c6cfb98b56b4abe7d754d685d3dbd",
-      "createdAt": "2026-10-14"
-    }
-  ],
-  "waitlist": [
-    {
-      "version": 3,
-      "hash": "17aea520e9dd4b0e",
-      "sha256": "2299a37dc70e09cd30a7ba98a3f485ffac98975bb7c08d0cbfd15853e7785caa",
-      "createdAt": "2026-10-14"
-    }
-  ],
-  "launchday": [
-    {
-      "version": 4,
-      "hash": "2021e3a50036ac5a",
-      "sha256": "9b9ff7a7060fffe126346ccbe0f0a02a9746c799506b38af7a9eaff15be91ea7",
-      "createdAt": "2026-10-18"
-    }
-  ],
-  "releasenotes": [
-    {
-      "version": 4,
-      "hash": "82199e63cd8b04d6",
-      "sha256": "a87d219946b36847fb9cf0936012b83323c9daeac743d4ad63416e083ed5c1ee",
-      "createdAt": "2026-10-17"
-    }
-  ],
-  "beforenow": [
-    {
-      "version": 3,
-      "hash": "2bdec477fceb6627",
-      "sha256": "025bacb4aee61bd05b592c383cfc7978dc86825ba8a32e2703f516f3c9e9488e",
-      "createdAt": "2026-10-14"
-    }
-  ],
-  "customerquote": [
-    {
-      "version": 4,
-      "hash": "596086f846351cd8",
-      "sha256": "3f1658ba77244d9644e2e917898a272ced2915c16f0de403fb56a8a313437dfe",
-      "createdAt": "2026-10-17"
+      "version": 1,
+      "hash": "00e5db4a907d2e8a",
+      "sha256": "ae1bcc3d5c26a5ed6a52dcd7bab9d64c7201e4bc22dd3b81bf7a8188ae103a2b",
+      "createdAt": "2026-11-25"
     }
   ],
   "nowinbeta": [
     {
-      "version": 4,
-      "hash": "8b2a818a3295dad3",
-      "sha256": "dae288984449ad626ec170c1f34cb681e23527929cedffa02a42a9735aa0d928",
-      "createdAt": "2026-10-17"
+      "version": 1,
+      "hash": "75dec2ae5bc81589",
+      "sha256": "43b0572e7716c827e1c619118c439dcf74d0b7cef0ad7114e99ae1a3c7b8f7c4",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "versionreveal": [
+    {
+      "version": 1,
+      "hash": "bfe6be902365d3d5",
+      "sha256": "0b9d49e25c4bfac838b8e1e499bce05c1864a345c045540f161cac1f6bac290e",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "shipped": [
+    {
+      "version": 1,
+      "hash": "24d4c579982fe8fc",
+      "sha256": "79d3e25e731ec030f18a664f383ce607e32dcbe58cefe1b6f2089e9c8166d32b",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "featurelist": [
+    {
+      "version": 1,
+      "hash": "07db18cef15d385b",
+      "sha256": "c62743d41990e641d174ff72b3f9cec05bed27927b910b2e5c1c3e146aeac1db",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "metricbump": [
+    {
+      "version": 1,
+      "hash": "c7766765b61ea49e",
+      "sha256": "9a56421b4573643c940e4d2d53e75ef8abe594c698ad261afdb04c3cefd9c136",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "integration": [
+    {
+      "version": 1,
+      "hash": "94b638bf854681d6",
+      "sha256": "a68622ba457156e188b83ad1190bf986f19caf6d23e7f470700d073568513154",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "pricingchange": [
+    {
+      "version": 1,
+      "hash": "9460fa8274e3c313",
+      "sha256": "d5349fb75c8b5ce6b2acefcbb46c07c6d7ba48ca0108c3e05b2b20fc96179437",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "waitlist": [
+    {
+      "version": 1,
+      "hash": "9f20e6e62c5c5df1",
+      "sha256": "65b51ecf9ee9ba065ff29031e90f0ff0882b929da4eb34dbdf346eccc62e1d25",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "launchday": [
+    {
+      "version": 1,
+      "hash": "db13e2ee56e3643c",
+      "sha256": "04ee37d4f95e2acb191d6d44e4b94722c4696231b728e5ac6e2eb4f885e6c491",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "releasenotes": [
+    {
+      "version": 1,
+      "hash": "e98656c39cce2ccb",
+      "sha256": "220b7931f086439381b204a1326e4a9a14163be24bdbd9116ab98f94dc14445c",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "beforenow": [
+    {
+      "version": 1,
+      "hash": "48607f1e47e5bc9a",
+      "sha256": "61201624beaaf2fc58741a155d99936867ec23e7fe94b5881246370544de6987",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "customerquote": [
+    {
+      "version": 1,
+      "hash": "cecd247e3cff20c4",
+      "sha256": "e1704f35b7a80f92356d5178109c1cbc2b5c47c05a6e01ed20fd751c4d31913d",
+      "createdAt": "2026-11-25"
     }
   ],
   "apirelease": [
     {
-      "version": 2,
-      "hash": "9ab625abced24524",
-      "sha256": "0545647b91290b31801674e88735618c28384684f51f541afed6698e76d5cac0",
-      "createdAt": "2026-10-17"
+      "version": 1,
+      "hash": "7f359c957b93673e",
+      "sha256": "a4c26dbe170ca4dcdd6da36900a298e71c3272732ba592069300034ad8cc04b4",
+      "createdAt": "2026-11-25"
     }
   ],
   "breakingchange": [
     {
       "version": 1,
-      "hash": "bf137d36f0b349fc",
-      "sha256": "d69f6a9ee4e9efe3eab879b42a2ff58e3d2f16715a84b931955ab2fb0d89634a",
-      "createdAt": "2026-10-14"
+      "hash": "b01966aa9bfc97f8",
+      "sha256": "4739aa8f934ebdcce23709ac26d5e56ffdbac0cc6f39cac2547a57edeaebe3d8",
+      "createdAt": "2026-11-25"
     }
   ],
   "migration": [
     {
-      "version": 2,
-      "hash": "a65565fd79fc119c",
-      "sha256": "78af1012fd9a1b4b7a64a91bf1c056979f19d96bbf15f14833fc1d6d88084605",
-      "createdAt": "2026-10-17"
+      "version": 1,
+      "hash": "7ab010402baa7f4f",
+      "sha256": "f01ff15e23d59ebc5d1e6bc32d263d6ac4c145201cce95c79c10ec1d1d3d068c",
+      "createdAt": "2026-11-25"
     }
   ],
   "codediff": [
     {
-      "version": 2,
-      "hash": "14719954bb71b51f",
-      "sha256": "15a0de3d51b4f6143b0676b08543c3937acc2827247ada38b00616e192ade6cd",
-      "createdAt": "2026-10-14"
+      "version": 1,
+      "hash": "b32cd3d927182b17",
+      "sha256": "79b974cdeddf6903411941d5e1166b7ffe18c0e388681e10805b75e15db72439",
+      "createdAt": "2026-11-25"
     }
   ],
   "githubstars": [
     {
       "version": 1,
-      "hash": "34aa72fb8f69b038",
-      "sha256": "a7aa6600822766df977deff60b308d805cb67337e5bbf81fe318fc5b54dc6c91",
-      "createdAt": "2026-10-14"
+      "hash": "afb72f572d668aaf",
+      "sha256": "4cec7584818bef93ebacbdf2ee2f06e9b0016c6b19d748715c2ad78d128814f1",
+      "createdAt": "2026-11-25"
     }
   ],
   "contributors": [
     {
       "version": 1,
-      "hash": "5ba8a3ef6a720925",
-      "sha256": "020a3c4cd38e42bb1726e61c41db87878bf0f254a9748eb923b9cb41d0fe53a5",
-      "createdAt": "2026-10-14"
+      "hash": "ce9ee0a77c2f19ca",
+      "sha256": "c668e3a1f917967f9807e24b8893515ae6db875187d8c6db52bca6e64b829085",
+      "createdAt": "2026-11-25"
     }
   ],
   "roadmap": [
     {
-      "version": 2,
-      "hash": "c56a66b1b285c6d1",
-      "sha256": "d1ce89e47f0d03957988b6f1d026956e603b864f3ef989a90735556133788d1b",
-      "createdAt": "2026-10-14"
+      "version": 1,
+      "hash": "03a72116e8df80f4",
+      "sha256": "69b737fbfedfb9a6082ec4e53472b342593e830a49334a34ab6b88130cf8b4ff",
+      "createdAt": "2026-11-25"
     }
   ],
   "benchmark": [
     {
-      "version": 2,
-      "hash": "900b4a5894d33adf",
-      "sha256": "810c19e085c2d676c761366e616b9bd3eac36fc9cc7a977cb947724d6cff61d3",
-      "createdAt": "2026-10-14"
+      "version": 1,
+      "hash": "ad2b93c35783b1d4",
+      "sha256": "dd76fbe8de2f4721ca05aa912116818a2d4532b5ad353a50af3dc6b6b6033db3",
+      "createdAt": "2026-11-25"
     }
   ],
   "modelrelease": [
     {
       "version": 1,
-      "hash": "6d98ff7dc3e8a6bf",
-      "sha256": "411fce4b9bc1084ec5cb1cbd163064f82b999f1900364626264721f80863ad8a",
-      "createdAt": "2026-10-14"
+      "hash": "8f14e5f848a0a6b6",
+      "sha256": "14918f945544a9d2fde58eadf04569bcd539bd0865d6c2ee1a45b51d57257cf8",
+      "createdAt": "2026-11-25"
     }
   ],
   "statusupdate": [
     {
       "version": 1,
-      "hash": "5da01e56244c4a6c",
-      "sha256": "0e9443bb164d50b2a23d429404c65506fcaba2637bb56612f234acb6cd9545c6",
-      "createdAt": "2026-10-14"
+      "hash": "baaa3e7371dd7ee4",
+      "sha256": "855d15cf97e913a6e277c98a349ab5a2beb1852b9a41bcf3f108d77306269fce",
+      "createdAt": "2026-11-25"
     }
   ],
   "securityadvisory": [
     {
       "version": 1,
-      "hash": "abdab54955ace024",
-      "sha256": "086ee5e9f4a6846c50d0541725617c99c5f0cea19bc7b61b12d5e8110b0c495b",
-      "createdAt": "2026-10-14"
+      "hash": "c1e0b62d8740c706",
+      "sha256": "9cb54f824f2a4f9c657c5adf81717ed9d6d4c830744ededa71d15e552d3b3d40",
+      "createdAt": "2026-11-25"
     }
   ],
   "docslaunch": [
     {
       "version": 1,
-      "hash": "5da313d24808de8e",
-      "sha256": "6d9bc6c61cb34f38e88066dd3a574f644b934fdd1424cb49934ae108faf92104",
-      "createdAt": "2026-10-14"
+      "hash": "67e0a211d31a3853",
+      "sha256": "8ac3de6839e62c2dca291ad57cd17586e428c5ed5fe66921b1569e3d5b67750c",
+      "createdAt": "2026-11-25"
     }
   ],
   "hackathon": [
     {
       "version": 1,
-      "hash": "4d6da81ec00392c0",
-      "sha256": "a761bfcf6672d1660f112eaccaf4cc8ce18aaad62e29f954d70fa3d50fee4f8f",
-      "createdAt": "2026-10-14"
+      "hash": "9b710f4b3a84ab82",
+      "sha256": "cf6461a2119e740f2849fb3d1e3c4522814dc1155fb8638098941e36f2051b8a",
+      "createdAt": "2026-11-25"
     }
   ],
   "devtalk": [
     {
       "version": 1,
-      "hash": "dd54f8f41d1ab278",
-      "sha256": "d4abdf534484344dc6b78dbc285df9872cde030a4cc25c5b112a34e7caec8615",
-      "createdAt": "2026-10-14"
+      "hash": "4c175479eb261fa4",
+      "sha256": "42f66d95d8964b1af24e4aeb10b8ae7486c16d4b99085f2c0e6f502ade41c984",
+      "createdAt": "2026-11-25"
     }
   ],
   "opensource": [
     {
       "version": 1,
-      "hash": "3d7350baa8d046ab",
-      "sha256": "317ca79271a9225671e5380bdbf1abac198978e2821db064aa6cf3b7af135c3c",
-      "createdAt": "2026-10-14"
+      "hash": "1fd61502c5085a55",
+      "sha256": "e8f5b2857d05c047fca478cdcce78735fb821151879c9fa208dd858786231a27",
+      "createdAt": "2026-11-25"
     }
   ],
   "hookanswer": [
     {
       "version": 1,
-      "hash": "2816f98ce2cc949d",
-      "sha256": "8eaff0a5c701ff1dee4e3b34a28e081d1dcd3ba0e733898a7f6e1502d81dfe00",
-      "createdAt": "2026-10-16"
+      "hash": "1df9d83f3d6db7da",
+      "sha256": "3c0da1491323f48abf10c25cae3fb2ba0044b443152fde38be1a327dc9251ced",
+      "createdAt": "2026-11-25"
     }
   ],
   "quickstart": [
     {
       "version": 1,
-      "hash": "92a7a6a1765671c6",
-      "sha256": "1869ba3e63bf34ebc90f62839bd94fb6f3f251efc3f1f772658d815cca4b4cac",
-      "createdAt": "2026-10-16"
-    }
-  ],
-  "foundernote": [
-    {
-      "version": 1,
-      "hash": "a6f639518685e11f",
-      "sha256": "f9f30e3471f993b1010bb06fe7f8d1cf2887d62d1d43ecd76988eb2b436ff893",
-      "createdAt": "2026-10-16"
-    }
-  ],
-  "weeklyshipped": [
-    {
-      "version": 1,
-      "hash": "ae70c991db637a99",
-      "sha256": "85f6430ca1893b2b44551035e3ce34f24f905e792808b52ee195efda96dff50b",
-      "createdAt": "2026-10-16"
-    }
-  ],
-  "whyswitch": [
-    {
-      "version": 1,
-      "hash": "28e100a6a55ec54d",
-      "sha256": "7fa28bcf20f0068117333557fa69e5c27640e1388573aa9ed5077f8b4711755a",
-      "createdAt": "2026-10-16"
-    }
-  ],
-  "stathook": [
-    {
-      "version": 1,
-      "hash": "475597bd13d70421",
-      "sha256": "c98a8ea3f1616e230136153bedbaf1f62f0d613383a022dd77c9a32097742637",
-      "createdAt": "2026-10-16"
-    }
-  ],
-  "youasked": [
-    {
-      "version": 1,
-      "hash": "c23a84559a0e64f7",
-      "sha256": "351513599b9d9407b81b25f4f42d08a039fabf8f543efd22bceb7082e924bddd",
-      "createdAt": "2026-10-16"
-    }
-  ],
-  "featuredemo": [
-    {
-      "version": 1,
-      "hash": "590e2baca8821103",
-      "sha256": "b115a3203a893edacf3e2481c5b3f3eef69427743255657af150eb4fff79b13d",
-      "createdAt": "2026-10-16"
-    }
-  ],
-  "workswith": [
-    {
-      "version": 1,
-      "hash": "602ab7a45bb9b320",
-      "sha256": "5f3ef704d7711157d8b854779603149d1fff46a5379e42157da16906ad049856",
-      "createdAt": "2026-10-16"
+      "hash": "f87077c334b4e32a",
+      "sha256": "59621b01d4c00c779c09a1b6d872aaed38ed77e35d5cfeab942464955952ca3f",
+      "createdAt": "2026-11-25"
     }
   ],
   "howitworks": [
     {
       "version": 1,
-      "hash": "12e735359fa3a798",
-      "sha256": "d1376aca84c517361bf33f48c482e9d12e3418edfd6efbd635e2d0aedb2e8a36",
-      "createdAt": "2026-10-16"
+      "hash": "a6bb6744f36b807e",
+      "sha256": "7312e16b67cb1106604f8180603cbffa42ff863633bace44748057e9a6f018c3",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "foundernote": [
+    {
+      "version": 1,
+      "hash": "e8f20ae84a181753",
+      "sha256": "6a1386c26bb562751bdbc0badcf73edc1c120daad27674fcafeedb1994be913c",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "weeklyshipped": [
+    {
+      "version": 1,
+      "hash": "5117bee0cdb817ee",
+      "sha256": "2479e4775f44b151ba75ea9806f24657aa437a8f81a787b6157b68fe8fb39a24",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "whyswitch": [
+    {
+      "version": 1,
+      "hash": "e50e630b0bb25ba6",
+      "sha256": "1929e521697121fa663389d363b3cbc8b5e73c891eedffc889071f87b7b1c9c3",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "stathook": [
+    {
+      "version": 1,
+      "hash": "62649bc1239a25cc",
+      "sha256": "029482e97b42806e239e7fb4f9be921e10fc1e22da3362124e495b54d2949a17",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "youasked": [
+    {
+      "version": 1,
+      "hash": "17b0373c5f4fe3df",
+      "sha256": "25172cbcd6b63be6e24c2b0a483075e1977fd1bc4f77f093574ce07c6d45cb7a",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "featuredemo": [
+    {
+      "version": 1,
+      "hash": "2dac60b80f0119e7",
+      "sha256": "185437d618e82d556335bb03b50961c4f776596b73ee8391d31df04583075bb8",
+      "createdAt": "2026-11-25"
     }
   ],
   "launchweek": [
     {
       "version": 1,
-      "hash": "f663cc8701325ed0",
-      "sha256": "f491436641acc9562ab2d00117660328c915290210451f2ec16bbd10e61c848b",
-      "createdAt": "2026-10-16"
+      "hash": "041c427141c79e4e",
+      "sha256": "fb71062ac46e7c144758fdc6afca60c21a7eff1c1d8b20042a3ca541f1ff03b3",
+      "createdAt": "2026-11-25"
     }
   ],
   "builtfor": [
     {
       "version": 1,
-      "hash": "474dc49506f9c6ac",
-      "sha256": "3aff70772d0e5a5d7191121db9548dbef68b6af9eec060750007bb368ac1995b",
-      "createdAt": "2026-10-16"
+      "hash": "8f006132aa60855b",
+      "sha256": "c84b586eaa8efb731e57d91364ad2daa296b49a4eb3fd25c2a8f350933c09bb8",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "workswith": [
+    {
+      "version": 1,
+      "hash": "ef7c24b01842ade6",
+      "sha256": "68c08a78f41d80c550dfdfd6052951165a4edf66c5864c96b716b2cc906c7241",
+      "createdAt": "2026-11-25"
     }
   ],
   "launchcut": [
     {
       "version": 1,
-      "hash": "a89196d45658764c",
-      "sha256": "d6c75137ba4b224e8de5be5e0c16308e86fdcd8459fbe77c4bee4bc3b0834059",
-      "createdAt": "2026-10-18"
+      "hash": "348b89f58e2ed8f9",
+      "sha256": "38f859fa16c6687f41e3c3c460af8cb58c59a41024a730a876425623f5e93846",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "retroconsole": [
+    {
+      "version": 1,
+      "hash": "aa88d993346ac11d",
+      "sha256": "3db9536a834cc4a4a051513888868392f641749d681fda0a14945a345fdf87fd",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "creatorlower": [
+    {
+      "version": 1,
+      "hash": "9a3767ea62e8255c",
+      "sha256": "8bda0c334165b3b9569ba71ca02dafe710bad1d15863c75bba15590f7756b254",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "ytoutrocard": [
+    {
+      "version": 1,
+      "hash": "07d21cb569356654",
+      "sha256": "7e42da48d2829bae8f086affc95108c49173d85a561538ae5437d0b12a6f027c",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "flashdrop": [
+    {
+      "version": 1,
+      "hash": "fa2b52ba2339f4cb",
+      "sha256": "5a9a4e75a01830d3ceb5f4afa35b8dd1487f91d0f2ece0a5416ad613c82a94b0",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "threesteps": [
+    {
+      "version": 1,
+      "hash": "d81da972bbd6e63c",
+      "sha256": "35f17e883e7cd6b12df34e1e5a7cb118934697bde6fc10d69ae6d4d60534d014",
+      "createdAt": "2026-11-25"
+    }
+  ],
+  "explainerreel": [
+    {
+      "version": 1,
+      "hash": "4a7508b58ebcc949",
+      "sha256": "670da0eeb298f9b1f02782e0600134e6e8fdc8f02d94ca4a0a7f221aef1eafa7",
+      "createdAt": "2026-11-25"
     }
   ]
 }

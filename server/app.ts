@@ -9,6 +9,7 @@ import {HttpError, byteRange, exportFilename, fingerprint, publicExport, publicV
 import type {Exported, Published} from './model.ts';
 import {logoBytes, processLogo} from './logos.ts';
 import {LOGO_MAX_BYTES, logoOf, logoPath} from '../src/videos/logo.ts';
+import type {AutofillResult} from './autofill.ts';
 import type {createStore} from './store.ts';
 import type {renderThumbnail, renderVideo} from './render.ts';
 import type {createLoopService, createPreviewService} from './preview.ts';
@@ -32,6 +33,8 @@ type Dependencies = {
   loopTimeoutMs?: number;
   // HTML of the MCP Apps live preview view (server/mcp-app.ts). Optional; without it hosts get text and images.
   previewApp?: string | null;
+  // AI Brand Kit auto-fill backed by Anthropic. Optional; omitted when ANTHROPIC_API_KEY is unset.
+  autofill?: (prompt: string) => Promise<AutofillResult>;
 };
 async function readBody(req: IncomingMessage, label = 'Video request', max = 16_384) {
   if (req.headers['content-type']?.split(';')[0] !== 'application/json') throw new HttpError(415, 'Use JSON.');
@@ -57,6 +60,7 @@ const fromEdge = (secret: string, header: string | string[] | undefined) => {
 export function createHandler(deps: Dependencies) {
   let rendering = false;
   const limiter = deps.limiter ?? createLimiter();
+  const autofillLimiter = createLimiter();
   // API key lookups cached per instance for 5 minutes. Revoking a key clears it on the instance that served the revoke.
   const KEY_TTL_MS = 300_000;
   const keys = new Map<string, {at: number; owner: string | null}>();
@@ -248,6 +252,24 @@ export function createHandler(deps: Dependencies) {
           await deps.store.saveLogo(logo.id, logo.png, `user:${uid}`);
         }
         json(201, {id: logo.id, ratio: logo.ratio, mono: logo.transparent, transparent: logo.transparent, url: `${deps.origin}${logoPath(logo.id)}`});
+        return;
+      }
+      if (pathname === '/api/autofill' && req.method === 'POST') {
+        if (!deps.autofill) throw new HttpError(503, 'AI auto-fill is not available yet.');
+        const ip = clientIp(req.headers, req.socket.remoteAddress);
+        const globalCap = autofillLimiter('autofill:global', {perMinute: 60, perDay: 1_500});
+        if (!globalCap.ok) throw new HttpError(429, 'AI auto-fill is busy right now. Try again shortly.');
+        const callerCap = autofillLimiter(`autofill:ip:${ip}`, {perMinute: 5, perDay: 25});
+        res.setHeader('RateLimit-Limit', String(callerCap.limit));
+        res.setHeader('RateLimit-Remaining', String(callerCap.remaining));
+        res.setHeader('RateLimit-Reset', String(callerCap.reset));
+        if (!callerCap.ok) {
+          res.setHeader('Retry-After', String(callerCap.retryAfter));
+          throw new HttpError(429, `Daily auto-fill limit reached. Try again in ${callerCap.retryAfter} seconds.`);
+        }
+        const body = await readBody(req, 'Auto-fill request', 4_096) as {prompt?: unknown};
+        if (typeof body?.prompt !== 'string') throw new HttpError(400, 'Enter a website URL or short description.');
+        json(200, await deps.autofill(body.prompt));
         return;
       }
       if (pathname === '/api/keys' && req.method === 'POST') {

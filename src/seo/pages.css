@@ -38,6 +38,8 @@ p, dd, td { color: #b8bdc8; }
 .seo-brief { margin: 18px 0; padding: 14px 0; border-top: 1px solid #2a2e37; border-bottom: 1px solid #2a2e37; }
 .seo-brief h2 { font-size: 15px; margin: 0 0 8px; }
 .seo-brief p { margin: 0; color: #d7dbe2; white-space: pre-wrap; }
+.seo-code { margin: 12px 0; padding: 14px 16px; overflow-x: auto; border: 1px solid #2a2e37; border-radius: 8px; background: #0a0b0d; }
+.seo-code code { font: 13.5px/1.5 ui-monospace, Menlo, monospace; color: #eceef2; }
 .facts { display: grid; margin: 0; border-top: 1px solid #2a2e37; }
 .facts div { display: grid; grid-template-columns: 130px 1fr; gap: 14px; padding: 9px 0; border-bottom: 1px solid #2a2e37; }
 .facts dt { color: #8b91a0; font-size: 13px; }

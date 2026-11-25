@@ -25,9 +25,15 @@ type Filters = {
 export const energyOf = (n: number): Energy => (n <= 2 ? 'Calm' : n === 3 ? 'Medium' : 'High');
 const FORMATS: Format[] = ['16:9', '9:16', '1:1', '4:5'];
 const SCENE_FILTERS = Object.entries(SCENE_TYPES).filter(([k]) => k !== 'transition');
-// "Featured" shows the newest developer and product launch videos. An explicit purpose filter overrides it.
-const FEATURED_PURPOSES = new Set(['Developer', 'Product launch']);
+// "Featured" ranks launch, developer, and top creator/promo videos first without hiding the rest of the catalog.
+const FEATURED_PRIORITY = new Set(['Product launch', 'Developer', 'Creator video', 'Holiday sale']);
 const newestFirst = (a: Variant, b: Variant) => Date.parse(b.createdAt) - Date.parse(a.createdAt);
+const featuredOrder = (a: Variant, b: Variant) => {
+  const ap = FEATURED_PRIORITY.has(a.purpose) ? 0 : 1;
+  const bp = FEATURED_PRIORITY.has(b.purpose) ? 0 : 1;
+  if (ap !== bp) return ap - bp;
+  return newestFirst(a, b);
+};
 
 // The gallery remounts on every visit, so its view state lives in this tab's session storage:
 // opening a video and coming back keeps the sort, search, and filters.
@@ -57,6 +63,7 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
   const [q, setQ] = useState(saved.q ?? '');
   const [sort, setSort] = useState<Sort>(saved.sort === 'new' ? 'new' : 'featured');
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [showAllPurposes, setShowAllPurposes] = useState(false);
   const [f, setF] = useState<Filters>({purpose: null, formats: [], styles: [], tones: [], energy: null, scenes: [], ...saved.f, template: initialTemplate});
   useEffect(() => {
     const {template: _template, ...rest} = f;
@@ -76,14 +83,12 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
     return (savedOnly ? variants : galleryVariants).filter((v) => (!savedOnly || account.saved.has(v.id)) && terms.every((t) => searchText(v).includes(t)));
   }, [q, savedOnly, account.saved]);
 
-  const featuredOnly = sort === 'featured' && !f.purpose;
-  const inView = (v: Variant, skip?: keyof Filters) =>
-    matches(v, f, skip) && (!featuredOnly || skip === 'purpose' || FEATURED_PURPOSES.has(v.purpose));
+  const inView = (v: Variant, skip?: keyof Filters) => matches(v, f, skip);
   const count = (skip: keyof Filters, pred: (v: Variant) => boolean) => searched.filter((v) => inView(v, skip) && pred(v)).length;
 
   const results = useMemo(
-    () => searched.filter((v) => matches(v, f) && (!featuredOnly || FEATURED_PURPOSES.has(v.purpose))).sort(newestFirst),
-    [searched, f, featuredOnly],
+    () => searched.filter((v) => matches(v, f)).sort(sort === 'featured' ? featuredOrder : newestFirst),
+    [searched, f, sort],
   );
 
   const active = Boolean(q || f.template || f.purpose || f.formats.length || f.styles.length || f.tones.length || f.energy || f.scenes.length);
@@ -107,28 +112,39 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
     </button>
   );
 
+  const sortedPurposes = useMemo(() => {
+    return [...vocab.purpose].sort((a, b) => count('purpose', (v) => v.purpose === b) - count('purpose', (v) => v.purpose === a));
+  }, [searched, f]);
+  const visiblePurposes = showAllPurposes || (f.purpose && sortedPurposes.indexOf(f.purpose) >= 6)
+    ? sortedPurposes
+    : sortedPurposes.slice(0, 6);
+  const hiddenPurposeCount = Math.max(0, sortedPurposes.length - visiblePurposes.length);
+
+  const searchField = (id: string, className: string) => (
+    <label className={`search ${className}`} htmlFor={id}>
+      <Search size={15} aria-hidden="true" />
+      <input id={id} type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search templates" />
+      {q && (
+        <button type="button" className="icon-btn ghost" onClick={() => setQ('')} title="Clear search" aria-label="Clear search">
+          <X size={14} />
+        </button>
+      )}
+    </label>
+  );
+
   return (
     <div className="page">
-      <Header>
-        <label className="search">
-          <Search size={16} />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search videos, styles, keywords" />
-          {q && (
-            <button className="icon-btn ghost" onClick={() => setQ('')} title="Clear search">
-              <X size={14} />
-            </button>
-          )}
-        </label>
-      </Header>
+      <Header />
 
-      <BrandStrip />
+      <BrandStrip templateCount={galleryVariants.length} />
 
       <div className="gallery-layout">
         <aside className={`filters ${filtersOpen ? 'open' : ''}`}>
           <section>
             <h3>Purpose</h3>
+            {searchField('sidebar-search', 'sidebar-search')}
             <div className="list">
-              {vocab.purpose.map((p) => {
+              {visiblePurposes.map((p) => {
                 const n = count('purpose', (v) => v.purpose === p);
                 return (
                   <button key={p} className={`row-btn ${f.purpose === p ? 'on' : ''}`} disabled={!n && f.purpose !== p} onClick={() => set('purpose', f.purpose === p ? null : p)}>
@@ -137,6 +153,11 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
                   </button>
                 );
               })}
+              {hiddenPurposeCount > 0 && (
+                <button type="button" className="row-btn more-btn" onClick={() => setShowAllPurposes(true)}>
+                  <span>+ {hiddenPurposeCount} more</span>
+                </button>
+              )}
             </div>
           </section>
           <section>
@@ -170,7 +191,7 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
         </aside>
 
         <main>
-          <h1 className="visually-hidden">You ship it. Cliphouse shows it off.</h1>
+          {searchField('mobile-search', 'mobile-search')}
           <div className="results-bar">
             <div className="segmented collection-tabs" role="group" aria-label="Collection">
               <button className={!savedOnly ? 'on' : ''} aria-pressed={!savedOnly} onClick={() => setSavedOnly(false)}>All videos</button>

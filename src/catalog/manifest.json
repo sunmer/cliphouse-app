@@ -1990,6 +1990,90 @@
         "provider": "OpenAI",
         "effort": "high"
       }
+    },
+    {
+      "id": "retroconsole",
+      "title": "Retro Console Boot",
+      "creator": "cliphou.se",
+      "prompt": "A 6 second 16:9 retro game console boot-up intro with a CRT power-on flash, stepped pixel grid frame, blocky arcade headline with stepped shadow, subhead reveal, and blinking press-start CTA pill over subtle scanlines.",
+      "createdAt": "2026-11-25",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "medium"
+      }
+    },
+    {
+      "id": "creatorlower",
+      "title": "Creator Lower Third",
+      "creator": "cliphou.se",
+      "prompt": "An 8 second 16:9 broadcast-style creator and podcast lower third with a channel tag, clipped speaker headline reveal, topic subhead strap, and social handle CTA badge over a clean studio framing grid.",
+      "createdAt": "2026-11-25",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "medium"
+      }
+    },
+    {
+      "id": "ytoutrocard",
+      "title": "Creator End Screen",
+      "creator": "cliphou.se",
+      "prompt": "A 12 second 16:9 YouTube end screen outro with a bold header, two steady 16:9 next-video placeholder frames aligned for YouTube Studio cards, and a pulsing subscribe CTA badge.",
+      "createdAt": "2026-11-25",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "high"
+      }
+    },
+    {
+      "id": "flashdrop",
+      "title": "Flash Drop Promo",
+      "creator": "cliphou.se",
+      "prompt": "An 8 second 9:16 vertical flash sale ad with kinetic diagonal speed lines, a hero discount price stamp, three staggered offer perk rows, and a bold shop-now closing lockup.",
+      "createdAt": "2026-11-25",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "medium"
+      }
+    },
+    {
+      "id": "threesteps",
+      "title": "Three-Step Explainer",
+      "creator": "cliphou.se",
+      "prompt": "A 10 second 16:9 SaaS three-step explainer with an editorial opener, three horizontal numbered step cards connected by an animated SVG progress line, and a clean closing CTA.",
+      "createdAt": "2026-11-25",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "medium"
+      }
+    },
+    {
+      "id": "explainerreel",
+      "title": "Vertical Step Guide",
+      "creator": "cliphou.se",
+      "prompt": "A 10 second 9:16 vertical three-step onboarding and how-it-works reel with a crisp hook, three stacked numbered step cards illuminated along an animated vertical spine, and a bold CTA.",
+      "createdAt": "2026-11-25",
+      "license": "MIT-0",
+      "generation": {
+        "model": "Claude Opus 5.5",
+        "modelId": "claude-opus-5-5",
+        "provider": "Anthropic",
+        "effort": "medium"
+      }
     }
   ],
   "variants": [
@@ -9917,6 +10001,303 @@
       "goals": [
         "launch-product",
         "announce-feature"
+      ]
+    },
+    {
+      "template": "retroconsole",
+      "creator": "cliphou.se",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-11-25",
+      "id": "retroconsole-intro",
+      "title": "Retro Console Boot",
+      "description": "A CRT cartridge boot sequence with stepped pixel scanlines, a bold retro title lockup, and a press-start prompt.",
+      "purpose": "Creator video",
+      "style": [
+        "Retro",
+        "Playful"
+      ],
+      "energy": 5,
+      "keywords": [
+        "retro intro",
+        "arcade boot",
+        "8 bit gaming intro",
+        "crt title",
+        "pixel youtube intro"
+      ],
+      "props": {
+        "texts": {
+          "brand": "PIXEL LAB",
+          "headline": "INSERT CARTRIDGE",
+          "subhead": "New devlog and indie reviews every week",
+          "cta": "PRESS START"
+        },
+        "theme": {
+          "background": "#0a0b1a",
+          "surface": "#1a1d3d",
+          "foreground": "#f8fafc",
+          "accent": "#facc15",
+          "accent2": "#f43f5e"
+        }
+      },
+      "seoDescription": "Free 16:9 retro console boot intro template with stepped pixel motion and CRT scanlines. Edit text and colors online, then export.",
+      "useCases": [
+        "gaming-intro",
+        "youtube-intro",
+        "title-card"
+      ]
+    },
+    {
+      "template": "creatorlower",
+      "creator": "cliphou.se",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-11-25",
+      "id": "creatorlower-pack",
+      "title": "Creator Lower Third",
+      "description": "A crisp broadcast-style lower third pack with a channel tag, speaker name, topic strap, and handle pill.",
+      "purpose": "Creator video",
+      "style": [
+        "Bold",
+        "Editorial"
+      ],
+      "energy": 3,
+      "keywords": [
+        "creator lower third",
+        "podcast name bar",
+        "interview title strap",
+        "youtube lower third",
+        "speaker overlay"
+      ],
+      "props": {
+        "texts": {
+          "brand": "STUDIO FM",
+          "headline": "Maya Lindqvist",
+          "subhead": "Designing fast motion systems for small teams",
+          "cta": "@studiofm"
+        },
+        "theme": {
+          "background": "#111318",
+          "surface": "#1d212b",
+          "foreground": "#f8fafc",
+          "accent": "#38bdf8",
+          "accent2": "#a855f7"
+        }
+      },
+      "seoDescription": "Free 16:9 creator lower third video template with name bar, topic strap, and social handle. Customize text and colors online.",
+      "useCases": [
+        "lower-thirds",
+        "youtube-intro"
+      ]
+    },
+    {
+      "template": "ytoutrocard",
+      "creator": "cliphou.se",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-11-25",
+      "id": "ytoutrocard-creator",
+      "title": "Creator End Screen",
+      "description": "A 12-second YouTube outro with two steady next-video frames, a subscribe ring, and clear channel branding.",
+      "purpose": "Creator video",
+      "style": [
+        "Bold",
+        "Minimal"
+      ],
+      "energy": 3,
+      "keywords": [
+        "youtube end screen",
+        "creator outro",
+        "next video frame",
+        "subscribe outro",
+        "16:9 outro template"
+      ],
+      "props": {
+        "texts": {
+          "brand": "NORTHSTAR",
+          "headline": "Watch next",
+          "point1": "Latest tutorial",
+          "point2": "Full playlist",
+          "cta": "Subscribe"
+        },
+        "theme": {
+          "background": "#0d0f14",
+          "surface": "#181c26",
+          "foreground": "#f8fafc",
+          "accent": "#22c55e",
+          "accent2": "#38bdf8"
+        }
+      },
+      "seoDescription": "Free 16:9 YouTube end screen and creator outro template with two video placeholders and a subscribe ring. Edit online and export.",
+      "useCases": [
+        "youtube-end-screen",
+        "subscribe",
+        "youtube-intro"
+      ]
+    },
+    {
+      "template": "flashdrop",
+      "creator": "cliphou.se",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-11-25",
+      "id": "flashdrop-sale",
+      "title": "Flash Drop Promo",
+      "description": "A vertical flash-sale promo with a giant price stamp, three crisp perk rows, and a bold shop-now finale.",
+      "purpose": "Holiday sale",
+      "style": [
+        "Bold",
+        "Neon"
+      ],
+      "energy": 5,
+      "keywords": [
+        "flash sale reel",
+        "ecommerce promo video",
+        "discount vertical ad",
+        "price drop template",
+        "9:16 sale ad"
+      ],
+      "props": {
+        "texts": {
+          "brand": "KINETIC",
+          "headline": "Weekend Flash Sale",
+          "price": "40% OFF",
+          "priceNote": "Ends Sunday midnight",
+          "point1": "Free shipping",
+          "point2": "30-day returns",
+          "point3": "Limited stock",
+          "cta": "Shop the drop"
+        },
+        "theme": {
+          "background": "#0c0b10",
+          "surface": "#1b1826",
+          "foreground": "#ffffff",
+          "accent": "#ff4d6d",
+          "accent2": "#facc15"
+        }
+      },
+      "seoDescription": "Free 9:16 vertical flash sale video template with animated price drop, three offer highlights, and CTA. Edit and export MP4 online.",
+      "useCases": [
+        "sale",
+        "flash-sale",
+        "instagram-reel",
+        "social-ad"
+    ],
+    "goals": [
+      "run-promotion"
+    ]
+    },
+    {
+      "template": "threesteps",
+      "creator": "cliphou.se",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-11-25",
+      "id": "threesteps-explainer",
+      "title": "Three-Step Explainer",
+      "description": "A clean 16:9 three-step explainer that introduces your product, animates three connected steps, and ends on a clear CTA.",
+      "purpose": "Product launch",
+      "style": [
+        "Minimal",
+        "Tech"
+      ],
+      "energy": 3,
+      "keywords": [
+        "3 step explainer",
+        "how it works video",
+        "saas explainer template",
+        "product workflow",
+        "16:9 explainer"
+      ],
+      "props": {
+      "texts": {
+        "brand": "RELAY",
+        "headline": "Ship in three steps",
+        "subhead": "Turn your roadmap into live customer updates.",
+        "point1": "Connect repo",
+        "point2": "Pick highlights",
+        "point3": "Publish anywhere",
+        "cta": "Start free"
+      },
+        "theme": {
+          "background": "#0b0e14",
+          "surface": "#151b26",
+          "foreground": "#f8fafc",
+          "accent": "#4ade80",
+          "accent2": "#60a5fa"
+        }
+      },
+      "seoDescription": "Free 16:9 three-step explainer video template for SaaS and product workflows. Edit steps, headline, and colors online, then export.",
+      "useCases": [
+        "product-launch",
+        "saas",
+        "feature-launch"
+      ],
+      "goals": [
+      "launch-product"
+      ]
+    },
+    {
+      "template": "explainerreel",
+      "creator": "cliphou.se",
+      "stats": {
+        "exports": 0,
+        "remixes": 0
+      },
+      "createdAt": "2026-11-25",
+      "id": "explainerreel-steps",
+      "title": "Vertical Step Guide",
+      "description": "A vertical 9:16 three-step guide with a clean hook, numbered step cards that light up in sequence, and a crisp CTA.",
+      "purpose": "Product launch",
+      "style": [
+        "Editorial",
+        "Minimal"
+      ],
+      "energy": 4,
+      "keywords": [
+        "vertical explainer",
+        "how it works reel",
+        "onboarding video template",
+        "3 step reel",
+        "9:16 explainer"
+      ],
+      "props": {
+        "texts": {
+          "brand": "VELO PAY",
+          "headline": "Open in 2 minutes",
+          "subhead": "Fast digital onboarding with zero paperwork.",
+          "point1": "Verify ID",
+          "point2": "Link account",
+          "point3": "Start using",
+          "cta": "Get the app"
+        },
+        "theme": {
+          "background": "#0e1117",
+          "surface": "#181e29",
+          "foreground": "#f8fafc",
+          "accent": "#34d399",
+          "accent2": "#818cf8"
+        }
+      },
+      "seoDescription": "Free 9:16 vertical three-step explainer template for Reels, TikTok, and app onboarding. Edit every step and color online.",
+      "useCases": [
+        "instagram-reel",
+        "product-launch",
+        "saas",
+        "app-promo"
+      ],
+      "goals": [
+      "launch-product"
       ]
     }
   ]

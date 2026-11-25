@@ -23,8 +23,8 @@ const notice = 'Free to copy, modify, share, and use commercially. No attributio
 const mp4 = Boolean(process.env.VITE_SHARE_API_ORIGIN);
 const exportStatus = mp4 ? 'Free, full resolution, no watermark' : 'Not available yet';
 const exportFact = mp4 ? 'Signed-in users can download a free full-resolution MP4 with no watermark.' : 'Hosted MP4 export is not available yet.';
-const promise = `100% free. Browse without an account; a free Google account unlocks unlimited editing. No watermark, credit card, or attribution required.${mp4 ? ' Free MP4 downloads.' : ''} Built for Claude Code, Codex, Cursor, Claude, and ChatGPT.`;
-const accountFact = 'Browsing is free without an account. Editing more than 3 templates needs a free Google account. Agent handoff links always open.';
+const promise = `100% free. Browse and edit every template without an account. No watermark, credit card, or attribution required.${mp4 ? ' Free full-resolution MP4 downloads.' : ''} Built for Claude Code, Codex, Cursor, Claude, and ChatGPT.`;
+const accountFact = 'Browsing and editing all templates is free without an account. A free Google account unlocks cloud MP4 exports, saved drafts, published links, and logo uploads.';
 // The MCP section is published only when the share service (which hosts /mcp) is deployed.
 const mcpSection = mp4 ? `## MCP server\n\nStreamable HTTP MCP endpoint: ${site}/mcp (stateless, POST only). Tools: search_templates, get_template_spec, build_edit_link, render_preview, render_previews. Search by marketing goal: ${GOAL_IDS.join(', ')}. render_preview renders a poster image of a template with your props in a few seconds; render_previews renders up to 4 templates at once from one brand description; no tool renders video or reads user data.\n\nAnonymous use is limited to 60 requests per minute and 1,000 per day per IP. A free API key from your cliphou.se account raises this to 600 per minute and 20,000 per day: send Authorization: Bearer <key>. Over the limit, the server answers HTTP 429 with Retry-After and RateLimit-* headers; wait Retry-After seconds before retrying.\n\n` : '';
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'src/catalog/manifest.json'), 'utf8'));
@@ -123,7 +123,7 @@ function layout({page, body, schema, landing = true}) {
   <body>
     <header class="seo-top"><a class="seo-logo" href="${local('/')}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"></circle><path d="M8.12 8.12 12 12"></path><path d="M20 4 8.12 15.88"></path><circle cx="6" cy="18" r="3"></circle><path d="M14.8 14.8 20 20"></path></svg>cliphou.se</a><nav class="seo-nav"><a class="seo-browse" href="${local('/')}">Browse videos</a></nav></header>
     <main class="seo-main">${body}</main>
-    <footer class="seo-footer"><a href="${local('/motion-graphics-templates/')}">Templates</a><a href="${local('/remotion-templates/')}">Remotion</a><a href="${local('/hyperframes-templates/')}">HyperFrames</a><a href="${local('/license/')}">License</a><a href="${local('/mcp-docs/')}">MCP docs</a><a href="${local('/about/')}">About</a><a href="${local('/#/privacy')}">Privacy</a></footer>
+    <footer class="seo-footer"><a href="${local('/motion-graphics-templates/')}">Templates</a><a href="${local('/remotion-templates/')}">Remotion</a><a href="${local('/hyperframes-templates/')}">HyperFrames</a><a href="${local('/remotion-vs-hyperframes/')}">Remotion vs HyperFrames</a><a href="${local('/benchmark/')}">Benchmark</a><a href="${local('/license/')}">License</a><a href="${local('/mcp-docs/')}">MCP docs</a><a href="${local('/about/')}">About</a><a href="${local('/#/privacy')}">Privacy</a></footer>
   </body>
 </html>
 `;
@@ -141,18 +141,28 @@ function cards(items) {
   return `<div class="seo-grid">${items.map((v) => `<article class="seo-card"><a href="${local(v.path)}"><div class="seo-preview" style="aspect-ratio:${v.meta.width}/${v.meta.height}"><img src="${local(`/previews/${v.id}.jpg`)}" alt="${esc(v.title)} preview" width="480" height="${Math.round(480 * v.meta.height / v.meta.width)}" loading="lazy" /><video data-video-src="${local(`/previews/${v.id}.mp4`)}" aria-label="${esc(v.title)} preview" muted loop playsinline preload="none"></video></div><span>${esc(v.title)}</span></a><p>${esc(v.format)} · ${v.seconds}s · ${esc(v.purpose)}</p></article>`).join('')}</div>`;
 }
 
-function templatePage(v) {
+function templatePage(v, allVisible) {
   const page = {
     path: v.path, title: `${v.title} Template | ${v.format} ${v.purpose} | cliphou.se`, description: v.seoDescription,
     image: absolute(`/previews/${v.id}.jpg`), video: absolute(`/previews/${v.id}.mp4`), updatedAt: v.updatedAt,
   };
   const source = templateVersion(v.template);
-  const engine = ENGINE_LABELS[engineOf(v.template)];
+  const engineKey = engineOf(v.template);
+  const engine = ENGINE_LABELS[engineKey];
+  const propsSnippet = JSON.stringify({texts: v.props.texts, theme: v.props.theme}, null, 2);
+  const cliCmd = engineKey === 'hyperframes'
+    ? `npx hyperframes check && npx hyperframes render --variables=variables.json`
+    : `npm ci && npx remotion render src/index.ts ${v.template} out/video.mp4 --props=props.json`;
+  const related = allVisible
+    .filter((other) => other.id !== v.id && (other.purpose === v.purpose || other.useCases.some((u) => v.useCases.includes(u))))
+    .slice(0, 4);
   const facts = [['Format', `${v.format} (${v.meta.width} x ${v.meta.height})`], ['Duration', `${v.seconds} seconds`], ['Purpose', v.purpose], ['Styles', v.style.join(', ')], ['Scenes', v.scenes.join(', ')], ['Editable text', v.roles.join(', ')], ['Engine', engine], ...(v.meta.score ? [["Sound", `Generated score, ${v.meta.score.bpm} BPM, ${v.meta.score.scenes.reduce((n, x) => n + x.bars, 0)} bars. Text edits change only accent notes.`]] : []), ['License', license], ['Source', `${engine} project, template v${source.version} (${source.hash})`], ['MP4 export', exportStatus], ['Updated', v.updatedAt], ['Created by', v.creator]];
   const body = `<nav class="crumbs" aria-label="Breadcrumb"><a href="${local('/')}">Home</a><span>/</span><a href="${local('/motion-graphics-templates/')}">Templates</a><span>/</span>${esc(v.title)}</nav>
     <section class="seo-template"><div class="seo-video" style="aspect-ratio:${v.meta.width}/${v.meta.height};background:${esc(v.props.theme.background)}"><video data-video-src="${local(`/previews/${v.id}.mp4`)}" poster="${local(`/previews/${v.id}.jpg`)}" aria-label="${esc(v.title)} preview" muted loop playsinline controls preload="none"></video><button type="button" data-video-play hidden>Play video</button><noscript><a href="${local(`/previews/${v.id}.mp4`)}">Watch video</a></noscript></div>
     <div><h1>${esc(v.title)}</h1><p class="lead">${esc(v.seoDescription)}</p><p class="claim">${promise}</p><div class="actions"><a class="seo-button" data-editor="${esc(v.id)}" href="${local(`/#/v/${v.id}`)}">Edit free now</a><a class="seo-secondary" href="${local(`${v.path}agent.json`)}">Agent spec</a><a class="seo-secondary" href="${local(sourcePath(v.template, source.version))}" download>Download source</a></div><section class="seo-brief"><h2>Creative brief</h2><p>${esc(v.tmpl.prompt)}</p></section><p class="license-note">${notice} <a href="${local('/license/')}">Read the license</a>.</p>
-    <dl class="facts">${facts.map(([k, val]) => `<div><dt>${k}</dt><dd>${esc(val)}</dd></div>`).join('')}</dl></div></section>`;
+    <dl class="facts">${facts.map(([k, val]) => `<div><dt>${k}</dt><dd>${esc(val)}</dd></div>`).join('')}</dl></div></section>
+    <section class="seo-section"><h2>Customize in ${esc(engine)} or the browser</h2><p>Edit ${esc(v.roles.join(', '))} and all five theme colors live in the cliphou.se editor, or download the MIT-0 ${esc(engine)} source package and render locally with custom props:</p><pre class="seo-code"><code>${esc(cliCmd)}</code></pre><pre class="seo-code"><code>${esc(propsSnippet)}</code></pre></section>
+    ${related.length ? `<section class="seo-section"><h2>More ${esc(v.purpose.toLowerCase())} templates</h2>${cards(related)}</section>` : ''}`;
   const schema = [pageSchema(page), breadcrumb([['Home', '/'], ['Templates', '/motion-graphics-templates/'], [v.title, v.path]]), {
     '@type': 'VideoObject', '@id': `${absolute(v.path)}#video`, name: v.title, description: v.seoDescription,
     thumbnailUrl: [page.image], contentUrl: page.video, embedUrl: absolute(v.path), uploadDate: v.createdAt,
@@ -178,7 +188,7 @@ function sections(item) {
 }
 
 function comparisonExtra(item) {
-  const labels = ['Area', 'cliphou.se', item.competitor];
+  const labels = ['Area', item.col1 ?? 'cliphou.se', item.competitor];
   return `<section class="seo-section"><h2>Comparison</h2><p class="reviewed">Last reviewed ${reviewedAt}.</p><div class="table-wrap"><table><thead><tr>${labels.map((l) => `<th>${esc(l)}</th>`).join('')}</tr></thead><tbody>${item.rows.map((r) => `<tr>${r.map((c, i) => i ? `<td data-label="${esc(labels[i])}">${esc(c)}</td>` : `<th>${esc(c)}</th>`).join('')}</tr>`).join('')}</tbody></table></div><p>Source: ${item.sources.map(([n, u]) => `<a href="${u}" rel="nofollow">${esc(n)}</a>`).join(', ')}.</p></section>`;
 }
 
@@ -237,7 +247,7 @@ const agentSpec = (v) => buildAgentSpec({site, kind: 'template', id: v.id, url: 
 if (!fs.existsSync(dist)) throw new Error('Run vite build before generating SEO pages.');
 const visible = validate();
 const outputs = [];
-for (const v of visible) outputs.push(templatePage(v));
+for (const v of visible) outputs.push(templatePage(v, visible));
 for (const item of useCases) {
   const items = visible.filter(item.match);
   if (items.length >= 3) outputs.push(collectionPage(item, items));
@@ -245,7 +255,8 @@ for (const item of useCases) {
 for (const item of editorialPages) outputs.push(collectionPage(item, visible.filter(item.match), sections(item)));
 for (const item of comparisons) {
   const rows = item.rows.map((r) => r[0] === 'Export' ? [r[0], mp4 ? 'Free full-resolution MP4 download with no watermark after Google sign-in. Developers can also download the Remotion source.' : r[1], r[2]] : r);
-  outputs.push(collectionPage(item, visible.filter(item.match).slice(0, 6), comparisonExtra({...item, rows})));
+  const col1 = item.path === '/remotion-vs-hyperframes/' ? 'Remotion' : 'cliphou.se';
+  outputs.push(collectionPage(item, visible.filter(item.match).slice(0, 6), comparisonExtra({...item, rows, col1})));
 }
 outputs.push(licensePage());
 outputs.push(mcpDocsPage());
@@ -272,10 +283,10 @@ fs.writeFileSync(path.join(dist, 'agent-contract.json'), `${JSON.stringify({
   goals: MARKETING_GOALS.map(({id, label}) => ({id, label})),
 }, null, 2)}\n`);
 const catalogUpdated = date(...visible.map((v) => v.updatedAt));
-const fixed = [{path: '/', updatedAt: catalogUpdated}, {path: '/about/', updatedAt: reviewedAt}, {path: '/benchmark/', updatedAt: '2026-10-08'}, {path: '/benchmark/2026-10/', updatedAt: '2026-10-08'}, {path: '/benchmark/gta6/', updatedAt: '2026-10-18'}];
+const fixed = [{path: '/', updatedAt: catalogUpdated}, {path: '/about/', updatedAt: reviewedAt}, {path: '/benchmark/', updatedAt: reviewedAt}, {path: '/benchmark/2026-10/', updatedAt: '2026-10-08'}, {path: '/benchmark/gta6/', updatedAt: '2026-10-18'}];
 const urls = [...fixed, ...outputs.map((o) => o.page)];
 fs.writeFileSync(path.join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${absolute(u.path)}</loc><lastmod>${u.updatedAt}</lastmod></url>`).join('\n')}\n</urlset>\n`);
-fs.writeFileSync(path.join(dist, 'llms.txt'), `# cliphou.se\n\n> You ship it. Cliphouse shows it off. Your coding agent turns every release into a video for your socials. It finds the selling points, picks the angle, writes the copy, and uses your brand colors and logo. ${promise}\n\n## Key pages\n\n- [Gallery](${site}/): Browse and filter templates.\n- [Motion graphics templates](${site}/motion-graphics-templates/): Crawlable catalog.\n- [Remotion templates](${site}/remotion-templates/): Remotion showcase and render handoff.\n- [HyperFrames templates](${site}/hyperframes-templates/): HyperFrames showcase and native HTML project downloads.\n- [Template license](${site}/license/): ${notice}\n- [MCP docs](${site}/mcp-docs/): Install the skill or MCP server and see the agent workflow.\n\n## Agent specs\n\nEach template has a no-JavaScript JSON spec with current props, text limits, color roles, scenes, JSON Schema, a handoff URL, and a pinned source package. Each published share has the same spec at /s/<share-id>/agent.json.\n\nText and color edits: return ${site}/#/v/<variant-id>?props=<url-encoded props JSON>. cliphou.se validates the props before it opens them.\n\nCode edits: download source.package from the spec and follow source.renderCommand. Remotion packages use props.json. HyperFrames packages use variables.json.\n\n${mcpSection}${visible.map((v) => `- [${v.title} agent spec](${absolute(`${v.path}agent.json`)})`).join('\n')}\n\n## Templates\n\n${visible.map((v) => `- [${v.title}](${absolute(v.path)}): ${v.seoDescription}`).join('\n')}\n\n## Product facts\n\n- Browsing and editing are free.\n- ${accountFact}\n- Each template is locked to Remotion or HyperFrames. The editor and agent handoff use the same text and color contract for both.\n- Templates use shared text roles and five theme colors.\n- ${exportFact}\n- Every template version has a downloadable source package with exact dependencies, so old versions stay renderable.\n- Remotion and HyperFrames dependencies keep their own license terms.\n`);
+fs.writeFileSync(path.join(dist, 'llms.txt'), `# cliphou.se\n\n> You ship it. Cliphouse shows it off. Your coding agent turns every release into a video for your socials. It finds the selling points, picks the angle, writes the copy, and uses your brand colors and logo. ${promise}\n\n## Key pages\n\n- [Gallery](${site}/): Browse and filter templates.\n- [Motion graphics templates](${site}/motion-graphics-templates/): Crawlable catalog.\n- [Remotion templates](${site}/remotion-templates/): Remotion showcase and render handoff.\n- [HyperFrames templates](${site}/hyperframes-templates/): HyperFrames showcase and native HTML project downloads.\n- [Remotion vs HyperFrames](${site}/remotion-vs-hyperframes/): Side-by-side comparison of Remotion and HyperFrames for code-driven video.\n- [Remotion YouTube intro templates](${site}/remotion-youtube-intros/): Widescreen openers, lower thirds, and end screens.\n- [Remotion SaaS launch templates](${site}/remotion-saas-launch/): Product launch, demo, and 3-step explainer templates.\n- [Remotion e-commerce ad templates](${site}/remotion-ecommerce-ads/): Flash sales, discounts, and 9:16 promo reels.\n- [Motion Graphics Benchmark](${site}/benchmark/): Actual AI motion graphics runs, videos, reliability, and API costs.\n- [Best AI models for Remotion motion graphics](${site}/guides/best-ai-model-for-remotion-motion-graphics/): Data-backed summary of 84 Remotion runs across 14 models.\n- [Template license](${site}/license/): ${notice}\n- [MCP docs](${site}/mcp-docs/): Install the skill or MCP server and see the agent workflow.\n\n## Agent specs\n\nEach template has a no-JavaScript JSON spec with current props, text limits, color roles, scenes, JSON Schema, a handoff URL, and a pinned source package. Each published share has the same spec at /s/<share-id>/agent.json.\n\nText and color edits: return ${site}/#/v/<variant-id>?props=<url-encoded props JSON>. cliphou.se validates the props before it opens them.\n\nCode edits: download source.package from the spec and follow source.renderCommand. Remotion packages use props.json. HyperFrames packages use variables.json.\n\n${mcpSection}${visible.map((v) => `- [${v.title} agent spec](${absolute(`${v.path}agent.json`)})`).join('\n')}\n\n## Templates\n\n${visible.map((v) => `- [${v.title}](${absolute(v.path)}): ${v.seoDescription}`).join('\n')}\n\n## Product facts\n\n- Browsing and editing are free.\n- ${accountFact}\n- Each template is locked to Remotion or HyperFrames. The editor and agent handoff use the same text and color contract for both.\n- Templates use shared text roles and five theme colors.\n- ${exportFact}\n- Every template version has a downloadable source package with exact dependencies, so old versions stay renderable.\n- Remotion and HyperFrames dependencies keep their own license terms.\n`);
 // Generation credits must name the model, never the coding agent that ran it. Marketing copy may name
 // the agents users install the skill in, so only the published generation metadata is checked here.
 const bannedAgentName = new RegExp(String.fromCharCode(67, 111, 100, 101, 120), 'i');

@@ -31,7 +31,7 @@ export function LogoControls({logo, onChange, disabled = false, source, brandNam
       const result = await uploadLogo(file);
       setOpaque(!result.transparent);
       onChange({id: result.id, ratio: result.ratio, mono: result.transparent});
-      track('logo_upload', {source, kind: file.type === 'image/svg+xml' ? 'svg' : 'raster'});
+      track('logo_upload', {logo_surface: source, kind: file.type === 'image/svg+xml' ? 'svg' : 'raster'});
     } catch (e) { setError((e as Error).message); }
     finally { setBusy(false); if (input.current) input.current.value = ''; }
   };
@@ -50,7 +50,7 @@ export function LogoControls({logo, onChange, disabled = false, source, brandNam
           {busy ? <LoaderCircle className="spin" size={16} /> : <ImageUp size={16} />}<span>{logo ? 'Replace' : 'Upload logo'}</span>
         </button>
         {logo && <button type="button" className="icon-btn" title="Remove logo" aria-label="Remove logo" disabled={disabled || busy}
-          onClick={() => { onChange(null); track('logo_remove', {source}); }}><Trash2 size={16} /></button>}
+          onClick={() => { onChange(null); track('logo_remove', {logo_surface: source}); }}><Trash2 size={16} /></button>}
       </div>
       {logo && <div className="segmented logo-mode" role="radiogroup" aria-label="Logo color">
         <button type="button" role="radio" aria-checked={logo.mono} className={logo.mono ? 'on' : ''} disabled={disabled || opaque}

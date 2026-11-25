@@ -1,8 +1,8 @@
-import {ArrowLeft, Bot, Image as ImageIcon, Check, Copy, Download, Eye, EyeOff, FileCode, LoaderCircle, Maximize, Minimize, Music, Palette, Pause, Play, Redo2, RefreshCw, RotateCcw, Save, Share2, Undo2, Volume2, VolumeX, X} from 'lucide-react';
+import {ArrowLeft, Bot, Image as ImageIcon, Check, Copy, Download, Eye, EyeOff, FileCode, LoaderCircle, Maximize, Minimize, Music, Palette, Pause, Play, Redo2, RefreshCw, RotateCcw, Save, Share2, Type, Undo2, Volume2, VolumeX, X} from 'lucide-react';
 import {useCallback, useEffect, useMemo, useRef, useState, type CSSProperties} from 'react';
 import type {Variant} from '../catalog/catalog';
 import {generationLabel} from '../catalog/generation';
-import {ROLES, type Role, type VideoProps} from '../videos/contract';
+import {ROLES, roleError, type Role, type VideoProps} from '../videos/contract';
 import {mediaOf, mediaSlots, slotOptions} from '../videos/media/catalog';
 import {hideableRoles, isMusicSchema, scoreOf} from '../videos/music/schema';
 import {compositionFor} from '../videos/registry';
@@ -48,7 +48,7 @@ function useMediaQuery(query: string) {
 }
 
 const storageKey = (id: string) => `voodoo:v2:${id}`;
-const PANEL_TITLES = {music: 'Music', theme: 'Theme', logo: 'Logo'} as const;
+const PANEL_TITLES = {text: 'Edit text', music: 'Music', theme: 'Theme', logo: 'Logo'} as const;
 type LockableOrientation = ScreenOrientation & {lock?: (orientation: 'landscape') => Promise<void>};
 const unlockOrientation = () => {
   try { screen.orientation?.unlock?.(); } catch { /* Some browsers expose unsupported orientation methods. */ }
@@ -112,14 +112,33 @@ export function Editor({variant, sharedProps, shareId, draftId, published, openS
   const [notice, setNotice] = useState(() => versionError || (incoming && !incoming.ok ? `Agent link rejected. ${incoming.error} The video was not changed.` : ''));
   // One side panel at a time slides in from the right over the stage: music or theme.
   const compact = useMediaQuery(COMPACT_QUERY);
-  const [panel, setPanel] = useState<'music' | 'theme' | 'logo' | null>(null);
+  const [panel, setPanel] = useState<'text' | 'music' | 'theme' | 'logo' | null>(null);
   const [shareMenu, setShareMenu] = useState(false);
   const shareMenuRef = useRef<HTMLDivElement>(null);
   const openShareDialog = useRef<(() => void) | null>(null);
-  const togglePanel = (next: 'music' | 'theme' | 'logo') => {
+  const togglePanel = (next: 'text' | 'music' | 'theme' | 'logo') => {
     setShareMenu(false);
     setPanel((p) => p === next ? null : next);
     track('panel_open', {variant_id: variant.id, panel: next});
+  };
+  const textRoles = useMemo(() => Object.keys(variant.props.texts) as Role[], [variant.props.texts]);
+  const [draftTexts, setDraftTexts] = useState<Partial<Record<Role, string>>>({});
+  const textEditTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(textEditTimer.current), []);
+  useEffect(() => { setDraftTexts({}); }, [variant.id, props.texts]);
+  const seekToRole = (role: Role) => {
+    const scene = c.scenes.find((s) => s.roles.includes(role));
+    if (!scene) return;
+    player.current?.pause();
+    player.current?.seekTo(scene.from + scene.focus);
+  };
+  const changeRoleDraft = (role: Role, value: string) => {
+    setDraftTexts((d) => ({...d, [role]: value}));
+    if (!roleError(role, value)) {
+      h.set({...props, texts: {...props.texts, [role]: value}});
+      window.clearTimeout(textEditTimer.current);
+      textEditTimer.current = window.setTimeout(() => track('text_edit', {variant_id: variant.id, text_role: role}), 600);
+    }
   };
   useEffect(() => {
     if (!shareMenu) return;
@@ -410,6 +429,8 @@ For text and color edits, return a link in the spec's handoff format. For code e
           {!poc && <StarButton id={variant.id} title={variant.title} overlay />}
           <button className="overlay-btn mobile-expand" title={expanded ? 'Exit fullscreen' : 'Fullscreen'} aria-label={expanded ? 'Exit fullscreen' : 'Fullscreen'}
             disabled={!!editing} onClick={toggleExpanded}>{expanded ? <Minimize size={20} /> : <Maximize size={20} />}</button>
+          <button className={`overlay-btn ${panel === 'text' ? 'on' : ''}`} title="Edit text" aria-label="Edit text" aria-pressed={panel === 'text'} aria-controls="editor-panel"
+            disabled={!!editing} onClick={() => togglePanel('text')}><Type size={20} /></button>
           <button className={`overlay-btn ${panel === 'theme' ? 'on' : ''}`} title="Theme" aria-label="Theme" aria-pressed={panel === 'theme'} aria-controls="editor-panel"
             disabled={!!editing} onClick={() => togglePanel('theme')}><Palette size={20} /></button>
           {logoSlot && <button className={`overlay-btn ${panel === 'logo' ? 'on' : ''}`} title="Logo" aria-label="Logo" aria-pressed={panel === 'logo'} aria-controls="editor-panel"
@@ -484,8 +505,56 @@ For text and color edits, return a link in the spec's handoff format. For code e
                 track('color_edit', {variant_id: variant.id, color_role: change.kind === 'palette' ? 'palette' : change.role});
               }} />
           </div>}
+          {panel === 'text' && <div className="panel-body text-panel-body">
+            {textRoles.map((role) => {
+              const def = ROLES[role];
+              const value = draftTexts[role] ?? props.texts[role] ?? '';
+              const err = roleError(role, value);
+              const multiline = def.max > 60;
+              const fieldId = `panel-role-${role}`;
+              return <div className="text-field" key={role}>
+                <div className="text-field-head">
+                  <label htmlFor={fieldId}>{def.label}</label>
+                  <span className={`text-field-count ${err ? 'error' : ''}`}>{value.length}/{def.max}</span>
+                </div>
+                {multiline ? (
+                  <textarea id={fieldId} rows={role === 'list' ? 4 : 3} value={value} disabled={!!editing}
+                    aria-invalid={!!err} aria-label={`${def.label} field`}
+                    onFocus={() => seekToRole(role)}
+                    onChange={(e) => changeRoleDraft(role, e.target.value)} />
+                ) : (
+                  <input id={fieldId} type="text" value={value} disabled={!!editing}
+                    aria-invalid={!!err} aria-label={`${def.label} field`}
+                    onFocus={() => seekToRole(role)}
+                    onChange={(e) => changeRoleDraft(role, e.target.value)} />
+                )}
+                {err && <span className="text-field-error" role="alert">{err}</span>}
+              </div>;
+            })}
+          </div>}
         </aside>}
       </div>
+      {!poc && <section className="editor-action-bar" aria-label="Quick actions">
+        <div className="editor-action-group">
+          <button type="button" className={`editor-cta secondary ${panel === 'text' ? 'on' : ''}`} disabled={!!editing}
+            onClick={() => togglePanel('text')}><Type size={16} /><span>Edit text</span></button>
+          <button type="button" className={`editor-cta secondary ${panel === 'theme' ? 'on' : ''}`} disabled={!!editing}
+            onClick={() => togglePanel('theme')}><Palette size={16} /><span>Colors</span></button>
+          {music && <button type="button" className={`editor-cta secondary ${panel === 'music' ? 'on' : ''}`} disabled={!!editing}
+            onClick={() => togglePanel('music')}><Music size={16} /><span>Music</span></button>}
+        </div>
+        <div className="editor-action-group">
+          <a className="editor-cta secondary" download href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${sourcePath(variant.template, version)}`}
+            onClick={() => track('source_download', {variant_id: variant.id})}><FileCode size={16} /><span>MIT-0 code</span></a>
+          <button type="button" className="editor-cta secondary" disabled={!!editing || saving}
+            onClick={() => openShareDialog.current?.()}><Share2 size={16} /><span>Share</span></button>
+          {sharingConfigured && <button type="button" className="editor-cta primary" disabled={!!editing || exporting}
+            onClick={() => void downloadMp4()}>
+            {exporting ? <LoaderCircle className="spin" size={16} /> : <Download size={16} />}
+            <span>{exporting ? 'Rendering MP4...' : 'Export MP4'}</span>
+          </button>}
+        </div>
+      </section>}
       {slots.length > 0 && media && <section className="editor-theme editor-photos" aria-labelledby="images-heading">
         <div className="theme-heading"><h2 id="images-heading">Images</h2></div>
         <ImagePicker template={variant.template} slots={slots.map((s) => ({slot: s, options: slotOptions(c.schema, s)}))} media={media} disabled={!!editing}
@@ -501,7 +570,7 @@ For text and color edits, return a link in the spec's handoff format. For code e
           <div><h3>Creative brief</h3><button className="link-btn" onClick={copyBrief} aria-label={briefCopied ? 'Creative brief copied' : 'Copy creative brief'}>{briefCopied ? <Check size={14} /> : <Copy size={14} />}{briefCopied ? 'Copied' : 'Copy'}</button></div>
           <p>{variant.tmpl.prompt}</p>
         </div>
-        <p className="small muted">Free to copy, modify, share, and use commercially. No attribution required. Template v{version}. Updated {variant.updatedAt}. Created by {variant.creator}. {sharingConfigured ? 'Free full-resolution MP4 export.' : 'Hosted MP4 export is not available yet.'}</p>
+        <p className="small muted">Free to copy, modify, share, and use commercially. No attribution required. Template v{version}. Updated {variant.updatedAt}. Created by {variant.creator}.{sharingConfigured ? ' Free full-resolution MP4 export.' : ''}</p>
         {shareId && <p className="small muted">Made with <a href={import.meta.env.BASE_URL}>cliphou.se</a>.</p>}
         <div className="tags">
           {[...new Set([variant.purpose, ...variant.placement, ...variant.style, variant.tone,
@@ -511,7 +580,19 @@ For text and color edits, return a link in the spec's handoff format. For code e
       </section>
       {incoming?.ok && !agentBannerClosed && !(compact && panel) && <div className="agent-banner" role="note"><Bot size={16} /><span>Made with your coding agent.</span>
         <button className="overlay-btn" title="Dismiss" aria-label="Dismiss" onClick={() => setAgentBannerClosed(true)}><X size={14} /></button></div>}
-      {notice && <div className="editor-notice" role="status">{notice}<button className="link-btn" onClick={() => setNotice('')}>Dismiss</button></div>}
+      {notice && <div className="editor-notice" role="status">
+        <span>{notice}</span>
+        <div className="editor-notice-actions">
+          {!poc && exportedKey && exportedKey === JSON.stringify(props) && (
+            <button type="button" className="editor-cta primary compact" onClick={() => {
+              setNotice('');
+              track('post_export_share', {variant_id: variant.id});
+              openShareDialog.current?.();
+            }}><Share2 size={15} /><span>Share remix link</span></button>
+          )}
+          <button className="link-btn" onClick={() => setNotice('')}>Dismiss</button>
+        </div>
+      </div>}
     </main>
   );
 }
