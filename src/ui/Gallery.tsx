@@ -116,8 +116,8 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
   );
 
   const active = Boolean(q || f.template || f.purpose || f.formats.length || f.styles.length || f.tones.length || f.energy || f.scenes.length);
-  // The badge counts only the filters hidden in the panel; purpose and format stay visible in the toolbar.
-  const panelCount = (f.energy ? 1 : 0) + f.styles.length + f.tones.length + f.scenes.length;
+  // The badge counts only the filters hidden in the panel; purpose stays visible in the toolbar.
+  const panelCount = (f.energy ? 1 : 0) + f.formats.length + f.styles.length + f.tones.length + f.scenes.length;
   const clear = () => {
     setQ('');
     setF({template: null, purpose: null, formats: [], styles: [], tones: [], energy: null, scenes: []});
@@ -212,16 +212,12 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
               </button>
             </div>
           )}
-          <div className="chips format-chips" role="group" aria-label="Format">
-            {FORMATS.map((x) => chip(f.formats.includes(x), x, count('formats', (v) => v.format === x), () => toggle('formats', x)))}
-          </div>
           <button className={`filters-toggle ${filtersOpen || panelCount ? 'on' : ''}`} aria-expanded={filtersOpen} aria-controls="gallery-filters" onClick={() => setFiltersOpen((o) => !o)}>
             <SlidersHorizontal size={15} aria-hidden="true" />
             Filters
             {panelCount > 0 && <span className="badge-count">{panelCount}</span>}
           </button>
           <div className="results-count">
-            {results.length} {results.length === 1 ? 'video' : 'videos'}
             {activeTemplate && (
               <button className="chip on template-chip" onClick={clearTemplate} title="Remove template filter">
                 Template: {activeTemplate.title}
@@ -237,6 +233,12 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
         </div>
 
         <div id="gallery-filters" className={`filters ${filtersOpen ? 'open' : ''}`} hidden={!filtersOpen}>
+          <section>
+            <h3>Format</h3>
+            <div className="chips" role="group" aria-label="Format">
+              {FORMATS.map((x) => chip(f.formats.includes(x), x, count('formats', (v) => v.format === x), () => toggle('formats', x)))}
+            </div>
+          </section>
           <section>
             <h3>Style</h3>
             <div className="chips">{vocab.style.map((s) => chip(f.styles.includes(s), s, count('styles', (v) => v.style.includes(s)), () => toggle('styles', s)))}</div>

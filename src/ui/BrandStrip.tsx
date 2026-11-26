@@ -186,8 +186,8 @@ export function BrandStrip({templateCount = 146}: {templateCount?: number}) {
       <section ref={rootRef} className={`brand-strip brand-hero ${editing ? 'is-editing' : ''}`} aria-label="Personalize templates">
         <div className="brand-hero-inner">
           {!editing && <>
-            <h1 className="brand-hero-title">Motion videos, ready to remix</h1>
-            <p className="brand-hero-sub">Pick a template below, or paste your site to see the best picks in your brand.</p>
+            <h1 className="brand-hero-title">Show every release</h1>
+            <p className="brand-hero-sub">Turn launches, changelogs, and product updates into videos in your brand. Pick a template or paste your site.</p>
           </>}
           <form className="brand-cmd" onSubmit={onSubmit} role="search" aria-label="Preview templates with your brand">
             {editing && <label htmlFor="brand-input" className="brand-cmd-label">Change brand</label>}
