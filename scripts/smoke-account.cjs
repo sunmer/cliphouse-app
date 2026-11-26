@@ -13,16 +13,15 @@ const base = process.env.URL || 'http://127.0.0.1:5180/voodoo/';
       page.on('pageerror', (e) => errors.push(e.message));
       await page.goto(base);
       await page.locator('.card').first().waitFor();
-      assert.equal(await page.locator('.logo').innerText(), 'cliphou.se');
+      assert.match(await page.locator('.logo').innerText(), /^cliphou\.se/);
       assert.equal(await page.locator('a button').count(), 0, 'no nested interactive star buttons');
       await page.locator('.card-star').first().click();
       await page.getByRole('dialog').waitFor({state: 'visible'});
       assert.equal(new URL(page.url()).hash, '', 'starring does not open editor');
       await page.keyboard.press('Escape');
       await page.getByRole('dialog').waitFor({state: 'hidden'});
-      await page.getByRole('button', {name: /^Starred/}).click();
-      assert.match(await page.locator('.empty').innerText(), /starred videos/);
-      await page.getByRole('button', {name: 'All videos', exact: true}).click();
+      assert.equal(await page.getByRole('button', {name: /^(Starred|All videos|Featured|Newest)/}).count(), 0, 'gallery hides collection and sort controls');
+      assert.equal(await page.locator('.filters-toggle').isVisible(), viewport.width > 680, 'filters hide on mobile');
       assert.equal(await page.locator('.card').count(), manifest.variants.filter((v) => !v.hidden).length);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth);
       assert.equal(overflow, false, 'gallery fits viewport');
@@ -37,6 +36,6 @@ const base = process.env.URL || 'http://127.0.0.1:5180/voodoo/';
       assert.equal(errors.length, 0, errors.join('\n'));
       await context.close();
     }
-    console.log('Branding, star entry points, Starred, dialogs, privacy, and responsive layouts passed.');
+    console.log('Branding, star entry points, simplified toolbar, dialogs, privacy, and responsive layouts passed.');
   } finally { await browser.close(); }
 })().catch((error) => { console.error(error); process.exitCode = 1; });

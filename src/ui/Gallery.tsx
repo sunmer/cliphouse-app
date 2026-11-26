@@ -1,6 +1,6 @@
-import {Check, ChevronDown, Pencil, Search, SlidersHorizontal, Sparkles, Star, X} from 'lucide-react';
+import {Check, ChevronDown, Pencil, Search, SlidersHorizontal, Sparkles, X} from 'lucide-react';
 import {useEffect, useMemo, useRef, useState} from 'react';
-import {galleryVariants, searchText, templates, variants, vocab, type Format, type Tone, type Variant} from '../catalog/catalog';
+import {galleryVariants, searchText, templates, vocab, type Format, type Tone, type Variant} from '../catalog/catalog';
 import {SCENE_TYPES} from '../videos/vocab';
 import {applyKit, kitApplies, useBrandKit} from './brandKit';
 import {compositions} from '../videos/registry';
@@ -8,9 +8,8 @@ import {supportsLogo} from '../videos/logo';
 import {BrandStrip} from './BrandStrip';
 import {Header} from './Header';
 import {Media} from './Media';
-import {StarButton, useAccount} from './Account';
+import {StarButton} from './Account';
 
-type Sort = 'featured' | 'new';
 type Energy = 'Calm' | 'Medium' | 'High';
 type Filters = {
   template: string | null;
@@ -41,9 +40,9 @@ const featuredOrder = (a: Variant, b: Variant) => {
 };
 
 // The gallery remounts on every visit, so its view state lives in this tab's session storage:
-// opening a video and coming back keeps the sort, search, and filters.
+// opening a video and coming back keeps the search and filters.
 const VIEW_KEY = 'cliphouse:gallery-view';
-type View = {sort: Sort; q: string; f: Omit<Filters, 'template'>};
+type View = {q: string; f: Omit<Filters, 'template'>};
 function readView(): Partial<View> {
   try { return JSON.parse(sessionStorage.getItem(VIEW_KEY) ?? '{}') as Partial<View>; } catch { return {}; }
 }
@@ -60,8 +59,6 @@ function matches(v: Variant, f: Filters, skip?: keyof Filters) {
 }
 
 export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
-  const account = useAccount();
-  const [savedOnly, setSavedOnly] = useState(false);
   const kit = useBrandKit();
   const applied = kitApplies(kit);
   const picks = applied && kit.picks?.length ? kit.picks : null;
@@ -70,10 +67,9 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
   const picksKey = picks?.join(',') ?? '';
   useEffect(() => setShowAll(false), [picksKey]);
   const pickRank = useMemo(() => new Map((picks ?? []).map((id, i) => [id, i])), [picksKey]);
-  const picked = !!picks && !showAll && !savedOnly;
+  const picked = !!picks && !showAll;
   const saved = useMemo(readView, []);
   const [q, setQ] = useState(saved.q ?? '');
-  const [sort, setSort] = useState<Sort>(saved.sort === 'new' ? 'new' : 'featured');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
@@ -81,8 +77,8 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
   useEffect(() => {
     const {template: _template, ...rest} = f;
     void _template;
-    try { sessionStorage.setItem(VIEW_KEY, JSON.stringify({sort, q, f: rest} satisfies View)); } catch { /* Storage is unavailable. */ }
-  }, [sort, q, f]);
+    try { sessionStorage.setItem(VIEW_KEY, JSON.stringify({q, f: rest} satisfies View)); } catch { /* Storage is unavailable. */ }
+  }, [q, f]);
   useEffect(() => {
     if (!moreOpen) return;
     const close = (e: Event) => {
@@ -105,19 +101,18 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
 
   const searched = useMemo(() => {
     const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
-    return (savedOnly ? variants : galleryVariants).filter((v) => (!savedOnly || account.saved.has(v.id))
-      && (!picked || pickRank.has(v.id))
+    return galleryVariants.filter((v) => (!picked || pickRank.has(v.id))
       && terms.every((t) => searchText(v).includes(t)));
-  }, [q, savedOnly, account.saved, picked, pickRank]);
+  }, [q, picked, pickRank]);
 
   const inView = (v: Variant, skip?: keyof Filters) => matches(v, f, skip);
   const count = (skip: keyof Filters, pred: (v: Variant) => boolean) => searched.filter((v) => inView(v, skip) && pred(v)).length;
 
   const results = useMemo(
     () => searched.filter((v) => matches(v, f)).sort(
-      picked && sort === 'featured' ? (a, b) => pickRank.get(a.id)! - pickRank.get(b.id)! : sort === 'featured' ? featuredOrder : newestFirst,
+      picked ? (a, b) => pickRank.get(a.id)! - pickRank.get(b.id)! : featuredOrder,
     ),
-    [searched, f, sort, picked, pickRank],
+    [searched, f, picked, pickRank],
   );
 
   const active = Boolean(q || f.template || f.purpose || f.formats.length || f.styles.length || f.tones.length || f.energy || f.scenes.length);
@@ -203,17 +198,10 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
               </div>
             )}
           </div>
-          <div className="segmented sort-tabs" role="group" aria-label="Sort videos">
-            {(['featured', 'new'] as Sort[]).map((s) => (
-              <button key={s} className={sort === s ? 'on' : ''} aria-pressed={sort === s} onClick={() => setSort(s)}>
-                {s === 'featured' ? 'Featured' : 'Newest'}
-              </button>
-            ))}
-          </div>
         </div>
 
         <div className="results-bar">
-          {picks && !savedOnly && (
+          {picks && (
             <div className="segmented picks-tabs" role="group" aria-label="Templates shown">
               <button className={!showAll ? 'on' : ''} aria-pressed={!showAll} onClick={() => setShowAll(false)}>
                 <Sparkles size={14} aria-hidden="true" />Picked for {kit.texts?.brand || 'you'}
@@ -224,10 +212,6 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
               </button>
             </div>
           )}
-          <div className="segmented collection-tabs" role="group" aria-label="Collection">
-            <button className={!savedOnly ? 'on' : ''} aria-pressed={!savedOnly} onClick={() => setSavedOnly(false)}>All videos</button>
-            <button className={savedOnly ? 'on' : ''} aria-pressed={savedOnly} onClick={() => setSavedOnly(true)}><Star size={14} /> Starred {account.user && <span>{account.saved.size}</span>}</button>
-          </div>
           <div className="chips format-chips" role="group" aria-label="Format">
             {FORMATS.map((x) => chip(f.formats.includes(x), x, count('formats', (v) => v.format === x), () => toggle('formats', x)))}
           </div>
@@ -280,18 +264,10 @@ export function Gallery({initialTemplate}: {initialTemplate: string | null}) {
         </div>
 
         <main>
-          {savedOnly && !account.user ? (
-            <div className="empty"><Star size={24} /><span>Your starred videos live here.</span><button className="account-action" onClick={account.openAccount}>Sign in</button></div>
-          ) : savedOnly && !account.savedReady ? (
-            <div className="empty" role="status">{account.savedError || 'Connecting to your starred videos...'}
-              {account.savedError && <button className="link-btn" onClick={account.retry}>Try again</button>}
-            </div>
-          ) : results.length === 0 ? (
+          {results.length === 0 ? (
             <div className="empty">
-              {savedOnly && !active ? 'No starred videos yet.' : 'No videos match.'}
-              <button className="link-btn" onClick={savedOnly && !active ? () => setSavedOnly(false) : clear}>
-                {savedOnly && !active ? 'Browse videos' : 'Clear filters'}
-              </button>
+              No videos match.
+              <button className="link-btn" onClick={clear}>Clear filters</button>
             </div>
           ) : (
             <div className="grid">
